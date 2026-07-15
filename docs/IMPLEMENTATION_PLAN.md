@@ -341,11 +341,13 @@ flowchart LR
 > Архитектура первой версии административной консоли согласована с владельцем проекта и зафиксирована в `task_history/2026-07-15_task-admin-console-final-architecture.md`.
 > Реализация выполняется в пяти этапов. Deployment Validation не входит в эту последовательность и проводится отдельно по решению владельца проекта.
 
-### 11.1. Этап 1: Backend Foundation
+### 11.1. Этап 1: Backend Foundation ✅
+
+**Статус:** Завершён (2026-07-15).
 
 **Цель:** подготовить серверную основу административной консоли внутри единого FastAPI-приложения.
 
-**Ожидаемый результат:**
+**Результат:**
 - Модели данных `ProjectCard`, `KnowledgeSource`, `KnowledgeSyncJob` добавлены в `app/models/entities.py`.
 - Модель `ProjectCard` содержит поля `display_order` (порядок в каталоге портфолио) и `show_on_homepage` (`0` — не отображать на главной, `1..4` — порядок на главной).
 - Alembic-миграции для новых моделей созданы и применены.
@@ -354,40 +356,54 @@ flowchart LR
 - Routers подключены в `app/main.py` с префиксом `/admin`.
 
 **Критерий завершения:**
-- `GET /admin/dashboard` (заглушка) возвращает 200 при валидном токене и 403 без него.
-- Миграции успешно применяются к PostgreSQL.
-- Структура `app/api/admin/` соответствует согласованной архитектуре.
+- [x] `GET /admin/dashboard` (заглушка) возвращает 200 при валидном токене и 403 без него.
+- [x] Миграции успешно применяются к PostgreSQL.
+- [x] Структура `app/api/admin/` соответствует согласованной архитектуре.
 
-### 11.2. Этап 2: Admin Frontend Foundation
+---
+
+### 11.2. Этап 2: Admin Frontend Foundation ✅
+
+**Статус:** Завершён (2026-07-15).
 
 **Цель:** создать отдельный frontend-модуль административной консоли на React + TypeScript + Vite.
 
-**Ожидаемый результат:**
-- Создан каталог `admin/` с Vite-конфигурацией, TypeScript и React.
-- Скопирован и адаптирован каркас из Assistant Flow: Layout, Navigation, ProtectedRoute, LoginPage, базовые компоненты, API client.
-- Реализована маршрутизация на страницы: `/admin/login`, `/admin/dashboard`, `/admin/knowledge-base`, `/admin/logs`.
+**Результат:**
+- Создан каталог `admin/` с Vite-конфигурацией (`vite.config.ts` с `base: '/admin/'`), TypeScript и React.
+- Реализован Layout (`AdminLayout`), Navigation, ProtectedRoute, LoginPage, базовые UI-компоненты (Page, Card, Table, Toolbar, Loading, ErrorState, EmptyState), API client с Bearer-token.
+- Маршрутизация: `/admin/login`, `/admin/dashboard`, `/admin/content`, `/admin/logs`.
 - Проверена локальная сборка `npm run build`.
 
 **Критерий завершения:**
-- `admin/` собирается без ошибок.
-- LoginPage принимает токен и сохраняет его в `localStorage`.
-- ProtectedRoute перенаправляет неавторизованного пользователя на `/admin/login`.
-- Навигация содержит только три пункта: Dashboard, Knowledge Base, Logs.
+- [x] `admin/` собирается без ошибок.
+- [x] LoginPage принимает токен и сохраняет его в `localStorage`.
+- [x] ProtectedRoute перенаправляет неавторизованного пользователя на `/admin/login`.
+- [x] Навигация содержит три пункта: Dashboard, Content, Logs.
 
-### 11.3. Этап 3: Infrastructure Integration
+---
+
+### 11.3. Этап 3: Infrastructure Integration ✅
+
+**Статус:** Завершён (2026-07-15).
 
 **Цель:** интегрировать admin frontend в существующую Docker-инфраструктуру AI Portfolio.
 
-**Ожидаемый результат:**
-- Создан корневой `Dockerfile.frontend` для сборки public + admin frontend в единый nginx-образ.
-- `docker-compose.yml` обновлён: frontend-сервис собирается из корня проекта.
-- `src/nginx.conf` расширен маршрутами `/admin/` (static SPA) и `/api/admin/` (proxy на backend).
+**Результат:**
+- `src/Dockerfile` переработан в multi-stage: Stage 1 собирает `admin/` через Node.js, Stage 2 — nginx-образ с public + admin static files.
+- `docker-compose.yml` обновлён: frontend-сервис собирается из корня проекта (`context: .`, `dockerfile: src/Dockerfile`).
+- `src/nginx.conf` расширен маршрутами `/admin/` (static SPA с fallback на `index.html`) и `/api/admin/` (proxy на backend `/admin/`).
+- `admin/src/main.tsx` получил `basename="/admin"` для корректного роутинга SPA.
 - Backend endpoint `/admin/` доступен через `/api/admin/`.
 
 **Критерий завершения:**
-- `docker compose build` для frontend-сервиса завершается успешно.
-- `curl /admin/` возвращает `admin/index.html`.
-- `curl /api/admin/dashboard` проксируется на backend `/admin/dashboard`.
+- [x] `docker compose build ai-portfolio-frontend` завершается успешно.
+- [x] `curl /admin/` возвращает `admin/index.html`.
+- [x] `curl /admin/dashboard` (refresh) возвращает `admin/index.html` (SPA fallback).
+- [x] `curl /api/admin/dashboard` с токеном проксируется на backend `/admin/dashboard`.
+- [x] `curl /api/admin/dashboard` без токена возвращает 403.
+- [x] Публичные маршруты (`/`, `/chat`, `/health`, `/project-cards`) сохранены и работают.
+
+---
 
 ### 11.4. Этап 4: Реализация трёх рабочих пространств
 
@@ -414,6 +430,23 @@ flowchart LR
 - Все три рабочих пространства доступны в UI и отвечают на действия пользователя.
 - Синхронизация Knowledge Base перестраивает ChromaDB.
 - Фильтры и пагинация работают в Logs / Conversations.
+
+### 11.4.1. Архитектура рабочих пространств
+
+**Dashboard:**
+- endpoint `/admin/dashboard` отдаёт сводные метрики.
+- страница `DashboardPage.tsx` отображает метрики через `Card` / `Page`.
+
+**Content / Knowledge Base:**
+- CRUD управляемых карточек проектов (`ProjectCard`) — backend + frontend.
+- CRUD источников Knowledge Base (`KnowledgeSource`) — backend + frontend.
+- ручная синхронизация GitHub → ChromaDB через `POST /admin/knowledge-base/sync`.
+- панель статуса ChromaDB.
+
+**Logs / Conversations:**
+- endpoint `/admin/logs` с фильтрацией operational logs.
+- endpoint `/admin/conversations` со списком сессий и деталями.
+- страница `LogsPage.tsx` отображает логи и предоставляет переход к conversations (возможно, отдельная страница/вкладка).
 
 ### 11.5. Этап 5: Интеграция и тестирование
 
@@ -543,4 +576,4 @@ Deployment Validation выполняется **отдельно и только 
 | 2026-07-14 | 1.5 | Добавлен Этап 6: Административная консоль |
 | 2026-07-15 | 1.6 | Актуализировано состояние: Этапы 3.3, 4 завершены. Уточнено, что административная консоль — следующий этап развития. Репозиторий инициализирован. |
 | 2026-07-15 | 1.7 | В Этапе 6 зафиксирована продуктовая концепция первой версии административной консоли: 3 рабочих пространства, архитектура Knowledge Base, роль Narrative Blueprint / Presentation Patterns. Техническая реализация оставлена для этапа проектирования. |
-| 2026-07-15 | 1.8 | Добавлен раздел 11 «Технический план реализации административной консоли» с этапами 1–5: Backend Foundation, Admin Frontend Foundation, Infrastructure Integration, Реализация трёх рабочих пространств, Интеграция и тестирование. Deployment Validation вынесен за рамки последовательности реализации. |
+| 2026-07-15 | 1.9 | Этапы 11.1–11.3 отмечены как завершённые. Добавлены критерии завершения Stage 3 и детали фактически внедрённой инфраструктуры. |

@@ -270,21 +270,30 @@ admin/
 
 Единый nginx-контейнер, собирающий public frontend и admin frontend вместе.
 
-### 4.2. Изменения
+### 4.2. Фактически внедрённое решение
 
-1. Создать корневой `Dockerfile.frontend`:
-   - Stage 1: собрать `admin/` через Node.
-   - Stage 2: nginx-образ, копирующий:
-     - `./src` → `/usr/share/nginx/html/`
-     - admin build → `/usr/share/nginx/html/admin/`
-     - `src/nginx.conf` → `/etc/nginx/conf.d/default.conf`.
-2. Обновить `docker-compose.yml`:
-   - `ai-portfolio-frontend` собирается из корня проекта (`context: .`, `dockerfile: Dockerfile.frontend`).
-3. Обновить `src/nginx.conf`:
-   - `location /admin/` — static SPA с fallback на `index.html`.
-   - `location /api/admin/` — proxy_pass на `http://ai-portfolio-backend:8000/admin/`.
+Единый frontend-контейнер собирается из `src/Dockerfile` с build context в корне проекта.
 
-### 4.3. Отклонённая альтернатива
+| Файл | Изменение |
+|------|-----------|
+| `src/Dockerfile` | Multi-stage Dockerfile: Stage 1 собирает `admin/` через Node.js, Stage 2 копирует admin build в `/usr/share/nginx/html/admin/` и public static files в `/usr/share/nginx/html/` |
+| `docker-compose.yml` | `ai-portfolio-frontend` собирается из корня проекта: `context: .`, `dockerfile: src/Dockerfile` |
+| `src/nginx.conf` | Добавлены `location /admin/` (static SPA с fallback на `index.html`) и `location /api/admin/` (proxy_pass на `http://ai-portfolio-backend:8000/admin/`) |
+| `admin/src/main.tsx` | `BrowserRouter` получил `basename="/admin"` для корректного роутинга SPA по маршруту `/admin/` |
+
+### 4.3. Подтверждённая работоспособность
+
+| Проверка | Результат |
+|----------|-----------|
+| `docker compose build ai-portfolio-frontend` | ✅ Успешно |
+| `GET /admin/` через nginx | ✅ Возвращает admin `index.html` |
+| `GET /admin/dashboard` (обновление страницы) | ✅ Fallback на `index.html`, SPA маршрутизация работает |
+| `GET /admin/assets/...` | ✅ Статика отдаётся |
+| `GET /api/admin/dashboard` с токеном | ✅ Проксируется на backend `/admin/dashboard` |
+| `GET /api/admin/dashboard` без токена | ✅ 403 |
+| Публичные маршруты (`/`, `/chat`, `/health`, `/project-cards`) | ✅ Сохранены |
+
+### 4.4. Отклонённая альтернатива
 
 Отдельный Docker-сервис для admin frontend.
 
