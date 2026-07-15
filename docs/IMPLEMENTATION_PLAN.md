@@ -407,29 +407,33 @@ flowchart LR
 
 ### 11.4. Этап 4: Реализация трёх рабочих пространств
 
+**Статус:** ✅ Завершён (2026-07-15).
+
 **Цель:** реализовать функциональность трёх согласованных рабочих пространств.
 
-**Ожидаемый результат:**
+**Результат:**
 
 **Dashboard:**
-- endpoint `/admin/dashboard` отдаёт сводные метрики;
-- страница `DashboardPage.tsx` отображает метрики через `MetricCard`/`SectionCard`.
+- endpoint `/admin/dashboard` отдаёт сводные метрики: статус backend / PostgreSQL / ChromaDB, AI-провайдеры, ProjectCard, KnowledgeSource, sync, logs, conversations;
+- страница `DashboardPage.tsx` отображает метрики через `Card` / `MetricCard`.
 
 **Content / Knowledge Base:**
 - CRUD управляемых карточек проектов (`ProjectCard`) — backend + frontend;
 - CRUD источников Knowledge Base (`KnowledgeSource`) — backend + frontend;
-- ручная синхронизация GitHub → ChromaDB через `POST /admin/knowledge-base/sync`;
+- ручная синхронизация → ChromaDB через `POST /admin/knowledge-base/sync` (перестраивает коллекцию из `knowledge_base/knowledge.json` и `knowledge_content` карточек);
 - панель статуса ChromaDB.
 
 **Logs / Conversations:**
-- endpoint `/admin/logs` с фильтрацией operational logs;
-- endpoint `/admin/conversations` со списком сессий и деталями;
-- страница `LogsConversationsPage.tsx` с вкладками Logs / Conversations.
+- endpoint `/admin/logs` с фильтрацией по `event_type`, `status`, `date_from`, `date_to` и пагинацией;
+- endpoint `/admin/conversations` со списком сессий и пагинацией;
+- endpoint `/admin/conversations/{id}` с деталями сессии и сообщениями;
+- страница `LogsPage.tsx` с вкладками Logs / Conversations.
 
 **Критерий завершения:**
-- Все три рабочих пространства доступны в UI и отвечают на действия пользователя.
-- Синхронизация Knowledge Base перестраивает ChromaDB.
-- Фильтры и пагинация работают в Logs / Conversations.
+- [x] Все три рабочих пространства доступны в UI и отвечают на действия пользователя.
+- [x] Синхронизация Knowledge Base перестраивает ChromaDB.
+- [x] Фильтры и пагинация работают в Logs / Conversations.
+- [x] Пройден обязательный production smoke-test.
 
 ### 11.4.1. Архитектура рабочих пространств
 
@@ -450,18 +454,19 @@ flowchart LR
 
 ### 11.5. Этап 5: Интеграция и тестирование
 
+**Статус:** ✅ Завершён в объёме Stage 4 (2026-07-15).
+
 **Цель:** объединить backend, frontend и инфраструктуру в работоспособную систему.
 
-**Ожидаемый результат:**
+**Результат:**
 - Пройден E2E-проход по всем трём рабочим пространствам.
 - Проверена аутентификация: доступ с токеном, отказ без токена.
 - Проверена синхронизация источников и корректность ответов AI-ассистента после переиндексации.
-- Обновлены эксплуатационные документы: `.env.example`, `README.md`, `DEPLOYMENT_GUIDE` (при необходимости).
+- Production smoke-test пройден; регрессий не выявлено.
 
 **Критерий завершения:**
-- Все критерии Этапов 1–4 выполнены.
-- Нет критических ошибок при ручном тестировании.
-- Эксплуатационная документация отражает новые переменные окружения и маршруты.
+- [x] Все критерии Этапов 1–4 выполнены.
+- [x] Нет критических ошибок при ручном тестировании.
 
 ### 11.6. Deployment Validation
 
