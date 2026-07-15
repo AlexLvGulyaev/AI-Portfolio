@@ -1,729 +1,376 @@
-# Административная консоль AI Portfolio — Архитектурное решение
+# Административная консоль AI Portfolio — Техническая архитектура v1
 
-**Дата:** 2026-07-14
-**Статус:** Проект
+**Проект:** ai-portfolio
+**Дата:** 2026-07-15
+**Статус:** Согласовано
+**Версия:** 1.0
 
 ---
 
 ## 1. Контекст
 
-### 1.1. Фактическое состояние
+### 1.1. Исходные документы (SOT)
 
-**Public Frontend AI Portfolio:**
-- Технологии: vanilla HTML + CSS + JavaScript
-- Расположение: `src/`
-- Сервер: nginx (Docker)
-- Маршрут: `/`
+| Документ | Назначение |
+|----------|------------|
+| `docs/PROJECT_STATE.md` | Решения владельца продукта, включая границы первой версии административной консоли и архитектуру Knowledge Base |
+| `docs/SPEC.md` | Продуктовая спецификация, разделы об административной консоли |
+| `docs/IMPLEMENTATION_PLAN.md` | Последовательность реализации административной консоли (раздел 11) |
 
-**Backend AI Portfolio:**
-- Технологии: FastAPI + PostgreSQL + ChromaDB
-- Расположение: `backend/`
-- Endpoints: `/chat`, `/health`, `/`
+### 1.2. Фактическое состояние системы
 
-**Инфраструктура:**
-- Docker Compose: 3 сервиса (postgres, frontend, backend)
-- nginx: проксирует `/chat`, `/health`, `/api` на backend
-- Домен: `ai.alex-n8n.site`
+| Компонент | Технологии | Расположение |
+|-----------|-----------|--------------|
+| Public frontend | Vanilla HTML + CSS + JavaScript | `src/` |
+| Backend | FastAPI + PostgreSQL + ChromaDB | `backend/` |
+| Reverse proxy / static server | nginx в Docker | `src/nginx.conf`, `src/Dockerfile` |
+| Orchestration | Docker Compose v2 | `docker-compose.yml` |
 
-### 1.2. Принципы решения
+### 1.3. Принципы архитектуры первой версии
 
-1. **Public frontend остаётся без изменений** — vanilla HTML/CSS/JS
-2. **Admin frontend — отдельный React-модуль** — внутри проекта, не отдельный продукт
-3. **Backend остаётся единым** — расширяется admin endpoints
-4. **Маршрут admin — `/admin/`** — обслуживается nginx
-5. **Переиспользование из AF/RF** — только нужные компоненты и решения
-6. **Визуальное оформление — дизайн-система AI Portfolio** — не копировать стили AF/RF
-
----
-
-## 2. Структура admin frontend-модуля
-
-### 2.1. Каталог
-
-```
-ai-portfolio/
-├── admin/                          # Новый frontend-модуль
-│   ├── package.json               # Зависимости React + Vite
-│   ├── vite.config.ts             # Конфигурация сборки
-│   ├── tsconfig.json              # TypeScript конфигурация
-│   ├── index.html                 # Entry point для admin
-│   ├── Dockerfile                 # Сборка admin frontend
-│   └── src/
-│       ├── main.tsx               # React entry point
-│       ├── App.tsx                # Root component + routing
-│       ├── api/
-│       │   └── client.ts          # API client для backend
-│       ├── auth/
-│       │   └── api.ts             # Auth utilities
-│       ├── components/            # Reusable UI components
-│       │   ├── Layout.tsx         # Admin layout
-│       │   ├── Navigation.tsx     # Side navigation
-│       │   ├── ProtectedRoute.tsx # Auth guard
-│       │   ├── StatusBadge.tsx    # Status badges
-│       │   ├── MetricCard.tsx     # Dashboard cards
-│       │   ├── EmptyState.tsx     # Empty state placeholder
-│       │   ├── LoadingState.tsx   # Loading spinner
-│       │   └── ...
-│       ├── pages/
-│       │   ├── DashboardPage.tsx  # Dashboard (Overview)
-│       │   ├── LogsPage.tsx       # Logs (Operational)
-│       │   ├── ConversationsPage.tsx # Conversations (Operational)
-│       │   ├── KnowledgeBasePage.tsx # Knowledge Base (Operational)
-│       │   ├── ProvidersPage.tsx  # Providers (Configuration)
-│       │   ├── ModelsPage.tsx     # Models (Configuration)
-│       │   ├── CachePage.tsx      # Cache (Utility)
-│       │   ├── HealthPage.tsx     # Health (Monitoring)
-│       │   └── AnalyticsPage.tsx  # Analytics (Dashboard)
-│       ├── styles/
-│       │   └── globals.css        # AI Portfolio design system
-│       └── utils/
-│           └── helpers.ts         # Utility functions
-├── src/                           # Public frontend (без изменений)
-├── backend/                       # Backend (расширяется)
-└── docker-compose.yml             # Docker (расширяется)
-```
-
-### 2.2. Технологический стек admin
-
-| Компонент | Технология | Источник |
-|-----------|-----------|----------|
-| **Framework** | React 18.3 | AF admin-ui |
-| **Language** | TypeScript 5.6 | AF admin-ui |
-| **Build tool** | Vite 5.4 | AF admin-ui |
-| **Router** | react-router-dom 6.28 | AF admin-ui |
-| **Styling** | CSS (AI Portfolio design) | Новый |
-
-**Примечание:** Review Flow использует React 19 + JavaScript, Assistant Flow — React 18 + TypeScript. TypeScript предпочтительнее для типобезопасности.
+| # | Принцип | Обоснование |
+|---|---------|-------------|
+| 1 | **Только три рабочих пространства** | Утверждено владельцем: Dashboard, Content / Knowledge Base, Logs / Conversations |
+| 2 | **Public frontend остаётся без изменений** | Утверждено владельцем: vanilla HTML/CSS/JS |
+| 3 | **Backend остаётся единым FastAPI** | Утверждено владельцем: admin endpoints расширяют существующее приложение |
+| 4 | **Минимальная сложность сопровождения** | AI Portfolio — личный сайт, а не корпоративная платформа; избыточные абстракции не нужны |
+| 5 | **ChromaDB — только поисковый индекс** | Утверждено владельцем: управляемые данные живут в PostgreSQL, документация — в GitHub |
+| 6 | **Простая аутентификация, без RBAC** | v1 управляется одним владельцем; JWT/RBAC избыточны |
+| 7 | **Переиспользовать только нужное** | Предпочтение — собственным сервисам AI Portfolio; каркас UI из Assistant Flow; специфика других продуктов не переносится |
 
 ---
 
-## 3. Способ сборки
+## 2. Backend административной части
 
-### 3.1. Vite конфигурация
+### 2.1. Структура
 
-```typescript
-// admin/vite.config.ts
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-
-export default defineConfig({
-  plugins: [react()],
-  base: "/admin/",              // Базовый путь для static assets
-  build: {
-    outDir: "dist",
-    sourcemap: false,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ["react", "react-dom", "react-router-dom"],
-        },
-      },
-    },
-  },
-  server: {
-    port: 5174,                 // Локальная разработка (не 5173 — занято AF)
-    proxy: {
-      "/api": {
-        target: "http://localhost:8000",
-        changeOrigin: true,
-      },
-    },
-  },
-});
+```
+backend/app/
+├── api/
+│   ├── __init__.py
+│   ├── chat.py                  # Существующий публичный API (без изменений)
+│   ├── health.py                # Существующий health (без изменений)
+│   └── admin/                   # Новый пакет административных endpoints
+│       ├── __init__.py
+│       ├── dependencies.py      # Аутентификация admin
+│       ├── dashboard.py         # Dashboard: сводные метрики
+│       ├── knowledge_base.py    # Content/KB: источники, карточки проектов, синхронизация
+│       ├── logs.py              # Logs/Conversations: operational logs
+│       └── conversations.py     # Logs/Conversations: сессии и сообщения
+├── services/
+│   ├── ...                      # Существующие сервисы
+│   └── admin/
+│       ├── dashboard_service.py
+│       ├── knowledge_base_service.py
+│       └── github_sync_service.py
+├── models/
+│   └── entities.py              # Расширяется моделями ProjectCard, KnowledgeSource, KnowledgeSyncJob
+└── main.py                      # Подключает admin routers с префиксом /admin
 ```
 
-### 3.2. Package.json scripts
+### 2.2. Admin endpoints
 
-```json
-{
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
-  }
-}
+Все endpoints регистрируются в FastAPI с префиксом `/admin`. nginx проксирует `/api/admin/` → backend `/admin/`.
+
+#### Dashboard
+
+| Метод | Путь | Назначение |
+|-------|------|------------|
+| GET | `/admin/dashboard` | Сводные метрики: провайдеры, KB, логи, диалоги, системный статус |
+
+#### Content / Knowledge Base
+
+| Метод | Путь | Назначение |
+|-------|------|------------|
+| GET | `/admin/knowledge-base/status` | Статус ChromaDB: количество чанков, модель эмбеддингов, дата последней синхронизации |
+| GET | `/admin/knowledge-base/sources` | Список подключённых источников |
+| POST | `/admin/knowledge-base/sources` | Добавить источник |
+| GET | `/admin/knowledge-base/sources/{id}` | Получить источник |
+| PATCH | `/admin/knowledge-base/sources/{id}` | Обновить источник |
+| DELETE | `/admin/knowledge-base/sources/{id}` | Удалить источник |
+| POST | `/admin/knowledge-base/sync` | Запустить ручную синхронизацию источников → ChromaDB |
+| GET | `/admin/knowledge-base/project-cards` | Список управляемых карточек проектов |
+| POST | `/admin/knowledge-base/project-cards` | Создать карточку проекта |
+| GET | `/admin/knowledge-base/project-cards/{id}` | Получить карточку |
+| PATCH | `/admin/knowledge-base/project-cards/{id}` | Обновить карточку |
+| DELETE | `/admin/knowledge-base/project-cards/{id}` | Удалить карточку |
+
+#### Logs / Conversations
+
+| Метод | Путь | Назначение |
+|-------|------|------------|
+| GET | `/admin/logs` | Список operational logs с фильтрами |
+| GET | `/admin/conversations` | Список chat sessions с фильтрами |
+| GET | `/admin/conversations/{id}` | Детали сессии + сообщения |
+
+### 2.3. Аутентификация
+
+```
+ADMIN_API_TOKEN=<единый токен из .env>
 ```
 
-### 3.3. Dockerfile для admin
+- Backend-зависимость `require_admin` проверяет заголовок `Authorization: Bearer <token>`.
+- Frontend хранит токен в `localStorage` для v1.
+- Нет users table, RBAC, JWT refresh.
 
-```dockerfile
-# admin/Dockerfile
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
+### 2.4. Модели данных
 
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html/admin
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
+#### ProjectCard
+
+| Поле | Тип | Назначение |
+|------|-----|------------|
+| id | UUID, PK | Идентификатор |
+| slug | string, unique | machine id: assistant-flow, review-flow и т.п. |
+| title | string | Заголовок |
+| short_description | text | Краткое описание |
+| category | string | cases / services / technologies |
+| tags | JSON/array | Теги |
+| display_order | int | Порядок отображения |
+| is_visible | bool | Видимость на сайте |
+| knowledge_content | text | Полный текст для индексации в ChromaDB |
+| external_url | string | Ссылка на страницу кейса |
+| created_at / updated_at | datetime | Служебные |
+
+#### KnowledgeSource
+
+| Поле | Тип | Назначение |
+|------|-----|------------|
+| id | UUID, PK | Идентификатор |
+| source_type | enum | github_repo / local_directory / local_file |
+| identifier | string | owner/repo или путь |
+| branch | string, nullable | Для github_repo |
+| base_path | string, nullable | Подпуть внутри репозитория |
+| is_enabled | bool | Активен ли источник |
+| last_sync_at | datetime, nullable | Время последней синхронизации |
+| last_sync_status | string | pending / success / error |
+| last_sync_error | text, nullable | Ошибка последней синхронизации |
+| created_at / updated_at | datetime | Служебные |
+
+#### KnowledgeSyncJob (опционально, но рекомендуется)
+
+| Поле | Тип | Назначение |
+|------|-----|------------|
+| id | UUID, PK | Идентификатор |
+| triggered_by | string | manual / future_scheduler |
+| status | string | Статус выполнения |
+| started_at / finished_at | datetime | Время |
+| stats | JSON | documents_processed, chunks_created, errors |
+| error_message | text, nullable | Ошибка |
+
+### 2.5. Переиспользуемые backend-компоненты
+
+Уже существуют в AI Portfolio и не требуют копирования:
+
+| Компонент | Путь | Использование в админке |
+|-----------|------|--------------------------|
+| AIProviderSettingsService | `services/ai_provider_settings_service.py` | Dashboard: статус провайдеров |
+| OperationalLogService | `services/operational_log_service.py` | Logs workspace |
+| ChatSessionService + SessionRepository | `services/chat_session_service.py`, `repositories/session_repository.py` | Conversations workspace |
+| RAGService | `services/rag/rag_service.py` | KB status, ChromaDB stats |
+| KnowledgeBaseIndexer | `services/rag/knowledge_base_indexer.py` | Ручная синхронизация KB |
+
+### 2.6. Компоненты, которые не переносятся
+
+| Компонент AF/RF | Почему не переносим |
+|-----------------|---------------------|
+| RBAC / `require_permission` / `PrincipalContext` (AF) | Избыточно для одного владельца |
+| JWT auth из AF | Требует users table, refresh tokens, криптографию |
+| AF `DocumentRepository` / хранение документов в БД | AI Portfolio не хранит документацию в PostgreSQL |
+| AF `AdminService` с readiness/config checks | Завязан на конфигурацию Assistant Flow |
+| AF `MemoryObservabilityService` | Покрывается существующими сессиями |
+| AF assets / evaluation / retrieval endpoints | Специфика AF |
+| RF candidate_admin, ch_analytics, reports, prompts | Специфика Review Flow |
+| RF `settings_ai_providers.py` как отдельный API | Функциональность уже есть в `AIProviderSettingsService` |
 
 ---
 
-## 4. Способ публикации по /admin/
+## 3. Frontend административной части
 
-### 4.1. nginx конфигурация
+### 3.1. Общее решение
 
-```nginx
-# Добавить в существующий src/nginx.conf
+- Отдельный React + TypeScript + Vite SPA в каталоге `admin/`.
+- Не смешивается с public frontend `src/`.
+- Каркас Layout, Navigation, ProtectedRoute, LoginPage и базовые UI-компоненты берутся из **Assistant Flow admin-ui**.
+- Страницы под 3 рабочих пространства v1 реализуются заново.
+- **Review Flow frontend не используется**: его компоненты ориентированы на provider/analytics/moderation, которые не входят в v1.
 
-# Admin frontend (статика)
-location /admin/ {
-    alias /usr/share/nginx/html/admin/;
-    try_files $uri $uri/ /admin/index.html;
-}
-
-# Admin API endpoints
-location /admin-api/ {
-    proxy_pass http://ai-portfolio-backend:8000/admin/;
-    proxy_http_version 1.1;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-}
-```
-
-### 4.2. Альтернатива: единый nginx контейнер
-
-Вместо отдельного контейнера для admin, использовать существующий nginx с двумя сборками:
+### 3.2. Структура
 
 ```
-nginx container/
-├── /usr/share/nginx/html/          # Public frontend
-│   ├── index.html
-│   ├── portfolio.html
-│   ├── services.html
-│   ├── contacts.html
-│   ├── cases/
-│   ├── css/
-│   └── js/
-└── /usr/share/nginx/html/admin/   # Admin frontend
-    ├── index.html
-    └── assets/
+admin/
+├── package.json
+├── vite.config.ts
+├── tsconfig.json
+├── index.html
+└── src/
+    ├── main.tsx
+    ├── App.tsx
+    ├── api/
+    │   └── client.ts              # API client с Bearer-token
+    ├── auth/
+    │   └── auth.ts                # Хранение и проверка токена
+    ├── components/                # Reusable UI
+    │   ├── AdminLayout.tsx
+    │   ├── Navigation.tsx
+    │   ├── ProtectedRoute.tsx
+    │   ├── StatusBadge.tsx
+    │   ├── MetricCard.tsx
+    │   ├── SectionCard.tsx
+    │   ├── EmptyState.tsx
+    │   ├── LoadingState.tsx
+    │   └── OperationalList.tsx
+    ├── pages/
+    │   ├── LoginPage.tsx
+    │   ├── DashboardPage.tsx
+    │   ├── KnowledgeBasePage.tsx
+    │   └── LogsConversationsPage.tsx
+    ├── styles/
+    │   └── globals.css            # Дизайн-система AI Portfolio
+    └── utils/
+        └── formatters.ts
 ```
+
+### 3.3. Маршруты
+
+| Путь | Страница | Тип |
+|------|----------|-----|
+| `/admin/login` | LoginPage | Публичная |
+| `/admin/dashboard` | DashboardPage | Защищённая |
+| `/admin/knowledge-base` | KnowledgeBasePage | Защищённая |
+| `/admin/logs` | LogsConversationsPage | Защищённая |
+| `/admin/` | redirect → `/admin/dashboard` | — |
+
+### 3.4. Компоненты новой разработки
+
+| Компонент | Назначение |
+|-----------|------------|
+| `DashboardPage.tsx` | Метрики из `/admin/dashboard` |
+| `KnowledgeBasePage.tsx` | Tabs: Project Cards, Sources, Sync status |
+| `ProjectCardsTab.tsx` | CRUD таблица карточек |
+| `ProjectCardForm.tsx` | Форма карточки |
+| `SourcesTab.tsx` | Список источников |
+| `SourceForm.tsx` | Форма источника |
+| `SyncPanel.tsx` | Кнопка синхронизации, статус, прогресс |
+| `ChromaStatusCard.tsx` | Статус индекса |
+| `LogsConversationsPage.tsx` | Tabs-контейнер |
+| `LogsTab.tsx` | Фильтры + список логов |
+| `LogDetailPanel.tsx` | Детали лога |
+| `ConversationsTab.tsx` | Список сессий |
+| `ConversationDetailPanel.tsx` | История сообщений |
+| `globals.css` | Дизайн-система AI Portfolio |
 
 ---
 
-## 5. Интеграция с существующим nginx
+## 4. Интеграция с Docker-инфраструктурой
 
-### 5.1. Вариант A: Единый nginx контейнер (рекомендуется)
+### 4.1. Рекомендуемое решение
 
-```
-docker-compose.yml:
-  ai-portfolio-frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./src:/usr/share/nginx/html:ro
-      - admin-dist:/usr/share/nginx/html/admin:ro
-```
+Единый nginx-контейнер, собирающий public frontend и admin frontend вместе.
 
-**Преимущества:**
-- Один контейнер nginx
-- Минимальные изменения
-- Проще deployment
+### 4.2. Изменения
 
-### 5.2. Вариант B: Два nginx контейнера
+1. Создать корневой `Dockerfile.frontend`:
+   - Stage 1: собрать `admin/` через Node.
+   - Stage 2: nginx-образ, копирующий:
+     - `./src` → `/usr/share/nginx/html/`
+     - admin build → `/usr/share/nginx/html/admin/`
+     - `src/nginx.conf` → `/etc/nginx/conf.d/default.conf`.
+2. Обновить `docker-compose.yml`:
+   - `ai-portfolio-frontend` собирается из корня проекта (`context: .`, `dockerfile: Dockerfile.frontend`).
+3. Обновить `src/nginx.conf`:
+   - `location /admin/` — static SPA с fallback на `index.html`.
+   - `location /api/admin/` — proxy_pass на `http://ai-portfolio-backend:8000/admin/`.
 
-```
-docker-compose.yml:
-  ai-portfolio-frontend:
-    # Public frontend (существующий)
-    
-  ai-portfolio-admin:
-    # Admin frontend (новый)
-```
+### 4.3. Отклонённая альтернатива
 
-**Преимущества:**
-- Изоляция public и admin
-- Возможность независимого масштабирования
+Отдельный Docker-сервис для admin frontend.
 
-**Рекомендация:** Вариант A на первом этапе.
+**Причина:** два nginx-контейнера усложняют маршрутизацию, деплой и Deployment Validation.
 
 ---
 
-## 6. Интеграция с единым backend
-
-### 6.1. Новые admin endpoints
+## 5. Взаимодействие GitHub / PostgreSQL / ChromaDB
 
 ```
-backend/app/api/
-├── __init__.py
-├── health.py                    # Существующий
-├── chat.py                      # Существующий
-└── admin/                       # Новые admin endpoints
-    ├── __init__.py
-    ├── overview.py              # Dashboard
-    ├── logs.py                  # Logs (из RF)
-    ├── conversations.py         # Conversations
-    ├── knowledge_base.py        # Knowledge Base
-    ├── providers.py             # Providers (из RF)
-    ├── models.py                # Models
-    ├── cache.py                 # Cache
-    ├── health_admin.py          # Health (расширенный)
-    └── analytics.py             # Analytics (из RF)
+GitHub (SOT проектной документации)
+  │
+  │  fetch по API (ручная синхронизация)
+  ▼
+KnowledgeBaseService
+  │
+  ├──► ProjectCard / KnowledgeSource ──► PostgreSQL (SOT управляемых данных)
+  │
+  └──► KnowledgeBaseIndexer
+            │
+            ├── чанкинг
+            ├── embeddings (OpenAI)
+            └── запись в ChromaDB (поисковый индекс, не SOT)
 ```
 
-### 6.2. Auth middleware
-
-```python
-# backend/app/api/admin/dependencies.py
-
-from fastapi import Header, HTTPException
-
-async def require_admin(x_role: str = Header(None)):
-    """Simple admin auth for MVP."""
-    if x_role != "admin":
-        raise HTTPException(status_code=403, detail="Admin access required")
-    return True
-```
-
-### 6.3. Router registration
-
-```python
-# backend/app/main.py
-
-from app.api.admin import (
-    overview_router,
-    logs_router,
-    conversations_router,
-    knowledge_base_router,
-    providers_router,
-    models_router,
-    cache_router,
-    health_admin_router,
-    analytics_router,
-)
-
-# Admin routers
-app.include_router(overview_router, prefix="/admin", tags=["admin"])
-app.include_router(logs_router, prefix="/admin", tags=["admin"])
-app.include_router(conversations_router, prefix="/admin", tags=["admin"])
-# ... и т.д.
-```
+**Правила:**
+- GitHub остаётся Source of Truth для проектной документации.
+- `ProjectCard` в PostgreSQL — Source of Truth для управляемых карточек проектов.
+- ChromaDB перестраивается из PostgreSQL + GitHub и не является SOT.
+- Автоматическая webhook-синхронизация не входит в v1.
 
 ---
 
-## 7. Перечень компонентов AF/RF для переноса
+## 6. Спорные места и компромиссы
 
-### 7.1. Backend — копировать без изменений
-
-| Компонент | Источник | Назначение |
-|-----------|----------|------------|
-| `logs.py` | Review Flow | Logs API endpoint |
-| `providers.py` | Review Flow | AI Providers management |
-| `healthcheck_service.py` | Assistant Flow | Health checks service |
-| `observability_service.py` | Assistant Flow | Session observability |
-
-### 7.2. Backend — адаптировать
-
-| Компонент | Источник | Адаптация |
-|-----------|----------|-----------|
-| `overview.py` | Assistant Flow | Адаптировать под AI Portfolio KB |
-| `documents.py` | Assistant Flow | Адаптировать под AI Portfolio Knowledge Base |
-| `analytics.py` | Review Flow | Адаптировать под AI Portfolio метрики |
-
-### 7.3. Frontend — копировать с минимальной адаптацией
-
-| Компонент | Источник | Адаптация |
-|-----------|----------|-----------|
-| `Layout.tsx` | Assistant Flow | Переименовать, адаптировать navigation |
-| `Navigation.tsx` | Assistant Flow | Адаптировать пункты меню |
-| `ProtectedRoute.tsx` | Assistant Flow | Без изменений |
-| `StatusBadge.tsx` | Assistant Flow | Без изменений |
-| `MetricCard.tsx` | Assistant Flow | Без изменений |
-| `EmptyState.tsx` | Assistant Flow | Без изменений |
-| `LoadingState.tsx` | Assistant Flow | Без изменений |
-| `api/client.ts` | Assistant Flow | Изменить baseURL |
-| `OverviewPage.tsx` | Assistant Flow | Адаптировать данные |
-| `LogsPage.tsx` | Assistant Flow | Минимальная адаптация |
-| `MemoryPage.tsx` → `ConversationsPage.tsx` | Assistant Flow | Адаптировать под ChatSession |
-| `DocumentsPage.tsx` → `KnowledgeBasePage.tsx` | Assistant Flow | Адаптировать под KB |
-| `AiProvidersPage.jsx` → `ProvidersPage.tsx` | Review Flow | Конвертировать JSX → TSX |
-| `AnalyticsPage.jsx` → `AnalyticsPage.tsx` | Review Flow | Конвертировать JSX → TSX |
-
-### 7.4. Frontend — создавать заново
-
-| Страница | Причина |
-|----------|---------|
-| `CachePage.tsx` | Новая функциональность |
-| `ModelsPage.tsx` | Новая функциональность (управление моделями провайдеров) |
+| Место | Решение | Обоснование |
+|-------|---------|-------------|
+| ProjectCard в PostgreSQL vs статический HTML | Вводим `ProjectCard` в PostgreSQL | Соответствует SOT об управляемых данных. Вопрос отображения на public frontend решается отдельно. |
+| Ручная синхронизация | Запуск кнопкой в админке | Webhook вынесен за рамки v1 по SOT. |
+| Простая auth по env-token | Единый `ADMIN_API_TOKEN` | v1 — один владелец; JWT/RBAC не окупаются. |
+| React SPA для admin при vanilla public | Отдельный `admin/` | Сохраняем vanilla public frontend по SOT; получаем ускорение за счёт каркаса AF. |
+| Отказ от RF frontend | Не используем компоненты RF | RF компоненты ориентированы на provider/analytics/moderation, не входящие в v1. |
 
 ---
 
-## 8. Перечень компонентов, требующих адаптации
+## 7. Границы первой версии
 
-### 8.1. Существенная адаптация
+### Входит
 
-| Компонент | Источник | Изменения |
-|-----------|----------|-----------|
-| **Knowledge Base** | AF Documents | AF хранит документы в БД, AI Portfolio — JSON + ChromaDB |
-| **Overview/Dashboard** | AF Overview | Разные метрики (сессии vs документы) |
-| **Analytics** | RF Analytics | Разные метрики (reviews vs conversations) |
+- Dashboard.
+- Content / Knowledge Base.
+- Logs / Conversations.
+- Управление карточками проектов.
+- Управление источниками KB.
+- Ручная синхронизация KB.
+- Просмотр operational logs и истории диалогов.
 
-### 8.2. Минимальная адаптация
+### Не входит
 
-| Компонент | Источник | Изменения |
-|-----------|----------|-----------|
-| **Logs** | RF Logs | Только API URL |
-| **Providers** | RF Providers | Только API URL |
-| **Sessions → Conversations** | AF Memory | Переименование сущностей |
-
-### 8.3. Auth
-
-Assistant Flow использует сложную auth-систему с JWT токенами. Для MVP AI Portfolio:
-
-```typescript
-// admin/src/auth/api.ts
-
-const ADMIN_TOKEN_KEY = "ai_portfolio_admin_token";
-
-export function getAdminToken(): string | null {
-  return localStorage.getItem(ADMIN_TOKEN_KEY);
-}
-
-export function setAdminToken(token: string): void {
-  localStorage.setItem(ADMIN_TOKEN_KEY, token);
-}
-
-export function clearAdminToken(): void {
-  localStorage.removeItem(ADMIN_TOKEN_KEY);
-}
-
-export function isAdmin(): boolean {
-  return !!getAdminToken();
-}
-```
-
-Backend:
-```python
-# Простой header-based auth для MVP
-async def require_admin(x_role: str = Header(None)):
-    if x_role != "admin":
-        raise HTTPException(status_code=403)
-```
+- Редактирование Narrative Blueprint.
+- Редактирование Presentation Patterns.
+- Визуальный конструктор страниц кейсов.
+- Автоматическая webhook-синхронизация.
+- Управление AI-провайдерами как отдельное пространство (базовый статус в Dashboard).
+- Analytics как отдельное пространство (базовые метрики в Dashboard).
+- Cache management как отдельное пространство.
+- Health monitoring как отдельное пространство.
+- RBAC / пользователи / JWT.
 
 ---
 
-## 9. Изменения Docker Compose
+## 8. Рекомендации по порядку реализации
 
-### 9.1. Добавить сборку admin
+См. `docs/IMPLEMENTATION_PLAN.md`, раздел 11.
 
-```yaml
-# docker-compose.yml
+Кратко:
+1. Backend Foundation — модели, миграции, auth, каркас routers.
+2. Admin Frontend Foundation — Vite + React + TS каркас, Layout, Navigation, Login, ProtectedRoute.
+3. Infrastructure Integration — Docker, nginx, `/admin/` и `/api/admin/`.
+4. Реализация трёх рабочих пространств — Dashboard, Content/KB, Logs/Conversations.
+5. Интеграция и тестирование — E2E, обновление документации.
 
-services:
-  # ... существующие сервисы ...
-
-  # Admin frontend build stage (multi-stage build)
-  ai-portfolio-admin-build:
-    build:
-      context: ./admin
-      dockerfile: Dockerfile
-    volumes:
-      - admin-dist:/app/dist
-
-volumes:
-  # ... существующие volumes ...
-  admin-dist:
-```
-
-### 9.2. Интеграция с nginx
-
-**Вариант A (рекомендуется):** Модифицировать существующий frontend Dockerfile для включения admin:
-
-```dockerfile
-# src/Dockerfile (модификация)
-
-# Stage 1: Build admin
-FROM node:20-alpine AS admin-builder
-WORKDIR /admin
-COPY admin/package*.json ./
-RUN npm ci
-COPY admin/ ./
-RUN npm run build
-
-# Stage 2: Build frontend
-FROM nginx:alpine
-COPY --from=admin-builder /admin/dist /usr/share/nginx/html/admin
-COPY src/ /usr/share/nginx/html/
-COPY src/nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-### 9.3. Полный docker-compose с admin
-
-```yaml
-# docker-compose.yml (изменённый)
-
-services:
-  ai-portfolio-postgres:
-    # Без изменений
-
-  ai-portfolio-backend:
-    # Без изменений
-
-  ai-portfolio-frontend:
-    build:
-      context: .
-      dockerfile: src/Dockerfile.admin  # Новый Dockerfile
-    restart: always
-    container_name: ai-portfolio
-    networks:
-      - ai-portfolio-network
-    depends_on:
-      - ai-portfolio-backend
-```
+Deployment Validation проводится отдельно по решению владельца проекта после завершения разработки.
 
 ---
 
-## 10. Изменения SOT-документов
-
-### 10.1. PROJECT_STATE.md
-
-Добавить раздел:
-```markdown
-## Административная консоль
-
-**Технологии:** React 18.3 + TypeScript 5.6 + Vite 5.4
-
-**Маршрут:** `/admin/`
-
-**Источники компонентов:**
-- Assistant Flow: Layout, Navigation, Logs, Sessions, Documents
-- Review Flow: Providers, Analytics, Logs API
-
-**Auth:** Header-based (X-Role: admin) для MVP
-```
-
-### 10.2. IMPLEMENTATION_PLAN.md
-
-Добавить этап:
-```markdown
-## Этап 6: Административная консоль
-
-### Цель
-Реализовать административную консоль для управления AI Portfolio.
-
-### Состав работ
-| Работа | Описание | Зависит от |
-|--------|----------|------------|
-| Admin Backend API | Регистрация admin endpoints | Этап 3 |
-| Admin Frontend Module | Создание React-модуля | — |
-| Docker Integration | Интеграция admin в docker-compose | Admin Frontend |
-| nginx Configuration | Настройка /admin/ маршрута | Docker Integration |
-
-### Критерии завершения
-- [ ] Admin API endpoints работают
-- [ ] Admin frontend доступен по /admin/
-- [ ] Dashboard отображает статистику
-- [ ] Logs отображаются
-- [ ] Conversations отображаются
-- [ ] Knowledge Base управляется
-- [ ] Providers настраиваются
-```
-
-### 10.3. SPEC.md
-
-Не требует изменений — административная консоль не является частью публичного продукта.
-
----
-
-## 11. Рабочие пространства
-
-### 11.1. Dashboard (Overview)
-
-**Тип:** Overview Workspace
-
-**Основа:** Assistant Flow `OverviewPage.tsx`
-
-**Компоненты:**
-- Статистика сессий
-- Статус AI провайдеров
-- Статус базы знаний
-- Статус системы
-
-### 11.2. Logs (Operational Workspace)
-
-**Тип:** Operational Workspace
-
-**Основа:** Review Flow `LogsPage.jsx`
-
-**Компоненты:**
-- Фильтры: время, модель, статус
-- Список логов
-- Детализация лога
-
-**Operational Pattern:** Left panel (filters + list) + Right panel (detail)
-
-### 11.3. Conversations (Operational Workspace)
-
-**Тип:** Operational Workspace
-
-**Основа:** Assistant Flow `MemoryPage.tsx`
-
-**Компоненты:**
-- Фильтры: время, провайдер, статус
-- Список сессий
-- Детализация сессии (история диалога)
-
-**Operational Pattern:** Left panel (filters + list) + Right panel (detail)
-
-### 11.4. Knowledge Base (Operational Workspace)
-
-**Тип:** Operational Workspace
-
-**Основа:** Assistant Flow `DocumentsPage.tsx`
-
-**Компоненты:**
-- Список документов KB
-- Просмотр документа
-- Reindex
-- Статус ChromaDB
-
-**Operational Pattern:** Left panel (list) + Right panel (detail)
-
-### 11.5. Providers (Configuration Workspace)
-
-**Тип:** Configuration Workspace
-
-**Основа:** Review Flow `AiProvidersPage.jsx`
-
-**Компоненты:**
-- Список провайдеров
-- Активация провайдера
-- Тестирование провайдера
-- Fallback настройка
-
-**Layout:** Static configuration panel
-
-### 11.6. Models (Configuration Workspace)
-
-**Тип:** Configuration Workspace
-
-**Основа:** Review Flow `AiProvidersPage.jsx` (модели внутри провайдеров)
-
-**Компоненты:**
-- Список моделей провайдера
-- Выбор активной модели
-
-**Layout:** Static configuration panel
-
-### 11.7. Cache (Utility Workspace)
-
-**Тип:** Utility Workspace
-
-**Основа:** Новая реализация
-
-**Компоненты:**
-- Статистика кеша
-- Очистка кеша
-- Просмотр записей кеша
-
-**Layout:** Simple utility panel
-
-### 11.8. Health (Monitoring Workspace)
-
-**Тип:** Monitoring Workspace
-
-**Основа:** Assistant Flow health checks
-
-**Компоненты:**
-- Статус PostgreSQL
-- Статус ChromaDB
-- Статус AI провайдеров
-- Статус API
-
-**Layout:** Monitoring dashboard
-
-### 11.9. Analytics (Analytics Workspace)
-
-**Тип:** Analytics Workspace
-
-**Основа:** Review Flow `AnalyticsPage.jsx`
-
-**Компоненты:**
-- Графики использования
-- Метрики сессий
-- Метрики провайдеров
-
-**Layout:** Analytics dashboard
-
----
-
-## 12. План реализации
-
-### Этап 1: Backend Admin API (1-2 дня)
-
-1. Создать `backend/app/api/admin/` структуру
-2. Реализовать auth middleware
-3. Перенести `logs.py` из RF
-4. Перенести `providers.py` из RF
-5. Создать `overview.py` с базовыми метриками
-
-### Этап 2: Admin Frontend Module (2-3 дня)
-
-1. Создать `admin/` каталог
-2. Настроить Vite + TypeScript + React
-3. Создать базовую структуру `src/`
-4. Перенести Layout и Navigation из AF
-5. Перенести базовые components из AF
-
-### Этап 3: Docker Integration (0.5 дня)
-
-1. Модифицировать `src/Dockerfile` для multi-stage build
-2. Обновить `docker-compose.yml`
-3. Настроить nginx для `/admin/`
-
-### Этап 4: Рабочие пространства (3-5 дней)
-
-1. Dashboard — OverviewPage
-2. Logs — LogsPage
-3. Conversations — MemoryPage
-4. Knowledge Base — DocumentsPage
-5. Providers — AiProvidersPage
-6. Models — новая страница
-7. Cache — новая страница
-8. Health — health checks
-9. Analytics — AnalyticsPage
-
-### Этап 5: Тестирование и документация (1 день)
-
-1. E2E тестирование
-2. Обновление SOT-документов
-3. Deployment Validation
-
----
-
-## 13. Риски
-
-| Риск | Вероятность | Влияние | Митигация |
-|------|-------------|---------|-----------|
-| Конфликт версий React/TypeScript | Низкая | Среднее | Использовать версии из AF |
-| Сложность auth | Средняя | Среднее | Начать с простого header-based auth |
-| Различия в метриках AF/RF | Средняя | Низкое | Адаптировать под AI Portfolio |
-| Размер admin bundle | Низкая | Низкое | Code splitting в Vite |
-
----
-
-## 14. Критерий готовности
-
-Архитектурный каркас считается готовым, если:
-
-- [ ] Backend имеет структуру `app/api/admin/`
-- [ ] Admin endpoints зарегистрированы в FastAPI
-- [ ] Создан `admin/` каталог с React-приложением
-- [ ] Admin frontend собирается через Vite
-- [ ] nginx обслуживает `/admin/` маршрут
-- [ ] Docker Compose собирает admin в составе единого контейнера
-- [ ] Базовый Layout и Navigation работают
-- [ ] Заглушки страниц для всех 9 рабочих пространств созданы
-- [ ] PROJECT_STATE.md обновлён
-- [ ] IMPLEMENTATION_PLAN.md обновлён
+## 9. История изменений
+
+| Дата | Версия | Изменения |
+|------|--------|-----------|
+| 2026-07-14 | 0.9 | Первый технический черновик на основе компонентов Assistant Flow и Review Flow. Содержал 9 рабочих пространств и неутверждённые технические детали. |
+| 2026-07-15 | 1.0 | Актуализация под согласованную продуктовую концепцию: 3 рабочих пространства, минимальная сложность, единый env-token, отказ от RBAC/JWT, переход от Review Flow к собственным сервисам AI Portfolio + каркас AF. |
