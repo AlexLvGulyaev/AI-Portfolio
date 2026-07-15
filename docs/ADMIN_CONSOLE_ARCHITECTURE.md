@@ -131,6 +131,8 @@ ADMIN_API_TOKEN=<единый токен из .env>
 | external_url | string | Ссылка на страницу кейса |
 | created_at / updated_at | datetime | Служебные |
 
+**ProjectCard является единственным Source of Truth карточек проектов.** Публичный frontend не хранит канонические данные карточек в статическом HTML и получает их через read-only API backend.
+
 #### KnowledgeSource
 
 | Поле | Тип | Назначение |
@@ -309,7 +311,8 @@ KnowledgeBaseService
 
 **Правила:**
 - GitHub остаётся Source of Truth для проектной документации.
-- `ProjectCard` в PostgreSQL — Source of Truth для управляемых карточек проектов.
+- `ProjectCard` в PostgreSQL — **единственный Source of Truth карточек проектов**.
+- Публичный frontend получает карточки проектов через **read-only API backend** и не хранит канонические данные в статическом HTML.
 - ChromaDB перестраивается из PostgreSQL + GitHub и не является SOT.
 - Автоматическая webhook-синхронизация не входит в v1.
 

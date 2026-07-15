@@ -185,6 +185,30 @@ _Не определено на данном этапе._
 
 ---
 
+## Управляемые карточки проектов (ProjectCard)
+
+**ProjectCard в PostgreSQL является единственным Source of Truth карточек проектов.**
+
+### Правила
+
+| Правило | Смысл |
+|---------|-------|
+| **ProjectCard в PostgreSQL — единственный SOT карточек проектов** | Канонические данные карточек (заголовки, описания, категории, видимость, порядок отображения) хранятся исключительно в PostgreSQL |
+| **Публичный frontend не является SOT** | Public сайт отображает карточки, но не определяет их содержание |
+| **Статический HTML не хранит канонические данные карточек** | HTML-страницы портфолио не являются источником правды для карточек в каталоге |
+| **Public frontend получает карточки через read-only API backend** | Vanilla frontend загружает список карточек с backend при открытии страницы |
+| **Административная консоль — единственный интерфейс управления** | Создание, редактирование и удаление карточек выполняются только через `/admin/knowledge-base/project-cards` |
+| **Изменения отображаются автоматически** | После сохранения карточки в админке public сайт отображает актуальные данные без ручного редактирования HTML |
+
+### Границы
+
+- Правило относится **только к карточкам проектов и их отображению в публичной части сайта**.
+- **Public frontend остаётся на Vanilla HTML/CSS/JavaScript.**
+- **Страницы отдельных кейсов остаются статическими HTML-страницами.** Они содержат Narrative Blueprint и не управляются через карточки.
+- ProjectCard не заменяет и не редактирует Narrative Blueprint и Presentation Patterns.
+
+---
+
 ## Архитектура Knowledge Base
 
 ### Источники данных
@@ -322,3 +346,6 @@ AI Portfolio использует три уровня источников да�
 | 2026-07-14 | Backend & Chat Complete | Backend, RAG, кеширование, чат-ассистент и интеграция с frontend завершены. Сайт работает с AI-ассистентом. |
 | 2026-07-15 | Engineering Preparation Complete | Актуализированы PROJECT_STATE.md, IMPLEMENTATION_PLAN.md, README.md. Docker-конфигурация приведена к единому виду. Репозиторий инициализирован. |
 | 2026-07-15 | Admin Console Concept SOT | В Source of Truth зафиксированы границы первой версии административной консоли, архитектура Knowledge Base и роль Narrative Blueprint / Presentation Patterns. |
+| 2026-07-15 | Admin Console Architecture Finalized | Утверждена и зафиксирована окончательная техническая архитектура первой версии административной консоли в `docs/ADMIN_CONSOLE_ARCHITECTURE.md`. |
+| 2026-07-15 | Admin Console Implementation Plan Fixed | Технический план реализации административной консоли зафиксирован в `docs/IMPLEMENTATION_PLAN.md`. |
+| 2026-07-15 | ProjectCard SOT Defined | В Source of Truth зафиксировано, что `ProjectCard` в PostgreSQL является единственным Source of Truth карточек проектов; public frontend получает карточки через read-only API. |
