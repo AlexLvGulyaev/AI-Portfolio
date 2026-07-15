@@ -125,7 +125,8 @@ ADMIN_API_TOKEN=<единый токен из .env>
 | short_description | text | Краткое описание |
 | category | string | cases / services / technologies |
 | tags | JSON/array | Теги |
-| display_order | int | Порядок отображения |
+| display_order | int | Порядок отображения в каталоге портфолио |
+| show_on_homepage | int | Порядок отображения на главной странице; `0` — не отображать |
 | is_visible | bool | Видимость на сайте |
 | knowledge_content | text | Полный текст для индексации в ChromaDB |
 | external_url | string | Ссылка на страницу кейса |
@@ -322,7 +323,7 @@ KnowledgeBaseService
 
 | Место | Решение | Обоснование |
 |-------|---------|-------------|
-| ProjectCard в PostgreSQL vs статический HTML | Вводим `ProjectCard` в PostgreSQL | Соответствует SOT об управляемых данных. Вопрос отображения на public frontend решается отдельно. |
+| ProjectCard в PostgreSQL vs статический HTML | `ProjectCard` в PostgreSQL, public frontend загружает карточки через read-only API | Соответствует SOT об управляемых данных. Public frontend не хранит канонические данные карточек в статическом HTML. |
 | Ручная синхронизация | Запуск кнопкой в админке | Webhook вынесен за рамки v1 по SOT. |
 | Простая auth по env-token | Единый `ADMIN_API_TOKEN` | v1 — один владелец; JWT/RBAC не окупаются. |
 | React SPA для admin при vanilla public | Отдельный `admin/` | Сохраняем vanilla public frontend по SOT; получаем ускорение за счёт каркаса AF. |

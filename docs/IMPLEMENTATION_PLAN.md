@@ -347,6 +347,7 @@ flowchart LR
 
 **Ожидаемый результат:**
 - Модели данных `ProjectCard`, `KnowledgeSource`, `KnowledgeSyncJob` добавлены в `app/models/entities.py`.
+- Модель `ProjectCard` содержит поля `display_order` (порядок в каталоге портфолио) и `show_on_homepage` (`0` — не отображать на главной, `1..4` — порядок на главной).
 - Alembic-миграции для новых моделей созданы и применены.
 - Административная аутентификация реализована через единый `ADMIN_API_TOKEN` (`app/api/admin/dependencies.py`).
 - Создан каркас Admin API: пакет `app/api/admin/` с заглушками routers (`dashboard`, `knowledge_base`, `logs`, `conversations`).
