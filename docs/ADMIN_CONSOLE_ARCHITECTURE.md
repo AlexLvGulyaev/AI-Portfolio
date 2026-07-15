@@ -306,7 +306,7 @@ admin/
 ```
 GitHub (SOT проектной документации)
   │
-  │  fetch по API (ручная синхронизация)
+  │  fetch по API (GitHub Sync — планируется)
   ▼
 KnowledgeBaseService
   │
@@ -319,11 +319,16 @@ KnowledgeBaseService
             └── запись в ChromaDB (поисковый индекс, не SOT)
 ```
 
+**Текущее техническое решение v1:**
+
+Поскольку GitHub Sync ещё не реализован, ручная синхронизация `POST /admin/knowledge-base/sync` использует локальный файл `knowledge_base/knowledge.json` как временный источник документации для индексации в ChromaDB. Поле `knowledge_content` карточек `ProjectCard` также участвует в индексации. GitHub остаётся архитектурным Source of Truth для проектной документации; `knowledge.json` — временный источник до появления GitHub Sync.
+
 **Правила:**
 - GitHub остаётся Source of Truth для проектной документации.
+- **Временное техническое решение v1:** локальный `knowledge_base/knowledge.json` используется как источник для ручной синхронизации в ChromaDB, пока не реализован GitHub Sync.
 - `ProjectCard` в PostgreSQL — **единственный Source of Truth карточек проектов**.
 - Публичный frontend получает карточки проектов через **read-only API backend** и не хранит канонические данные в статическом HTML.
-- ChromaDB перестраивается из PostgreSQL + GitHub и не является SOT.
+- ChromaDB перестраивается из актуальных источников и не является SOT.
 - Автоматическая webhook-синхронизация не входит в v1.
 
 ---
