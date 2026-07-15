@@ -1,0 +1,103 @@
+# ============================================================
+# AI Portfolio - Docker Compose
+# ============================================================
+# Source of Truth для развёртывания проекта.
+#
+# Usage:
+#   cp .env.example .env
+#   # fill .env with real values
+#   docker compose up -d --build
+#
+# Requires Docker Compose v2 (docker compose).
+#
+# Required environment variables (set in .env or shell):
+# - POSTGRES_USER
+# - POSTGRES_PASSWORD
+# - POSTGRES_DB
+# - DATABASE_URL
+# - OPENAI_API_KEY
+# - CORS_ORIGINS
+# ============================================================
+
+services:
+  # PostgreSQL Database
+  ai-portfolio-postgres:
+    image: postgres:15
+    restart: always
+    container_name: ai-portfolio-postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - ai-portfolio-postgres-data:/var/lib/postgresql/data
+    networks:
+      - ai-portfolio-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Frontend (nginx with static files)
+  ai-portfolio-frontend:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    restart: always
+    container_name: ai-portfolio
+    networks:
+      - ai-portfolio-network
+    depends_on:
+      - ai-portfolio-backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ai-portfolio-frontend.rule=Host(`ai.alex-n8n.site`)"
+      - "traefik.http.routers.ai-portfolio-frontend.entrypoints=websecure"
+      - "traefik.http.routers.ai-portfolio-frontend.tls.certresolver=letsencrypt"
+
+  # Backend (FastAPI)
+  ai-portfolio-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    container_name: ai-portfolio-backend
+    environment:
+      # Environment
+      - ENVIRONMENT=production
+      # Database
+      - DATABASE_URL=${DATABASE_URL}
+      # AI Providers
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GIGACHAT_AUTH_KEY=${GIGACHAT_AUTH_KEY}
+      # CORS
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-WARNING}
+      # Debug
+      - DEBUG=${DEBUG:-false}
+    volumes:
+      - ai-portfolio-data:/app/data
+    networks:
+      - ai-portfolio-network
+    depends_on:
+      ai-portfolio-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  ai-portfolio-data:
+    name: ai-portfolio-data
+  ai-portfolio-postgres-data:
+    name: ai-portfolio-postgres-data
+
+networks:
+  ai-portfolio-network:
+    external: true
+    name: n8n_default

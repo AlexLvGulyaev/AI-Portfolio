@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Telegram AI Gateway — Шлюз для интеграции AI-моделей в Telegram.">
+  <title>Telegram AI Gateway — AI Portfolio</title>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600<link rel="stylesheet" href="../css/styles.css">display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header__content">
+      <a href="../index.html" class="header__logo">
+        <span class="logo__icon">◇</span>
+        <span>AI Portfolio</span>
+      </a>
+      <nav class="nav">
+        <a href="../index.html" class="nav__link">Главная</a>
+        <a href="../portfolio.html" class="nav__link nav__link--active">Проекты</a>
+        <a href="../services.html" class="nav__link">Услуги</a>
+        <a href="../contacts.html" class="nav__link">Контакты</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="page">
+      <article class="case-detail">
+        <div class="container">
+          <a href="../portfolio.html" class="case-detail__back">← Все проекты</a>
+          <header class="case-detail__header">
+            <div class="case-detail__title-section">
+              <h1 class="case-detail__title">Telegram AI Gateway</h1>
+              <div class="case-detail__tags">
+                <span class="tag">Telegram</span>
+                <span class="tag">AI Gateway</span>
+                <span class="tag">API</span>
+              </div>
+            </div>
+            <div class="case-detail__actions">
+              <a href="#" class="btn btn-secondary">GitHub</a>
+              <a href="#" class="btn btn-primary">Demo</a>
+            </div>
+          </header>
+
+          <div class="tabs" style="min-height: 300px;">
+            <div class="tabs__nav">
+              <button class="tabs__tab tabs__tab--active" data-tab="task">Задача</button>
+              <button class="tabs__tab" data-tab="solution">Решение</button>
+              <button class="tabs__tab" data-tab="result">Результат</button>
+              <button class="tabs__tab" data-tab="tech">Технологии</button>
+            </div>
+            <div class="tabs__content">
+              <div class="tabs__panel tabs__panel--active" data-panel="task">
+                <div class="case-detail__section">
+                  <p style="color: var(--text-secondary); line-height: 1.7;">
+                    Компания использовала несколько AI-провайдеров. Каждая интеграция требовала отдельной разработки, что усложняло поддержку.
+                  </p>
+                  <p style="color: var(--text-secondary); line-height: 1.7; margin-top: var(--spacing-md);">
+                    <strong style="color: var(--text-primary);">Проблемы:</strong>
+                  </p>
+                  <ul style="color: var(--text-secondary); margin-top: var(--spacing-sm); padding-left: var(--spacing-lg);">
+                    <li style="margin-bottom: var(--spacing-sm);">Дублирование кода интеграций</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Сложность переключения между провайдерами</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Отсутствие единой точки управления</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Сложности с мониторингом</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="tabs__panel" data-panel="solution">
+                <div class="case-detail__section">
+                  <p style="color: var(--text-secondary); line-height: 1.7;">
+                    Единый шлюз для интеграции AI-моделей в Telegram.
+                  </p>
+                  <p style="color: var(--text-secondary); line-height: 1.7; margin-top: var(--spacing-md);">
+                    <strong style="color: var(--text-primary);">Возможности:</strong>
+                  </p>
+                  <ul style="color: var(--text-secondary); margin-top: var(--spacing-sm); padding-left: var(--spacing-lg);">
+                    <li style="margin-bottom: var(--spacing-sm);">Единая точка входа для всех AI-запросов</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Поддержка нескольких провайдеров</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Гибкая маршрутизация</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Управление лимитами и квотами</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Логирование и мониторинг</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="tabs__panel" data-panel="result">
+                <div class="case-detail__stats">
+                  <div class="case-detail__stat">
+                    <div class="case-detail__stat-value">5x</div>
+                    <div class="case-detail__stat-label">Быстрее интеграция</div>
+                  </div>
+                  <div class="case-detail__stat">
+                    <div class="case-detail__stat-value">70%</div>
+                    <div class="case-detail__stat-label">Снижение затрат на поддержку</div>
+                  </div>
+                  <div class="case-detail__stat">
+                    <div class="case-detail__stat-value">100%</div>
+                    <div class="case-detail__stat-label">Единый центр мониторинга</div>
+                  </div>
+                  <div class="case-detail__stat">
+                    <div class="case-detail__stat-value">∞</div>
+                    <div class="case-detail__stat-label">Простое добавление провайдеров</div>
+                  </div>
+                </div>
+              </div>
+              <div class="tabs__panel" data-panel="tech">
+                <div class="case-detail__tech">
+                  <div class="case-detail__tech-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 5L2.5 12L21 19L17 12L21 5Z"/></svg>
+                    Telegram Bot API
+                  </div>
+                  <div class="case-detail__tech-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    Multiple AI APIs
+                  </div>
+                  <div class="case-detail__tech-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7z"/></svg>
+                    PostgreSQL — конфигурации
+                  </div>
+                  <div class="case-detail__tech-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    n8n — маршрутизация
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__content">
+      <p class="footer__copyright">© 2026 AI Automation Portfolio Lab</p>
+      <nav class="footer__links">
+        <a href="../portfolio.html" class="footer__link">Проекты</a>
+        <a href="../services.html" class="footer__link">Услуги</a>
+        <a href="../contacts.html" class="footer__link">Контакты</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/api-client.js"></script>
+  <script src="../js/chat-widget.js"></script>
+
+  <!-- Chat Launcher Button -->
+  <button class="chat-launcher" id="chat-launcher" aria-label="Открыть AI-ассистента">
+    <span>💬</span>
+  </button>
+
+  <!-- Chat Widget -->
+  <div class="chat-widget" id="chat-widget">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-avatar">AI</div>
+        <div>
+          <div class="chat-title">AI-ассистент</div>
+          <div class="chat-subtitle">Спросите о кейсах и услугах</div>
+        </div>
+      </div>
+      <button class="chat-close" id="chat-close" aria-label="Закрыть чат">×</button>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-footer">
+      <input
+        id="chat-input"
+        class="chat-input"
+        placeholder="Напишите вопрос..."
+        type="text"
+      />
+      <button id="chat-send" class="chat-send">
+        <span>➤</span>
+      </button>
+    </div>
+  </div>
+</body>
+</html>

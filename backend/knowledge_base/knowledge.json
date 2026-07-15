@@ -1,0 +1,77 @@
+{
+  "cases": [
+    {
+      "id": "assistant-flow",
+      "title": "Assistant Flow",
+      "content": "Assistant Flow — AI-платформа для работы с документами. Позволяет создавать умных ассистентов, которые отвечают на вопросы по базе знаний. Технологии: Python, FastAPI, RAG, ChromaDB, PostgreSQL, Telegram Bot. Основные возможности: семантический поиск по документам, контекстная память диалога, поддержка множества AI-провайдеров, интеграция с Telegram.",
+      "category": "cases",
+      "url": "https://ai.alex-n8n.site/cases/assistant-flow.html"
+    },
+    {
+      "id": "review-flow",
+      "title": "Review Flow",
+      "content": "Review Flow — AI-сервис для обработки отзывов. Автоматически классифицирует отзывы, определяет тональность, извлекает ключевые аспекты. Технологии: Python, FastAPI, OpenAI, GigaChat, PostgreSQL. Основные возможности: классификация по категориям, анализ тональности, извлечение сущностей, генерация ответов.",
+      "category": "cases",
+      "url": "https://ai.alex-n8n.site/cases/review-flow.html"
+    },
+    {
+      "id": "ai-portfolio",
+      "title": "AI Portfolio",
+      "content": "AI Portfolio — публичная витрина AI-инженера. Демонстрация компетенций в области AI-автоматизации. Технологии: Python, FastAPI, RAG, ChromaDB, PostgreSQL, OpenAI, GigaChat. Основные возможности: AI-ассистент для ответов на вопросы о кейсах и услугах, база знаний о проектах, оперативная смена AI-провайдера.",
+      "category": "cases",
+      "url": "https://ai.alex-n8n.site"
+    }
+  ],
+  "services": [
+    {
+      "id": "ai-automation",
+      "title": "AI-автоматизация",
+      "content": "Автоматизация бизнес-процессов с помощью AI. Включает: интеграцию AI в существующие процессы, создание AI-ассистентов, автоматизацию обработки документов, классификацию и анализ данных. Примеры: Lead Qualification, Review Flow, контент-конвейеры.",
+      "category": "services"
+    },
+    {
+      "id": "rag-development",
+      "title": "Разработка RAG-систем",
+      "content": "Создание систем Retrieval-Augmented Generation. RAG позволяет AI отвечать на вопросы на основе базы знаний. Включает: векторизацию документов, семантический поиск, интеграцию с LLM. Технологии: ChromaDB, FAISS, Pinecone, OpenAI Embeddings.",
+      "category": "services"
+    },
+    {
+      "id": "telegram-bots",
+      "title": "Telegram-боты с AI",
+      "content": "Разработка умных Telegram-ботов с AI-функциями. Боты понимают естественный язык, поддерживают контекст диалога, интегрируются с базами знаний. Примеры: Assistant Flow, Customer Support Bot, FAQ Bot.",
+      "category": "services"
+    }
+  ],
+  "technologies": [
+    {
+      "id": "python",
+      "title": "Python",
+      "content": "Основной язык для AI-разработки. Используется для бэкенда, обработки данных, ML-моделей. Фреймворки: FastAPI, Flask, Django. Библиотеки: OpenAI SDK, LangChain, ChromaDB, Transformers.",
+      "category": "technologies"
+    },
+    {
+      "id": "fastapi",
+      "title": "FastAPI",
+      "content": "Современный асинхронный веб-фреймворк для Python. Преимущества: автоматическая валидация, документация OpenAPI, высокая производительность. Используется для API-бэкенда AI-приложений.",
+      "category": "technologies"
+    },
+    {
+      "id": "chromadb",
+      "title": "ChromaDB",
+      "content": "Векторная база данных для AI-приложений. Позволяет хранить эмбеддинги и выполнять семантический поиск. Поддерживает персистентное хранение, работу в режиме HTTP-сервера, интеграцию с LangChain. Используется в RAG-системах.",
+      "category": "technologies"
+    },
+    {
+      "id": "openai",
+      "title": "OpenAI API",
+      "content": "API для доступа к GPT-моделям. Модели: GPT-4, GPT-4 Turbo, GPT-3.5. Используется для генерации текста, анализа, эмбеддингов. Преимущества: высокое качество, простота интеграции, документация.",
+      "category": "technologies"
+    },
+    {
+      "id": "gigachat",
+      "title": "GigaChat",
+      "content": "Российская LLM от Сбер. Модели: GigaChat, GigaChat-Max. Преимущества: поддержка русского языка, работа в РФ, конкурентные цены. Используется как альтернатива OpenAI или fallback.",
+      "category": "technologies"
+    }
+  ]
+}

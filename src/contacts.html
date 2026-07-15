@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Контакты для связи. Telegram, Email.">
+  <title>Контакты — AI Portfolio</title>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600<link rel="stylesheet" href="css/styles.css">display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header__content">
+      <a href="index.html" class="header__logo">
+        <span class="logo__icon">◇</span>
+        <span>AI Portfolio</span>
+      </a>
+      <nav class="nav">
+        <a href="index.html" class="nav__link">Главная</a>
+        <a href="portfolio.html" class="nav__link">Проекты</a>
+        <a href="services.html" class="nav__link">Услуги</a>
+        <a href="contacts.html" class="nav__link nav__link--active">Контакты</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="page">
+      <section class="section">
+        <div class="container">
+          <div class="text-center" style="margin-bottom: var(--space-lg);">
+            <h1 class="section__title">Контакты</h1>
+          </div>
+
+          <div class="contacts-grid">
+            <!-- Contact Info -->
+            <div class="contacts__info">
+              <!-- Telegram -->
+              <div class="contact-item">
+                <div class="contact-item__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 5L2.5 12L21 19L17 12L21 5Z" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17 12L12 15" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="contact-item__label">Telegram</p>
+                  <p class="contact-item__value">
+                    <a href="https://t.me/yourusername" target="_blank" rel="noopener noreferrer">@yourusername</a>
+                  </p>
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="contact-item">
+                <div class="contact-item__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="contact-item__label">Email</p>
+                  <p class="contact-item__value">
+                    <a href="mailto:your@email.com">your@email.com</a>
+                  </p>
+                </div>
+              </div>
+
+              <!-- CTA Button -->
+              <a href="https://t.me/yourusername" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                Написать в Telegram
+              </a>
+            </div>
+
+            <!-- Process -->
+            <div class="contacts__process">
+              <h3 class="process__title">Как работает взаимодействие</h3>
+              <div class="process__steps">
+                <div class="process__step">
+                  <div class="process__step-number">1</div>
+                  <div class="process__step-content">
+                    <p class="process__step-title">Обсуждение задачи</p>
+                    <p class="process__step-desc">Расскажите о вашей задаче и ожидаемых результатах</p>
+                  </div>
+                </div>
+                <div class="process__step">
+                  <div class="process__step-number">2</div>
+                  <div class="process__step-content">
+                    <p class="process__step-title">Анализ и предложение</p>
+                    <p class="process__step-desc">Анализ задачи, варианты решения, оценка сроков</p>
+                  </div>
+                </div>
+                <div class="process__step">
+                  <div class="process__step-number">3</div>
+                  <div class="process__step-content">
+                    <p class="process__step-title">Реализация</p>
+                    <p class="process__step-desc">Разработка, тестирование, документация</p>
+                  </div>
+                </div>
+                <div class="process__step">
+                  <div class="process__step-number">4</div>
+                  <div class="process__step-content">
+                    <p class="process__step-title">Поддержка</p>
+                    <p class="process__step-desc">Сопровождение после сдачи проекта</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer__content">
+      <p class="footer__copyright">© 2026 AI Automation Portfolio Lab</p>
+      <nav class="footer__links">
+        <a href="portfolio.html" class="footer__link">Проекты</a>
+        <a href="services.html" class="footer__link">Услуги</a>
+        <a href="contacts.html" class="footer__link">Контакты</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/api-client.js"></script>
+  <script src="js/chat-widget.js"></script>
+
+  <!-- Chat Launcher Button -->
+  <button class="chat-launcher" id="chat-launcher" aria-label="Открыть AI-ассистента">
+    <span>💬</span>
+  </button>
+
+  <!-- Chat Widget -->
+  <div class="chat-widget" id="chat-widget">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-avatar">AI</div>
+        <div>
+          <div class="chat-title">AI-ассистент</div>
+          <div class="chat-subtitle">Спросите о кейсах и услугах</div>
+        </div>
+      </div>
+      <button class="chat-close" id="chat-close" aria-label="Закрыть чат">×</button>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-footer">
+      <input
+        id="chat-input"
+        class="chat-input"
+        placeholder="Напишите вопрос..."
+        type="text"
+      />
+      <button id="chat-send" class="chat-send">
+        <span>➤</span>
+      </button>
+    </div>
+  </div>
+</body>
+</html>

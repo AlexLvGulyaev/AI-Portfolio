@@ -1,0 +1,41 @@
+# Environment files - use docker-compose env instead
+.env
+.env.*
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose*.yml
+
+# Documentation
+*.md
+docs/
+
+# ChromaDB data (will be created at runtime)
+data/chroma/
+data/demo_chroma/
+data/chroma_db/
