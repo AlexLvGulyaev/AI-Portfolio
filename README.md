@@ -170,15 +170,15 @@ python -m http.server 8000
 
 ## Развёртывание
 
-Полная инструкция по развёртыванию находится в `docs/DEPLOYMENT_GUIDE.md` (подготавливается в рамках Deployment Validation).
+Полная инструкция по развёртыванию находится в `docs/DEPLOYMENT_GUIDE.md`.
 
 ## Статус
 
-Проект завершён в объёме уроков Prompt Engineering и готов к первой публикации в GitHub.
+Проект завершён в объёме уроков Prompt Engineering. Репозиторий находится под управлением Git.
 
 Следующие этапы:
-- Deployment Validation
 - Административная консоль
+- Deployment Validation перед финальной публикацией
 
 ## Лицензия
 
