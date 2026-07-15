@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     openai_api_key: str
     gigachat_auth_key: str | None = None
 
+    # Admin Console (REQUIRED - no default)
+    admin_api_token: str
 
     # Rate Limiting
     rate_limit_requests_per_minute: int = 10
@@ -38,6 +40,7 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = False
+        extra = "ignore"
 
     @property
     def cors_origins_list(self) -> list[str]:

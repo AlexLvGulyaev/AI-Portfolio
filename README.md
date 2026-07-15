@@ -69,6 +69,9 @@ ai-portfolio/
 ├── backend/                      # Backend (FastAPI)
 │   ├── app/                      # Исходный код приложения
 │   │   ├── api/                  # API endpoints
+│   │   │   ├── admin/            # Admin console API (Dashboard, KB, Logs, Conversations)
+│   │   │   ├── chat.py           # Public chat endpoint
+│   │   │   └── health.py         # Health check
 │   │   ├── core/                 # Конфигурация, БД
 │   │   ├── models/               # SQLAlchemy модели
 │   │   ├── repositories/         # Репозитории
@@ -95,10 +98,12 @@ ai-portfolio/
 ```bash
 cp .env.example .env
 # Заполнить .env реальными значениями:
-# - OPENAI_API_KEY
-# - GIGACHAT_AUTH_KEY
-# - POSTGRES_PASSWORD
-# - CORS_ORIGINS
+# - OPENAI_API_KEY         (обязательно)
+# - ADMIN_API_TOKEN        (обязательно для admin endpoints)
+# - POSTGRES_PASSWORD      (обязательно)
+# - DATABASE_URL           (обязательно, формируется из POSTGRES_*)
+# - CORS_ORIGINS           (обязательно)
+# - GIGACHAT_AUTH_KEY      (опционально, fallback-провайдер)
 ```
 
 ### 2. Запустить проект
@@ -119,6 +124,12 @@ curl -s http://localhost:8000/health
 curl -s -X POST http://localhost:8000/chat \
   -H 'Content-Type: application/json' \
   -d '{"message": "Какие услуги вы предоставляете?"}'
+
+# Публичный API карточек проектов (без авторизации)
+curl -s http://localhost:8000/project-cards
+
+# Admin console (требуется ADMIN_API_TOKEN)
+curl -s -H "Authorization: Bearer $ADMIN_API_TOKEN" http://localhost:8000/admin/dashboard
 ```
 
 ## Локальная разработка backend
@@ -129,7 +140,7 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-# Заполнить .env
+# Заполнить .env (OPENAI_API_KEY, DATABASE_URL, ADMIN_API_TOKEN, ...)
 alembic upgrade head
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
@@ -170,7 +181,9 @@ python -m http.server 8000
 
 ## Развёртывание
 
-Полная инструкция по развёртыванию находится в `docs/DEPLOYMENT_GUIDE.md`.
+Полная инструкция по развёртыванию (`DEPLOYMENT_GUIDE.md`) будет подготовлена после завершения разработки по решению владельца проекта.
+
+Краткий запуск production-like окружения описан в разделе **Быстрый старт**.
 
 ## Статус
 

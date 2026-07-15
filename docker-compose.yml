@@ -16,6 +16,7 @@
 # - POSTGRES_DB
 # - DATABASE_URL
 # - OPENAI_API_KEY
+# - ADMIN_API_TOKEN
 # - CORS_ORIGINS
 # ============================================================
 
@@ -71,6 +72,8 @@ services:
       # AI Providers
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GIGACHAT_AUTH_KEY=${GIGACHAT_AUTH_KEY}
+      # Admin Console
+      - ADMIN_API_TOKEN=${ADMIN_API_TOKEN}
       # CORS
       - CORS_ORIGINS=${CORS_ORIGINS}
       # Logging

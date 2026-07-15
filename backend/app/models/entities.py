@@ -9,9 +9,81 @@ Based on:
 
 from datetime import datetime
 from uuid import uuid4, UUID as UUIDType
-from sqlalchemy import Column, String, Boolean, Integer, Float, Text, DateTime, ForeignKey, JSON
+from sqlalchemy import Column, String, Boolean, Integer, Float, Text, DateTime, ForeignKey, JSON, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from app.core.database import Base
+
+
+class ProjectCard(Base):
+    """
+    Managed project card for public portfolio catalog.
+
+    Source of Truth for project cards in the public frontend.
+    Public frontend receives cards through read-only backend API.
+    """
+
+    __tablename__ = "project_cards"
+
+    __table_args__ = (
+        CheckConstraint(
+            "show_on_homepage BETWEEN 0 AND 4",
+            name="ck_project_cards_show_on_homepage_range",
+        ),
+    )
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    slug = Column(String(100), unique=True, nullable=False, index=True)
+    title = Column(String(200), nullable=False)
+    short_description = Column(Text, nullable=False)
+    category = Column(String(50), nullable=False, default="cases")
+    tags = Column(JSON, default=list)
+    display_order = Column(Integer, default=0, nullable=False)
+    show_on_homepage = Column(Integer, default=0, nullable=False)
+    is_visible = Column(Boolean, default=True, nullable=False)
+    knowledge_content = Column(Text)
+    external_url = Column(String(500))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class KnowledgeSource(Base):
+    """
+    Knowledge Base source for manual synchronization into ChromaDB.
+
+    ChromaDB is a search index, not a Source of Truth.
+    """
+
+    __tablename__ = "knowledge_sources"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    source_type = Column(String(50), nullable=False)  # github_repo / local_directory / local_file
+    identifier = Column(String(500), nullable=False)  # owner/repo or path
+    branch = Column(String(100))
+    base_path = Column(String(500))
+    is_enabled = Column(Boolean, default=True, nullable=False)
+    last_sync_at = Column(DateTime)
+    last_sync_status = Column(String(50), default="pending")  # pending / success / error
+    last_sync_error = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class KnowledgeSyncJob(Base):
+    """
+    Knowledge Base synchronization job history.
+    """
+
+    __tablename__ = "knowledge_sync_jobs"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    triggered_by = Column(String(50), nullable=False, default="manual")  # manual / future_scheduler
+    status = Column(String(50), nullable=False, default="pending")  # pending / running / success / error
+    started_at = Column(DateTime)
+    finished_at = Column(DateTime)
+    stats = Column(JSON, default=dict)
+    error_message = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 class AIProviderSetting(Base):

@@ -15,7 +15,15 @@ from app.core.config import get_settings
 from app.core.database import Base
 
 # Import all models
-from app.models.entities import AIProviderSetting, ChatSession, ChatMessage, OperationalLog
+from app.models.entities import (
+    AIProviderSetting,
+    ChatSession,
+    ChatMessage,
+    OperationalLog,
+    ProjectCard,
+    KnowledgeSource,
+    KnowledgeSyncJob,
+)
 
 config = context.config
 

@@ -3,7 +3,6 @@ Main FastAPI application for AI Portfolio Backend.
 Production configuration.
 """
 
-from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -14,16 +13,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.health import router as health_router
 from app.api.chat import router as chat_router
-from app.core.database import Base, engine
+from app.api.project_cards import router as project_cards_router
+from app.api.admin import admin_router
 from app.core.config import get_settings
-
-
-@asynccontextmanager
-async def lifespan(_app: FastAPI):
-    """Application lifespan: create tables on startup."""
-    # Create tables
-    Base.metadata.create_all(bind=engine)
-    yield
 
 
 settings = get_settings()
@@ -32,7 +24,6 @@ app = FastAPI(
     title="AI Portfolio API",
     description="Backend for AI Portfolio AI Assistant",
     version="0.1.0",
-    lifespan=lifespan,
     debug=settings.debug,
 )
 
@@ -50,6 +41,8 @@ app.add_middleware(
 # Include routers
 app.include_router(health_router)
 app.include_router(chat_router)
+app.include_router(project_cards_router)
+app.include_router(admin_router)
 
 
 @app.get("/")
