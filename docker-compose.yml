@@ -40,11 +40,11 @@ services:
       timeout: 5s
       retries: 5
 
-  # Frontend (nginx with static files)
+  # Frontend (nginx with public + admin static files)
   ai-portfolio-frontend:
     build:
-      context: ./src
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: src/Dockerfile
     restart: always
     container_name: ai-portfolio
     networks:
