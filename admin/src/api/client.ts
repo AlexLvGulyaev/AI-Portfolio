@@ -179,6 +179,12 @@ export interface ChromaStatus {
   error?: string;
 }
 
+export interface KnowledgeChunk {
+  id: string;
+  content: string;
+  metadata: Record<string, unknown>;
+}
+
 export interface SyncJob {
   job_id: string;
   status: string;
@@ -284,6 +290,10 @@ export function updateProjectCard(id: string, data: ProjectCardUpdate) {
 
 export function deleteProjectCard(id: string) {
   return apiClient.delete<{ ok: boolean }>(`/knowledge-base/project-cards/${id}`);
+}
+
+export function getProjectCardChunks(id: string) {
+  return apiClient.get<{ items: KnowledgeChunk[] }>(`/knowledge-base/project-cards/${id}/chunks`);
 }
 
 export function listLogs(params?: {

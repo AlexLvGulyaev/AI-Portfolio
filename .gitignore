@@ -79,6 +79,9 @@ attachments/
 # Task history — internal working records, not part of public repository
 task_history/
 
+# Memory — internal agent working notes, not part of public repository
+memory/
+
 # Node (future admin console)
 node_modules/
 npm-debug.log*

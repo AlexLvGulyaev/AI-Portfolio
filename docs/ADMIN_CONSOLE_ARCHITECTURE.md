@@ -94,6 +94,7 @@ backend/app/
 | GET | `/admin/knowledge-base/project-cards/{id}` | Получить карточку |
 | PATCH | `/admin/knowledge-base/project-cards/{id}` | Обновить карточку |
 | DELETE | `/admin/knowledge-base/project-cards/{id}` | Удалить карточку |
+| GET | `/admin/knowledge-base/project-cards/{id}/chunks` | Чанки ChromaDB, относящиеся к карточке проекта |
 
 #### Logs / Conversations
 
@@ -179,7 +180,8 @@ ADMIN_API_TOKEN=<единый токен из .env>
 | AIProviderSettingsService | `services/ai_provider_settings_service.py` | Dashboard: статус провайдеров |
 | OperationalLogService | `services/operational_log_service.py` | Logs workspace |
 | ChatSessionService + SessionRepository | `services/chat_session_service.py`, `repositories/session_repository.py` | Conversations workspace |
-| RAGService | `services/rag/rag_service.py` | KB status, ChromaDB stats |
+| RAGService | `services/rag/rag_service.py` | KB status, ChromaDB stats, поиск чанков по метаданным |
+| KnowledgeBaseService | `services/admin/knowledge_base_service.py` | ProjectCard chunks, статус KB |
 | KnowledgeBaseIndexer | `services/rag/knowledge_base_indexer.py` | Ручная синхронизация KB |
 
 ### 2.6. Компоненты, которые не переносятся
@@ -248,28 +250,28 @@ admin/
 | Путь | Страница | Тип |
 |------|----------|-----|
 | `/admin/login` | LoginPage | Публичная |
-| `/admin/dashboard` | DashboardPage | Защищённая |
-| `/admin/knowledge-base` | KnowledgeBasePage | Защищённая |
-| `/admin/logs` | LogsConversationsPage | Защищённая |
-| `/admin/` | redirect → `/admin/dashboard` | — |
+| `/admin/system` | DashboardPage | Защищённая |
+| `/admin/content/cards` | ProjectCardsPage | Защищённая |
+| `/admin/content/sources` | KnowledgeSourcesPage | Защищённая |
+| `/admin/content/sync` | KnowledgeSyncPage | Защищённая |
+| `/admin/logs` | LogsPage | Защищённая |
+| `/admin/conversations` | ConversationsPage | Защищённая |
+| `/admin/` | redirect → `/admin/system` | — |
 
 ### 3.4. Компоненты новой разработки
 
 | Компонент | Назначение |
 |-----------|------------|
-| `DashboardPage.tsx` | Метрики из `/admin/dashboard` |
-| `KnowledgeBasePage.tsx` | Tabs: Project Cards, Sources, Sync status |
-| `ProjectCardsTab.tsx` | CRUD таблица карточек |
-| `ProjectCardForm.tsx` | Форма карточки |
-| `SourcesTab.tsx` | Список источников |
-| `SourceForm.tsx` | Форма источника |
-| `SyncPanel.tsx` | Кнопка синхронизации, статус, прогресс |
-| `ChromaStatusCard.tsx` | Статус индекса |
-| `LogsConversationsPage.tsx` | Tabs-контейнер |
-| `LogsTab.tsx` | Фильтры + список логов |
-| `LogDetailPanel.tsx` | Детали лога |
-| `ConversationsTab.tsx` | Список сессий |
-| `ConversationDetailPanel.tsx` | История сообщений |
+| `DashboardPage.tsx` | Метрики и настройки LLM-провайдеров |
+| `ProjectCardsPage.tsx` | Операционная панель карточек проектов: список + детали |
+| `KnowledgeSourcesPage.tsx` | CRUD источников Knowledge Base |
+| `KnowledgeSyncPage.tsx` | Ручная синхронизация и статус ChromaDB |
+| `LogsPage.tsx` | Operational logs с фильтрами |
+| `ConversationsPage.tsx` | История диалогов |
+| `Page.tsx` | Обёртка страницы; поддерживает `renderHeader` для кастомной шапки |
+| `Modal.tsx` | Модальное окно создания/редактирования |
+| `ConfirmDialog.tsx` | Диалог подтверждения удаления |
+| `ProjectCardForm.tsx` | Форма карточки проекта |
 | `globals.css` | Дизайн-система AI Portfolio |
 
 ---
@@ -297,7 +299,8 @@ admin/
 |----------|-----------|
 | `docker compose build ai-portfolio-frontend` | ✅ Успешно |
 | `GET /admin/` через nginx | ✅ Возвращает admin `index.html` |
-| `GET /admin/dashboard` (обновление страницы) | ✅ Fallback на `index.html`, SPA маршрутизация работает |
+| `GET /admin/system` (обновление страницы) | ✅ Fallback на `index.html`, SPA маршрутизация работает |
+| `GET /admin/content/cards` (обновление страницы) | ✅ Fallback на `index.html`, SPA маршрутизация работает |
 | `GET /admin/assets/...` | ✅ Статика отдаётся |
 | `GET /api/admin/dashboard` с токеном | ✅ Проксируется на backend `/admin/dashboard` |
 | `GET /api/admin/dashboard` без токена | ✅ 403 |

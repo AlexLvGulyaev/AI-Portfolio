@@ -197,3 +197,14 @@ async def delete_project_card(
     service = KnowledgeBaseService(db)
     service.delete_project_card(card_id)
     return {"ok": True}
+
+
+@router.get("/knowledge-base/project-cards/{card_id}/chunks")
+async def get_project_card_chunks(
+    card_id: UUID,
+    admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Return ChromaDB chunks associated with a project card."""
+    service = KnowledgeBaseService(db)
+    return {"items": service.get_project_card_chunks(card_id)}

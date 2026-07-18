@@ -120,6 +120,26 @@ class KnowledgeBaseService:
             raise HTTPException(404, "Project card not found")
         return self._card_to_dict(row)
 
+    def get_project_card_chunks(self, card_id: UUID) -> list[dict[str, Any]]:
+        """Return ChromaDB chunks associated with a project card."""
+        row = self._db.get(ProjectCard, card_id)
+        if not row:
+            raise HTTPException(404, "Project card not found")
+
+        try:
+            rag = RAGService()
+            return rag.get_chunks_by_metadata(
+                where={
+                    "$and": [
+                        {"source_type": {"$eq": "project_card"}},
+                        {"slug": {"$eq": row.slug}},
+                    ]
+                },
+                limit=100,
+            )
+        except Exception as exc:
+            raise HTTPException(500, f"Failed to load ChromaDB chunks: {exc}")
+
     def create_project_card(self, data: dict[str, Any]) -> dict[str, Any]:
         """Create a new project card."""
         slug = data.get("slug", "")

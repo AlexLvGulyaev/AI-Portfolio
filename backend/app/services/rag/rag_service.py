@@ -293,3 +293,38 @@ class RAGService:
         """
         self._client = self._create_chroma_client()
         self._collection = self._get_or_create_collection()
+
+    def get_chunks_by_metadata(
+        self,
+        where: dict[str, Any],
+        limit: int = 100,
+    ) -> list[dict[str, Any]]:
+        """
+        Возвращает чанки коллекции, соответствующие фильтру метаданных.
+
+        Args:
+            where: Фильтр по метаданным ChromaDB.
+            limit: Максимальное количество чанков.
+
+        Returns:
+            Список чанков с содержимым и метаданными.
+        """
+        if self._collection.count() == 0:
+            return []
+
+        results = self._collection.get(
+            where=where,
+            limit=limit,
+            include=["documents", "metadatas"],
+        )
+
+        chunks: list[dict[str, Any]] = []
+        if results.get("documents") and len(results["documents"]) > 0:
+            for i in range(len(results["documents"])):
+                chunks.append({
+                    "id": results["ids"][i] if results.get("ids") else None,
+                    "content": results["documents"][i] or "",
+                    "metadata": results["metadatas"][i] if results.get("metadatas") else {},
+                })
+
+        return chunks

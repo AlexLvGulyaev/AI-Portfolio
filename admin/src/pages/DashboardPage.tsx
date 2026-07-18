@@ -471,7 +471,7 @@ export function DashboardPage() {
                 <h2 className="dashboard-section__title">Контент</h2>
                 <p className="dashboard-section__subtitle">Карточки, KB-источники и синхронизация.</p>
                 <div className="dashboard-grid dashboard-grid--2">
-                  <MetricCard label="Project Cards" value={data.project_cards.total} note={`видимых ${data.project_cards.visible}`} />
+                  <MetricCard label="Карточки проектов" value={data.project_cards.total} note={`видимых ${data.project_cards.visible}`} />
                   <MetricCard label="On Homepage" value={data.project_cards.homepage} />
                   <MetricCard label="KB Sources" value={data.knowledge_base.sources} />
                   <MetricCard
@@ -490,9 +490,9 @@ export function DashboardPage() {
                 <h2 className="dashboard-section__title">Операции</h2>
                 <p className="dashboard-section__subtitle">Журналы, диалоги и обновление.</p>
                 <div className="dashboard-grid dashboard-grid--2">
-                  <MetricCard label="Operational Logs" value={data.logs.total} />
-                  <MetricCard label="Conversations" value={data.conversations.total} />
-                  <MetricCard label="Active Conversations" value={data.conversations.active} />
+                  <MetricCard label="Логи" value={data.logs.total} />
+                  <MetricCard label="Диалоги" value={data.conversations.total} />
+                  <MetricCard label="Активные диалоги" value={data.conversations.active} />
                   <MetricCard label="Updated" value={new Date(data.timestamp).toLocaleString('ru-RU')} />
                 </div>
               </Card>
