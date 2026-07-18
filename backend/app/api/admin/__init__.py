@@ -9,6 +9,7 @@ from app.api.admin.dashboard import router as dashboard_router
 from app.api.admin.knowledge_base import router as knowledge_base_router
 from app.api.admin.logs import router as logs_router
 from app.api.admin.conversations import router as conversations_router
+from app.api.admin.execution_sessions import router as execution_sessions_router
 
 admin_router = APIRouter(prefix="/admin")
 
@@ -17,3 +18,4 @@ admin_router.include_router(knowledge_base_router, tags=["admin:knowledge_base"]
 admin_router.include_router(logs_router, tags=["admin:logs"])
 admin_router.include_router(conversations_router, tags=["admin:conversations"])
 admin_router.include_router(ai_providers_router, tags=["admin:ai_providers"])
+admin_router.include_router(execution_sessions_router, tags=["admin:execution_sessions"])

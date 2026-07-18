@@ -149,6 +149,56 @@ class ChatMessage(Base):
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
 
+class ExecutionSession(Base):
+    """
+    Execution tracing session for a single request through ChatOrchestrator.
+
+    One execution session corresponds to one pass of ChatOrchestrator.process_request.
+    """
+
+    __tablename__ = "execution_sessions"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    session_id = Column(UUID(as_uuid=True), ForeignKey("chat_sessions.id"), nullable=True, index=True)
+    user_id = Column(UUID(as_uuid=True), nullable=True, index=True)
+    event_type = Column(String(100), nullable=False, default="chat_request")
+    route = Column(String(50), nullable=False, default="text")  # text | rag | log | image | audio
+    status = Column(String(20), nullable=False, default="ok")  # ok | error
+    started_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    finished_at = Column(DateTime, nullable=True)
+    duration_ms = Column(Integer, nullable=True)
+    provider_key = Column(String(50), nullable=True)
+    model_name = Column(String(100), nullable=True)
+    execution_metadata = Column(JSON, default=dict)  # renamed from 'metadata' (reserved in SQLAlchemy)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class ExecutionStep(Base):
+    """
+    Step-level trace inside an ExecutionSession.
+
+    Captures pipeline stages such as session_resolve, memory_load, rag_search, llm_call, etc.
+    """
+
+    __tablename__ = "execution_steps"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    execution_session_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("execution_sessions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    stage_name = Column(String(100), nullable=False)
+    step_order = Column(Integer, nullable=False, default=0)
+    status = Column(String(20), nullable=False, default="ok")  # ok | error | skipped | running
+    started_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    finished_at = Column(DateTime, nullable=True)
+    duration_ms = Column(Integer, nullable=True)
+    step_metadata = Column(JSON, default=dict)  # renamed from 'metadata' (reserved in SQLAlchemy)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
 class OperationalLog(Base):
     """
     Operational logging for AI interactions.
@@ -164,6 +214,12 @@ class OperationalLog(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     event_type = Column(String(100), nullable=False, index=True)  # From Review Flow
+    execution_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("execution_sessions.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
     session_id = Column(UUID(as_uuid=True), index=True)  # From Assistant Flow
     user_id = Column(UUID(as_uuid=True), index=True)  # From PEcf09, Assistant Flow
     source = Column(String(20))  # From PEcf09: 'web', 'api'

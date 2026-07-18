@@ -3,7 +3,7 @@
 **Проект:** ai-portfolio
 **Дата создания:** 2026-07-12
 **Последнее обновление:** 2026-07-18
-**Статус:** Завершён базовый продукт в объёме уроков Prompt Engineering. Реализована административная консоль v1 (Stage 4). Параметры LLM-провайдеров перенесены в БД и управляются через Dashboard. Проект находится под управлением Git, репозиторий инициализирован.
+**Статус:** Завершён базовый продукт в объёме уроков Prompt Engineering. Реализована административная консоль v1. Параметры LLM-провайдеров перенесены в БД и управляются через Dashboard. Execution Tracing для панели «Логи» реализовано. Проект находится под управлением Git, репозиторий инициализирован.
 
 ---
 
@@ -43,7 +43,7 @@
 - Управление карточками проектов вынесено в PostgreSQL; public frontend получает карточки через read-only API
 - Параметры LLM-провайдеров вынесены в PostgreSQL и редактируются через Dashboard админки; API-ключи остаются в `.env`
 
-**Текущий этап:** Базовый продукт и административная консоль v1 завершены. Управление LLM-провайдерами реализовано. Ожидается Deployment Validation по решению владельца продукта перед финальной публикацией.
+**Текущий этап:** Базовый продукт, административная консоль и Execution Tracing для панели «Логи» завершены. Ожидается Deployment Validation по решению владельца продукта перед финальной публикацией.
 
 ---
 
@@ -181,13 +181,14 @@ Deployment Validation будет проведён по решению владе
 
 ### Реализованная функциональность v1
 
-Первая версия административной консоли содержит **только три рабочих пространства**:
+Первая версия административной консоли содержит **пять разделов навигации**, сгруппированных по функциям:
 
-| Пространство | Назначение | Границы |
-|--------------|------------|---------|
-| **Dashboard** | Единая сводная картина состояния AI Portfolio, включая управление параметрами LLM-провайдеров и выбор active/fallback | Мониторинг + управление LLM-провайдерами. Не управляет остальным содержимым |
-| **Content / Knowledge Base** | Управление карточками проектов, содержимым портфолио, источниками KB, запуск синхронизации | Не редактирует Narrative Blueprint и Presentation Patterns; не является визуальным конструктором страниц |
-| **Logs / Conversations** | Operational logs, история обращений, история диалогов, диагностика | — |
+| Раздел | Назначение | Границы |
+|--------|------------|---------|
+| **Системные настройки (Dashboard)** | Единая сводная картина состояния AI Portfolio, включая управление параметрами LLM-провайдеров и выбор active/fallback | Мониторинг + управление LLM-провайдерами. Не управляет остальным содержимым |
+| **Контент / База знаний** | Управление карточками проектов, источниками KB, запуск синхронизации | Не редактирует Narrative Blueprint и Presentation Patterns; не является визуальным конструктором страниц |
+| **Логи** | Operational console в стиле Assistant Flow: журнал execution-сессий с preview запроса, summary grid, цепочкой этапов, вопросом/ответом в двух колонках, timeline pipeline с дельтами и JSON snapshot | — |
+| **Диалоги** | История chat-сессий и сообщений | — |
 
 ### Технологический стек v1
 
@@ -343,7 +344,8 @@ AI Portfolio использует три уровня источников да�
 15. **Актуализация Source of Truth административной консоли** — ✅ Выполнено
 16. **Административная консоль (Stage 4)** — ✅ Реализована и развёрнута: Dashboard, Content / Knowledge Base, Logs / Conversations
 17. **Управление параметрами LLM-провайдеров через админку** — ✅ Реализовано (2026-07-18). БД — единый SOT для model, temperature, max_tokens, base_url, enabled, active, fallback.
-18. **Deployment Validation** — ⏳ Будет проведён по решению владельца проекта перед финальной публикацией
+18. **Execution Tracing для панели «Логи»** — ✅ Реализовано (2026-07-18). Таблицы `execution_sessions`/`execution_steps`, миграции 007/008, сервис `ExecutionTracingService`, endpoints `/admin/execution-sessions`, двухпанельный operational layout в `LogsPage`.
+19. **Deployment Validation** — ⏳ Будет проведён по решению владельца проекта перед финальной публикацией
 
 ---
 
@@ -373,4 +375,5 @@ AI Portfolio использует три уровня источников да�
 | 2026-07-15 | ProjectCard SOT Defined | В Source of Truth зафиксировано, что `ProjectCard` в PostgreSQL является единственным Source of Truth карточек проектов; public frontend получает карточки через read-only API. |
 | 2026-07-15 | Admin Console Stage 4 Complete | Реализованы три рабочих пространства административной консоли: Dashboard, Content / Knowledge Base, Logs / Conversations. Production smoke-test пройден без регрессий. |
 | 2026-07-18 | LLM Provider Settings SOT | Параметры LLM-провайдеров перенесены в PostgreSQL (`ai_provider_settings`) и управляются через Dashboard административной консоли. API-ключи остаются в `.env`. |
-| 2026-07-18 | ProjectCards Operational Panel | Страница управления карточками проектов превращена в операционную панель (двухпанельный layout, toolbar в шапке страницы, макропанели, чанки ChromaDB). Добавлен endpoint `/admin/knowledge-base/project-cards/{id}/chunks` и миграция 006 с `created_at`/`updated_at`. `ADMIN_CONSOLE_ARCHITECTURE.md` и `IMPLEMENTATION_PLAN.md` актуализированы.
+| 2026-07-18 | ProjectCards Operational Panel | Страница управления карточками проектов превращена в операционную панель (двухпанельный layout, toolbar в шапке страницы, макропанели, чанки ChromaDB). Добавлен endpoint `/admin/knowledge-base/project-cards/{id}/chunks` и миграция 006 с `created_at`/`updated_at`. `ADMIN_CONSOLE_ARCHITECTURE.md` и `IMPLEMENTATION_PLAN.md` актуализированы. |
+| 2026-07-18 | Execution Tracing Implemented | Реализовано и развёрнуто execution tracing для панели «Логи»: модели `ExecutionSession`/`ExecutionStep`, миграции 007 и 008 (backfill 38 сессий / 328 шагов), сервис `ExecutionTracingService`, интеграция в `ChatOrchestrator`, endpoints `/admin/execution-sessions`, двухпанельный operational layout в `LogsPage`. Прошёл production smoke-test: chat запросы создают execution-сессии с 11 шагами; cache hit корректно отмечает skipped шаги. |

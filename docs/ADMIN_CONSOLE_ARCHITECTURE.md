@@ -30,7 +30,7 @@
 
 | # | Принцип | Обоснование |
 |---|---------|-------------|
-| 1 | **Только три рабочих пространства** | Утверждено владельцем: Dashboard, Content / Knowledge Base, Logs / Conversations |
+| 1 | **Пять разделов навигации, сгруппированных по функциям** | Системные настройки, Контент / База знаний (3 подраздела: карточки, источники, синхронизация), Логи, Диалоги |
 | 2 | **Public frontend остаётся без изменений** | Утверждено владельцем: vanilla HTML/CSS/JS |
 | 3 | **Backend остаётся единым FastAPI** | Утверждено владельцем: admin endpoints расширяют существующее приложение |
 | 4 | **Минимальная сложность сопровождения** | AI Portfolio — личный сайт, а не корпоративная платформа; избыточные абстракции не нужны |
@@ -48,23 +48,26 @@
 backend/app/
 ├── api/
 │   ├── __init__.py
-│   ├── chat.py                  # Существующий публичный API (без изменений)
-│   ├── health.py                # Существующий health (без изменений)
+│   ├── chat.py                  # Существующий публичный API
+│   ├── health.py                # Существующий health
 │   └── admin/                   # Новый пакет административных endpoints
 │       ├── __init__.py
 │       ├── dependencies.py      # Аутентификация admin
 │       ├── dashboard.py         # Dashboard: сводные метрики
 │       ├── knowledge_base.py    # Content/KB: источники, карточки проектов, синхронизация
-│       ├── logs.py              # Logs/Conversations: operational logs
-│       └── conversations.py     # Logs/Conversations: сессии и сообщения
+│       ├── logs.py              # Logs: operational logs (совместимость)
+│       ├── conversations.py     # Conversations: сессии и сообщения
+│       └── execution_sessions.py # Logs: execution tracing
 ├── services/
 │   ├── ...                      # Существующие сервисы
+│   │   ├── execution_tracing_service.py  # Execution tracing для ChatOrchestrator
 │   └── admin/
 │       ├── dashboard_service.py
 │       ├── knowledge_base_service.py
-│       └── github_sync_service.py
+│       ├── logs_conversations_service.py
+│       └── execution_sessions_service.py
 ├── models/
-│   └── entities.py              # Расширяется моделями ProjectCard, KnowledgeSource, KnowledgeSyncJob
+│   └── entities.py              # Расширяется моделями ProjectCard, KnowledgeSource, KnowledgeSyncJob, ExecutionSession, ExecutionStep
 └── main.py                      # Подключает admin routers с префиксом /admin
 ```
 
@@ -100,7 +103,9 @@ backend/app/
 
 | Метод | Путь | Назначение |
 |-------|------|------------|
-| GET | `/admin/logs` | Список operational logs с фильтрами |
+| GET | `/admin/logs` | Список operational logs с фильтрами (оставлен для совместимости) |
+| GET | `/admin/execution-sessions` | Список execution-сессий с фильтрами и пагинацией |
+| GET | `/admin/execution-sessions/{id}` | Детали execution-сессии + шаги pipeline + связанный operational log |
 | GET | `/admin/conversations` | Список chat sessions с фильтрами |
 | GET | `/admin/conversations/{id}` | Детали сессии + сообщения |
 
@@ -171,7 +176,75 @@ ADMIN_API_TOKEN=<единый токен из .env>
 | stats | JSON | documents_processed, chunks_created, errors |
 | error_message | text, nullable | Ошибка |
 
-### 2.5. Переиспользуемые backend-компоненты
+### 2.5. Execution Tracing
+
+Execution Tracing — реализованная подсистема детального наблюдения за прохождением запроса через pipeline `ChatOrchestrator`. Поддерживает operational console «Логи» в стиле Assistant Flow.
+
+#### Назначение
+
+- Фиксировать каждый этап обработки chat-запроса с таймстемпами и статусом.
+- Связывать сводный `operational_logs` с детальной трассировкой.
+- Показывать в админке таймлайн pipeline, запрос/ответ и метаданные.
+
+#### Модель данных
+
+| Таблица | Назначение | Source of Truth |
+|---------|-----------|-----------------|
+| `operational_logs` | Сводное событие (query, response, provider, latency, status) | ✅ Да |
+| `execution_sessions` | Одна обработка запроса: route, status, duration, provider/model, metadata | ✅ Да |
+| `execution_steps` | Шаги pipeline внутри execution_sessions | ✅ Да |
+
+Связи:
+- `operational_logs.execution_id` → `execution_sessions.id` (nullable, 0..1)
+- `execution_sessions.session_id` → `chat_sessions.id` (nullable)
+- `execution_steps.execution_session_id` → `execution_sessions.id` (one-to-many)
+
+#### Шаги pipeline (execution_steps)
+
+| Порядок | stage_name | Условие |
+|---------|-----------|---------|
+| 1 | `session_resolve` | Всегда |
+| 2 | `memory_load` | Всегда |
+| 3 | `cache_check` | Всегда |
+| 4 | `rag_search` | Только если выполнялся поиск в Knowledge Base |
+| 5 | `prompt_build` | Всегда, кроме cache hit |
+| 6 | `provider_select` | Всегда, кроме cache hit |
+| 7 | `provider_switch` | Только если использовался fallback |
+| 8 | `llm_call` | Если ответ не из кеша |
+| 9 | `memory_save` | Всегда |
+| 10 | `log_write` | Всегда |
+| 11 | `response_return` | Всегда |
+
+#### Route-маппинг
+
+| Route | Источник |
+|-------|----------|
+| `text` | `chat_request` без `rag_used` |
+| `rag` | `chat_request` с `rag_used=true`, либо отдельный `rag_query` |
+| `log` | `provider_switch` |
+| `image` / `audio` | Зарезервировано для будущих мультимодальных сценариев |
+
+#### Миграция backfill
+
+Миграция `008_backfill_execution_sessions` для существующих записей `operational_logs` без `execution_id` создаёт `execution_sessions` и базовые `execution_steps` на основе сохранённых metadata.
+
+#### Интеграция с ChatOrchestrator
+
+- `ExecutionTracingService` передаётся в `ChatOrchestrator` как опциональная зависимость.
+- Каждый проход `process_request` создаёт одну `execution_session`.
+- Каждый этап pipeline оборачивается в `start_step` / `finish_step`.
+- Cache hit фиксирует шаги `rag_search`, `prompt_build`, `provider_select`, `provider_switch`, `llm_call` как `skipped`.
+- Fallback фиксирует шаг `provider_switch` как `ok`.
+- После записи `operational_log` выполняется `link_operational_log`.
+
+#### Admin endpoints
+
+| Метод | Путь | Назначение |
+|-------|------|-----------|
+| GET | `/admin/execution-sessions` | Список execution-сессий с фильтрами route/status/date/search и пагинацией |
+| GET | `/admin/execution-sessions/{id}` | Детали сессии + шаги pipeline + связанный operational log |
+
+### 2.6. Переиспользуемые backend-компоненты
 
 Уже существуют в AI Portfolio и не требуют копирования:
 
@@ -254,7 +327,7 @@ admin/
 | `/admin/content/cards` | ProjectCardsPage | Защищённая |
 | `/admin/content/sources` | KnowledgeSourcesPage | Защищённая |
 | `/admin/content/sync` | KnowledgeSyncPage | Защищённая |
-| `/admin/logs` | LogsPage | Защищённая |
+| `/admin/logs` | LogsPage | Защищённая: operational console execution tracing |
 | `/admin/conversations` | ConversationsPage | Защищённая |
 | `/admin/` | redirect → `/admin/system` | — |
 
@@ -362,14 +435,14 @@ KnowledgeBaseService
 
 ### Входит
 
-- Dashboard.
-- Content / Knowledge Base.
-- Logs / Conversations.
+- Dashboard (Системные настройки): сводка + управление LLM-провайдерами.
+- Content / Knowledge Base: управление карточками проектов, источниками KB, ручная синхронизация.
+- Логи: operational console с execution tracing.
+- Диалоги: история chat-сессий и сообщений.
 - Управление карточками проектов.
 - Управление источниками KB.
 - Ручная синхронизация KB.
-- Просмотр operational logs и истории диалогов.
-- **Управление параметрами LLM-провайдеров (model, temperature, max_tokens, base_url, active/fallback) внутри Dashboard.**
+- **Execution Tracing для панели «Логи»: двухпанельный operational layout, таймлайн pipeline, фильтры по route/status/date/search.**
 
 ### Не входит
 
@@ -406,3 +479,4 @@ Deployment Validation проводится отдельно по решению 
 | 2026-07-14 | 0.9 | Первый технический черновик на основе компонентов Assistant Flow и Review Flow. Содержал 9 рабочих пространств и неутверждённые технические детали. |
 | 2026-07-15 | 1.0 | Актуализация под согласованную продуктовую концепцию: 3 рабочих пространства, минимальная сложность, единый env-token, отказ от RBAC/JWT, переход от Review Flow к собственным сервисам AI Portfolio + каркас AF. |
 | 2026-07-18 | 1.1 | Расширение Dashboard управлением параметрами LLM-провайдеров (model, temperature, max_tokens, base_url, active/fallback) через новый admin endpoint `/admin/ai-providers`. Параметры провайдеров стали храниться в БД как Source of Truth. |
+| 2026-07-18 | 1.2 | Execution Tracing для панели «Логи» реализовано и развёрнуто в production: модели `ExecutionSession` / `ExecutionStep`, миграции 007 и 008 (backfill 38 сессий / 328 шагов), сервис `ExecutionTracingService`, интеграция с `ChatOrchestrator`, endpoints `/admin/execution-sessions`, двухпанельный operational layout в `LogsPage`. Прошёл production smoke-test. Актуализирована структура навигации админки: Dashboard, Content (3 подраздела), Логи, Диалоги. |

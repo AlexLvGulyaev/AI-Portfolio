@@ -19,6 +19,8 @@ from app.models.entities import (
     AIProviderSetting,
     ChatSession,
     ChatMessage,
+    ExecutionSession,
+    ExecutionStep,
     OperationalLog,
     ProjectCard,
     KnowledgeSource,

@@ -20,6 +20,7 @@ from app.schemas.chat import ChatRequest, ChatResponse
 from app.schemas.response import ChatResponseDTO
 from app.services.cache.response_cache import ResponseCache
 from app.services.chat_orchestrator import ChatOrchestrator
+from app.services.execution_tracing_service import ExecutionTracingService
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -55,11 +56,13 @@ def get_orchestrator(
         embedding_model="text-embedding-3-small",
     )
     rag_service = RAGService(config=config)
+    tracing_service = ExecutionTracingService(db=db)
 
     return ChatOrchestrator(
         db=db,
         cache=cache,
         rag_service=rag_service,
+        tracing_service=tracing_service,
     )
 
 

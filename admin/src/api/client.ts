@@ -244,6 +244,61 @@ export interface ConversationDetail extends ChatSession {
   messages: ChatMessage[];
 }
 
+export interface ExecutionStep {
+  id: string;
+  execution_session_id: string;
+  stage_name: string;
+  step_order: number;
+  status: string;
+  started_at: string | null;
+  finished_at: string | null;
+  duration_ms: number | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface ExecutionSession {
+  id: string;
+  session_id: string | null;
+  user_id: string | null;
+  event_type: string;
+  route: string;
+  status: string;
+  started_at: string | null;
+  finished_at: string | null;
+  duration_ms: number | null;
+  provider_key: string | null;
+  model_name: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface ExecutionSessionDetail extends ExecutionSession {
+  steps: ExecutionStep[];
+  log: OperationalLog | null;
+}
+
+export interface LogItem {
+  execution_id: string;
+  stage: string;
+  status: string;
+  created_at: string | null;
+  route: string | null;
+  mode: string | null;
+  modality: string | null;
+  modality_route: string | null;
+  details: Record<string, unknown>;
+  error_text: string | null;
+}
+
+export interface LogsRecentResponse {
+  limit: number;
+  offset: number;
+  count: number;
+  total_sessions: number;
+  items: LogItem[];
+}
+
 // ------------------------------------------------------------------
 // API functions
 // ------------------------------------------------------------------
@@ -326,6 +381,40 @@ export function listConversations(params?: { is_active?: boolean; limit?: number
 
 export function getConversation(id: string) {
   return apiClient.get<ConversationDetail>(`/conversations/${id}`);
+}
+
+export function listExecutionSessions(params?: {
+  route?: string;
+  status?: string;
+  date_from?: string;
+  date_to?: string;
+  search?: string;
+  limit?: number;
+  offset?: number;
+}) {
+  const searchParams = new URLSearchParams();
+  if (params?.route) searchParams.set('route', params.route);
+  if (params?.status) searchParams.set('status', params.status);
+  if (params?.date_from) searchParams.set('date_from', params.date_from);
+  if (params?.date_to) searchParams.set('date_to', params.date_to);
+  if (params?.search) searchParams.set('search', params.search);
+  if (params?.limit !== undefined) searchParams.set('limit', String(params.limit));
+  if (params?.offset !== undefined) searchParams.set('offset', String(params.offset));
+  const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
+  return apiClient.get<PaginatedResponse<ExecutionSession>>(`/execution-sessions${query}`);
+}
+
+export function getExecutionSession(id: string) {
+  return apiClient.get<ExecutionSessionDetail>(`/execution-sessions/${id}`);
+}
+
+export function fetchRecentLogs(options: { limit?: number; offset?: number; sinceHours?: number } = {}) {
+  const searchParams = new URLSearchParams();
+  if (options.limit !== undefined) searchParams.set('limit', String(options.limit));
+  if (options.offset !== undefined) searchParams.set('offset', String(options.offset));
+  if (options.sinceHours !== undefined) searchParams.set('since_hours', String(options.sinceHours));
+  const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
+  return apiClient.get<LogsRecentResponse>(`/logs/recent${query}`);
 }
 
 export function listAIProviders() {

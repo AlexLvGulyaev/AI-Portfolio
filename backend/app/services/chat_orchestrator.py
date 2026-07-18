@@ -35,6 +35,7 @@ from app.services.ai_provider_settings_service import AIProviderSettingsService
 from app.services.cache.response_cache import ResponseCache
 from app.services.chat_session_service import ChatSessionService
 from app.services.conversation_memory_service import ConversationMemoryService
+from app.services.execution_tracing_service import ExecutionTracingService
 from app.services.operational_log_service import OperationalLogService
 from app.services.prompt_assembly import PromptAssembly
 from app.services.providers.base import AIProvider
@@ -56,6 +57,7 @@ class ChatOrchestrator:
         db: Session,
         cache: ResponseCache,
         rag_service: RAGService,
+        tracing_service: ExecutionTracingService | None = None,
         cache_ttl_seconds: int = 86400,  # 24 часа
         rag_top_k: int = 3,
     ):
@@ -66,12 +68,14 @@ class ChatOrchestrator:
             db: Сессия базы данных
             cache: Сервис кеширования
             rag_service: Сервис RAG
+            tracing_service: Опциональный сервис execution tracing
             cache_ttl_seconds: Время жизни кеша
             rag_top_k: Количество документов для RAG
         """
         self.db = db
         self.cache = cache
         self.rag_service = rag_service
+        self.tracing_service = tracing_service
         self.cache_ttl_seconds = cache_ttl_seconds
         self.rag_top_k = rag_top_k
 
@@ -113,37 +117,411 @@ class ChatOrchestrator:
             ChatResponseDTO с ответом и метаданными
         """
         start_time = time.monotonic()
+        execution_id: uuid.UUID | None = None
+        step_ids: dict[str, uuid.UUID] = {}
 
-        # 1. Определить сессию
-        if not visitor_id:
-            visitor_id = uuid.uuid4()
+        def _start_step(stage_name: str, step_order: int, metadata: dict[str, Any] | None = None) -> None:
+            if self.tracing_service and execution_id:
+                step_ids[stage_name] = self.tracing_service.start_step(
+                    execution_id, stage_name, step_order, metadata
+                )
 
-        if not session_id:
-            session_id = self.session_service.create_session(
-                visitor_id=str(visitor_id), mode="text"
-            )
-        else:
-            # Validate that the provided session_id actually exists.
-            # If a client sends a stale/deleted session_id, create a new one
-            # instead of failing with a ForeignKeyViolation later.
-            existing = self.session_service.get_session_by_id(session_id)
-            if not existing:
+        def _finish_step(stage_name: str, status: str = "ok", metadata: dict[str, Any] | None = None) -> None:
+            if self.tracing_service and stage_name in step_ids:
+                self.tracing_service.finish_step(step_ids[stage_name], status, metadata)
+
+        def _skip_step(stage_name: str, step_order: int, metadata: dict[str, Any] | None = None) -> None:
+            if self.tracing_service and execution_id:
+                self.tracing_service.skip_step(execution_id, stage_name, step_order, metadata)
+
+        def _finalize(status: str, metadata: dict[str, Any] | None = None) -> None:
+            if self.tracing_service and execution_id:
+                try:
+                    self.tracing_service.finish_session(execution_id, status, metadata)
+                except Exception:
+                    # Tracing must not break the main response path.
+                    pass
+
+        try:
+            # 1. Определить сессию
+            if not visitor_id:
+                visitor_id = uuid.uuid4()
+
+            if not session_id:
                 session_id = self.session_service.create_session(
                     visitor_id=str(visitor_id), mode="text"
                 )
+            else:
+                # Validate that the provided session_id actually exists.
+                # If a client sends a stale/deleted session_id, create a new one
+                # instead of failing with a ForeignKeyViolation later.
+                existing = self.session_service.get_session_by_id(session_id)
+                if not existing:
+                    session_id = self.session_service.create_session(
+                        visitor_id=str(visitor_id), mode="text"
+                    )
 
-        # 2. Загрузить память
-        conversation_memory = self.memory_service.get_recent_messages(
-            str(session_id), limit=10
-        )
+            # Start execution tracing once the real session_id is known.
+            if self.tracing_service:
+                execution_id = self.tracing_service.start_session(
+                    session_id=session_id,
+                    user_id=visitor_id,
+                    event_type="chat_request",
+                    route="text",
+                    metadata={"query": user_query},
+                )
 
-        # 3. Проверить Response Cache
-        cached_response = self.cache.get(user_query)
-        if cached_response:
-            # Cache Hit
-            response_time_ms = int((time.monotonic() - start_time) * 1000)
+            _start_step("session_resolve", 1, {"query": user_query, "session_id": str(session_id)})
+            _finish_step("session_resolve", "ok", {"query": user_query, "session_id": str(session_id)})
 
-            # Записать сообщение в память
+            # 2. Загрузить память
+            _start_step("memory_load", 2)
+            conversation_memory = self.memory_service.get_recent_messages(
+                str(session_id), limit=10
+            )
+            _finish_step("memory_load", "ok", {
+                "message_count": len(conversation_memory),
+                "session_id": str(session_id),
+            })
+
+            # 3. Проверить Response Cache
+            _start_step("cache_check", 3)
+            cached_response = self.cache.get(user_query)
+            if cached_response:
+                _finish_step("cache_check", "ok", {
+                    "cache_hit": True,
+                    "query": user_query,
+                    "provider": provider,
+                    "model": model,
+                })
+
+                # Получить метаданные из кеша
+                cache_entry = self.cache.get_entry(user_query)
+                provider = cache_entry.metadata.get("provider", "unknown") if cache_entry else "unknown"
+                model = cache_entry.metadata.get("model", "unknown") if cache_entry else "unknown"
+                sources = cache_entry.metadata.get("sources", []) if cache_entry else []
+
+                # Cache hit skips RAG, prompt build, provider selection/switch and LLM call
+                _skip_step("rag_search", 4, {"reason": "cache_hit", "query": user_query})
+                _skip_step("prompt_build", 5, {"reason": "cache_hit", "query": user_query})
+                _skip_step("provider_select", 6, {"reason": "cache_hit", "provider": provider, "model": model})
+                _skip_step("provider_switch", 7, {"reason": "cache_hit", "provider": provider, "model": model})
+                _skip_step("llm_call", 8, {"reason": "cache_hit", "provider": provider, "model": model})
+
+                # 9. Сохранить в память
+                _start_step("memory_save", 9)
+                self.memory_service.add_message(
+                    session_id=str(session_id),
+                    user_id=str(visitor_id),
+                    role="user",
+                    content=user_query,
+                )
+                self.memory_service.add_message(
+                    session_id=str(session_id),
+                    user_id=str(visitor_id),
+                    role="assistant",
+                    content=cached_response,
+                    metadata={"from_cache": True},
+                )
+                _finish_step("memory_save", "ok", {
+                    "from_cache": True,
+                    "query": user_query,
+                    "response": cached_response,
+                    "provider": provider,
+                    "model": model,
+                })
+
+                # 10. Записать Operational Log
+                _start_step("log_write", 10)
+                response_time_ms = int((time.monotonic() - start_time) * 1000)
+                log_id = self.log_service.log_chat_request(
+                    session_id=str(session_id),
+                    user_id=str(visitor_id),
+                    query=user_query,
+                    response=cached_response,
+                    model_name=model,
+                    provider_key=provider,
+                    from_cache=True,
+                    response_time_ms=response_time_ms,
+                    status="ok",
+                    metadata={
+                        "from_cache": True,
+                        "rag_used": False,
+                        "sources": sources,
+                    },
+                )
+                _finish_step("log_write", "ok", {
+                    "log_id": str(log_id),
+                    "query": user_query,
+                    "response": cached_response,
+                    "provider": provider,
+                    "model": model,
+                    "response_time_ms": response_time_ms,
+                    "from_cache": True,
+                    "rag_used": False,
+                    "sources": sources,
+                })
+
+                # 11. Вернуть результат
+                _start_step("response_return", 11)
+                if self.tracing_service and execution_id:
+                    self.tracing_service.set_session_provider(
+                        execution_id, provider_key=provider, model_name=model
+                    )
+                    self.tracing_service.finish_session(execution_id, "ok", {"cache_hit": True})
+                    self.tracing_service.link_operational_log(execution_id, log_id)
+                _finish_step("response_return", "ok", {
+                    "query": user_query,
+                    "response": cached_response,
+                    "provider": provider,
+                    "model": model,
+                    "cache_hit": True,
+                    "rag_used": False,
+                    "response_time_ms": response_time_ms,
+                })
+
+                return ChatResponseDTO(
+                    answer=cached_response,
+                    session_id=session_id,
+                    user_id=visitor_id,
+                    provider=provider,
+                    model=model,
+                    cache_hit=True,
+                    rag_used=False,
+                    sources=sources,
+                    latency_ms=response_time_ms,
+                    metadata={"from_cache": True},
+                )
+
+            _finish_step("cache_check", "ok", {"cache_hit": False, "query": user_query})
+
+            # 4. Поиск в Knowledge Base (RAG)
+            rag_context = ""
+            rag_results = []
+            rag_used = False
+            sources: list[str] = []
+
+            if self.rag_service.count_documents() > 0:
+                _start_step("rag_search", 4)
+                rag_results = self.rag_service.search(user_query, top_k=self.rag_top_k)
+                if rag_results:
+                    rag_context = self.rag_service.get_context(user_query, top_k=self.rag_top_k)
+                    rag_used = True
+                    sources = [r.source for r in rag_results]
+                    _finish_step("rag_search", "ok", {
+                        "sources_count": len(sources),
+                        "sources": sources,
+                        "query": user_query,
+                        "rag_used": True,
+                    })
+                else:
+                    _finish_step("rag_search", "ok", {"sources_count": 0, "query": user_query, "rag_used": False})
+            else:
+                _skip_step("rag_search", 4, {"reason": "no_documents", "query": user_query})
+
+            # 5. Сформировать prompt
+            _start_step("prompt_build", 5)
+            prompt = self.prompt_assembly.build(
+                user_query=user_query,
+                conversation_memory=conversation_memory,
+                rag_context=rag_context if rag_context else None,
+            )
+            _finish_step("prompt_build", "ok", {
+                "rag_used": rag_used,
+                "query": user_query,
+                "sources": sources,
+                "sources_count": len(sources),
+            })
+
+            # 6. Выбрать активного AI Provider
+            _start_step("provider_select", 6)
+            active_row, warnings = self.provider_settings.get_effective_provider()
+            fallback_at_select = False
+
+            if not active_row:
+                fallback_row = self.provider_settings.get_fallback()
+                if fallback_row:
+                    active_row = fallback_row
+                    fallback_at_select = True
+                    # Логируем переключение
+                    self.log_service.log_provider_switch(
+                        provider_key=fallback_row.provider_key,
+                        model_name=fallback_row.model_name or "unknown",
+                        status="ok",
+                        metadata={"reason": "No active provider, using fallback"},
+                    )
+                else:
+                    _finish_step("provider_select", "error", {
+                        "error": "No AI provider available",
+                        "query": user_query,
+                    })
+                    response_time_ms = int((time.monotonic() - start_time) * 1000)
+                    _finalize("error", {"error": "No AI provider available"})
+
+                    return ChatResponseDTO(
+                        answer="Извините, система временно недоступна. Попробуйте позже.",
+                        session_id=session_id,
+                        user_id=visitor_id,
+                        provider="none",
+                        model="none",
+                        cache_hit=False,
+                        rag_used=False,
+                        sources=[],
+                        latency_ms=response_time_ms,
+                        metadata={"error": "No AI provider available"},
+                    )
+
+            active_config = self.provider_settings.build_effective_config(active_row)
+            provider_key = active_config.provider_key
+            model_name = active_config.model_name or "unknown"
+            _finish_step("provider_select", "ok", {
+                "fallback_at_select": fallback_at_select,
+                "provider": provider_key,
+                "model": model_name,
+                "query": user_query,
+            })
+
+            # 7. Provider switch step
+            if fallback_at_select:
+                _start_step("provider_switch", 7, {"provider": provider_key, "model": model_name})
+                _finish_step("provider_switch", "ok", {
+                    "reason": "No active provider",
+                    "provider": provider_key,
+                    "model": model_name,
+                })
+            else:
+                _skip_step("provider_switch", 7, {
+                    "reason": "primary_available",
+                    "provider": provider_key,
+                    "model": model_name,
+                })
+
+            # 8. Выполнить запрос к LLM (с failover)
+            answer = None
+            provider_used = provider_key
+            model_used = model_name
+            fallback_used = False
+            error_message = None
+
+            _start_step("llm_call", 8, {
+                "provider": provider_key,
+                "model": model_name,
+                "query": user_query,
+                "rag_used": rag_used,
+            })
+            try:
+                provider = AIProviderFactory.create(provider_key, config=active_config)
+                llm_start = time.monotonic()
+                answer = await provider.generate(
+                    prompt,
+                    temperature=active_config.temperature,
+                    max_tokens=active_config.max_tokens,
+                )
+                llm_latency_ms = int((time.monotonic() - llm_start) * 1000)
+                _finish_step("llm_call", "ok", {
+                    "provider": provider_key,
+                    "model": model_name,
+                    "latency_ms": llm_latency_ms,
+                    "query": user_query,
+                    "rag_used": rag_used,
+                })
+
+            except Exception as e:
+                # Primary failed
+                _finish_step("llm_call", "error", {
+                    "error": str(e),
+                    "provider": provider_key,
+                    "model": model_name,
+                    "query": user_query,
+                })
+                error_message = str(e)
+
+                fallback_row = self.provider_settings.get_fallback()
+                if fallback_row:
+                    # Record provider switch and retry
+                    _start_step("provider_switch", 7)
+                    fallback_config = self.provider_settings.build_effective_config(fallback_row)
+                    fallback_used = True
+                    provider_used = fallback_config.provider_key
+                    model_used = fallback_config.model_name or "unknown"
+
+                    try:
+                        provider = AIProviderFactory.create(
+                            fallback_config.provider_key, config=fallback_config
+                        )
+                        llm_start = time.monotonic()
+                        answer = await provider.generate(
+                            prompt,
+                            temperature=fallback_config.temperature,
+                            max_tokens=fallback_config.max_tokens,
+                        )
+                        llm_latency_ms = int((time.monotonic() - llm_start) * 1000)
+
+                        # Логируем переключение провайдера
+                        self.log_service.log_provider_switch(
+                            provider_key=fallback_config.provider_key,
+                            model_name=fallback_config.model_name or "unknown",
+                            status="ok",
+                            metadata={"reason": f"Primary provider failed: {error_message}"},
+                        )
+                        _finish_step("provider_switch", "ok", {
+                            "reason": f"Primary failed: {error_message}",
+                            "provider": provider_used,
+                            "model": model_used,
+                        })
+
+                        # Retry LLM call
+                        _start_step("llm_call", 8, {
+                            "provider": provider_used,
+                            "model": model_used,
+                            "retry": True,
+                            "query": user_query,
+                            "rag_used": rag_used,
+                        })
+                        _finish_step("llm_call", "ok", {
+                            "provider": provider_used,
+                            "model": model_used,
+                            "latency_ms": llm_latency_ms,
+                            "retry": True,
+                            "query": user_query,
+                            "rag_used": rag_used,
+                        })
+
+                    except Exception as fallback_error:
+                        _finish_step("llm_call", "error", {
+                            "error": str(fallback_error),
+                            "provider": provider_used,
+                            "model": model_used,
+                            "retry": True,
+                            "query": user_query,
+                        })
+                        # Fallback тоже не сработал
+                        error_message = f"Both primary and fallback providers failed. Primary: {error_message}. Fallback: {fallback_error}"
+                        answer = self._get_error_response(error_message)
+                        _finish_step("provider_switch", "error", {
+                            "error": str(fallback_error),
+                            "provider": provider_used,
+                            "model": model_used,
+                        })
+                else:
+                    # No fallback available
+                    answer = self._get_error_response(error_message)
+
+            # 9. Сохранить в кеш
+            _start_step("memory_save", 9)
+            self.cache.set(
+                query=user_query,
+                response=answer,
+                metadata={
+                    "provider": provider_used,
+                    "model": model_used,
+                    "sources": sources,
+                    "session_id": str(session_id),
+                },
+                ttl_seconds=self.cache_ttl_seconds,
+            )
+
+            # 10. Сохранить в память
             self.memory_service.add_message(
                 session_id=str(session_id),
                 user_id=str(visitor_id),
@@ -154,206 +532,137 @@ class ChatOrchestrator:
                 session_id=str(session_id),
                 user_id=str(visitor_id),
                 role="assistant",
-                content=cached_response,
-                metadata={"from_cache": True},
+                content=answer,
+                metadata={
+                    "provider": provider_used,
+                    "model": model_used,
+                    "rag_used": rag_used,
+                    "sources": sources,
+                },
             )
+            _finish_step("memory_save", "ok", {
+                "query": user_query,
+                "response": answer,
+                "provider": provider_used,
+                "model": model_used,
+                "rag_used": rag_used,
+                "sources": sources,
+            })
 
-            # Получить метаданные из кеша
-            cache_entry = self.cache.get_entry(user_query)
-            provider = cache_entry.metadata.get("provider", "unknown") if cache_entry else "unknown"
-            model = cache_entry.metadata.get("model", "unknown") if cache_entry else "unknown"
-            sources = cache_entry.metadata.get("sources", []) if cache_entry else []
+            # 11. Записать Operational Log
+            _start_step("log_write", 10)
+            response_time_ms = int((time.monotonic() - start_time) * 1000)
+
+            log_id = self.log_service.log_chat_request(
+                session_id=str(session_id),
+                user_id=str(visitor_id),
+                query=user_query,
+                response=answer,
+                model_name=model_used,
+                provider_key=provider_used,
+                from_cache=False,
+                response_time_ms=response_time_ms,
+                status="ok" if not error_message else "error",
+                metadata={
+                    "rag_used": rag_used,
+                    "sources": sources,
+                    "fallback_used": fallback_used,
+                    "error": error_message,
+                },
+            )
+            _finish_step("log_write", "ok", {
+                "log_id": str(log_id),
+                "query": user_query,
+                "response": answer,
+                "provider": provider_used,
+                "model": model_used,
+                "response_time_ms": response_time_ms,
+                "rag_used": rag_used,
+                "sources": sources,
+                "fallback_used": fallback_used,
+                "error": error_message,
+            })
+
+            # 12. Вернуть результат
+            _start_step("response_return", 11)
+            final_status = "error" if error_message else "ok"
+            if self.tracing_service and execution_id:
+                self.tracing_service.set_session_provider(
+                    execution_id, provider_key=provider_used, model_name=model_used
+                )
+                self.tracing_service.set_session_route(
+                    execution_id, route="rag" if rag_used else "text"
+                )
+                self.tracing_service.finish_session(
+                    execution_id,
+                    final_status,
+                    {
+                        "rag_used": rag_used,
+                        "fallback_used": fallback_used,
+                        "error": error_message,
+                    },
+                )
+                self.tracing_service.link_operational_log(execution_id, log_id)
+            _finish_step("response_return", final_status, {
+                "query": user_query,
+                "response": answer,
+                "provider": provider_used,
+                "model": model_used,
+                "rag_used": rag_used,
+                "cache_hit": False,
+                "fallback_used": fallback_used,
+                "response_time_ms": response_time_ms,
+                "error": error_message,
+            })
 
             return ChatResponseDTO(
-                answer=cached_response,
+                answer=answer,
                 session_id=session_id,
                 user_id=visitor_id,
-                provider=provider,
-                model=model,
-                cache_hit=True,
-                rag_used=False,
+                provider=provider_used,
+                model=model_used,
+                cache_hit=False,
+                rag_used=rag_used,
                 sources=sources,
                 latency_ms=response_time_ms,
-                metadata={"from_cache": True},
-            )
-
-        # 4. Поиск в Knowledge Base (RAG)
-        rag_context = ""
-        rag_results = []
-        rag_used = False
-        sources: list[str] = []
-
-        if self.rag_service.count_documents() > 0:
-            rag_results = self.rag_service.search(user_query, top_k=self.rag_top_k)
-            if rag_results:
-                rag_context = self.rag_service.get_context(user_query, top_k=self.rag_top_k)
-                rag_used = True
-                sources = [r.source for r in rag_results]
-
-        # 5. Сформировать prompt
-        prompt = self.prompt_assembly.build(
-            user_query=user_query,
-            conversation_memory=conversation_memory,
-            rag_context=rag_context if rag_context else None,
-        )
-
-        # 6. Выбрать активного AI Provider
-        active_row, warnings = self.provider_settings.get_effective_provider()
-
-        # Если нет активного провайдера, использовать fallback
-        if not active_row:
-            fallback_row = self.provider_settings.get_fallback()
-            if fallback_row:
-                active_row = fallback_row
-                # Логируем переключение
-                self.log_service.log_provider_switch(
-                    provider_key=fallback_row.provider_key,
-                    model_name=fallback_row.model_name or "unknown",
-                    status="ok",
-                    metadata={"reason": "No active provider, using fallback"},
-                )
-            else:
-                # Нет ни активного, ни fallback провайдера
-                error_message = "No AI provider available"
-                response_time_ms = int((time.monotonic() - start_time) * 1000)
-
-                return ChatResponseDTO(
-                    answer="Извините, система временно недоступна. Попробуйте позже.",
-                    session_id=session_id,
-                    user_id=visitor_id,
-                    provider="none",
-                    model="none",
-                    cache_hit=False,
-                    rag_used=False,
-                    sources=[],
-                    latency_ms=response_time_ms,
-                    metadata={"error": error_message},
-                )
-
-        active_config = self.provider_settings.build_effective_config(active_row)
-        provider_key = active_config.provider_key
-        model_name = active_config.model_name or "unknown"
-
-        # 7. Выполнить запрос к LLM (с failover)
-        answer = None
-        provider_used = provider_key
-        model_used = model_name
-        fallback_used = False
-        error_message = None
-
-        try:
-            # Пытаемся использовать основной провайдер
-            provider = AIProviderFactory.create(provider_key, config=active_config)
-            answer = await provider.generate(
-                prompt,
-                temperature=active_config.temperature,
-                max_tokens=active_config.max_tokens,
+                metadata={
+                    "fallback_used": fallback_used,
+                    "error": error_message,
+                },
             )
 
         except Exception as e:
-            # Failover: переключаемся на fallback провайдер
-            error_message = str(e)
-
-            fallback_row = self.provider_settings.get_fallback()
-            if fallback_row:
-                fallback_config = self.provider_settings.build_effective_config(fallback_row)
-                fallback_used = True
-                provider_used = fallback_config.provider_key
-                model_used = fallback_config.model_name or "unknown"
-
+            # Unexpected failure: mark any running step and the session as error,
+            # then re-raise so the caller still receives the exception.
+            if self.tracing_service and execution_id:
+                for step_id in step_ids.values():
+                    try:
+                        self.tracing_service.finish_step(
+                            step_id, "error", {"error": str(e)}
+                        )
+                    except Exception:
+                        pass
                 try:
-                    provider = AIProviderFactory.create(
-                        fallback_config.provider_key, config=fallback_config
+                    self.tracing_service.finish_session(
+                        execution_id, "error", {"error": str(e)}
                     )
-                    answer = await provider.generate(
-                        prompt,
-                        temperature=fallback_config.temperature,
-                        max_tokens=fallback_config.max_tokens,
-                    )
-
-                    # Логируем переключение провайдера
-                    self.log_service.log_provider_switch(
-                        provider_key=fallback_config.provider_key,
-                        model_name=fallback_config.model_name or "unknown",
-                        status="ok",
-                        metadata={"reason": f"Primary provider failed: {error_message}"},
-                    )
-
-                except Exception as fallback_error:
-                    # Fallback тоже не сработал
-                    error_message = f"Both primary and fallback providers failed. Primary: {error_message}. Fallback: {fallback_error}"
-                    answer = self._get_error_response(error_message)
-
-        # 8. Сохранить в кеш
-        self.cache.set(
-            query=user_query,
-            response=answer,
-            metadata={
-                "provider": provider_used,
-                "model": model_used,
-                "sources": sources,
-                "session_id": str(session_id),
-            },
-            ttl_seconds=self.cache_ttl_seconds,
-        )
-
-        # 9. Сохранить в память
-        self.memory_service.add_message(
-            session_id=str(session_id),
-            user_id=str(visitor_id),
-            role="user",
-            content=user_query,
-        )
-        self.memory_service.add_message(
-            session_id=str(session_id),
-            user_id=str(visitor_id),
-            role="assistant",
-            content=answer,
-            metadata={
-                "provider": provider_used,
-                "model": model_used,
-                "rag_used": rag_used,
-                "sources": sources,
-            },
-        )
-
-        # 10. Записать Operational Log
-        response_time_ms = int((time.monotonic() - start_time) * 1000)
-
-        self.log_service.log_chat_request(
-            session_id=str(session_id),
-            user_id=str(visitor_id),
-            query=user_query,
-            response=answer,
-            model_name=model_used,
-            provider_key=provider_used,
-            from_cache=False,
-            response_time_ms=response_time_ms,
-            status="ok" if not error_message else "error",
-            metadata={
-                "rag_used": rag_used,
-                "sources": sources,
-                "fallback_used": fallback_used,
-                "error": error_message,
-            },
-        )
-
-        # 11. Вернуть результат
-        return ChatResponseDTO(
-            answer=answer,
-            session_id=session_id,
-            user_id=visitor_id,
-            provider=provider_used,
-            model=model_used,
-            cache_hit=False,
-            rag_used=rag_used,
-            sources=sources,
-            latency_ms=response_time_ms,
-            metadata={
-                "fallback_used": fallback_used,
-                "error": error_message,
-            },
-        )
+                except Exception:
+                    # If finishing the session fails (e.g. DB transaction issue),
+                    # try to mark it as error directly so it does not stay "running".
+                    try:
+                        execution = self.tracing_service._db.get(
+                            ExecutionSession, execution_id
+                        )
+                        if execution:
+                            execution.status = "error"
+                            execution.execution_metadata = {
+                                **(execution.execution_metadata or {}),
+                                "error": str(e),
+                            }
+                            self.tracing_service._db.commit()
+                    except Exception:
+                        pass
+            raise
 
     def _get_error_response(self, error_message: str) -> str:
         """
