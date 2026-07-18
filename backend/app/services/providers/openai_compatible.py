@@ -10,7 +10,10 @@ from app.services.providers.base import AIProvider, EffectiveProviderConfig, Pro
 class OpenAICompatibleProvider(AIProvider):
     def __init__(self, config: EffectiveProviderConfig) -> None:
         if not config.api_key:
-            raise ProviderNotReadyError(f"API key not configured for {config.provider_key}")
+            raise ProviderNotReadyError(
+                config.provider_key,
+                [f"{config.provider_key.upper()}_API_KEY"],
+            )
         base_url = config.base_url or "https://api.openai.com/v1"
         self._config = config
         self._client = OpenAI(api_key=config.api_key, base_url=base_url)
@@ -27,16 +30,16 @@ class OpenAICompatibleProvider(AIProvider):
         self,
         prompt: str,
         *,
-        temperature: float = 0.7,
-        max_tokens: int = 500,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
         **kwargs: Any,
     ) -> str:
         """Generate text completion."""
         response = self._client.chat.completions.create(
             model=self._config.model_name,
             messages=[{"role": "user", "content": prompt}],
-            temperature=temperature,
-            max_tokens=max_tokens,
+            temperature=temperature if temperature is not None else self._config.temperature,
+            max_tokens=max_tokens if max_tokens is not None else self._config.max_tokens,
         )
         return response.choices[0].message.content or ""
 
@@ -44,8 +47,8 @@ class OpenAICompatibleProvider(AIProvider):
         self,
         prompt: str,
         *,
-        temperature: float = 0.7,
-        max_tokens: int = 500,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
         **kwargs: Any,
     ) -> dict[str, Any]:
         """Generate JSON completion."""
@@ -53,8 +56,8 @@ class OpenAICompatibleProvider(AIProvider):
             model=self._config.model_name,
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"},
-            temperature=temperature,
-            max_tokens=max_tokens,
+            temperature=temperature if temperature is not None else self._config.temperature,
+            max_tokens=max_tokens if max_tokens is not None else self._config.max_tokens,
         )
         content = response.choices[0].message.content or "{}"
         return json.loads(content)

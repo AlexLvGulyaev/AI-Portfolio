@@ -41,7 +41,8 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
+    const text = await response.text().catch(() => '');
+    throw new Error(`API error: ${response.status} ${response.statusText}${text ? ` - ${text}` : ''}`);
   }
 
   return response.json() as Promise<T>;
@@ -66,14 +67,273 @@ export const apiClient = {
     request<T>(path, { ...options, method: 'DELETE' }),
 };
 
+// ------------------------------------------------------------------
+// Types
+// ------------------------------------------------------------------
+
+export interface DashboardData {
+  status: string;
+  system: {
+    backend: string;
+    postgresql: string;
+    chromadb: string;
+  };
+  ai_providers: {
+    total: number;
+    enabled: number;
+    active: AIProvider | null;
+    fallback: AIProvider | null;
+    providers: AIProvider[];
+  };
+  project_cards: { total: number; visible: number; homepage: number };
+  knowledge_base: {
+    sources: number;
+    last_sync_at: string | null;
+    last_sync_status: string;
+    last_sync_stats: Record<string, unknown> | null;
+  };
+  logs: { total: number };
+  conversations: { total: number; active: number };
+  timestamp: string;
+}
+
+export interface AIProvider {
+  id: string;
+  provider_key: string;
+  display_name: string;
+  model_name: string;
+  is_enabled: boolean;
+  is_active: boolean;
+  is_fallback: boolean;
+  temperature: number;
+  max_tokens: number;
+  base_url: string | null;
+  api_key_env_key: string;
+  base_url_env_key: string;
+  effective_base_url: string | null;
+  readiness: string;
+  missing_env_keys: string[];
+  implementation_status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AIProviderUpdate {
+  model_name?: string;
+  is_enabled?: boolean;
+  temperature?: number | null;
+  max_tokens?: number | null;
+  base_url?: string | null;
+}
+
+export interface AIProviderTestResult {
+  provider_key: string;
+  ok: boolean;
+  readiness: string;
+  message: string;
+  missing_env_keys: string[];
+  implementation_status: string;
+}
+
+export interface KnowledgeSource {
+  id: string;
+  source_type: 'github_repo' | 'local_directory' | 'local_file';
+  identifier: string;
+  branch: string | null;
+  base_path: string | null;
+  is_enabled: boolean;
+  last_sync_at: string | null;
+  last_sync_status: string;
+  last_sync_error: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectCard {
+  id: string;
+  slug: string;
+  title: string;
+  short_description: string;
+  category: string;
+  tags: string[];
+  display_order: number;
+  show_on_homepage: number;
+  is_visible: boolean;
+  knowledge_content: string | null;
+  external_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ProjectCardCreate = Omit<ProjectCard, 'id' | 'created_at' | 'updated_at'>;
+export type ProjectCardUpdate = Partial<ProjectCardCreate>;
+
+export type KnowledgeSourceCreate = Omit<KnowledgeSource, 'id' | 'last_sync_at' | 'last_sync_status' | 'last_sync_error' | 'created_at' | 'updated_at'>;
+export type KnowledgeSourceUpdate = Partial<KnowledgeSourceCreate>;
+
+export interface ChromaStatus {
+  status: 'ok' | 'error';
+  collection_name?: string;
+  embedding_model?: string;
+  chunks?: number;
+  error?: string;
+}
+
+export interface SyncJob {
+  job_id: string;
+  status: string;
+  started_at: string | null;
+  finished_at: string | null;
+  stats: {
+    documents_processed: number;
+    chunks_created: number;
+    errors: string[];
+  };
+  error_message: string | null;
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface OperationalLog {
+  id: string;
+  event_type: string;
+  session_id: string | null;
+  user_id: string | null;
+  source: string | null;
+  query: string | null;
+  response: string | null;
+  model_name: string | null;
+  provider_key: string | null;
+  from_cache: boolean | null;
+  response_time_ms: number | null;
+  status: string;
+  error_message: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface ChatSession {
+  id: string;
+  user_id: string | null;
+  mode: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: string;
+  content: string;
+  created_at: string;
+}
+
+export interface ConversationDetail extends ChatSession {
+  message_count: number;
+  messages: ChatMessage[];
+}
+
+// ------------------------------------------------------------------
+// API functions
+// ------------------------------------------------------------------
+
 export function getDashboard() {
-  return apiClient.get<{ workspace: string; status: string }>('/dashboard');
+  return apiClient.get<DashboardData>('/dashboard');
 }
 
-export function getKnowledgeBaseStatus() {
-  return apiClient.get<{ workspace: string; status: string }>('/knowledge-base/status');
+export function getChromaStatus() {
+  return apiClient.get<ChromaStatus>('/knowledge-base/status');
 }
 
-export function getLogs() {
-  return apiClient.get<{ workspace: string; items: unknown[] }>('/logs');
+export function listSources() {
+  return apiClient.get<{ items: KnowledgeSource[] }>('/knowledge-base/sources');
+}
+
+export function createSource(data: KnowledgeSourceCreate) {
+  return apiClient.post<KnowledgeSource>('/knowledge-base/sources', data);
+}
+
+export function updateSource(id: string, data: KnowledgeSourceUpdate) {
+  return apiClient.patch<KnowledgeSource>(`/knowledge-base/sources/${id}`, data);
+}
+
+export function deleteSource(id: string) {
+  return apiClient.delete<{ ok: boolean }>(`/knowledge-base/sources/${id}`);
+}
+
+export function syncKnowledgeBase() {
+  return apiClient.post<SyncJob>('/knowledge-base/sync');
+}
+
+export function listProjectCards() {
+  return apiClient.get<{ items: ProjectCard[] }>('/knowledge-base/project-cards');
+}
+
+export function createProjectCard(data: ProjectCardCreate) {
+  return apiClient.post<ProjectCard>('/knowledge-base/project-cards', data);
+}
+
+export function updateProjectCard(id: string, data: ProjectCardUpdate) {
+  return apiClient.patch<ProjectCard>(`/knowledge-base/project-cards/${id}`, data);
+}
+
+export function deleteProjectCard(id: string) {
+  return apiClient.delete<{ ok: boolean }>(`/knowledge-base/project-cards/${id}`);
+}
+
+export function listLogs(params?: {
+  event_type?: string;
+  status?: string;
+  date_from?: string;
+  date_to?: string;
+  limit?: number;
+  offset?: number;
+}) {
+  const searchParams = new URLSearchParams();
+  if (params?.event_type) searchParams.set('event_type', params.event_type);
+  if (params?.status) searchParams.set('status', params.status);
+  if (params?.date_from) searchParams.set('date_from', params.date_from);
+  if (params?.date_to) searchParams.set('date_to', params.date_to);
+  if (params?.limit !== undefined) searchParams.set('limit', String(params.limit));
+  if (params?.offset !== undefined) searchParams.set('offset', String(params.offset));
+  const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
+  return apiClient.get<PaginatedResponse<OperationalLog>>(`/logs${query}`);
+}
+
+export function listConversations(params?: { is_active?: boolean; limit?: number; offset?: number }) {
+  const searchParams = new URLSearchParams();
+  if (params?.is_active !== undefined) searchParams.set('is_active', String(params.is_active));
+  if (params?.limit !== undefined) searchParams.set('limit', String(params.limit));
+  if (params?.offset !== undefined) searchParams.set('offset', String(params.offset));
+  const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
+  return apiClient.get<PaginatedResponse<ChatSession>>(`/conversations${query}`);
+}
+
+export function getConversation(id: string) {
+  return apiClient.get<ConversationDetail>(`/conversations/${id}`);
+}
+
+export function listAIProviders() {
+  return apiClient.get<AIProvider[]>('/ai-providers');
+}
+
+export function updateAIProvider(providerKey: string, data: AIProviderUpdate) {
+  return apiClient.patch<AIProvider>(`/ai-providers/${providerKey}`, data);
+}
+
+export function activateAIProvider(providerKey: string) {
+  return apiClient.post<AIProvider>(`/ai-providers/${providerKey}/activate`);
+}
+
+export function setFallbackAIProvider(providerKey: string) {
+  return apiClient.post<AIProvider>(`/ai-providers/${providerKey}/set-fallback`);
+}
+
+export function testAIProvider(providerKey: string) {
+  return apiClient.post<AIProviderTestResult>(`/ai-providers/${providerKey}/test`);
 }

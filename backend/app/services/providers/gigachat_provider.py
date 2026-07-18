@@ -1,5 +1,4 @@
 import json
-import os
 import re
 import time
 from typing import Any
@@ -12,7 +11,7 @@ from app.services.providers.gigachat_auth import (
     gigachat_credentials_configured,
 )
 
-CHAT_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
+DEFAULT_CHAT_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
 DEFAULT_MODEL = "GigaChat-Max"
 REQUEST_TIMEOUT = 60.0
 
@@ -21,13 +20,12 @@ class GigaChatProvider(AIProvider):
     def __init__(self, config: EffectiveProviderConfig) -> None:
         if not gigachat_credentials_configured():
             raise ProviderNotReadyError(
-                "GigaChat credentials missing: set GIGACHAT_AUTH_KEY or "
-                "GIGACHAT_CLIENT_ID + GIGACHAT_CLIENT_SECRET"
+                "gigachat",
+                ["GIGACHAT_AUTH_KEY or GIGACHAT_CLIENT_ID + GIGACHAT_CLIENT_SECRET"],
             )
         self._config = config
-        self._scope_model = config.model_name or os.getenv("GIGACHAT_MODEL", DEFAULT_MODEL)
-        env_max = os.getenv("GIGACHAT_MAX_TOKENS", "").strip()
-        self._max_tokens = config.max_tokens or (int(env_max) if env_max.isdigit() else 500)
+        self._scope_model = config.model_name or DEFAULT_MODEL
+        self._max_tokens = config.max_tokens if config.max_tokens is not None else 500
 
     @property
     def provider_key(self) -> str:
@@ -41,28 +39,30 @@ class GigaChatProvider(AIProvider):
         self,
         prompt: str,
         *,
-        temperature: float = 0.7,
-        max_tokens: int = 500,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
         **kwargs: Any,
     ) -> str:
         """Generate text completion."""
         return self._chat(
             [{"role": "user", "content": prompt}],
             temperature=temperature,
+            max_tokens=max_tokens,
         )
 
     async def generate_json(
         self,
         prompt: str,
         *,
-        temperature: float = 0.7,
-        max_tokens: int = 500,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
         **kwargs: Any,
     ) -> dict[str, Any]:
         """Generate JSON completion."""
         content = self._chat(
             [{"role": "user", "content": prompt}],
-            temperature=min(temperature, 0.2),
+            temperature=min(temperature if temperature is not None else self._config.temperature, 0.2),
+            max_tokens=max_tokens,
         )
         return self._parse_json_content(content)
 
@@ -101,13 +101,20 @@ class GigaChatProvider(AIProvider):
         except Exception as exc:
             return False, f"GigaChat auth failed: {exc}"
 
-    def _chat(self, messages: list[dict[str, str]], *, temperature: float) -> str:
+    def _chat(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+    ) -> str:
         token = fetch_access_token(timeout=REQUEST_TIMEOUT)
-        payload = {
+        chat_url = self._config.base_url or DEFAULT_CHAT_URL
+        payload: dict[str, Any] = {
             "model": self._scope_model,
             "messages": messages,
-            "temperature": temperature,
-            "max_tokens": self._max_tokens,
+            "temperature": temperature if temperature is not None else self._config.temperature,
+            "max_tokens": max_tokens if max_tokens is not None else self._max_tokens,
         }
         headers = {
             "Authorization": f"Bearer {token}",
@@ -115,7 +122,7 @@ class GigaChatProvider(AIProvider):
             "Accept": "application/json",
         }
         with httpx.Client(verify=False, timeout=REQUEST_TIMEOUT) as client:
-            response = client.post(CHAT_URL, headers=headers, json=payload)
+            response = client.post(chat_url, headers=headers, json=payload)
         if response.status_code >= 400:
             raise ValueError(f"GigaChat chat failed with status {response.status_code}")
         data = response.json()

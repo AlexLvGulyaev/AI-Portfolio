@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from uuid import UUID
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class AIProviderSettingBase(BaseModel):
@@ -16,6 +16,7 @@ class AIProviderSettingBase(BaseModel):
     is_fallback: bool = False
     temperature: float = 0.7
     max_tokens: int = 500
+    base_url: str | None = None
 
 
 class AIProviderSettingOut(AIProviderSettingBase):
@@ -27,6 +28,17 @@ class AIProviderSettingOut(AIProviderSettingBase):
 
     class Config:
         from_attributes = True
+
+
+class AIProviderSettingPatch(BaseModel):
+    """Patch schema for AI Provider Settings."""
+
+    display_name: str | None = None
+    model_name: str | None = None
+    is_enabled: bool | None = None
+    temperature: float | None = Field(None, ge=0, le=2)
+    max_tokens: int | None = Field(None, ge=1, le=128000)
+    base_url: str | None = None
 
 
 class AIProviderEffectiveOut(BaseModel):

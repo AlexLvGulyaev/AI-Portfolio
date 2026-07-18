@@ -33,7 +33,7 @@
 - **PostgreSQL** — основная СУБД
 - **SQLAlchemy + Alembic** — ORM и миграции
 - **ChromaDB** — векторное хранилище для RAG
-- **OpenAI** — эмбеддинги и основная LLM (GPT-4.1-mini)
+- **OpenAI** — эмбеддинги и основная LLM
 - **GigaChat** — fallback LLM-провайдер
 - **Docker + Docker Compose** — контейнеризация
 
@@ -98,12 +98,14 @@ ai-portfolio/
 ```bash
 cp .env.example .env
 # Заполнить .env реальными значениями:
-# - OPENAI_API_KEY         (обязательно)
+# - OPENAI_API_KEY         (обязательно — API key)
 # - ADMIN_API_TOKEN        (обязательно для admin endpoints)
 # - POSTGRES_PASSWORD      (обязательно)
 # - DATABASE_URL           (обязательно, формируется из POSTGRES_*)
 # - CORS_ORIGINS           (обязательно)
-# - GIGACHAT_AUTH_KEY      (опционально, fallback-провайдер)
+# - GIGACHAT_AUTH_KEY      (опционально — API key fallback-провайдера)
+# Параметры провайдеров (model, temperature, max_tokens, base_url)
+# задаются через админку после запуска, а не в .env.
 ```
 
 ### 2. Запустить проект
@@ -175,9 +177,12 @@ python -m http.server 8000
 
 Ассистент использует:
 - RAG (Retrieval-Augmented Generation) на базе ChromaDB;
-- OpenAI GPT-4.1-mini как основную модель;
+- OpenAI как основного провайдера;
 - GigaChat как fallback-провайдер;
 - файловый кеш ответов для снижения стоимости API.
+
+Параметры LLM-провайдеров (model, temperature, max_tokens, base_url, активный/fallback статус)
+управляются через административную консоль и хранятся в PostgreSQL. API-ключи задаются только в `.env`.
 
 ## Развёртывание
 

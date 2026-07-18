@@ -103,6 +103,16 @@ backend/app/
 | GET | `/admin/conversations` | Список chat sessions с фильтрами |
 | GET | `/admin/conversations/{id}` | Детали сессии + сообщения |
 
+#### AI Providers (управляется из Dashboard)
+
+| Метод | Путь | Назначение |
+|-------|------|------------|
+| GET | `/admin/ai-providers` | Список провайдеров с параметрами из БД |
+| PATCH | `/admin/ai-providers/{provider_key}` | Изменить model, temperature, max_tokens, base_url, enabled |
+| POST | `/admin/ai-providers/{provider_key}/activate` | Сделать провайдер активным |
+| POST | `/admin/ai-providers/{provider_key}/set-fallback` | Назначить fallback-провайдером |
+| POST | `/admin/ai-providers/{provider_key}/test` | Проверить соединение с провайдером |
+
 ### 2.3. Аутентификация
 
 ```
@@ -356,6 +366,7 @@ KnowledgeBaseService
 - Управление источниками KB.
 - Ручная синхронизация KB.
 - Просмотр operational logs и истории диалогов.
+- **Управление параметрами LLM-провайдеров (model, temperature, max_tokens, base_url, active/fallback) внутри Dashboard.**
 
 ### Не входит
 
@@ -363,7 +374,6 @@ KnowledgeBaseService
 - Редактирование Presentation Patterns.
 - Визуальный конструктор страниц кейсов.
 - Автоматическая webhook-синхронизация.
-- Управление AI-провайдерами как отдельное пространство (базовый статус в Dashboard).
 - Analytics как отдельное пространство (базовые метрики в Dashboard).
 - Cache management как отдельное пространство.
 - Health monitoring как отдельное пространство.
@@ -392,3 +402,4 @@ Deployment Validation проводится отдельно по решению 
 |------|--------|-----------|
 | 2026-07-14 | 0.9 | Первый технический черновик на основе компонентов Assistant Flow и Review Flow. Содержал 9 рабочих пространств и неутверждённые технические детали. |
 | 2026-07-15 | 1.0 | Актуализация под согласованную продуктовую концепцию: 3 рабочих пространства, минимальная сложность, единый env-token, отказ от RBAC/JWT, переход от Review Flow к собственным сервисам AI Portfolio + каркас AF. |
+| 2026-07-18 | 1.1 | Расширение Dashboard управлением параметрами LLM-провайдеров (model, temperature, max_tokens, base_url, active/fallback) через новый admin endpoint `/admin/ai-providers`. Параметры провайдеров стали храниться в БД как Source of Truth. |

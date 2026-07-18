@@ -107,6 +107,7 @@ class AIProviderSetting(Base):
     max_tokens = Column(Integer, default=500)
     api_key_env_key = Column(String(100))
     base_url_env_key = Column(String(100))
+    base_url = Column(String(500))
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

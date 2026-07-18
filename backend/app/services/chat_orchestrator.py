@@ -198,17 +198,17 @@ class ChatOrchestrator:
         )
 
         # 6. Выбрать активного AI Provider
-        effective_provider, warnings = self.provider_settings.get_effective_provider()
+        active_row, warnings = self.provider_settings.get_effective_provider()
 
         # Если нет активного провайдера, использовать fallback
-        if not effective_provider:
-            fallback_provider = self.provider_settings.get_fallback()
-            if fallback_provider:
-                effective_provider = fallback_provider
+        if not active_row:
+            fallback_row = self.provider_settings.get_fallback()
+            if fallback_row:
+                active_row = fallback_row
                 # Логируем переключение
                 self.log_service.log_provider_switch(
-                    provider_key=fallback_provider.provider_key,
-                    model_name=fallback_provider.model_name or "unknown",
+                    provider_key=fallback_row.provider_key,
+                    model_name=fallback_row.model_name or "unknown",
                     status="ok",
                     metadata={"reason": "No active provider, using fallback"},
                 )
@@ -230,8 +230,9 @@ class ChatOrchestrator:
                     metadata={"error": error_message},
                 )
 
-        provider_key = effective_provider.provider_key
-        model_name = effective_provider.model_name or "unknown"
+        active_config = self.provider_settings.build_effective_config(active_row)
+        provider_key = active_config.provider_key
+        model_name = active_config.model_name or "unknown"
 
         # 7. Выполнить запрос к LLM (с failover)
         answer = None
@@ -242,27 +243,38 @@ class ChatOrchestrator:
 
         try:
             # Пытаемся использовать основной провайдер
-            provider = AIProviderFactory.create(provider_key)
-            answer = await provider.generate(prompt, temperature=0.7, max_tokens=500)
+            provider = AIProviderFactory.create(provider_key, config=active_config)
+            answer = await provider.generate(
+                prompt,
+                temperature=active_config.temperature,
+                max_tokens=active_config.max_tokens,
+            )
 
         except Exception as e:
             # Failover: переключаемся на fallback провайдер
             error_message = str(e)
 
-            fallback_provider = self.provider_settings.get_fallback()
-            if fallback_provider:
+            fallback_row = self.provider_settings.get_fallback()
+            if fallback_row:
+                fallback_config = self.provider_settings.build_effective_config(fallback_row)
                 fallback_used = True
-                provider_used = fallback_provider.provider_key
-                model_used = fallback_provider.model_name or "unknown"
+                provider_used = fallback_config.provider_key
+                model_used = fallback_config.model_name or "unknown"
 
                 try:
-                    provider = AIProviderFactory.create(fallback_provider.provider_key)
-                    answer = await provider.generate(prompt, temperature=0.7, max_tokens=500)
+                    provider = AIProviderFactory.create(
+                        fallback_config.provider_key, config=fallback_config
+                    )
+                    answer = await provider.generate(
+                        prompt,
+                        temperature=fallback_config.temperature,
+                        max_tokens=fallback_config.max_tokens,
+                    )
 
                     # Логируем переключение провайдера
                     self.log_service.log_provider_switch(
-                        provider_key=fallback_provider.provider_key,
-                        model_name=fallback_provider.model_name or "unknown",
+                        provider_key=fallback_config.provider_key,
+                        model_name=fallback_config.model_name or "unknown",
                         status="ok",
                         metadata={"reason": f"Primary provider failed: {error_message}"},
                     )

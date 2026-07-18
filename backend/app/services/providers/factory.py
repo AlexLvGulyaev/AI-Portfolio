@@ -2,15 +2,24 @@
 AI Provider factory for AI Portfolio.
 
 Source: Review Flow (services/ai_providers/factory.py)
-Used directly without modifications.
+Adapted for AI Portfolio:
+- create() accepts an optional EffectiveProviderConfig built from the DB.
+- If config is not provided, factory falls back to environment variables for
+  backward compatibility / tests.
 """
 
 import os
 from typing import Type
+
 from app.services.providers.base import AIProvider, EffectiveProviderConfig
-from app.services.providers.openai_compatible import OpenAICompatibleProvider
 from app.services.providers.gigachat_provider import GigaChatProvider
 from app.services.providers.mock_provider import MockProvider
+from app.services.providers.openai_compatible import OpenAICompatibleProvider
+
+
+DEFAULT_BASE_URLS: dict[str, str] = {
+    "openai": "https://api.openai.com/v1",
+}
 
 
 def get_implementation_status(provider_key: str) -> str:
@@ -34,13 +43,19 @@ class AIProviderFactory:
     """Factory for creating AI provider instances."""
 
     @staticmethod
-    def create(provider_key: str, model_name: str | None = None) -> AIProvider:
+    def create(
+        provider_key: str,
+        model_name: str | None = None,
+        config: EffectiveProviderConfig | None = None,
+    ) -> AIProvider:
         """
         Create AI provider instance by key.
 
         Args:
             provider_key: Provider identifier (e.g., 'openai', 'gigachat')
-            model_name: Model name (optional, uses default if not specified)
+            model_name: Deprecated optional model name. Use config.model_name instead.
+            config: EffectiveProviderConfig built from DB + env. If omitted,
+                    factory builds a minimal config from environment variables.
 
         Returns:
             AI provider instance
@@ -48,7 +63,26 @@ class AIProviderFactory:
         Raises:
             ValueError: If provider is not implemented
         """
-        # Get API key and other config from environment
+        provider_classes: dict[str, Type[AIProvider]] = {
+            "openai": OpenAICompatibleProvider,
+            "gigachat": GigaChatProvider,
+            "mock": MockProvider,
+        }
+
+        if provider_key not in provider_classes:
+            raise ValueError(f"Provider '{provider_key}' is not implemented")
+
+        if config is None:
+            config = AIProviderFactory._config_from_env(provider_key, model_name)
+
+        return provider_classes[provider_key](config)
+
+    @staticmethod
+    def _config_from_env(
+        provider_key: str,
+        model_name: str | None = None,
+    ) -> EffectiveProviderConfig:
+        """Build a minimal EffectiveProviderConfig from environment variables."""
         api_key = None
         base_url = None
         temperature = 0.7
@@ -56,34 +90,35 @@ class AIProviderFactory:
 
         if provider_key == "openai":
             api_key = os.environ.get("OPENAI_API_KEY")
-            base_url = os.environ.get("OPENAI_BASE_URL")
+            base_url = os.environ.get("OPENAI_BASE_URL") or DEFAULT_BASE_URLS.get("openai")
             model = model_name or os.environ.get("OPENAI_MODEL", "gpt-4.1-mini")
-            # Try to get max_tokens from env
             env_max = os.environ.get("OPENAI_MAX_TOKENS", "").strip()
             if env_max.isdigit():
                 max_tokens = int(env_max)
         elif provider_key == "gigachat":
-            # GigaChat uses GIGACHAT_AUTH_KEY for authentication
-            api_key = os.environ.get("GIGACHAT_AUTH_KEY")
+            from app.services.providers.gigachat_auth import gigachat_credentials_configured
+
+            if gigachat_credentials_configured():
+                api_key = os.environ.get("GIGACHAT_AUTH_KEY") or "configured"
             model = model_name or os.environ.get("GIGACHAT_MODEL", "GigaChat-Max")
-            # Try to get max_tokens from env
+            base_url = (
+                os.environ.get("GIGACHAT_BASE_URL")
+                or "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
+            )
             env_max = os.environ.get("GIGACHAT_MAX_TOKENS", "").strip()
             if env_max.isdigit():
                 max_tokens = int(env_max)
         elif provider_key == "mock":
-            # Mock provider doesn't need config
-            config = EffectiveProviderConfig(
+            return EffectiveProviderConfig(
                 provider_key="mock",
                 model_name=model_name or "mock-model",
                 readiness="ready",
                 missing_env_keys=[],
             )
-            return MockProvider(config)
         else:
             raise ValueError(f"Provider '{provider_key}' is not implemented")
 
-        # Create config
-        config = EffectiveProviderConfig(
+        return EffectiveProviderConfig(
             provider_key=provider_key,
             model_name=model,
             readiness="ready" if api_key else "missing_env_keys",
@@ -93,14 +128,3 @@ class AIProviderFactory:
             max_tokens=max_tokens,
             temperature=temperature,
         )
-
-        # Create provider instance
-        provider_classes: dict[str, Type[AIProvider]] = {
-            "openai": OpenAICompatibleProvider,
-            "gigachat": GigaChatProvider,
-        }
-
-        if provider_key not in provider_classes:
-            raise ValueError(f"Provider '{provider_key}' is not implemented")
-
-        return provider_classes[provider_key](config)
