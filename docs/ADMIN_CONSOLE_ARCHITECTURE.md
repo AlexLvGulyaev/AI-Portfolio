@@ -236,13 +236,15 @@ Execution Tracing — реализованная подсистема детал
 - Cache hit фиксирует шаги `rag_search`, `prompt_build`, `provider_select`, `provider_switch`, `llm_call` как `skipped`.
 - Fallback фиксирует шаг `provider_switch` как `ok`.
 - После записи `operational_log` выполняется `link_operational_log`.
+- С 2026-07-18 шаги pipeline обогащаются `step_metadata` (`query`, `response`, `provider`, `model`, `latency_ms`, `rag_used`, `sources` и др.) для построения operational console в стиле Assistant Flow.
 
 #### Admin endpoints
 
 | Метод | Путь | Назначение |
 |-------|------|-----------|
-| GET | `/admin/execution-sessions` | Список execution-сессий с фильтрами route/status/date/search и пагинацией |
-| GET | `/admin/execution-sessions/{id}` | Детали сессии + шаги pipeline + связанный operational log |
+| GET | `/admin/logs/recent` | Плоские строки execution tracing для operational console (limit/offset/since_hours) |
+| GET | `/admin/execution-sessions` | (legacy) Список execution-сессий с фильтрами route/status/date/search и пагинацией |
+| GET | `/admin/execution-sessions/{id}` | (legacy) Детали сессии + шаги pipeline + связанный operational log |
 
 ### 2.6. Переиспользуемые backend-компоненты
 

@@ -306,7 +306,7 @@ Deployment Validation будет проведён по решению владе
 |--------|------------|---------|
 | **Системные настройки (Dashboard)** | Единая сводная картина состояния AI Portfolio + управление параметрами LLM-провайдеров и выбор active/fallback | Мониторинг системы + управление LLM-провайдерами. Не управляет остальным содержимым |
 | **Контент / База знаний** | Управление карточками проектов, источниками KB, запуск синхронизации | Не редактирует Narrative Blueprint и Presentation Patterns; не является визуальным конструктором страниц |
-| **Логи** | Operational console с execution tracing: список execution-сессий, таймлайн pipeline, запрос/ответ, метаданные | — |
+| **Логи** | Operational console в стиле Assistant Flow: журнал execution-сессий с preview запроса, summary grid, цепочкой этапов, вопросом/ответом в двух колонках, timeline pipeline с дельтами и JSON snapshot | — |
 | **Диалоги** | История chat-сессий и сообщений | — |
 
 ### Архитектура Knowledge Base
@@ -486,8 +486,10 @@ Deployment Validation выполняется **отдельно и только 
 - Таблицы `execution_sessions` и `execution_steps` созданы миграцией 007.
 - Миграция 008 выполняет backfill для существующих `operational_logs`.
 - Сервис `ExecutionTracingService` интегрирован в `ChatOrchestrator` как опциональная зависимость.
-- Endpoints `GET /admin/execution-sessions` и `GET /admin/execution-sessions/{id}` добавлены.
-- Страница `LogsPage.tsx` переработана в двухпанельный operational layout.
+- `step_metadata` каждого шага обогащён query/response/provider/model/latency/sources для operational console.
+- Endpoint `GET /admin/logs/recent` добавлен для плоских строк в стиле Assistant Flow.
+- Endpoints `GET /admin/execution-sessions` и `GET /admin/execution-sessions/{id}` сохранены как legacy.
+- Страница `LogsPage.tsx` переработана в operational console: группировка сессий, фильтры по окну/route/status/поиск, summary grid, цепочка этапов, вопрос/ответ в двух колонках, timeline с дельтами и JSON snapshot.
 
 **Критерий завершения:**
 - [x] Новый chat-запрос создаёт execution_session с полным таймлайном шагов.
