@@ -11,7 +11,7 @@ HTTP Request → Session Management → Conversation Memory → Response Cache
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -66,9 +66,21 @@ def get_orchestrator(
     )
 
 
+def _get_client_ip(request: Request) -> str:
+    """Return client IP considering nginx reverse proxy headers."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        return real_ip.strip()
+    return request.client.host if request.client else "unknown"
+
+
 @router.post("", response_model=ChatResponse)
 async def chat(
     request: ChatRequest,
+    http_request: Request,
     orchestrator: ChatOrchestrator = Depends(get_orchestrator),
 ) -> ChatResponse:
     """
@@ -84,11 +96,12 @@ async def chat(
     7. Выбрать активного AI Provider
     8. Выполнить запрос к LLM (с failover)
     9. Сохранить ответ
-    10. Записать Operational Log
+    10. Записать Execution Trace
     11. Вернуть результат
 
     Args:
         request: Запрос пользователя
+        http_request: HTTP request with client context
         orchestrator: Chat Orchestrator
 
     Returns:
@@ -104,6 +117,9 @@ async def chat(
         dto: ChatResponseDTO = await orchestrator.process_request(
             user_query=request.message,
             session_id=session_id,
+            visitor_id=request.visitor_id,
+            client_ip=_get_client_ip(http_request),
+            user_agent=http_request.headers.get("user-agent"),
         )
 
         # Формируем ответ
@@ -117,6 +133,7 @@ async def chat(
             rag_used=dto.rag_used,
             response_time_ms=dto.latency_ms,
             user_id=dto.user_id,
+            visitor_id=dto.visitor_id,
         )
 
     except Exception as e:

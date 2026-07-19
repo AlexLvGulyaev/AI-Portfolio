@@ -36,7 +36,6 @@ from app.services.cache.response_cache import ResponseCache
 from app.services.chat_session_service import ChatSessionService
 from app.services.conversation_memory_service import ConversationMemoryService
 from app.services.execution_tracing_service import ExecutionTracingService
-from app.services.operational_log_service import OperationalLogService
 from app.services.prompt_assembly import PromptAssembly
 from app.services.providers.base import AIProvider
 from app.services.providers.factory import AIProviderFactory
@@ -83,14 +82,15 @@ class ChatOrchestrator:
         self.session_service = ChatSessionService(db)
         self.memory_service = ConversationMemoryService(db=db)
         self.provider_settings = AIProviderSettingsService(db)
-        self.log_service = OperationalLogService(db)
         self.prompt_assembly = PromptAssembly()
 
     async def process_request(
         self,
         user_query: str,
         session_id: uuid.UUID | None = None,
-        visitor_id: uuid.UUID | None = None,
+        visitor_id: uuid.UUID | str | None = None,
+        client_ip: str | None = None,
+        user_agent: str | None = None,
     ) -> ChatResponseDTO:
         """
         Обрабатывает запрос пользователя.
@@ -105,13 +105,15 @@ class ChatOrchestrator:
         7. Выбрать активного AI Provider
         8. Выполнить запрос к LLM (с failover)
         9. Сохранить ответ
-        10. Записать Operational Log
+        10. Записать Execution Trace
         11. Вернуть результат
 
         Args:
             user_query: Запрос пользователя
             session_id: ID сессии (если None, создаётся новая)
             visitor_id: ID посетителя (если None, создаётся новый)
+            client_ip: IP-адрес клиента
+            user_agent: User-Agent клиента
 
         Returns:
             ChatResponseDTO с ответом и метаданными
@@ -146,6 +148,11 @@ class ChatOrchestrator:
             # 1. Определить сессию
             if not visitor_id:
                 visitor_id = uuid.uuid4()
+            elif isinstance(visitor_id, str):
+                try:
+                    visitor_id = uuid.UUID(visitor_id)
+                except ValueError:
+                    visitor_id = uuid.uuid4()
 
             if not session_id:
                 session_id = self.session_service.create_session(
@@ -166,6 +173,9 @@ class ChatOrchestrator:
                 execution_id = self.tracing_service.start_session(
                     session_id=session_id,
                     user_id=visitor_id,
+                    visitor_id=visitor_id,
+                    client_ip=client_ip,
+                    user_agent=user_agent,
                     event_type="chat_request",
                     route="text",
                     metadata={"query": user_query},
@@ -231,27 +241,10 @@ class ChatOrchestrator:
                     "model": model,
                 })
 
-                # 10. Записать Operational Log
+                # 10. Записать Execution Trace summary
                 _start_step("log_write", 10)
                 response_time_ms = int((time.monotonic() - start_time) * 1000)
-                log_id = self.log_service.log_chat_request(
-                    session_id=str(session_id),
-                    user_id=str(visitor_id),
-                    query=user_query,
-                    response=cached_response,
-                    model_name=model,
-                    provider_key=provider,
-                    from_cache=True,
-                    response_time_ms=response_time_ms,
-                    status="ok",
-                    metadata={
-                        "from_cache": True,
-                        "rag_used": False,
-                        "sources": sources,
-                    },
-                )
                 _finish_step("log_write", "ok", {
-                    "log_id": str(log_id),
                     "query": user_query,
                     "response": cached_response,
                     "provider": provider,
@@ -268,8 +261,18 @@ class ChatOrchestrator:
                     self.tracing_service.set_session_provider(
                         execution_id, provider_key=provider, model_name=model
                     )
-                    self.tracing_service.finish_session(execution_id, "ok", {"cache_hit": True})
-                    self.tracing_service.link_operational_log(execution_id, log_id)
+                    self.tracing_service.finish_session(
+                        execution_id,
+                        "ok",
+                        {
+                            "query": user_query,
+                            "response": cached_response,
+                            "cache_hit": True,
+                            "rag_used": False,
+                            "sources": sources,
+                            "response_time_ms": response_time_ms,
+                        },
+                    )
                 _finish_step("response_return", "ok", {
                     "query": user_query,
                     "response": cached_response,
@@ -284,6 +287,7 @@ class ChatOrchestrator:
                     answer=cached_response,
                     session_id=session_id,
                     user_id=visitor_id,
+                    visitor_id=visitor_id,
                     provider=provider,
                     model=model,
                     cache_hit=True,
@@ -549,29 +553,11 @@ class ChatOrchestrator:
                 "sources": sources,
             })
 
-            # 11. Записать Operational Log
+            # 11. Записать Execution Trace summary
             _start_step("log_write", 10)
             response_time_ms = int((time.monotonic() - start_time) * 1000)
 
-            log_id = self.log_service.log_chat_request(
-                session_id=str(session_id),
-                user_id=str(visitor_id),
-                query=user_query,
-                response=answer,
-                model_name=model_used,
-                provider_key=provider_used,
-                from_cache=False,
-                response_time_ms=response_time_ms,
-                status="ok" if not error_message else "error",
-                metadata={
-                    "rag_used": rag_used,
-                    "sources": sources,
-                    "fallback_used": fallback_used,
-                    "error": error_message,
-                },
-            )
             _finish_step("log_write", "ok", {
-                "log_id": str(log_id),
                 "query": user_query,
                 "response": answer,
                 "provider": provider_used,
@@ -597,12 +583,15 @@ class ChatOrchestrator:
                     execution_id,
                     final_status,
                     {
+                        "query": user_query,
+                        "response": answer,
                         "rag_used": rag_used,
                         "fallback_used": fallback_used,
                         "error": error_message,
+                        "sources": sources,
+                        "response_time_ms": response_time_ms,
                     },
                 )
-                self.tracing_service.link_operational_log(execution_id, log_id)
             _finish_step("response_return", final_status, {
                 "query": user_query,
                 "response": answer,
@@ -619,6 +608,7 @@ class ChatOrchestrator:
                 answer=answer,
                 session_id=session_id,
                 user_id=visitor_id,
+                visitor_id=visitor_id,
                 provider=provider_used,
                 model=model_used,
                 cache_hit=False,

@@ -9,10 +9,10 @@ from typing import Any
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlalchemy import desc, func, select
+from sqlalchemy import desc, func, select, String as sa_String
 from sqlalchemy.orm import Session
 
-from app.models.entities import ExecutionSession, ExecutionStep, OperationalLog
+from app.models.entities import ExecutionSession, ExecutionStep
 
 
 class ExecutionSessionsAdminService:
@@ -51,6 +51,8 @@ class ExecutionSessionsAdminService:
                 func.lower(ExecutionSession.provider_key).like(search_lower)
                 | func.lower(ExecutionSession.model_name).like(search_lower)
                 | func.lower(ExecutionSession.event_type).like(search_lower)
+                | func.lower(ExecutionSession.client_ip).like(search_lower)
+                | func.cast(ExecutionSession.visitor_id, sa.String).like(search_lower)
             )
 
         total = self._db.scalar(select(func.count()).select_from(query.subquery()))
@@ -75,15 +77,8 @@ class ExecutionSessionsAdminService:
             .order_by(ExecutionStep.step_order, ExecutionStep.created_at)
         ).all()
 
-        log = None
-        if session.event_type == "chat_request":
-            log = self._db.scalar(
-                select(OperationalLog).where(OperationalLog.execution_id == execution_id)
-            )
-
         result = self._session_to_dict(session)
         result["steps"] = [self._step_to_dict(step) for step in steps]
-        result["log"] = self._log_to_dict(log) if log else None
         return result
 
     # ------------------------------------------------------------------
@@ -91,10 +86,14 @@ class ExecutionSessionsAdminService:
     # ------------------------------------------------------------------
 
     def _session_to_dict(self, row: ExecutionSession) -> dict[str, Any]:
+        metadata = row.execution_metadata or {}
         return {
             "id": str(row.id),
             "session_id": str(row.session_id) if row.session_id else None,
             "user_id": str(row.user_id) if row.user_id else None,
+            "visitor_id": str(row.visitor_id) if row.visitor_id else None,
+            "client_ip": row.client_ip,
+            "user_agent": row.user_agent,
             "event_type": row.event_type,
             "route": row.route,
             "status": row.status,
@@ -103,8 +102,9 @@ class ExecutionSessionsAdminService:
             "duration_ms": row.duration_ms,
             "provider_key": row.provider_key,
             "model_name": row.model_name,
-            "metadata": row.execution_metadata or {},
+            "metadata": metadata,
             "created_at": row.created_at.isoformat() if row.created_at else None,
+            "is_backfilled": bool(row.is_backfilled),
         }
 
     def _step_to_dict(self, row: ExecutionStep) -> dict[str, Any]:
@@ -121,20 +121,3 @@ class ExecutionSessionsAdminService:
             "created_at": row.created_at.isoformat() if row.created_at else None,
         }
 
-    def _log_to_dict(self, row: OperationalLog) -> dict[str, Any]:
-        return {
-            "id": str(row.id),
-            "event_type": row.event_type,
-            "session_id": str(row.session_id) if row.session_id else None,
-            "user_id": str(row.user_id) if row.user_id else None,
-            "query": row.query,
-            "response": row.response,
-            "model_name": row.model_name,
-            "provider_key": row.provider_key,
-            "from_cache": row.from_cache,
-            "response_time_ms": row.response_time_ms,
-            "status": row.status,
-            "error_message": row.error_message,
-            "metadata": row.log_metadata or {},
-            "created_at": row.created_at.isoformat() if row.created_at else None,
-        }

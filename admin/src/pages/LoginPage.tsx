@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
+import { loginAdmin } from '../api/client';
 
 export function LoginPage() {
   const [tokenInput, setTokenInput] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname || '/system';
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
 
@@ -20,8 +22,16 @@ export function LoginPage() {
       return;
     }
 
-    login(tokenInput.trim());
-    navigate(from, { replace: true });
+    setIsLoading(true);
+    try {
+      await loginAdmin(tokenInput.trim());
+      login(tokenInput.trim());
+      navigate(from, { replace: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка входа');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -41,8 +51,8 @@ export function LoginPage() {
           placeholder="Введите ADMIN_API_TOKEN"
           autoComplete="off"
         />
-        <button className="admin-login__submit" type="submit">
-          Войти
+        <button className="admin-login__submit" type="submit" disabled={isLoading}>
+          {isLoading ? 'Вход...' : 'Войти'}
         </button>
       </form>
     </div>

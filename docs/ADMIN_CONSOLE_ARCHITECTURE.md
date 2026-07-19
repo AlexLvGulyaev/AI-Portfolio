@@ -228,6 +228,8 @@ Execution Tracing — реализованная подсистема детал
 
 Миграция `008_backfill_execution_sessions` для существующих записей `operational_logs` без `execution_id` создаёт `execution_sessions` и базовые `execution_steps` на основе сохранённых metadata.
 
+Миграция `009_add_is_backfilled` добавляет в `execution_sessions` поле `is_backfilled` и помечает `TRUE` все сессии, созданные в рамках backfill'а. Граница backfill'а определяется последней backfill'нутой сессией (`2960349e-48ed-4af6-9a48-344b9c27a4d5`). В frontend backfill'нутые сессии отображаются с меткой "приблизительный" у заголовка таймлайна: их `duration_ms` и дельты между шагами не отражают реальное время выполнения.
+
 #### Интеграция с ChatOrchestrator
 
 - `ExecutionTracingService` передаётся в `ChatOrchestrator` как опциональная зависимость.
@@ -235,16 +237,44 @@ Execution Tracing — реализованная подсистема детал
 - Каждый этап pipeline оборачивается в `start_step` / `finish_step`.
 - Cache hit фиксирует шаги `rag_search`, `prompt_build`, `provider_select`, `provider_switch`, `llm_call` как `skipped`.
 - Fallback фиксирует шаг `provider_switch` как `ok`.
-- После записи `operational_log` выполняется `link_operational_log`.
 - С 2026-07-18 шаги pipeline обогащаются `step_metadata` (`query`, `response`, `provider`, `model`, `latency_ms`, `rag_used`, `sources` и др.) для построения operational console в стиле Assistant Flow.
+- С 2026-07-19 `chat_request` больше не дублируется в `operational_logs`. Execution-сессия является единым SOT для chat pipeline: `execution_metadata` содержит query, response, provider, model, rag_used, sources, error, response_time_ms. `ExecutionSession` хранит `visitor_id`, `client_ip`, `user_agent` для сквозной идентификации посетителя.
+- `POST /chat` принимает `visitor_id` из публичного frontend и передаёт его в `ChatOrchestrator`.
+
+#### Frontend operational console
+
+`LogsPage.tsx` содержит две вкладки без дублирования:
+
+- **Execution-сессии** — использует `/admin/execution-sessions` для списка сессий и `/admin/execution-sessions/{id}` для детального просмотра. Отображает только chat pipeline: паспорт сессии, visitor_id, client_ip, user_agent, цепочка этапов, таймлайн шагов pipeline, запрос/ответ из `execution_metadata`, JSON snapshot.
+- **Аудит** — использует `/admin/logs` для списка operational logs с фильтрами по `event_type` и `status`. Отображает только системные события без pipeline: `admin_login`, `site_visit`, `provider_switch`. `chat_request` и `rag_query` больше не отображаются здесь, потому что они полностью покрыты execution-сессиями.
 
 #### Admin endpoints
 
 | Метод | Путь | Назначение |
 |-------|------|-----------|
-| GET | `/admin/logs/recent` | Плоские строки execution tracing для operational console (limit/offset/since_hours) |
-| GET | `/admin/execution-sessions` | (legacy) Список execution-сессий с фильтрами route/status/date/search и пагинацией |
-| GET | `/admin/execution-sessions/{id}` | (legacy) Детали сессии + шаги pipeline + связанный operational log |
+| POST | `/admin/login` | Проверка `ADMIN_API_TOKEN` и запись `operational_log` с `event_type='admin_login'` |
+| GET | `/admin/logs` | Список системных operational logs с фильтрами (event_type, status, date) |
+| GET | `/admin/execution-sessions` | **Основной API для operational console «Логи»:** список execution-сессий chat pipeline с фильтрами route/status/date/search и пагинацией |
+| GET | `/admin/execution-sessions/{id}` | Детали execution-сессии chat pipeline + шаги pipeline + запрос/ответ из `execution_metadata` |
+
+#### Аудит входа в админку
+
+Аутентификация остаётся stateless по единому `ADMIN_API_TOKEN`. Для фиксации факта входа добавлен `POST /admin/login`:
+
+- `LoginPage.tsx` вызывает `POST /admin/login` до сохранения токена в `localStorage`.
+- При валидном токене создаётся `operational_log` с `event_type='admin_login'`, `status='ok'`.
+- При невалидном токене — `event_type='admin_login'`, `status='error'`, `error_message='Invalid admin token'`.
+- Запрос фиксирует обезличенный `ip` и `user_agent` в `log_metadata`.
+
+#### Аудит посещений публичного сайта
+
+Для отслеживания посещений публичного сайта добавлен публичный endpoint `POST /track-visit`:
+
+- Frontend публичного сайта (`src/js/api-client.js` + `src/js/main.js`) при загрузке каждой страницы вызывает `POST /track-visit` с `visitor_id` из `localStorage`.
+- Если `visitor_id` отсутствует — генерируется UUID v4 и сохраняется.
+- Endpoint пишет `operational_log` с `event_type='site_visit'`, `status='ok'`, `query=path`, `response=referrer`, `log_metadata={visitor_id, ip, user_agent}`.
+- `nginx.conf` проксирует `/track-visit` на backend.
+- В админке вкладка **Аудит** позволяет фильтровать и просматривать `site_visit` записи.
 
 ### 2.6. Переиспользуемые backend-компоненты
 
@@ -481,4 +511,6 @@ Deployment Validation проводится отдельно по решению 
 | 2026-07-14 | 0.9 | Первый технический черновик на основе компонентов Assistant Flow и Review Flow. Содержал 9 рабочих пространств и неутверждённые технические детали. |
 | 2026-07-15 | 1.0 | Актуализация под согласованную продуктовую концепцию: 3 рабочих пространства, минимальная сложность, единый env-token, отказ от RBAC/JWT, переход от Review Flow к собственным сервисам AI Portfolio + каркас AF. |
 | 2026-07-18 | 1.1 | Расширение Dashboard управлением параметрами LLM-провайдеров (model, temperature, max_tokens, base_url, active/fallback) через новый admin endpoint `/admin/ai-providers`. Параметры провайдеров стали храниться в БД как Source of Truth. |
-| 2026-07-18 | 1.2 | Execution Tracing для панели «Логи» реализовано и развёрнуто в production: модели `ExecutionSession` / `ExecutionStep`, миграции 007 и 008 (backfill 38 сессий / 328 шагов), сервис `ExecutionTracingService`, интеграция с `ChatOrchestrator`, endpoints `/admin/execution-sessions`, двухпанельный operational layout в `LogsPage`. Прошёл production smoke-test. Актуализирована структура навигации админки: Dashboard, Content (3 подраздела), Логи, Диалоги. |
+| 2026-07-18 | 1.2 | Execution Tracing для панели «Логи» реализовано и развёрнуто в production: модели `ExecutionSession` / `ExecutionStep`, миграции 007, 008 и 009 (backfill 38 сессий / 328 шагов + флаг `is_backfilled`), сервис `ExecutionTracingService`, интеграция с `ChatOrchestrator`, endpoints `/admin/execution-sessions`. Operational console «Логи» в стиле Assistant Flow использует `/admin/execution-sessions` и `/admin/execution-sessions/{id}`. Query preview для backfill'нутых сессий; компактная метка "приблизительный" для backfill'нутых сессий. Прошёл production smoke-test. Актуализирована структура навигации админки: Dashboard, Content (3 подраздела), Логи, Диалоги. |
+| 2026-07-19 | 1.3 | Аудит входа в административную консоль и посещений публичного сайта: endpoints `POST /admin/login` и `POST /track-visit`, запись `admin_login` / `site_visit` в `operational_logs`, миграция 010 (индекс `event_type` + `status`), вкладка «Аудит» в `LogsPage.tsx`, интеграция трекинга в публичный frontend. |
+| 2026-07-19 | 1.4 | Архитектурное упрощение логирования: `chat_request` больше не дублируется в `operational_logs`; `execution_sessions` является единым SOT для chat pipeline. Добавлены `visitor_id`, `client_ip`, `user_agent` в `ExecutionSession` (миграция 011). Публичный frontend передаёт `visitor_id` в `POST /chat`. Вкладки UI разделены без пересечения: «Execution-сессии» — chat pipeline, «Аудит» — системные события (`admin_login`, `site_visit`, `provider_switch`).

@@ -22,6 +22,9 @@
 
     // User ID storage key
     USER_KEY: 'ai_portfolio_user',
+
+    // Visitor ID storage key for anonymous visit tracking
+    VISITOR_KEY: 'ai_portfolio_visitor',
   };
 
   // ============================================
@@ -103,6 +106,12 @@
         }
       }
 
+      // Include visitor_id for cross-session observability
+      const visitorId = this.getVisitorId();
+      if (visitorId) {
+        requestBody.visitor_id = visitorId;
+      }
+
       // Create AbortController for timeout
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
@@ -174,6 +183,73 @@
           error: 'server',
           message: error.message || 'Произошла ошибка. Попробуйте позже.',
         };
+      }
+    },
+
+    /**
+     * Get or create anonymous visitor ID for visit tracking
+     * @returns {string|null} Visitor ID
+     */
+    getVisitorId() {
+      try {
+        let visitorId = localStorage.getItem(CONFIG.VISITOR_KEY);
+        if (!visitorId) {
+          visitorId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+          });
+          localStorage.setItem(CONFIG.VISITOR_KEY, visitorId);
+        }
+        return visitorId;
+      } catch (e) {
+        console.warn('LocalStorage not available:', e);
+        return null;
+      }
+    },
+
+    /**
+     * Track anonymous page visit
+     * @returns {Promise<Object>} Tracking result
+     */
+    async trackVisit() {
+      try {
+        const visitorId = this.getVisitorId();
+        if (!visitorId) {
+          return { success: false };
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
+
+        const response = await fetch(`${CONFIG.API_BASE}/track-visit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            visitor_id: visitorId,
+            path: window.location.pathname,
+            referrer: document.referrer || null,
+            user_agent: navigator.userAgent,
+          }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          return { success: false };
+        }
+
+        const data = await response.json();
+        if (data.visitor_id && data.visitor_id !== visitorId) {
+          localStorage.setItem(CONFIG.VISITOR_KEY, data.visitor_id);
+        }
+
+        return { success: true, visitorId: data.visitor_id || visitorId };
+      } catch (error) {
+        return { success: false };
       }
     },
 

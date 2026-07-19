@@ -154,6 +154,7 @@ class ExecutionSession(Base):
     Execution tracing session for a single request through ChatOrchestrator.
 
     One execution session corresponds to one pass of ChatOrchestrator.process_request.
+    Stores the full pipeline trace plus visitor/client context for observability.
     """
 
     __tablename__ = "execution_sessions"
@@ -161,6 +162,9 @@ class ExecutionSession(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     session_id = Column(UUID(as_uuid=True), ForeignKey("chat_sessions.id"), nullable=True, index=True)
     user_id = Column(UUID(as_uuid=True), nullable=True, index=True)
+    visitor_id = Column(UUID(as_uuid=True), nullable=True, index=True)
+    client_ip = Column(String(100), nullable=True)
+    user_agent = Column(Text, nullable=True)
     event_type = Column(String(100), nullable=False, default="chat_request")
     route = Column(String(50), nullable=False, default="text")  # text | rag | log | image | audio
     status = Column(String(20), nullable=False, default="ok")  # ok | error
@@ -171,6 +175,7 @@ class ExecutionSession(Base):
     model_name = Column(String(100), nullable=True)
     execution_metadata = Column(JSON, default=dict)  # renamed from 'metadata' (reserved in SQLAlchemy)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    is_backfilled = Column(Boolean, default=False, nullable=False)
 
 
 class ExecutionStep(Base):

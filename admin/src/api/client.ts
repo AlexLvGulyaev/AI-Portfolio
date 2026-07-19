@@ -261,6 +261,9 @@ export interface ExecutionSession {
   id: string;
   session_id: string | null;
   user_id: string | null;
+  visitor_id: string | null;
+  client_ip: string | null;
+  user_agent: string | null;
   event_type: string;
   route: string;
   status: string;
@@ -271,32 +274,11 @@ export interface ExecutionSession {
   model_name: string | null;
   metadata: Record<string, unknown>;
   created_at: string;
+  is_backfilled: boolean;
 }
 
 export interface ExecutionSessionDetail extends ExecutionSession {
   steps: ExecutionStep[];
-  log: OperationalLog | null;
-}
-
-export interface LogItem {
-  execution_id: string;
-  stage: string;
-  status: string;
-  created_at: string | null;
-  route: string | null;
-  mode: string | null;
-  modality: string | null;
-  modality_route: string | null;
-  details: Record<string, unknown>;
-  error_text: string | null;
-}
-
-export interface LogsRecentResponse {
-  limit: number;
-  offset: number;
-  count: number;
-  total_sessions: number;
-  items: LogItem[];
 }
 
 // ------------------------------------------------------------------
@@ -383,6 +365,14 @@ export function getConversation(id: string) {
   return apiClient.get<ConversationDetail>(`/conversations/${id}`);
 }
 
+export function loginAdmin(token: string) {
+  return apiClient.post<{ success: boolean }>(
+    '/login',
+    { token },
+    { requireAuth: false },
+  );
+}
+
 export function listExecutionSessions(params?: {
   route?: string;
   status?: string;
@@ -406,15 +396,6 @@ export function listExecutionSessions(params?: {
 
 export function getExecutionSession(id: string) {
   return apiClient.get<ExecutionSessionDetail>(`/execution-sessions/${id}`);
-}
-
-export function fetchRecentLogs(options: { limit?: number; offset?: number; sinceHours?: number } = {}) {
-  const searchParams = new URLSearchParams();
-  if (options.limit !== undefined) searchParams.set('limit', String(options.limit));
-  if (options.offset !== undefined) searchParams.set('offset', String(options.offset));
-  if (options.sinceHours !== undefined) searchParams.set('since_hours', String(options.sinceHours));
-  const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-  return apiClient.get<LogsRecentResponse>(`/logs/recent${query}`);
 }
 
 export function listAIProviders() {

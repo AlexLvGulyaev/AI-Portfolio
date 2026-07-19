@@ -153,6 +153,17 @@
   }
 
   // ============================================
+  // Visit tracking
+  // ============================================
+  function trackVisit() {
+    if (window.APIClient && typeof window.APIClient.trackVisit === 'function') {
+      window.APIClient.trackVisit().catch(function() {
+        // Silently ignore tracking errors to not break UX
+      });
+    }
+  }
+
+  // ============================================
   // Initialize
   // ============================================
   function init() {
@@ -163,6 +174,7 @@
     initCardHoverEffects();
     initButtonEffects();
     initNeuralAnimation();
+    trackVisit();
   }
 
   // Run on DOM ready

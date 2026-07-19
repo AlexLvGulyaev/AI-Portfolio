@@ -485,17 +485,102 @@ Deployment Validation выполняется **отдельно и только 
 **Результат:**
 - Таблицы `execution_sessions` и `execution_steps` созданы миграцией 007.
 - Миграция 008 выполняет backfill для существующих `operational_logs`.
+- Миграция 009 добавляет флаг `is_backfilled` в `execution_sessions` и помечает backfill'нутые сессии.
 - Сервис `ExecutionTracingService` интегрирован в `ChatOrchestrator` как опциональная зависимость.
 - `step_metadata` каждого шага обогащён query/response/provider/model/latency/sources для operational console.
-- Endpoint `GET /admin/logs/recent` добавлен для плоских строк в стиле Assistant Flow.
-- Endpoints `GET /admin/execution-sessions` и `GET /admin/execution-sessions/{id}` сохранены как legacy.
-- Страница `LogsPage.tsx` переработана в operational console: группировка сессий, фильтры по окну/route/status/поиск, summary grid, цепочка этапов, вопрос/ответ в двух колонках, timeline с дельтами и JSON snapshot.
+- `ExecutionSessionsAdminService.list_sessions` подгружает `query` из `operational_log` для preview в списке.
+
+**API:**
+- `GET /admin/execution-sessions` — основной endpoint для operational console; список execution-сессий с фильтрами route/status/date/search и пагинацией.
+- `GET /admin/execution-sessions/{id}` — детали execution-сессии + шаги pipeline + связанный operational log.
+- `GET /admin/logs` — сохранён для совместимости.
+
+**Frontend:**
+- `LogsPage.tsx` использует `/admin/execution-sessions` и `/admin/execution-sessions/{id}`.
+- `PAGE_SIZE=7` для ровного отображения 7 айтемов в списке при 100% масштабе.
+- Backfill'нутые сессии отображаются с компактной меткой "приблизительный" у заголовка таймлайна; duration/delta остаются видимыми.
 
 **Критерий завершения:**
 - [x] Новый chat-запрос создаёт execution_session с полным таймлайном шагов.
 - [x] Старые записи получают execution_session после миграции.
-- [x] Frontend отображает список сессий, фильтры и детальную трассировку.
+- [x] Backfill'нутые сессии помечены флагом `is_backfilled`.
+- [x] Operational console «Логи» отображает список сессий, фильтры и детальную трассировку через `/admin/execution-sessions`.
 - [x] Пройден production smoke-test: миграции применены, chat работает, cache hit корректно отмечает skipped шаги, admin endpoints отвечают.
+
+### 11.8. Аудит входа в админку и посещений сайта
+
+**Статус:** ✅ Реализовано (2026-07-19).
+
+**Цель:** зафиксировать факт входа пользователя в административную консоль и посещения публичного сайта в `operational_logs`, чтобы понимать, кто заходил в систему / на сайт.
+
+**Результат:**
+- Добавлен backend endpoint `POST /admin/login` (`backend/app/api/admin/auth.py`): проверяет `ADMIN_API_TOKEN` через `require_admin`, пишет `operational_log` с `event_type='admin_login'`, возвращает `{ success: true }`.
+- Добавлен публичный backend endpoint `POST /track-visit` (`backend/app/api/tracking.py`): пишет `operational_log` с `event_type='site_visit'`, возвращает `visitor_id`.
+- `LoginPage.tsx` вызывает `POST /admin/login` до сохранения токена; при ошибке токен не сохраняется.
+- Публичный frontend (`src/js/api-client.js` + `src/js/main.js`) отправляет `POST /track-visit` при загрузке каждой страницы с `visitor_id` из `localStorage`.
+- `nginx.conf` проксирует `/track-visit` на backend.
+- `LogsPage.tsx` получил вкладку «Аудит»: список operational logs с фильтрами по `event_type` (`admin_login`, `site_visit`, `chat_request`, `rag_query`, `other`) и `status`, детальный просмотр metadata (IP, user_agent, visitor_id).
+- Миграция 010 добавляет индекс `ix_operational_logs_event_type_status` для быстрого поиска audit-событий.
+
+**API:**
+- `POST /admin/login` — проверка токена + запись `admin_login`.
+- `POST /track-visit` — публичный endpoint записи `site_visit`.
+- `GET /admin/logs` — список operational logs с фильтрами (event_type, status, date).
+
+**Frontend:**
+- `LoginPage.tsx`: `loginAdmin(token)` через `apiClient`.
+- `src/js/api-client.js`: `getVisitorId()` + `trackVisit()`.
+- `src/js/main.js`: вызов `APIClient.trackVisit()` в `init()`.
+- `LogsPage.tsx`: вкладки «Execution-сессии» / «Аудит», `listLogs()` для audit-записей.
+
+**Критерий завершения:**
+- [x] `POST /admin/login` с валидным токеном создаёт `operational_log` с `event_type='admin_login'`, `status='ok'`.
+- [x] `POST /admin/login` с невалидным токеном создаёт запись с `status='error'`.
+- [x] Frontend `LoginPage` вызывает `/admin/login` и только потом сохраняет токен.
+- [x] `POST /track-visit` создаёт `operational_log` с `event_type='site_visit'`.
+- [x] Публичный сайт отправляет `visitor_id` при загрузке.
+- [x] LogsPage отображает новые event_type во вкладке «Аудит».
+- [x] `npm run build` проходит.
+- [x] `python -m py_compile` проходит.
+- [x] SOT-документы актуализированы.
+
+### 11.9. Архитектурное упрощение логирования chat pipeline
+
+**Статус:** ✅ Реализовано (2026-07-19).
+
+**Цель:** устранить дублирование chat-запросов в `operational_logs` и `execution_sessions`; сделать `execution_sessions` единым SOT для chat pipeline; добавить visitor-реквизиты для сквозной идентификации.
+
+**Результат:**
+- В модель `ExecutionSession` добавлены поля `visitor_id`, `client_ip`, `user_agent` (миграция 011 + индексы).
+- `ExecutionTracingService.start_session` принимает visitor-реквизиты.
+- `ChatOrchestrator.process_request` больше не вызывает `log_chat_request` и не создаёт `operational_log` с `event_type='chat_request'`.
+- Query/response/provider/model/rag_used/sources/error/response_time_ms сохраняются в `execution_metadata` сессии.
+- `POST /chat` принимает `visitor_id` из публичного frontend; IP и user_agent извлекаются из HTTP-заголовков.
+- Публичный frontend (`src/js/api-client.js`) передаёт `visitor_id` при отправке чата.
+- `ExecutionSessionsAdminService` больше не подгружает связанный `OperationalLog`; preview query берётся из `execution_metadata`.
+- `LogsPage.tsx`:
+  - Вкладка «Execution-сессии» отображает visitor_id, IP, user_agent в списке и detail view.
+  - Вкладка «Аудит» фильтрует `chat_request`/`rag_query`, оставляя только `admin_login`, `site_visit`, `provider_switch`.
+
+**API:**
+- `POST /chat` — принимает `visitor_id`, фиксирует visitor-реквизиты в execution-сессии.
+- `GET /admin/execution-sessions` — список chat pipeline с visitor_id, client_ip, user_agent.
+- `GET /admin/execution-sessions/{id}` — детали chat pipeline + шаги + query/response из metadata.
+- `GET /admin/logs` — только системные события (`admin_login`, `site_visit`, `provider_switch`).
+
+**Frontend:**
+- `src/js/api-client.js`: `visitor_id` в `POST /chat`.
+- `admin/src/api/client.ts`: тип `ExecutionSession` с visitor_id/client_ip/user_agent; `ExecutionSessionDetail` без поля `log`.
+- `admin/src/pages/LogsPage.tsx`: разделение вкладок без дублирования.
+
+**Критерий завершения:**
+- [x] Новый chat-запрос создаёт только `execution_session` (без `operational_log` `chat_request`).
+- [x] `execution_sessions` содержит visitor_id, client_ip, user_agent.
+- [x] Вкладка «Аудит» не отображает chat_request/rag_query.
+- [x] Вкладка «Execution-сессии» отображает visitor-реквизиты.
+- [x] `npm run build` проходит.
+- [x] `python -m py_compile` проходит.
+- [x] SOT-документы актуализированы.
 
 ---
 
@@ -512,6 +597,7 @@ Deployment Validation выполняется **отдельно и только 
 | 5 | Deployment Validation | ⏳ Будет проведён по решению владельца продукта |
 | 6 | Административная консоль v1 | ✅ Реализован и развёрнут (Stage 4) |
 | 7 | Execution Tracing для панели «Логи» | ✅ Реализовано |
+| 8 | Аудит входа и посещений сайта | ✅ Реализовано |
 
 ### Критический путь (завершён)
 

@@ -49,6 +49,7 @@ class ChatRequest(BaseModel):
 
     message: str
     session_id: UUID | None = None
+    visitor_id: str | None = None
 
 
 class ChatResponse(BaseModel):
@@ -63,3 +64,4 @@ class ChatResponse(BaseModel):
     rag_used: bool = False
     response_time_ms: int
     user_id: UUID | None = None
+    visitor_id: UUID | None = None

@@ -31,6 +31,7 @@ class ChatResponseDTO:
     answer: str
     session_id: UUID
     user_id: UUID | None = None
+    visitor_id: UUID | None = None
     provider: str = ""
     model: str = ""
     cache_hit: bool = False
@@ -45,6 +46,7 @@ class ChatResponseDTO:
             "answer": self.answer,
             "session_id": str(self.session_id),
             "user_id": str(self.user_id) if self.user_id else None,
+            "visitor_id": str(self.visitor_id) if self.visitor_id else None,
             "provider": self.provider,
             "model": self.model,
             "from_cache": self.cache_hit,

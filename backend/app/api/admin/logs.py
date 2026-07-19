@@ -12,26 +12,8 @@ from sqlalchemy.orm import Session
 from app.api.admin.dependencies import require_admin
 from app.core.database import get_db
 from app.services.admin.logs_conversations_service import LogsConversationsService
-from app.services.admin.logs_service import LogsAdminService
 
 router = APIRouter()
-
-
-@router.get("/logs/recent")
-async def logs_recent(
-    limit: int = Query(50, ge=1, le=2000),
-    offset: int = Query(0, ge=0),
-    since_hours: int | None = Query(None, ge=1, le=24 * 365),
-    admin: None = Depends(require_admin),
-    db: Session = Depends(get_db),
-):
-    """Return recent execution log rows for the operational console."""
-    service = LogsAdminService(db)
-    return service.get_recent_logs(
-        limit=limit,
-        offset=offset,
-        since_hours=since_hours,
-    )
 
 
 @router.get("/logs")
