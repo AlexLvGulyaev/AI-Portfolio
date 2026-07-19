@@ -262,6 +262,7 @@ export interface ConversationLastExecution {
   response_time_ms: number | null;
   cache_hit: boolean | null;
   rag_used: boolean;
+  sources: string[] | null;
   started_at: string | null;
   finished_at: string | null;
 }

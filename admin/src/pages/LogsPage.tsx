@@ -576,6 +576,18 @@ export function LogsPage() {
                   <div className="logs-detail-block">
                     <h3 className="logs-detail-block__title">{detailLabels(selectedRouteKey).right}</h3>
                     <pre className="logs-pre mono">{String(selected.metadata?.response ?? "—")}</pre>
+                    {(() => {
+                      const rawSources = selected.metadata?.sources;
+                      const sources = Array.isArray(rawSources) ? rawSources.map(String) : [];
+                      if (sources.length === 0) return null;
+                      return (
+                        <div className="logs-response-sources">
+                          <span className="logs-response-sources__divider" />
+                          <span className="logs-response-sources__label">Источники:</span>
+                          {sources.join(", ")}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
 

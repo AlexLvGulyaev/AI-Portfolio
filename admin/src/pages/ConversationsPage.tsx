@@ -251,6 +251,19 @@ function ConversationDetailPanel({
                     </td>
                     <td className="memory-dialog-table__cell memory-dialog-table__cell--assistant">
                       {row.assistant}
+                      {row.execution_id ? (() => {
+                        const ex = detail.executions.find((e) => e.id === row.execution_id);
+                        const rawSources = ex?.metadata?.sources;
+                        const sources = Array.isArray(rawSources) ? rawSources.map(String) : [];
+                        if (sources.length === 0) return null;
+                        return (
+                          <div className="memory-response-sources">
+                            <span className="memory-response-sources__divider" />
+                            <span className="memory-response-sources__label">Источники:</span>
+                            {sources.join(', ')}
+                          </div>
+                        );
+                      })() : null}
                     </td>
                     <td className="memory-dialog-table__cell memory-dialog-table__cell--runtime">
                       {row.cache_hit === null ? '—' : row.cache_hit ? 'hit' : 'miss'}

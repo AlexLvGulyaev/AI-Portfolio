@@ -248,6 +248,7 @@ class LogsConversationsService:
             "response_time_ms": ex.duration_ms or meta.get("response_time_ms"),
             "cache_hit": log.from_cache if log else meta.get("cache_hit"),
             "rag_used": ex.route == "rag" or bool(meta.get("rag_used")),
+            "sources": meta.get("sources") or [],
             "started_at": ex.started_at.isoformat() if ex.started_at else None,
             "finished_at": ex.finished_at.isoformat() if ex.finished_at else None,
         }
