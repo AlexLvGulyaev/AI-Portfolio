@@ -62,7 +62,7 @@ function KnowledgeSourceForm({
           value={form.identifier}
           onChange={(e) => update('identifier', e.target.value)}
           required
-          placeholder="owner/repo или /path/to/file"
+          placeholder={form.source_type === 'github_repo' ? 'AlexLvGulyaев/PromptReview' : '/path/to/file'}
         />
       </label>
       <div className="admin-form__grid">

@@ -621,6 +621,94 @@ Deployment Validation выполняется **отдельно и только 
 
 ---
 
+## 11.11. GitHub Sync для Knowledge Base
+
+**Статус:** ✅ Завершено (2026-07-19).
+
+**Цель:** заменить временный источник `knowledge_base/knowledge.json` на автоматическую загрузку проектной документации из репозиториев APL на GitHub. GitHub должен стать единственным Source of Truth для проектной документации, из которой строится векторный индекс ChromaDB.
+
+**Архитектурное решение:**
+
+| Компонент | Решение |
+|-----------|---------|
+| Источник | Репозитории APL на GitHub (`README.md`, `docs/**/*.md`) |
+| API | GitHub REST API (`/repos/{owner}/{repo}/contents/...`) |
+| Аутентификация | `Authorization: token <GITHUB_TOKEN>` из `.env` |
+| Промежуточное хранение | Таблицы `knowledge_documents` + `knowledge_sync_errors` в PostgreSQL |
+| Индексация | `KnowledgeBaseIndexer` → ChromaDB |
+| ChromaDB | Отдельный HTTP-сервис `ai-portfolio-chroma` (`HttpClient`) для thread-safe доступа |
+| Триггер | Ручная синхронизация в админке (`POST /admin/knowledge-base/sync`); выполняется в фоновом thread |
+
+**Подэтапы:**
+
+### 11.11.1. ✅ Подготовка и исследование GitHub API
+
+| Работа | Результат |
+|--------|-----------|
+| Проверить endpoints для чтения файлов и содержимого репозитория | Использован `/repos/{owner}/{repo}/contents/{path}` |
+| Определить список репозиториев/организации APL | 7 источников `github_repo` в `knowledge_sources` |
+| Изучить rate limits и способы аутентификации | `GITHUB_TOKEN`, заголовок `Authorization: token ...` |
+| Определить структуру читаемых файлов | `README.md`, `docs/**/*.md`; исключены `task_history/`, `attachments/`, `screenshots/`, `node_modules/`, `.git/` |
+
+### 11.11.2. ✅ Модели данных и API
+
+| Работа | Результат |
+|--------|-----------|
+| Расширить `KnowledgeSource` полями `branch`, `base_path` | Модель поддерживает `source_type=github_repo`, default `branch='main'` |
+| Добавить таблицу `knowledge_documents` | Миграция `012_add_knowledge_documents.py` |
+| Добавить таблицу `knowledge_sync_errors` | Лог ошибок по источникам |
+| Создать сервис `GitHubKnowledgeSourceService` | `backend/app/services/admin/github_knowledge_source_service.py` |
+| Обновить `POST /admin/knowledge-base/sync` | Запускает fetch + индексацию в фоновом thread; возвращает `job_id` |
+
+### 11.11.3. ✅ Загрузка и парсинг markdown
+
+| Работа | Результат |
+|--------|-----------|
+| Загрузка `README.md` и `docs/**/*.md` через GitHub API | Сырые markdown-файлы сохраняются в `knowledge_documents` |
+| Парсинг markdown → plain text | Библиотека `markdown` + strip HTML tags |
+| Сохранение метаданных | `path`, `title`, `raw_url`, `commit_sha`, `fetched_at` |
+| Обработка ошибок и пропуск недоступных файлов | Ошибки пишутся в `knowledge_sync_errors`, sync продолжается |
+
+### 11.11.4. ✅ Индексация в ChromaDB
+
+| Работа | Результат |
+|--------|-----------|
+| Очистка чанков | Перед индексацией каждого документа удаляются его старые чанки по `document_id` |
+| Индексация документов из GitHub + `ProjectCard.knowledge_content` | 5400 чанков, `rag_used: true` в `/chat` |
+| Обновление `last_sync_at`, `last_sync_status`, `last_sync_error` | Видно в `GET /admin/knowledge-base/sources` |
+| ChromaDB deployment | Переведено на `ai-portfolio-chroma` HTTP-сервис для thread-safe concurrent доступа |
+
+### 11.11.5. ✅ UI в админке
+
+| Работа | Результат |
+|--------|-----------|
+| Форма добавления GitHub-источника | `KnowledgeSourcesPage.tsx` (placeholder `identifier`) |
+| Индикатор прогресса синхронизации | `KnowledgeSyncPage.tsx` с polling job-статуса каждые 3 сек |
+| Список загруженных документов с предпросмотром | Минимальный CRUD источников + статус `last_sync_*` |
+
+### 11.11.6. ✅ Тестирование и документация
+
+| Работа | Результат |
+|--------|-----------|
+| Синхронизация всех 7 кейсов APL | ✅ 192 документа, 5400 чанков |
+| Проверка ответов AI-ассистента | ✅ `/chat` отвечает по `docs/SPEC.md`, `docs/ARCHITECTURE.md` |
+| Проверка идемпотентности | ✅ Повторный sync не удваивает count, нет `Insert of existing embedding ID` |
+| Обновление SOT-документов | ✅ `IMPLEMENTATION_PLAN.md`, `ADMIN_CONSOLE_ARCHITECTURE.md`, `PROJECT_STATE.md` |
+
+**Критерии завершения:**
+- [x] `POST /admin/knowledge-base/sync` загружает документацию из GitHub-репозиториев.
+- [x] В ChromaDB индексированы README и docs всех 7 кейсов APL.
+- [x] `knowledge_base/knowledge.json` больше не используется как источник.
+- [x] AI-ассистент отвечает по актуальным данным из GitHub.
+- [x] Админка отображает статус синхронизации и ошибки по источникам.
+- [x] `npm run build` проходит.
+- [x] `python -m py_compile` проходит.
+- [x] SOT-документы актуализированы.
+
+**Оценка трудоёмкости:** 8–12 часов.
+
+---
+
 ## 12. Сводка по этапам
 
 | Этап | Название | Статус |
@@ -636,6 +724,7 @@ Deployment Validation выполняется **отдельно и только 
 | 7 | Execution Tracing для панели «Логи» | ✅ Реализовано |
 | 8 | Аудит входа и посещений сайта | ✅ Реализовано |
 | 9 | Переработка «Диалоги» в стиле Assistant Flow Memory Console | ✅ Реализовано |
+| 10 | GitHub Sync для Knowledge Base | ✅ Завершено |
 
 ### Критический путь (завершён)
 
@@ -715,7 +804,8 @@ Deployment Validation выполняется **отдельно и только 
 9. **Управление параметрами LLM-провайдеров через БД** — ✅ Выполнено. Параметры (`model_name`, `temperature`, `max_tokens`, `base_url`, `is_enabled`, `is_active`, `is_fallback`) перенесены в PostgreSQL; редактирование и выбор active/fallback доступны в Dashboard административной консоли.
 10. **Превращение «Карточки проектов» в операционную панель** — ✅ Выполнено (2026-07-18). Страница `ProjectCardsPage.tsx` переработана в двухпанельный layout (список слева, карточка справа) с toolbar в шапке страницы, фильтрами, пагинацией, макропанелями Паспорт/Эксплуатация/Описание/База знаний и модальным редактированием. Добавлен endpoint `GET /admin/knowledge-base/project-cards/{id}/chunks` для отображения чанков ChromaDB, связанных с карточкой. Миграция `006_init_project_card_timestamps.py` инициализирует `created_at`/`updated_at` для существующих карточек.
 11. **Execution Tracing для панели «Логи»** — ✅ Реализовано (2026-07-18). Таблицы `execution_sessions`/`execution_steps`, миграции 007/008, сервис `ExecutionTracingService`, endpoints `/admin/execution-sessions`, двухпанельный operational layout в `LogsPage`. Остаётся production smoke-test.
-12. **Подготовка DEPLOYMENT_GUIDE и Deployment Validation** — ⏳ Будет проведено по решению владельца проекта перед финальной публикацией. Необходимо создать отдельный файл `DEPLOYMENT_GUIDE.md`, пройти его в чистом окружении и зафиксировать Deployment Validation Report.
+12. **GitHub Sync для Knowledge Base** — ✅ Завершено (2026-07-19). GitHub стал Source of Truth для проектной документации; синхронизация запускается вручную из админки, ChromaDB перестраивается из актуальных источников.
+13. **Подготовка DEPLOYMENT_GUIDE и Deployment Validation** — ⏳ Следующий шаг. Необходимо создать отдельный файл `DEPLOYMENT_GUIDE.md`, пройти его в чистом окружении и зафиксировать Deployment Validation Report. Учесть новый сервис `ai-portfolio-chroma`.
 
 ---
 
@@ -737,3 +827,5 @@ Deployment Validation выполняется **отдельно и только 
 | 2026-07-18 | 1.11 | Актуализирована архитектура административной консоли: `ProjectCardsPage` как операционная панель, endpoint для чанков карточки, отдельные страницы Sources/Sync, кастомная шапка `Page` через `renderHeader`, миграция 006 с `created_at`/`updated_at`. |
 | 2026-07-18 | 1.12 | Добавлен Этап 11.7 «Execution Tracing для панели «Логи»»: модель данных, миграция backfill, сервис, endpoints, frontend-план. Реализация отложена; план зафиксирован в task_history и ADMIN_CONSOLE_ARCHITECTURE.md. |
 | 2026-07-18 | 1.13 | Execution Tracing реализовано и развёрнуто в production: модели, миграции 007/008 (backfill 38 сессий / 328 шагов), `ExecutionTracingService`, интеграция в `ChatOrchestrator`, admin endpoints, двухпанельный `LogsPage`. Прошёл production smoke-test. Актуализирована структура разделов админки в документации. |
+| 2026-07-19 | 1.14 | Добавлен Этап 11.11 «GitHub Sync для Knowledge Base». Зафиксирован план замены временного источника `knowledge.json` на автоматическую загрузку проектной документации из репозиториев APL на GitHub. |
+| 2026-07-19 | 1.15 | Этап 11.11 «GitHub Sync для Knowledge Base» отмечен завершённым. Зафиксирован переход на HTTP ChromaDB (`ai-portfolio-chroma`) для thread-safe concurrent доступа. |

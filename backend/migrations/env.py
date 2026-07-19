@@ -24,6 +24,8 @@ from app.models.entities import (
     OperationalLog,
     ProjectCard,
     KnowledgeSource,
+    KnowledgeDocument,
+    KnowledgeSyncError,
     KnowledgeSyncJob,
 )
 

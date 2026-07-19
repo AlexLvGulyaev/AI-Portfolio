@@ -3,7 +3,7 @@ import { Page } from '../components/Page';
 import { Card } from '../components/Card';
 import { Loading } from '../components/Loading';
 import { ErrorState } from '../components/ErrorState';
-import { getChromaStatus, syncKnowledgeBase, type ChromaStatus, type SyncJob } from '../api/client';
+import { getChromaStatus, syncKnowledgeBase, getSyncJob, type ChromaStatus, type SyncJob } from '../api/client';
 
 export function KnowledgeSyncPage() {
   const [chromaStatus, setChromaStatus] = useState<ChromaStatus | null>(null);
@@ -27,10 +27,28 @@ export function KnowledgeSyncPage() {
     syncKnowledgeBase()
       .then((res) => {
         setSyncResult(res);
-        loadStatus();
+        // Poll job status until finished
+        const interval = setInterval(() => {
+          getSyncJob(res.job_id)
+            .then((job) => {
+              setSyncResult(job);
+              if (job.status !== 'running') {
+                clearInterval(interval);
+                setSyncLoading(false);
+                loadStatus();
+              }
+            })
+            .catch((err) => {
+              clearInterval(interval);
+              setSyncLoading(false);
+              setError(err instanceof Error ? err.message : 'Не удалось проверить статус синхронизации');
+            });
+        }, 3000);
       })
-      .catch((err) => setError(err instanceof Error ? err.message : 'Синхронизация не удалась'))
-      .finally(() => setSyncLoading(false));
+      .catch((err) => {
+        setSyncLoading(false);
+        setError(err instanceof Error ? err.message : 'Синхронизация не удалась');
+      });
   };
 
   return (
@@ -63,7 +81,7 @@ export function KnowledgeSyncPage() {
       <Card className="dashboard-section">
         <h2 className="dashboard-section__title">Ручная синхронизация</h2>
         <p className="admin-note">
-          Перестраивает индекс ChromaDB из knowledge_base/knowledge.json и knowledge_content карточек проектов.
+          Перестраивает индекс ChromaDB из включённых GitHub-источников и knowledge_content карточек проектов.
         </p>
         <button
           className="admin-btn admin-btn--primary"

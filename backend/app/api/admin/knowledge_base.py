@@ -5,6 +5,7 @@ Provides CRUD for ProjectCards and KnowledgeSources, ChromaDB status,
 and manual synchronization into ChromaDB.
 """
 
+import asyncio
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -12,7 +13,7 @@ from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.api.admin.dependencies import require_admin
-from app.core.database import get_db
+from app.core.database import SessionLocal, get_db
 from app.services.admin.knowledge_base_service import KnowledgeBaseService
 
 router = APIRouter()
@@ -21,7 +22,7 @@ router = APIRouter()
 class KnowledgeSourceCreate(BaseModel):
     source_type: str = Field(..., pattern=r"^(github_repo|local_directory|local_file)$")
     identifier: str = Field(..., min_length=1, max_length=500)
-    branch: str | None = None
+    branch: str | None = Field(default="main")
     base_path: str | None = None
     is_enabled: bool = True
 
@@ -138,9 +139,32 @@ async def sync_knowledge_base(
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    """Trigger a manual knowledge base synchronization."""
+    """Trigger a background knowledge base synchronization."""
     service = KnowledgeBaseService(db)
-    return service.sync_knowledge_base()
+    job = service.start_sync_job()
+    job_id = UUID(job["job_id"])
+
+    def _run_sync(job_id: UUID) -> None:
+        sync_db = SessionLocal()
+        try:
+            sync_service = KnowledgeBaseService(sync_db)
+            sync_service.sync_knowledge_base(job_id)
+        finally:
+            sync_db.close()
+
+    asyncio.create_task(asyncio.to_thread(_run_sync, job_id))
+    return job
+
+
+@router.get("/knowledge-base/sync/{job_id}")
+async def get_sync_job(
+    job_id: UUID,
+    admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Return status of a background sync job."""
+    service = KnowledgeBaseService(db)
+    return service.get_sync_job(job_id)
 
 
 @router.get("/knowledge-base/project-cards")

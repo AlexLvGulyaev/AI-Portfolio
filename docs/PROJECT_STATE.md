@@ -2,7 +2,7 @@
 
 **Проект:** ai-portfolio
 **Дата создания:** 2026-07-12
-**Последнее обновление:** 2026-07-18
+**Последнее обновление:** 2026-07-19
 **Статус:** Завершён базовый продукт в объёме уроков Prompt Engineering. Реализована административная консоль v1. Параметры LLM-провайдеров перенесены в БД и управляются через Dashboard. Execution Tracing для панели «Логи» реализовано. Проект находится под управлением Git, репозиторий инициализирован.
 
 ---
@@ -23,7 +23,9 @@
 - Продакшн-деплой на VPS: https://ai.alex-n8n.site
 - Административная консоль v1 (Dashboard, Content / Knowledge Base, Logs / Conversations)
 - Управление ProjectCard в PostgreSQL как единственным SOT карточек проектов
-- Ручная синхронизация Knowledge Base → ChromaDB через `/admin/knowledge-base/sync`
+- Ручная синхронизация Knowledge Base → ChromaDB через `/admin/knowledge-base/sync` (фоновая, с `job_id`)
+- **GitHub Sync для Knowledge Base**: 7 репозиториев APL, 192 документа, 5400 чанков; `knowledge_base/knowledge.json` больше не используется
+- **ChromaDB в production-режиме HTTP**: отдельный сервис `ai-portfolio-chroma` через `chromadb.HttpClient`
 
 ---
 
@@ -35,7 +37,7 @@
 - Пользовательский интерфейс реализован (4 страницы + 7 страниц кейсов)
 - Backend на FastAPI реализован и функционирует
 - PostgreSQL используется как основная СУБД
-- AI-ассистент отвечает на вопросы о кейсах и услугах
+- AI-ассистент отвечает на вопросы о кейсах и услугах по данным из GitHub
 - Сайт развёрнут на VPS по адресу https://ai.alex-n8n.site
 - SSL сертификат получен (Let's Encrypt)
 - Docker-конфигурация приведена к единому Source of Truth (`docker-compose.yml`) и управляется через Docker Compose v2
@@ -46,6 +48,7 @@
 - Архитектурное упрощение логирования chat pipeline: `chat_request` больше не дублируется в `operational_logs`; `execution_sessions` является единым SOT; добавлены `visitor_id`, `client_ip`, `user_agent` в `ExecutionSession`; публичный frontend передаёт `visitor_id` в `POST /chat`
 - Переработана страница «Диалоги» в стиле Assistant Flow Memory Console: двухпанельный layout, фильтры, список сессий с runtime context, detail panel с парными turns, execution timeline и JSON snapshot. Панель диалога занимает основное пространство экрана; таблица диалога содержит колонки cache hit и response time на уровне turn; execution timeline по умолчанию свёрнут.
 - Доводка страницы «Логи»: правая макропанель Execution-сессии разделена на «Параметры сессии» и «Параметры исполнения», убраны лишние строки статуса (время МСК, TEXT OK / RAG OK), унифицированы отступы между заголовками панелей и параметрами.
+- GitHub Sync для Knowledge Base реализован и развёрнут в production: 7 источников, 192 документа, 5400 чанков, AI отвечает по актуальным данным из GitHub.
 
 **Текущий этап:** Базовый продукт, административная консоль, operational console «Логи» и operational console «Диалоги» в стиле Assistant Flow завершены. Frontend использует `/admin/execution-sessions` и `/admin/execution-sessions/{id}` для отображения execution-сессий chat pipeline с visitor-реквизитами, а `/admin/conversations` и `/admin/conversations/{id}` для диалоговых сессий. Backfill'нутые сессии помечены флагом `is_backfilled`. Аудит входа в админку и посещений сайта реализован и доступен для просмотра во вкладке «Аудит». Ожидается Deployment Validation по решению владельца продукта перед финальной публикацией.
 
@@ -248,11 +251,13 @@ AI Portfolio использует три уровня источников да�
 ### Правила первой версии административной консоли
 
 - GitHub остаётся Source of Truth для проектной документации.
-- **Временное техническое решение v1:** локальный файл `knowledge_base/knowledge.json` используется как источник для ручной синхронизации в ChromaDB, пока не реализован GitHub Sync.
+- **GitHub Sync реализован:** `POST /admin/knowledge-base/sync` загружает `README.md` и `docs/**/*.md` из включённых источников `source_type=github_repo`, сохраняет в `knowledge_documents`, конвертирует markdown → plain text и индексирует в ChromaDB.
+- `knowledge_base/knowledge.json` больше не используется как источник.
 - Административная консоль управляет перечнем подключённых источников и инициирует их синхронизацию вручную.
 - Автоматическая синхронизация по webhook **не входит в первую версию**.
 - PostgreSQL не является основным хранилищем проектной документации.
 - ChromaDB остаётся только производным индексом и может быть полностью перестроена из актуальных источников.
+- **ChromaDB deployment:** production использует отдельный HTTP-сервис `ai-portfolio-chroma` (`chromadb/chroma:0.5.23`) для thread-safe concurrent доступа.
 
 ---
 
@@ -304,11 +309,11 @@ AI Portfolio использует три уровня источников да�
 | Компонент | Технология | Решение |
 |-----------|------------|---------|
 | **Web Framework** | FastAPI | Адаптировано из PEcf11, Review Flow |
-| **RAG Engine** | ChromaDB | Адаптировано из PEcf09 |
+| **RAG Engine** | ChromaDB HTTP server (`ai-portfolio-chroma`) | Адаптировано из PEcf09; HTTP mode для thread-safe production |
 | **Embeddings** | OpenAI text-embedding-3-small | Адаптировано из PEcf09, PEcf11 |
 | **LLM Provider** | OpenAI GPT-4.1-mini | Адаптировано из Review Flow |
 | **Memory** | PostgreSQL | Адаптировано из Assistant Flow |
-| **Knowledge Base v1** | `knowledge_base/knowledge.json` + ChromaDB | Временный источник (`knowledge.json`) до реализации GitHub Sync; ChromaDB — производный индекс |
+| **Knowledge Base v1** | GitHub + PostgreSQL + ChromaDB | GitHub — SOT проектной документации; PostgreSQL — кеш `knowledge_documents`; ChromaDB — производный индекс |
 | **Logging** | PostgreSQL | Адаптировано из PEcf09, Assistant Flow, Review Flow |
 | **Cache** | JSON-файл | Адаптировано из PEcf09 |
 | **LLM Provider Settings** | PostgreSQL (`ai_provider_settings`) | Source of Truth для параметров провайдеров; API keys только в `.env` |
@@ -353,7 +358,8 @@ AI Portfolio использует три уровня источников да�
 19. **Аудит входа в админку и посещений сайта** — ✅ Реализовано (2026-07-19). Endpoints `POST /admin/login` и `POST /track-visit`, записи `admin_login` / `site_visit` в `operational_logs`, миграция 010 (индекс `event_type` + `status`), вкладка «Аудит» в `LogsPage.tsx`, интеграция трекинга в публичный frontend. `npm run build` и `python -m py_compile` проходят.
 20. **Архитектурное упрощение логирования chat pipeline** — ✅ Реализовано (2026-07-19). `chat_request` больше не дублируется в `operational_logs`; `execution_sessions` — единый SOT для chat pipeline. Добавлены `visitor_id`, `client_ip`, `user_agent` в `ExecutionSession` (миграция 011). Публичный frontend передаёт `visitor_id` в `POST /chat`. Вкладка «Execution-сессии» отображает visitor-реквизиты; вкладка «Аудит» содержит только системные события (`admin_login`, `site_visit`, `provider_switch`).
 21. **Переработка страницы «Диалоги» в стиле Assistant Flow Memory Console** — ✅ Реализовано (2026-07-19). Backend: расширены `GET /admin/conversations` и `GET /admin/conversations/{id}` в `LogsConversationsService` (фильтры, runtime context, turns, executions, budget). Frontend: полностью заменён `ConversationsPage.tsx` на двухпанельный operational layout. `npm run build` и `python -m py_compile` проходят; остаётся production deploy и smoke-test.
-22. **Deployment Validation** — ⏳ Будет проведён по решению владельца проекта перед финальной публикацией
+22. **GitHub Sync для Knowledge Base** — ✅ Реализовано и развёрнуто в production (2026-07-19). 7 источников, 192 документа, 5400 чанков. AI-ассистент отвечает по актуальным данным из GitHub. ChromaDB переведена на HTTP-сервис `ai-portfolio-chroma`.
+23. **Deployment Validation** — ⏳ Будет проведён по решению владельца проекта перед финальной публикацией. Необходимо учесть новый сервис `ai-portfolio-chroma`.
 
 ---
 
@@ -389,4 +395,6 @@ AI Portfolio использует три уровня источников да�
 | 2026-07-19 | Chat Logging Simplified | Архитектурное упрощение логирования chat pipeline: `chat_request` больше не дублируется в `operational_logs`; `execution_sessions` — единый SOT. Добавлены `visitor_id`, `client_ip`, `user_agent` в `ExecutionSession` (миграция 011). Публичный frontend передаёт `visitor_id` в `POST /chat`. Вкладка «Execution-сессии» отображает visitor-реквизиты; вкладка «Аудит» содержит только системные события (`admin_login`, `site_visit`, `provider_switch`). |
 | 2026-07-19 | Conversations Page Redesign | Переработана страница «Диалоги» в стиле Assistant Flow Memory Console: двухпанельный layout, фильтры по времени/режиму/активности/поиску, список сессий с runtime context, detail panel с парными turns, execution timeline и JSON snapshot. Backend: расширены `GET /admin/conversations` и `GET /admin/conversations/{id}`. Frontend: полностью заменён `ConversationsPage.tsx`. `npm run build` и `python -m py_compile` проходят. |
 | 2026-07-19 | Conversations UI Finalization | Доводка UI страницы «Диалоги»: убрана лишняя строка статуса над макропанелями; панель диалога занимает основное пространство правой панели; заголовок сводки изменён на «Сводка диалоговой сессии»; панель «Runtime memory context» переименована в «Параметры исполнения»; cache hit и response time отображаются в таблице диалога как колонки на уровне turn; execution timeline по умолчанию свёрнут; исправлен backend-баг чтения cache_hit из execution_metadata. `npm run build` и `python -m py_compile` проходят. |
+| 2026-07-19 | GitHub Sync Planned | Запланирован Этап 11.11 «GitHub Sync для Knowledge Base»: замена `knowledge.json` на автозагрузку документации из репозиториев APL на GitHub. |
 | 2026-07-19 | Logs UI Finalization | Доводка UI страницы «Логи»: правая макропанель Execution-сессии разделена на «Параметры сессии» и «Параметры исполнения»; убраны лишние строки статуса (время МСК, TEXT OK / RAG OK); унифицированы отступы между заголовками панелей и параметрами. |
+| 2026-07-19 | GitHub Sync Implemented | Реализован и развёрнут GitHub Sync для Knowledge Base: 7 источников, 192 документа, 5400 чанков. ChromaDB переведена на HTTP-сервис `ai-portfolio-chroma` для thread-safe concurrent доступа. |

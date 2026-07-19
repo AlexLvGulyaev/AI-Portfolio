@@ -21,6 +21,9 @@ pydantic-settings==2.7.0
 httpx==0.28.1
 aiohttp==3.11.11
 
+# Markdown parsing
+markdown==3.7
+
 # Utilities
 python-dotenv==1.0.1
 pydantic-core==2.27.2

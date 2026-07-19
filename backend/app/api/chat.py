@@ -50,11 +50,7 @@ def get_orchestrator(
 
     from app.services.rag.rag_service import RAGService, RAGConfig
 
-    config = RAGConfig(
-        collection_name="ai_portfolio_knowledge",
-        persist_directory="data/chroma_db",
-        embedding_model="text-embedding-3-small",
-    )
+    config = RAGConfig.from_settings()
     rag_service = RAGService(config=config)
     tracing_service = ExecutionTracingService(db=db)
 

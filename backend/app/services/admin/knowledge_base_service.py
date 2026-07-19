@@ -6,19 +6,18 @@ Manages ProjectCards, KnowledgeSources, ChromaDB status, and manual sync.
 
 from __future__ import annotations
 
-import time
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 from uuid import UUID, uuid4
 
 from fastapi import HTTPException
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.entities import KnowledgeSource, KnowledgeSyncJob, ProjectCard
-from app.services.rag.knowledge_base_indexer import KnowledgeBaseIndexer, KnowledgeDocument
-from app.services.rag.rag_service import RAGService
+from app.services.admin.github_knowledge_source_service import GitHubKnowledgeSourceService
+from app.services.rag.knowledge_base_indexer import KnowledgeBaseIndexer, KnowledgeDocument as IndexerDocument
+from app.services.rag.rag_service import RAGConfig, RAGService
 
 
 class KnowledgeBaseService:
@@ -34,7 +33,7 @@ class KnowledgeBaseService:
     def get_chromadb_status(self) -> dict[str, Any]:
         """Return current ChromaDB collection status."""
         try:
-            rag = RAGService()
+            rag = RAGService(config=RAGConfig.from_settings())
             return {
                 "status": "ok",
                 "collection_name": rag.config.collection_name,
@@ -69,7 +68,7 @@ class KnowledgeBaseService:
             id=uuid4(),
             source_type=data.get("source_type", "local_file"),
             identifier=data["identifier"],
-            branch=data.get("branch"),
+            branch=data.get("branch") or "main",
             base_path=data.get("base_path"),
             is_enabled=data.get("is_enabled", True),
             last_sync_status="pending",
@@ -203,35 +202,100 @@ class KnowledgeBaseService:
     # Sync
     # ------------------------------------------------------------------
 
-    def sync_knowledge_base(self) -> dict[str, Any]:
-        """Run a manual knowledge base synchronization into ChromaDB."""
+    def start_sync_job(self) -> dict[str, Any]:
+        """Create and persist a new pending sync job."""
         job = KnowledgeSyncJob(
             id=uuid4(),
             triggered_by="manual",
             status="running",
             started_at=datetime.now(timezone.utc),
-            stats={"documents_processed": 0, "chunks_created": 0, "errors": []},
+            stats={"documents_processed": 0, "chunks_created": 0, "sources_processed": 0, "errors": []},
         )
         self._db.add(job)
         self._db.commit()
         self._db.refresh(job)
+        return self._job_to_dict(job)
 
-        overall_stats = {"documents_processed": 0, "chunks_created": 0, "errors": []}
+    def get_sync_job(self, job_id: UUID) -> dict[str, Any]:
+        """Return a single sync job by ID."""
+        row = self._db.get(KnowledgeSyncJob, job_id)
+        if not row:
+            raise HTTPException(404, "Sync job not found")
+        return self._job_to_dict(row)
+
+    def sync_knowledge_base(self, job_id: UUID) -> dict[str, Any]:
+        """Run a manual knowledge base synchronization into ChromaDB."""
+        job = self._db.get(KnowledgeSyncJob, job_id)
+        if not job:
+            raise HTTPException(404, "Sync job not found")
+
+        overall_stats = {
+            "documents_processed": 0,
+            "chunks_created": 0,
+            "sources_processed": 0,
+            "errors": [],
+        }
+
+        github_service: Optional[GitHubKnowledgeSourceService] = None
 
         try:
-            rag = RAGService()
+            rag = RAGService(config=RAGConfig.from_settings())
             indexer = KnowledgeBaseIndexer(rag_service=rag)
 
-            # Clear existing index
-            rag.clear_collection()
+            # Clear legacy knowledge_json chunks. GitHub chunks are removed
+            # incrementally by index_document via document_id.
+            rag.clear_by_source_type("knowledge_json")
 
-            # 1. Index the canonical knowledge.json file if it exists
-            knowledge_json = Path("knowledge_base/knowledge.json")
-            if knowledge_json.exists():
-                file_stats = indexer.index_json_file(knowledge_json, clear_existing=False)
-                overall_stats["documents_processed"] += file_stats.documents_processed
-                overall_stats["chunks_created"] += file_stats.chunks_created
-                overall_stats["errors"].extend(file_stats.errors)
+            # 1. Index enabled GitHub sources
+            github_service = GitHubKnowledgeSourceService(self._db)
+            enabled_sources = self._db.scalars(
+                select(KnowledgeSource).where(
+                    KnowledgeSource.is_enabled.is_(True),
+                    KnowledgeSource.source_type == "github_repo",
+                )
+            ).all()
+
+            for source in enabled_sources:
+                overall_stats["sources_processed"] += 1
+                try:
+                    fetch_result = github_service.fetch_source(source)
+                    github_service.save_fetched_files(source.id, fetch_result.files, fetch_result.errors)
+
+                    for file in fetch_result.files:
+                        doc = IndexerDocument(
+                            id=f"github_{source.identifier}_{file.path}",
+                            title=file.title or file.path,
+                            content=file.content,
+                            category="github_repo",
+                            url=file.raw_url,
+                            metadata={
+                                "source_type": "github_repo",
+                                "repo": source.identifier,
+                                "path": file.path,
+                                "commit_sha": file.commit_sha,
+                            },
+                        )
+                        try:
+                            chunks = indexer.index_document(doc)
+                            overall_stats["documents_processed"] += 1
+                            overall_stats["chunks_created"] += chunks
+                        except Exception as exc:
+                            error_msg = f"github_{source.identifier}_{file.path}: {str(exc)}"
+                            overall_stats["errors"].append(error_msg)
+
+                    for error in fetch_result.errors:
+                        error_msg = f"github_{source.identifier}_{error.get('path', '')}: {error.get('error_type')} — {error.get('error_message')}"
+                        overall_stats["errors"].append(error_msg)
+
+                    self._update_source_sync_status(
+                        source.id,
+                        "success" if not fetch_result.errors else "error",
+                        "\n".join(e.get("error_message", "") for e in fetch_result.errors) if fetch_result.errors else None,
+                    )
+                except Exception as exc:
+                    error_msg = f"source_{source.identifier}: {type(exc).__name__}: {exc}"
+                    overall_stats["errors"].append(error_msg)
+                    self._update_source_sync_status(source.id, "error", str(exc))
 
             # 2. Index enabled project cards
             cards = self._db.scalars(
@@ -245,7 +309,7 @@ class KnowledgeBaseService:
                 content = card.knowledge_content or ""
                 if not content.strip():
                     continue
-                doc = KnowledgeDocument(
+                doc = IndexerDocument(
                     id=f"project_card_{card.slug}",
                     title=card.title,
                     content=content,
@@ -265,12 +329,12 @@ class KnowledgeBaseService:
                     error_msg = f"project_card_{card.slug}: {str(exc)}"
                     overall_stats["errors"].append(error_msg)
 
-            # 3. Update source sync status for enabled sources
-            self._db.query(KnowledgeSource).filter(KnowledgeSource.is_enabled.is_(True)).update(
+            # 3. Mark disabled/idle sources
+            self._db.query(KnowledgeSource).filter(
+                KnowledgeSource.is_enabled.is_(False)
+            ).update(
                 {
-                    "last_sync_at": datetime.now(timezone.utc),
-                    "last_sync_status": "success" if not overall_stats["errors"] else "error",
-                    "last_sync_error": "\n".join(overall_stats["errors"]) if overall_stats["errors"] else None,
+                    "last_sync_status": "pending",
                     "updated_at": datetime.now(timezone.utc),
                 },
                 synchronize_session=False,
@@ -287,17 +351,45 @@ class KnowledgeBaseService:
             job.stats = overall_stats
             job.finished_at = datetime.now(timezone.utc)
 
+        finally:
+            if github_service is not None:
+                github_service.close()
+
         self._db.commit()
         self._db.refresh(job)
 
+        return self._job_to_dict(job)
+
+    def _job_to_dict(self, row: KnowledgeSyncJob) -> dict[str, Any]:
         return {
-            "job_id": str(job.id),
-            "status": job.status,
-            "started_at": job.started_at.isoformat() if job.started_at else None,
-            "finished_at": job.finished_at.isoformat() if job.finished_at else None,
-            "stats": job.stats,
-            "error_message": job.error_message,
+            "job_id": str(row.id),
+            "status": row.status,
+            "started_at": row.started_at.isoformat() if row.started_at else None,
+            "finished_at": row.finished_at.isoformat() if row.finished_at else None,
+            "stats": row.stats,
+            "error_message": row.error_message,
         }
+
+    def _update_source_sync_status(
+        self,
+        source_id: UUID,
+        status: str,
+        error_message: Optional[str],
+    ) -> None:
+        """Update sync status for a single knowledge source."""
+        from sqlalchemy import update
+
+        self._db.execute(
+            update(KnowledgeSource)
+            .where(KnowledgeSource.id == source_id)
+            .values(
+                last_sync_at=datetime.now(timezone.utc),
+                last_sync_status=status,
+                last_sync_error=error_message,
+                updated_at=datetime.now(timezone.utc),
+            )
+        )
+        self._db.commit()
 
     # ------------------------------------------------------------------
     # Helpers

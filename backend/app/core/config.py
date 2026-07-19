@@ -24,6 +24,14 @@ class Settings(BaseSettings):
     # Admin Console (REQUIRED - no default)
     admin_api_token: str
 
+    # GitHub (optional, increases rate limits for public repos)
+    github_token: str | None = None
+
+    # ChromaDB
+    chroma_use_http: bool = False
+    chroma_host: str = "localhost"
+    chroma_port: int = 8000
+
     # Rate Limiting
     rate_limit_requests_per_minute: int = 10
 

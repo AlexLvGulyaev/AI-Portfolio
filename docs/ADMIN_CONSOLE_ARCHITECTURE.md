@@ -3,7 +3,7 @@
 **Проект:** ai-portfolio
 **Дата:** 2026-07-15
 **Статус:** Согласовано
-**Версия:** 1.0
+**Версия:** 1.1
 
 ---
 
@@ -22,7 +22,8 @@
 | Компонент | Технологии | Расположение |
 |-----------|-----------|--------------|
 | Public frontend | Vanilla HTML + CSS + JavaScript | `src/` |
-| Backend | FastAPI + PostgreSQL + ChromaDB | `backend/` |
+| Backend | FastAPI + PostgreSQL + ChromaDB HTTP client | `backend/` |
+| ChromaDB | Официальный сервер `chromadb/chroma:0.5.23` | `docker-compose.yml` сервис `ai-portfolio-chroma` |
 | Reverse proxy / static server | nginx в Docker | `src/nginx.conf`, `src/Dockerfile` |
 | Orchestration | Docker Compose v2 | `docker-compose.yml` |
 
@@ -91,7 +92,8 @@ backend/app/
 | GET | `/admin/knowledge-base/sources/{id}` | Получить источник |
 | PATCH | `/admin/knowledge-base/sources/{id}` | Обновить источник |
 | DELETE | `/admin/knowledge-base/sources/{id}` | Удалить источник |
-| POST | `/admin/knowledge-base/sync` | Запустить ручную синхронизацию источников → ChromaDB |
+| POST | `/admin/knowledge-base/sync` | Запустить фоновую ручную синхронизацию источников → ChromaDB; возвращает `job_id` |
+| GET | `/admin/knowledge-base/sync/{job_id}` | Статус фонового sync job |
 | GET | `/admin/knowledge-base/project-cards` | Список управляемых карточек проектов |
 | POST | `/admin/knowledge-base/project-cards` | Создать карточку проекта |
 | GET | `/admin/knowledge-base/project-cards/{id}` | Получить карточку |
@@ -472,28 +474,42 @@ admin/
 ```
 GitHub (SOT проектной документации)
   │
-  │  fetch по API (GitHub Sync — планируется)
+  │  fetch по API (GitHub REST API, auth: token)
   ▼
-KnowledgeBaseService
+GitHubKnowledgeSourceService
   │
-  ├──► ProjectCard / KnowledgeSource ──► PostgreSQL (SOT управляемых данных)
+  ├──► KnowledgeDocument / KnowledgeSyncError ──► PostgreSQL (SOT сырых документов)
   │
-  └──► KnowledgeBaseIndexer
+  └──► KnowledgeBaseService
             │
-            ├── чанкинг
-            ├── embeddings (OpenAI)
-            └── запись в ChromaDB (поисковый индекс, не SOT)
+            ├──► ProjectCard / KnowledgeSource ──► PostgreSQL (SOT управляемых данных)
+            │
+            └──► KnowledgeBaseIndexer
+                      │
+                      ├── чанкинг
+                      ├── embeddings (OpenAI)
+                      └── запись в ChromaDB HTTP-сервер (поисковый индекс, не SOT)
 ```
 
-**Текущее техническое решение v1:**
+**Фактическое техническое решение v1 (2026-07-19):**
 
-Поскольку GitHub Sync ещё не реализован, ручная синхронизация `POST /admin/knowledge-base/sync` использует локальный файл `knowledge_base/knowledge.json` как временный источник документации для индексации в ChromaDB. Поле `knowledge_content` карточек `ProjectCard` также участвует в индексации. GitHub остаётся архитектурным Source of Truth для проектной документации; `knowledge.json` — временный источник до появления GitHub Sync.
+GitHub Sync реализован. Ручная синхронизация `POST /admin/knowledge-base/sync` выполняется в фоновом thread:
+1. Загружает `README.md` и `docs/**/*.md` из включённых источников `source_type=github_repo`.
+2. Сохраняет сырые markdown-документы в `knowledge_documents` и ошибки в `knowledge_sync_errors`.
+3. Конвертирует markdown → plain text через библиотеку `markdown`.
+4. Перед индексацией каждого документа удаляет его старые чанки по `document_id`.
+5. Индексирует GitHub-документы + `ProjectCard.knowledge_content` в ChromaDB.
+6. Возвращает `job_id` для polling статуса через `GET /admin/knowledge-base/sync/{job_id}`.
+
+**ChromaDB deployment:**
+- Производственный контур использует отдельный сервис `ai-portfolio-chroma` (официальный образ `chromadb/chroma:0.5.23`).
+- Backend подключается через `chromadb.HttpClient`.
+- Причина перехода: embedded `PersistentClient` в backend-контейнере не выдерживает concurrent доступа из main thread (`/chat`) и фонового thread (sync), что приводит к повреждению индекса.
 
 **Правила:**
-- GitHub остаётся Source of Truth для проектной документации.
-- **Временное техническое решение v1:** локальный `knowledge_base/knowledge.json` используется как источник для ручной синхронизации в ChromaDB, пока не реализован GitHub Sync.
+- GitHub — Source of Truth для проектной документации.
+- `knowledge_base/knowledge.json` больше не используется как источник.
 - `ProjectCard` в PostgreSQL — **единственный Source of Truth карточек проектов**.
-- Публичный frontend получает карточки проектов через **read-only API backend** и не хранит канонические данные в статическом HTML.
 - ChromaDB перестраивается из актуальных источников и не является SOT.
 - Автоматическая webhook-синхронизация не входит в v1.
 
@@ -563,3 +579,5 @@ Deployment Validation проводится отдельно по решению 
 | 2026-07-19 | 1.3 | Аудит входа в административную консоль и посещений публичного сайта: endpoints `POST /admin/login` и `POST /track-visit`, запись `admin_login` / `site_visit` в `operational_logs`, миграция 010 (индекс `event_type` + `status`), вкладка «Аудит» в `LogsPage.tsx`, интеграция трекинга в публичный frontend. |
 | 2026-07-19 | 1.4 | Архитектурное упрощение логирования: `chat_request` больше не дублируется в `operational_logs`; `execution_sessions` является единым SOT для chat pipeline. Добавлены `visitor_id`, `client_ip`, `user_agent` в `ExecutionSession` (миграция 011). Публичный frontend передаёт `visitor_id` в `POST /chat`. Вкладки UI разделены без пересечения: «Execution-сессии» — chat pipeline, «Аудит» — системные события (`admin_login`, `site_visit`, `provider_switch`). |
 | 2026-07-19 | 1.5 | Переработана страница «Диалоги» (`/admin/conversations`) по образцу Assistant Flow Memory Console: двухпанельный layout, фильтры по времени/режиму/активности/поиску, список сессий с runtime context, detail panel с парными turns, execution timeline и JSON snapshot. Backend: расширены `GET /admin/conversations` и `GET /admin/conversations/{id}` в `LogsConversationsService`. Frontend: полностью заменён `ConversationsPage.tsx`. `npm run build` и `python -m py_compile` проходят. |
+| 2026-07-19 | 1.6 | Раздел 5 дополнен планом реализации GitHub Sync (Этап 11.11 IMPLEMENTATION_PLAN.md): загрузка `README.md` и `docs/*.md` из репозиториев APL на GitHub, промежуточное хранение в PostgreSQL, индексация в ChromaDB, UI в админке. |
+| 2026-07-19 | 1.7 | GitHub Sync реализован и развёрнут в production: 7 источников, 192 документа, 5400 чанков. Раздел 5 переработан под фактическую архитектуру: `GitHubKnowledgeSourceService`, `KnowledgeDocument`, фоновый sync с `job_id`, инкрементальная очистка чанков по `document_id`. ChromaDB переведена на отдельный HTTP-сервис `ai-portfolio-chroma` для thread-safe concurrent доступа. |

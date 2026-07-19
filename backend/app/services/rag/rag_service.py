@@ -46,6 +46,21 @@ class RAGConfig:
     chroma_host: str = "localhost"
     chroma_port: int = 8000
 
+    @classmethod
+    def from_settings(cls) -> "RAGConfig":
+        """Build config from application settings (env vars)."""
+        from app.core.config import get_settings
+
+        settings = get_settings()
+        return cls(
+            collection_name="ai_portfolio_knowledge",
+            persist_directory="data/chroma_db",
+            embedding_model="text-embedding-3-small",
+            chroma_use_http=settings.chroma_use_http,
+            chroma_host=settings.chroma_host,
+            chroma_port=settings.chroma_port,
+        )
+
 
 class RAGService:
     """
@@ -282,6 +297,31 @@ class RAGService:
             name=self.config.collection_name,
             metadata={"description": "AI Portfolio Knowledge Base"},
         )
+
+    def clear_by_source_type(self, source_type: str) -> int:
+        """
+        Deletes all chunks whose metadata.source_type equals the given value.
+
+        Returns the number of deleted chunks.
+        """
+        deleted = 0
+        try:
+            while True:
+                results = self._collection.get(
+                    where={"source_type": source_type},
+                    include=[],
+                    limit=1000,
+                )
+                ids = results.get("ids", [])
+                if not ids:
+                    break
+                self._collection.delete(ids=ids)
+                deleted += len(ids)
+                if len(ids) < 1000:
+                    break
+            return deleted
+        except Exception:
+            return deleted
 
     def refresh_client_and_collection(self) -> None:
         """

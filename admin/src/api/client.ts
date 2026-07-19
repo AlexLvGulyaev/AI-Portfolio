@@ -193,6 +193,7 @@ export interface SyncJob {
   stats: {
     documents_processed: number;
     chunks_created: number;
+    sources_processed: number;
     errors: string[];
   };
   error_message: string | null;
@@ -347,6 +348,10 @@ export function deleteSource(id: string) {
 
 export function syncKnowledgeBase() {
   return apiClient.post<SyncJob>('/knowledge-base/sync');
+}
+
+export function getSyncJob(jobId: string) {
+  return apiClient.get<SyncJob>(`/knowledge-base/sync/${jobId}`);
 }
 
 export function listProjectCards() {

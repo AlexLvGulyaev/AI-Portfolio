@@ -74,6 +74,12 @@ services:
       - GIGACHAT_AUTH_KEY=${GIGACHAT_AUTH_KEY}
       # Admin Console
       - ADMIN_API_TOKEN=${ADMIN_API_TOKEN}
+      # GitHub (optional, increases API rate limit)
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      # ChromaDB
+      - CHROMA_USE_HTTP=true
+      - CHROMA_HOST=ai-portfolio-chroma
+      - CHROMA_PORT=8000
       # CORS
       - CORS_ORIGINS=${CORS_ORIGINS}
       # Logging
@@ -84,21 +90,45 @@ services:
       - ai-portfolio-data:/app/data
     networks:
       - ai-portfolio-network
-    depends_on:
-      ai-portfolio-postgres:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    depends_on:
+      ai-portfolio-postgres:
+        condition: service_healthy
+      ai-portfolio-chroma:
+        condition: service_healthy
+
+  # ChromaDB (HTTP server for thread-safe RAG access)
+  ai-portfolio-chroma:
+    image: chromadb/chroma:0.5.23
+    restart: always
+    container_name: ai-portfolio-chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+      - ALLOW_RESET=TRUE
+    volumes:
+      - ai-portfolio-chroma-data:/chroma/chroma
+    networks:
+      - ai-portfolio-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
 volumes:
   ai-portfolio-data:
     name: ai-portfolio-data
   ai-portfolio-postgres-data:
     name: ai-portfolio-postgres-data
+  ai-portfolio-chroma-data:
+    name: ai-portfolio-chroma-data
 
 networks:
   ai-portfolio-network:

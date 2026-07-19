@@ -134,6 +134,20 @@ class KnowledgeBaseIndexer:
 
         return result
 
+    def _delete_document_chunks(self, document_id: str) -> int:
+        """Удаляет все чанки документа из коллекции перед переиндексацией."""
+        try:
+            results = self.rag_service._collection.get(
+                where={"document_id": document_id},
+                include=[],
+            )
+            ids = results.get("ids", [])
+            if ids:
+                self.rag_service._collection.delete(ids=ids)
+            return len(ids)
+        except Exception:
+            return 0
+
     def load_json_documents(self, file_path: Path) -> list[KnowledgeDocument]:
         """
         Загружает документы из JSON-файла.
@@ -226,6 +240,10 @@ class KnowledgeBaseIndexer:
         """
         chunk_size = chunk_size or self.rag_service.config.chunk_size
         chunk_overlap = chunk_overlap or self.rag_service.config.chunk_overlap
+
+        # Удаляем предыдущие чанки документа, чтобы избежать дублирования
+        # при повторной индексации.
+        self._delete_document_chunks(document.id)
 
         # Разбиваем документ на чанки
         chunks = self._create_chunks(

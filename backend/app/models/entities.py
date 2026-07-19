@@ -58,7 +58,7 @@ class KnowledgeSource(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     source_type = Column(String(50), nullable=False)  # github_repo / local_directory / local_file
     identifier = Column(String(500), nullable=False)  # owner/repo or path
-    branch = Column(String(100))
+    branch = Column(String(100), default="main")
     base_path = Column(String(500))
     is_enabled = Column(Boolean, default=True, nullable=False)
     last_sync_at = Column(DateTime)
@@ -66,6 +66,42 @@ class KnowledgeSource(Base):
     last_sync_error = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class KnowledgeDocument(Base):
+    """
+    Cached raw documents fetched from KB sources (GitHub, local).
+
+    Intermediate storage before chunking and indexing into ChromaDB.
+    """
+
+    __tablename__ = "knowledge_documents"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    source_id = Column(UUID(as_uuid=True), ForeignKey("knowledge_sources.id"), nullable=False, index=True)
+    path = Column(String(500), nullable=False)
+    title = Column(String(500))
+    content = Column(Text)
+    raw_url = Column(String(1000))
+    commit_sha = Column(String(100))
+    fetched_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class KnowledgeSyncError(Base):
+    """
+    Per-source sync error log.
+    """
+
+    __tablename__ = "knowledge_sync_errors"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    source_id = Column(UUID(as_uuid=True), ForeignKey("knowledge_sources.id"), nullable=False, index=True)
+    path = Column(String(500))
+    error_type = Column(String(100))
+    error_message = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 
 class KnowledgeSyncJob(Base):
