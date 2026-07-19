@@ -1,7 +1,8 @@
 """
 Conversations workspace for admin console.
 
-Lists chat sessions with pagination and returns session details with messages.
+Lists chat sessions with filtering and returns session details with messages,
+paired dialog turns, execution timeline and memory budget.
 """
 
 from uuid import UUID
@@ -18,7 +19,10 @@ router = APIRouter()
 
 @router.get("/conversations")
 async def list_conversations(
-    is_active: bool | None = Query(None, description="Filter by active status"),
+    hours: int | None = Query(None, ge=1, le=24 * 365, description="Window in hours filtered by updated_at"),
+    route: str | None = Query(None, description="Filter by route of latest execution session"),
+    active_only: bool | None = Query(None, description="Filter by active status"),
+    search: str | None = Query(None, description="Search by session_id, visitor_id or mode"),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     admin: None = Depends(require_admin),
@@ -27,7 +31,10 @@ async def list_conversations(
     """Return chat sessions with optional filters and pagination."""
     service = LogsConversationsService(db)
     return service.list_conversations(
-        is_active=is_active,
+        hours=hours,
+        route=route,
+        active_only=active_only,
+        search=search,
         limit=limit,
         offset=offset,
     )
@@ -39,6 +46,6 @@ async def get_conversation(
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    """Return a single chat session with its messages."""
+    """Return a single chat session with messages, turns, executions and budget."""
     service = LogsConversationsService(db)
     return service.get_conversation(conversation_id)

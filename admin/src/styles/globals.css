@@ -2060,6 +2060,81 @@ body {
   white-space: nowrap;
 }
 
+.page__mt-sm {
+  margin-top: 12px;
+}
+
+/* Memory / Conversations dialog table */
+.memory-detail-panel {
+  gap: 14px;
+}
+
+.memory-logs-item__user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.memory-dialog-panel__lead,
+.memory-dialog-panel__note {
+  margin: 0 0 10px;
+  font-size: 0.8125rem;
+}
+
+.memory-dialog-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+}
+
+.memory-dialog-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.memory-dialog-table th,
+.memory-dialog-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--admin-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.memory-dialog-table th {
+  background-color: var(--admin-bg);
+  color: var(--admin-text-muted);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.memory-dialog-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.memory-dialog-table__cell {
+  max-width: 50%;
+  min-width: 200px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.45;
+}
+
+.memory-dialog-table__cell--user {
+  border-left: 3px solid #22c55e;
+}
+
+.memory-dialog-table__cell--assistant {
+  border-left: 3px solid var(--admin-primary);
+}
+
+.memory-dialog-table__empty {
+  padding: 16px;
+  text-align: center;
+}
+
 /* Modal */
 .admin-modal-overlay {
   position: fixed;

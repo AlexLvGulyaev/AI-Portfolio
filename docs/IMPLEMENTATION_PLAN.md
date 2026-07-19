@@ -443,9 +443,11 @@ Deployment Validation будет проведён по решению владе
 
 **Logs / Conversations:**
 - endpoint `/admin/logs` с фильтрацией по `event_type`, `status`, `date_from`, `date_to` и пагинацией;
-- endpoint `/admin/conversations` со списком сессий и пагинацией;
-- endpoint `/admin/conversations/{id}` с деталями сессии и сообщениями;
-- страница `LogsPage.tsx` с вкладками Logs / Conversations.
+- endpoint `/admin/execution-sessions` с фильтрами route/status/date/search и пагинацией для operational console «Логи»;
+- endpoint `/admin/conversations` со списком сессий и фильтрами (hours, route последнего execution, active_only, search);
+- endpoint `/admin/conversations/{id}` с деталями сессии, сообщениями, парными turns, execution timeline и memory budget;
+- страница `LogsPage.tsx` с вкладками Execution-сессии / Аудит;
+- страница `ConversationsPage.tsx` в стиле Assistant Flow Memory Console.
 
 **Критерий завершения:**
 - [x] Все три рабочих пространства доступны в UI и отвечают на действия пользователя.
@@ -582,6 +584,39 @@ Deployment Validation выполняется **отдельно и только 
 - [x] `python -m py_compile` проходит.
 - [x] SOT-документы актуализированы.
 
+### 11.10. Переработка страницы «Диалоги» в стиле Assistant Flow Memory Console
+
+**Статус:** ✅ Реализовано (2026-07-19).
+
+**Цель:** превратить страницу «Диалоги» в операционную консоль диалоговых сессий по образцу Assistant Flow Memory Console.
+
+**Результат:**
+- Backend: `LogsConversationsService.list_conversations` расширен фильтрами `hours`, `route` (route последнего `ExecutionSession`), `active_only`, `search`; возвращает `message_count`, `turns_approx`, `visitor_id`, `last_execution` summary.
+- Backend: `LogsConversationsService.get_conversation` возвращает `recent_turns` (парные user/assistant), полный список сообщений (лимит 500), связанные `ExecutionSession` со steps (лимит 20), `budget` из `MemoryBudgetPolicy`, `memory_source`.
+- Frontend: `ConversationsPage.tsx` полностью переработан на двухпанельный `logs-console` layout с фильтрами (окно времени 24h/48h/7d, режим all/RAG/текст/прочие, активность all/активные/неактивные, поиск), списком сессий с keyboard navigation, auto-select и detail panel.
+- Detail panel содержит: сводку сессии (session_id, visitor_id, режим, активность, сообщения, turns, обновлена), runtime context (RAG, cache hit, provider/model, response time, source), memory policy (max_recent_messages, max_message_chars, total_memory_chars_budget), таблицу диалога с парными репликами, timeline execution pipeline последней execution-сессии, JSON snapshot.
+- Добавлены CSS-классы для `memory-dialog-table` и responsive fallback в `globals.css`.
+
+**API:**
+- `GET /admin/conversations` — список сессий с фильтрами и runtime context.
+- `GET /admin/conversations/{id}` — детали сессии с messages, turns, executions, budget.
+
+**Frontend:**
+- `admin/src/pages/ConversationsPage.tsx` — двухпанельная operational console.
+- `admin/src/api/client.ts` — обновлены типы `ChatSession`, `ConversationDetail`, `listConversations`, `getConversation`.
+- `admin/src/styles/globals.css` — стили для `memory-dialog-table` и `memory-detail-panel`.
+
+**Критерий завершения:**
+- [x] `GET /admin/conversations` возвращает расширенный список сессий.
+- [x] `GET /admin/conversations/{id}` возвращает turns, executions со steps, budget, memory_source.
+- [x] Страница «Диалоги» открывается в админке и отображает двухпанельный layout.
+- [x] Фильтры по времени, режиму, активности и поиску работают.
+- [x] Клик по сессии показывает сводку, runtime context, memory policy и таблицу диалога.
+- [x] Execution timeline отображается для сессий с execution-сессиями.
+- [x] `npm run build` проходит.
+- [x] `python -m py_compile` проходит.
+- [x] SOT-документы актуализированы.
+
 ---
 
 ## 12. Сводка по этапам
@@ -598,6 +633,7 @@ Deployment Validation выполняется **отдельно и только 
 | 6 | Административная консоль v1 | ✅ Реализован и развёрнут (Stage 4) |
 | 7 | Execution Tracing для панели «Логи» | ✅ Реализовано |
 | 8 | Аудит входа и посещений сайта | ✅ Реализовано |
+| 9 | Переработка «Диалоги» в стиле Assistant Flow Memory Console | ✅ Реализовано |
 
 ### Критический путь (завершён)
 

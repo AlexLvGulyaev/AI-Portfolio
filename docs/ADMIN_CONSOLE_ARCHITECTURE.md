@@ -106,8 +106,8 @@ backend/app/
 | GET | `/admin/logs` | Список operational logs с фильтрами (оставлен для совместимости) |
 | GET | `/admin/execution-sessions` | Список execution-сессий с фильтрами и пагинацией |
 | GET | `/admin/execution-sessions/{id}` | Детали execution-сессии + шаги pipeline + связанный operational log |
-| GET | `/admin/conversations` | Список chat sessions с фильтрами |
-| GET | `/admin/conversations/{id}` | Детали сессии + сообщения |
+| GET | `/admin/conversations` | Список chat sessions с фильтрами (hours, route последнего execution, active_only, search), message_count, turns_approx, visitor_id, last_execution summary |
+| GET | `/admin/conversations/{id}` | Детали сессии: параметры, сообщения, парные turns, runtime context, memory budget, связанные execution-сессии со steps, JSON snapshot |
 
 #### AI Providers (управляется из Dashboard)
 
@@ -128,6 +128,45 @@ ADMIN_API_TOKEN=<единый токен из .env>
 - Backend-зависимость `require_admin` проверяет заголовок `Authorization: Bearer <token>`.
 - Frontend хранит токен в `localStorage` для v1.
 - Нет users table, RBAC, JWT refresh.
+
+### 2.4. Conversations / Диалоги
+
+Страница «Диалоги» (`/admin/conversations`) переработана по образцу операционной консоли Memory Assistant Flow: двухпанельный `logs-console` layout, фильтры, список сессий слева и детальная сводка справа.
+
+#### Backend
+
+| Endpoint | Назначение |
+|----------|------------|
+| `GET /admin/conversations` | Список `ChatSession` с пагинацией. Query params: `hours`, `route` (route последнего `ExecutionSession`), `active_only`, `search`. Поля ответа: `id`, `user_id`/`visitor_id`, `mode`, `is_active`, `created_at`, `updated_at`, `message_count`, `turns_approx`, `last_execution` (runtime context). |
+| `GET /admin/conversations/{id}` | Детали сессии: параметры, полный список сообщений (лимит 500), `recent_turns` (парные user/assistant), связанные `ExecutionSession` со steps (лимит 20), `budget` из `MemoryBudgetPolicy`, `memory_source`. |
+
+Сервис: `app/services/admin/logs_conversations_service.py`.
+
+#### Frontend
+
+| Компонент | Назначение |
+|-----------|------------|
+| `ConversationsPage.tsx` | Двухпанельный layout с фильтрами (окно времени, режим/route, активность, поиск), списком сессий, keyboard navigation, auto-select. |
+| `OperationalModalityBadge` | Badge режима (mem/rag/text/...). |
+| `OperationalPipelineStageIcon` | Иконка статуса шага pipeline. |
+| `SessionJsonSnapshot` | Раскрывающийся JSON snapshot детализации. |
+
+#### Runtime context
+
+`last_execution` берётся из последнего `ExecutionSession` для сессии и дополняется:
+- `cache_hit` — из `OperationalLog.from_cache` для этого execution;
+- `rag_used` — `route == 'rag'` или флаг из `execution_metadata`;
+- `response_time_ms` — `ExecutionSession.duration_ms` или `execution_metadata.response_time_ms`;
+- `provider_key` / `model_name` / `status` — прямые поля `ExecutionSession`.
+
+#### Memory policy
+
+Лимиты возвращаются из `MemoryBudgetPolicy` (`app/services/memory/base.py`):
+- `max_recent_messages` — 50;
+- `max_message_chars` — 8000;
+- `total_memory_chars_budget` — 32000.
+
+`memory_source` всегда `"PostgreSQL"`, т.к. в AI Portfolio нет in-memory fallback для диалогов.
 
 ### 2.4. Модели данных
 
@@ -513,4 +552,5 @@ Deployment Validation проводится отдельно по решению 
 | 2026-07-18 | 1.1 | Расширение Dashboard управлением параметрами LLM-провайдеров (model, temperature, max_tokens, base_url, active/fallback) через новый admin endpoint `/admin/ai-providers`. Параметры провайдеров стали храниться в БД как Source of Truth. |
 | 2026-07-18 | 1.2 | Execution Tracing для панели «Логи» реализовано и развёрнуто в production: модели `ExecutionSession` / `ExecutionStep`, миграции 007, 008 и 009 (backfill 38 сессий / 328 шагов + флаг `is_backfilled`), сервис `ExecutionTracingService`, интеграция с `ChatOrchestrator`, endpoints `/admin/execution-sessions`. Operational console «Логи» в стиле Assistant Flow использует `/admin/execution-sessions` и `/admin/execution-sessions/{id}`. Query preview для backfill'нутых сессий; компактная метка "приблизительный" для backfill'нутых сессий. Прошёл production smoke-test. Актуализирована структура навигации админки: Dashboard, Content (3 подраздела), Логи, Диалоги. |
 | 2026-07-19 | 1.3 | Аудит входа в административную консоль и посещений публичного сайта: endpoints `POST /admin/login` и `POST /track-visit`, запись `admin_login` / `site_visit` в `operational_logs`, миграция 010 (индекс `event_type` + `status`), вкладка «Аудит» в `LogsPage.tsx`, интеграция трекинга в публичный frontend. |
-| 2026-07-19 | 1.4 | Архитектурное упрощение логирования: `chat_request` больше не дублируется в `operational_logs`; `execution_sessions` является единым SOT для chat pipeline. Добавлены `visitor_id`, `client_ip`, `user_agent` в `ExecutionSession` (миграция 011). Публичный frontend передаёт `visitor_id` в `POST /chat`. Вкладки UI разделены без пересечения: «Execution-сессии» — chat pipeline, «Аудит» — системные события (`admin_login`, `site_visit`, `provider_switch`).
+| 2026-07-19 | 1.4 | Архитектурное упрощение логирования: `chat_request` больше не дублируется в `operational_logs`; `execution_sessions` является единым SOT для chat pipeline. Добавлены `visitor_id`, `client_ip`, `user_agent` в `ExecutionSession` (миграция 011). Публичный frontend передаёт `visitor_id` в `POST /chat`. Вкладки UI разделены без пересечения: «Execution-сессии» — chat pipeline, «Аудит» — системные события (`admin_login`, `site_visit`, `provider_switch`). |
+| 2026-07-19 | 1.5 | Переработана страница «Диалоги» (`/admin/conversations`) по образцу Assistant Flow Memory Console: двухпанельный layout, фильтры по времени/режиму/активности/поиску, список сессий с runtime context, detail panel с парными turns, execution timeline и JSON snapshot. Backend: расширены `GET /admin/conversations` и `GET /admin/conversations/{id}` в `LogsConversationsService`. Frontend: полностью заменён `ConversationsPage.tsx`. `npm run build` и `python -m py_compile` проходят. |

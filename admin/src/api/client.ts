@@ -226,10 +226,14 @@ export interface OperationalLog {
 export interface ChatSession {
   id: string;
   user_id: string | null;
+  visitor_id: string | null;
   mode: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  message_count: number;
+  turns_approx: number;
+  last_execution: ConversationLastExecution | null;
 }
 
 export interface ChatMessage {
@@ -239,9 +243,37 @@ export interface ChatMessage {
   created_at: string;
 }
 
+export interface ConversationTurn {
+  user: string;
+  assistant: string;
+}
+
+export interface ConversationLastExecution {
+  id: string;
+  route: string;
+  status: string;
+  provider_key: string | null;
+  model_name: string | null;
+  response_time_ms: number | null;
+  cache_hit: boolean | null;
+  rag_used: boolean;
+  started_at: string | null;
+  finished_at: string | null;
+}
+
+export interface ConversationBudget {
+  max_recent_messages: number;
+  max_message_chars: number;
+  total_memory_chars_budget: number;
+}
+
 export interface ConversationDetail extends ChatSession {
   message_count: number;
   messages: ChatMessage[];
+  recent_turns: ConversationTurn[];
+  executions: ExecutionSessionDetail[];
+  budget: ConversationBudget;
+  memory_source: string;
 }
 
 export interface ExecutionStep {
@@ -352,9 +384,19 @@ export function listLogs(params?: {
   return apiClient.get<PaginatedResponse<OperationalLog>>(`/logs${query}`);
 }
 
-export function listConversations(params?: { is_active?: boolean; limit?: number; offset?: number }) {
+export function listConversations(params?: {
+  hours?: number;
+  route?: string;
+  active_only?: boolean;
+  search?: string;
+  limit?: number;
+  offset?: number;
+}) {
   const searchParams = new URLSearchParams();
-  if (params?.is_active !== undefined) searchParams.set('is_active', String(params.is_active));
+  if (params?.hours !== undefined) searchParams.set('hours', String(params.hours));
+  if (params?.route) searchParams.set('route', params.route);
+  if (params?.active_only !== undefined) searchParams.set('active_only', String(params.active_only));
+  if (params?.search) searchParams.set('search', params.search);
   if (params?.limit !== undefined) searchParams.set('limit', String(params.limit));
   if (params?.offset !== undefined) searchParams.set('offset', String(params.offset));
   const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
