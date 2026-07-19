@@ -198,18 +198,18 @@ class ChatOrchestrator:
             _start_step("cache_check", 3)
             cached_response = self.cache.get(user_query)
             if cached_response:
+                # Получить метаданные из кеша до использования provider/model
+                cache_entry = self.cache.get_entry(user_query)
+                provider = cache_entry.metadata.get("provider", "unknown") if cache_entry else "unknown"
+                model = cache_entry.metadata.get("model", "unknown") if cache_entry else "unknown"
+                sources = cache_entry.metadata.get("sources", []) if cache_entry else []
+
                 _finish_step("cache_check", "ok", {
                     "cache_hit": True,
                     "query": user_query,
                     "provider": provider,
                     "model": model,
                 })
-
-                # Получить метаданные из кеша
-                cache_entry = self.cache.get_entry(user_query)
-                provider = cache_entry.metadata.get("provider", "unknown") if cache_entry else "unknown"
-                model = cache_entry.metadata.get("model", "unknown") if cache_entry else "unknown"
-                sources = cache_entry.metadata.get("sources", []) if cache_entry else []
 
                 # Cache hit skips RAG, prompt build, provider selection/switch and LLM call
                 _skip_step("rag_search", 4, {"reason": "cache_hit", "query": user_query})
