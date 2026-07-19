@@ -446,8 +446,8 @@ Deployment Validation будет проведён по решению владе
 - endpoint `/admin/execution-sessions` с фильтрами route/status/date/search и пагинацией для operational console «Логи»;
 - endpoint `/admin/conversations` со списком сессий и фильтрами (hours, route последнего execution, active_only, search);
 - endpoint `/admin/conversations/{id}` с деталями сессии, сообщениями, парными turns, execution timeline и memory budget;
-- страница `LogsPage.tsx` с вкладками Execution-сессии / Аудит;
-- страница `ConversationsPage.tsx` в стиле Assistant Flow Memory Console.
+- страница `LogsPage.tsx` с вкладками Execution-сессии / Аудит; правая макропанель Execution-сессии разделена на «Параметры сессии» и «Параметры исполнения»;
+- страница `ConversationsPage.tsx` в стиле Assistant Flow Memory Console; заголовок сводки — «Сводка диалоговой сессии», таблица диалога содержит колонки cache hit / response time.
 
 **Критерий завершения:**
 - [x] Все три рабочих пространства доступны в UI и отвечают на действия пользователя.
@@ -594,8 +594,8 @@ Deployment Validation выполняется **отдельно и только 
 - Backend: `LogsConversationsService.list_conversations` расширен фильтрами `hours`, `route` (route последнего `ExecutionSession`), `active_only`, `search`; возвращает `message_count`, `turns_approx`, `visitor_id`, `last_execution` summary.
 - Backend: `LogsConversationsService.get_conversation` возвращает `recent_turns` (парные user/assistant), полный список сообщений (лимит 500), связанные `ExecutionSession` со steps (лимит 20), `budget` из `MemoryBudgetPolicy`, `memory_source`.
 - Frontend: `ConversationsPage.tsx` полностью переработан на двухпанельный `logs-console` layout с фильтрами (окно времени 24h/48h/7d, режим all/RAG/текст/прочие, активность all/активные/неактивные, поиск), списком сессий с keyboard navigation, auto-select и detail panel.
-- Detail panel содержит: сводку сессии (session_id, visitor_id, режим, активность, сообщения, turns, обновлена), runtime context (RAG, cache hit, provider/model, response time, source), memory policy (max_recent_messages, max_message_chars, total_memory_chars_budget), таблицу диалога с парными репликами, timeline execution pipeline последней execution-сессии, JSON snapshot.
-- Добавлены CSS-классы для `memory-dialog-table` и responsive fallback в `globals.css`.
+: - Detail panel содержит: сводку диалоговой сессии, параметры сессии (session_id, visitor IP, режим, активность, сообщения, turns, обновлена), параметры исполнения (RAG, provider/model, source, response time), memory policy (max_recent_messages, max_message_chars, total_memory_chars_budget), таблицу диалога с парными репликами и колонками cache hit / response time на уровне turn (по execution-сессии), timeline execution pipeline (по умолчанию свёрнут) и JSON snapshot.
+- Добавлены CSS-классы для `memory-dialog-table`, `memory-dialog-panel` и responsive fallback в `globals.css`. Панель диалога занимает основное пространство правой панели за счёт flex-раскладки.
 
 **API:**
 - `GET /admin/conversations` — список сессий с фильтрами и runtime context.
@@ -604,14 +604,16 @@ Deployment Validation выполняется **отдельно и только 
 **Frontend:**
 - `admin/src/pages/ConversationsPage.tsx` — двухпанельная operational console.
 - `admin/src/api/client.ts` — обновлены типы `ChatSession`, `ConversationDetail`, `listConversations`, `getConversation`.
-- `admin/src/styles/globals.css` — стили для `memory-dialog-table` и `memory-detail-panel`.
+- `admin/src/styles/globals.css` — стили для `memory-dialog-table`, `memory-detail-panel`, `memory-dialog-panel` и `memory-timeline-fold`; обновлены `.logs-summary-col` для единообразных отступов.
 
 **Критерий завершения:**
 - [x] `GET /admin/conversations` возвращает расширенный список сессий.
 - [x] `GET /admin/conversations/{id}` возвращает turns, executions со steps, budget, memory_source.
 - [x] Страница «Диалоги» открывается в админке и отображает двухпанельный layout.
 - [x] Фильтры по времени, режиму, активности и поиску работают.
-- [x] Клик по сессии показывает сводку, runtime context, memory policy и таблицу диалога.
+- [x] Клик по сессии показывает сводку, параметры исполнения, memory policy и таблицу диалога.
+- [x] Cache hit и response time отображаются в таблице диалога как колонки на уровне turn.
+- [x] Execution timeline по умолчанию свёрнут.
 - [x] Execution timeline отображается для сессий с execution-сессиями.
 - [x] `npm run build` проходит.
 - [x] `python -m py_compile` проходит.

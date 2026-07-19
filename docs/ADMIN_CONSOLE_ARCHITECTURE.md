@@ -107,7 +107,7 @@ backend/app/
 | GET | `/admin/execution-sessions` | Список execution-сессий с фильтрами и пагинацией |
 | GET | `/admin/execution-sessions/{id}` | Детали execution-сессии + шаги pipeline + связанный operational log |
 | GET | `/admin/conversations` | Список chat sessions с фильтрами (hours, route последнего execution, active_only, search), message_count, turns_approx, visitor_id, last_execution summary |
-| GET | `/admin/conversations/{id}` | Детали сессии: параметры, сообщения, парные turns, runtime context, memory budget, связанные execution-сессии со steps, JSON snapshot |
+| GET | `/admin/conversations/{id}` | Детали сессии: параметры, сообщения, парные turns, параметры исполнения, memory budget, связанные execution-сессии со steps, JSON snapshot |
 
 #### AI Providers (управляется из Dashboard)
 
@@ -151,13 +151,22 @@ ADMIN_API_TOKEN=<единый токен из .env>
 | `OperationalPipelineStageIcon` | Иконка статуса шага pipeline. |
 | `SessionJsonSnapshot` | Раскрывающийся JSON snapshot детализации. |
 
-#### Runtime context
+#### Параметры исполнения (last_execution)
 
 `last_execution` берётся из последнего `ExecutionSession` для сессии и дополняется:
-- `cache_hit` — из `OperationalLog.from_cache` для этого execution;
 - `rag_used` — `route == 'rag'` или флаг из `execution_metadata`;
-- `response_time_ms` — `ExecutionSession.duration_ms` или `execution_metadata.response_time_ms`;
-- `provider_key` / `model_name` / `status` — прямые поля `ExecutionSession`.
+- `provider_key` / `model_name` / `status` — прямые поля `ExecutionSession`;
+- `cache_hit` — из `OperationalLog.from_cache` для этого execution, либо из `execution_metadata.cache_hit`;
+- `response_time_ms` — `ExecutionSession.duration_ms` или `execution_metadata.response_time_ms`.
+
+Cache hit и response time — это свойства конкретного execution (запуска обработки запроса), а не диалоговой сессии в целом. Поэтому в сводке сессии они вынесены из верхних макропанелей и показаны в таблице диалога как дополнительные колонки для каждого turn (по execution-сессии, связанной с ответом ассистента).
+
+В правой макропанели «Диалоги» три блока:
+- **Параметры сессии** — session_id, visitor IP, режим, активность, сообщения, turns, обновлена;
+- **Параметры исполнения** — RAG, provider/model, source, response time последнего запуска;
+- **Memory policy / limits** — max_recent_messages, max_message_chars, total_memory_chars_budget.
+
+Заголовок правой макропанели: «Сводка диалоговой сессии».
 
 #### Memory policy
 
@@ -284,7 +293,7 @@ Execution Tracing — реализованная подсистема детал
 
 `LogsPage.tsx` содержит две вкладки без дублирования:
 
-- **Execution-сессии** — использует `/admin/execution-sessions` для списка сессий и `/admin/execution-sessions/{id}` для детального просмотра. Отображает только chat pipeline: паспорт сессии, visitor_id, client_ip, user_agent, цепочка этапов, таймлайн шагов pipeline, запрос/ответ из `execution_metadata`, JSON snapshot.
+- **Execution-сессии** — использует `/admin/execution-sessions` для списка сессий и `/admin/execution-sessions/{id}` для детального просмотра. Отображает только chat pipeline: паспорт сессии, visitor_id, client_ip, user_agent, цепочка этапов, таймлайн шагов pipeline, запрос/ответ из `execution_metadata`, JSON snapshot. Правая макропанель разделена на «Параметры сессии» и «Параметры исполнения»; лишние строки статуса (время МСК, TEXT OK / RAG OK) убраны.
 - **Аудит** — использует `/admin/logs` для списка operational logs с фильтрами по `event_type` и `status`. Отображает только системные события без pipeline: `admin_login`, `site_visit`, `provider_switch`. `chat_request` и `rag_query` больше не отображаются здесь, потому что они полностью покрыты execution-сессиями.
 
 #### Admin endpoints

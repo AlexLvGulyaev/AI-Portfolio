@@ -246,6 +246,9 @@ export interface ChatMessage {
 export interface ConversationTurn {
   user: string;
   assistant: string;
+  cache_hit: boolean | null;
+  response_time_ms: number | null;
+  execution_id: string | null;
 }
 
 export interface ConversationLastExecution {

@@ -516,24 +516,15 @@ export function LogsPage() {
                 <div className="logs-detail__head">
                   <div>
                     <h2 className="card__title logs-detail__title">Трассировка execution-сессии</h2>
-                    <p className="logs-detail__sub muted">Время: МСК</p>
                   </div>
                   <span className={`logs-status logs-status--${selectedStatus}`}>
                     {statusLabelRu(selected.status).toUpperCase()}
                   </span>
                 </div>
 
-                <div className="logs-detail__route-line">
-                  {showLogsRouteLabelBesideModalityBadge(selectedRouteKey) ? (
-                    <>
-                      {routeLabelRu(selectedRouteKey).toUpperCase()} ·{" "}
-                    </>
-                  ) : null}
-                  {statusLabelRu(selected.status).toUpperCase()}
-                </div>
-
                 <div className="logs-summary-grid">
                   <div className="logs-summary-col">
+                    <h3 className="memory-summary-col__title">Параметры сессии</h3>
                     <dl className="kv logs-detail-kv">
                       <dt>execution_id</dt>
                       <dd className="mono break-all">{selected.id}</dd>
@@ -548,6 +539,7 @@ export function LogsPage() {
                     </dl>
                   </div>
                   <div className="logs-summary-col">
+                    <h3 className="memory-summary-col__title">Параметры исполнения</h3>
                     <dl className="kv logs-detail-kv">
                       <dt>Статус</dt>
                       <dd>

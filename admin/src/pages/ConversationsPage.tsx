@@ -11,6 +11,7 @@ import {
   type ChatSession,
   type ConversationDetail,
   type ConversationTurn,
+  type ExecutionSessionDetail,
 } from '../api/client';
 import { EmptyState } from '../components/EmptyState';
 import { Loading } from '../components/Loading';
@@ -28,7 +29,6 @@ import {
   formatDurationMs,
   formatTimestampMsk,
   normalizeRouteKey,
-  routeLabelRu,
   stageToActionRu,
   statusLabelRu,
 } from '../utils/operationalLabels';
@@ -61,23 +61,66 @@ function normalizeStatus(s: string): string {
   return s.trim().toLowerCase();
 }
 
-function pairDialogRows(turns: { role: string; content: string }[]): ConversationTurn[] {
+function pairDialogRows(
+  turns: { role: string; content: string; created_at?: string | null }[],
+  executions: ExecutionSessionDetail[]
+): ConversationTurn[] {
   const rows: ConversationTurn[] = [];
-  let pendingUser: string | null = null;
+  let pendingUser: { content: string; created_at: string | null } | null = null;
   for (const t of turns) {
     const r = (t.role || '').trim().toLowerCase();
+    const ts = t.created_at ?? null;
     if (r === 'user') {
       if (pendingUser != null) {
-        rows.push({ user: pendingUser, assistant: '—' });
+        rows.push({ user: pendingUser.content, assistant: '—', cache_hit: null, response_time_ms: null, execution_id: null });
       }
-      pendingUser = t.content || '';
+      pendingUser = { content: t.content || '', created_at: ts };
     } else if (r === 'assistant') {
-      rows.push({ user: pendingUser || '—', assistant: t.content || '' });
+      const userTs = pendingUser?.created_at ?? null;
+      const ex = findExecutionForTurn(executions, userTs, ts);
+      rows.push({
+        user: pendingUser?.content || '—',
+        assistant: t.content || '',
+        cache_hit: ex?.cache_hit ?? null,
+        response_time_ms: ex?.response_time_ms ?? null,
+        execution_id: ex?.execution_id ?? null,
+      });
       pendingUser = null;
     }
   }
-  if (pendingUser != null) rows.push({ user: pendingUser, assistant: '—' });
+  if (pendingUser != null) {
+    rows.push({ user: pendingUser.content, assistant: '—', cache_hit: null, response_time_ms: null, execution_id: null });
+  }
   return rows;
+}
+
+function findExecutionForTurn(
+  executions: ExecutionSessionDetail[],
+  _userTs: string | null,
+  assistantTs: string | null
+): { cache_hit: boolean | null; response_time_ms: number | null; execution_id: string | null } | null {
+  if (!executions.length) return null;
+  const assistantTime = assistantTs ? new Date(assistantTs).getTime() : null;
+  // Find execution whose finished_at is closest to but not before the assistant message timestamp.
+  let best: ExecutionSessionDetail | null = null;
+  let bestDelta: number | null = null;
+  for (const ex of executions) {
+    if (!ex.finished_at) continue;
+    const finished = new Date(ex.finished_at).getTime();
+    if (assistantTime != null && finished < assistantTime - 5000) continue;
+    const delta = assistantTime != null ? Math.abs(finished - assistantTime) : 0;
+    if (bestDelta == null || delta < bestDelta) {
+      best = ex;
+      bestDelta = delta;
+    }
+  }
+  if (!best) return null;
+  const meta = best.metadata || {};
+  return {
+    cache_hit: (meta.cache_hit as boolean | null | undefined) ?? null,
+    response_time_ms: best.duration_ms ?? (meta.response_time_ms as number | null | undefined) ?? null,
+    execution_id: best.id,
+  };
 }
 
 function sessionListTimeMs(row: ChatSession): number | null {
@@ -109,21 +152,16 @@ function ConversationDetailPanel({
 }: {
   detail: ConversationDetail;
 }) {
-  const dialogRows = useMemo(() => pairDialogRows(detail.messages), [detail.messages]);
+  const dialogRows = useMemo(() => pairDialogRows(detail.messages, detail.executions), [detail.messages, detail.executions]);
   const latestExecution = detail.executions[0] ?? null;
   const runtime = detail.last_execution;
-  const routeKey = runtime ? normalizeRouteKey(runtime.route) : normalizeRouteKey(detail.mode);
   const budget = detail.budget;
 
   return (
     <div className="logs-detail memory-detail-panel">
       <div className="logs-detail__head">
-        <h2 className="logs-detail__title">Сводка диалога</h2>
+        <h2 className="logs-detail__title">Сводка диалоговой сессии</h2>
         <ActiveBadge active={detail.is_active} />
-      </div>
-
-      <div className="logs-detail__route-line">
-        {routeLabelRu(routeKey).toUpperCase()} · {detail.is_active ? 'АКТИВНА' : 'НЕАКТИВНА'}
       </div>
 
       <div className="logs-summary-grid memory-summary-grid">
@@ -155,13 +193,9 @@ function ConversationDetailPanel({
           </dl>
         </div>
         <div className="logs-summary-col memory-summary-col">
-          <h3 className="memory-summary-col__title">Runtime memory context</h3>
+          <h3 className="memory-summary-col__title">Параметры исполнения</h3>
           <dl className="kv logs-detail-kv">
             <OpsRow label="RAG" value={runtime?.rag_used ? 'да' : 'нет'} />
-            <OpsRow
-              label="cache hit"
-              value={runtime?.cache_hit === null ? '—' : runtime?.cache_hit ? 'да' : 'нет'}
-            />
             <OpsRow
               label="provider / model"
               value={
@@ -170,10 +204,7 @@ function ConversationDetailPanel({
                 </span>
               }
             />
-            <OpsRow
-              label="response time"
-              value={formatDurationMs(runtime?.response_time_ms)}
-            />
+            <OpsRow label="response time" value={formatDurationMs(runtime?.response_time_ms)} />
             <OpsRow label="source" value={<span className="mono">{detail.memory_source}</span>} />
           </dl>
         </div>
@@ -205,8 +236,10 @@ function ConversationDetailPanel({
           <table className="memory-dialog-table">
             <thead>
               <tr>
-                <th>Что спросил пользователь</th>
-                <th>Что ответила система</th>
+                <th>Запрос пользователя</th>
+                <th>Ответ системы</th>
+                <th className="memory-dialog-table__col--narrow">Cache hit</th>
+                <th className="memory-dialog-table__col--narrow">Response time</th>
               </tr>
             </thead>
             <tbody>
@@ -219,11 +252,17 @@ function ConversationDetailPanel({
                     <td className="memory-dialog-table__cell memory-dialog-table__cell--assistant">
                       {row.assistant}
                     </td>
+                    <td className="memory-dialog-table__cell memory-dialog-table__cell--runtime">
+                      {row.cache_hit === null ? '—' : row.cache_hit ? 'hit' : 'miss'}
+                    </td>
+                    <td className="memory-dialog-table__cell memory-dialog-table__cell--runtime">
+                      {formatDurationMs(row.response_time_ms)}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={2} className="muted memory-dialog-table__empty">
+                  <td colSpan={4} className="muted memory-dialog-table__empty">
                     Нет user/assistant сообщений.
                   </td>
                 </tr>
@@ -234,7 +273,7 @@ function ConversationDetailPanel({
       </div>
 
       {latestExecution ? (
-        <details className="memory-timeline-fold page__mt" open>
+        <details className="memory-timeline-fold page__mt">
           <summary className="memory-timeline-fold__summary logs-timeline-heading">
             Таймлайн execution pipeline
             {latestExecution.is_backfilled ? (
@@ -674,7 +713,7 @@ export function ConversationsPage() {
             </div>
           </section>
 
-          <section className="logs-right card">
+          <section className="logs-right card logs-right--conversations">
             {listEmpty ? (
               <EmptyState
                 message={

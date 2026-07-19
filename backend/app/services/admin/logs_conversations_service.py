@@ -246,7 +246,7 @@ class LogsConversationsService:
             "model_name": ex.model_name,
             "client_ip": ex.client_ip,
             "response_time_ms": ex.duration_ms or meta.get("response_time_ms"),
-            "cache_hit": log.from_cache if log else meta.get("from_cache"),
+            "cache_hit": log.from_cache if log else meta.get("cache_hit"),
             "rag_used": ex.route == "rag" or bool(meta.get("rag_used")),
             "started_at": ex.started_at.isoformat() if ex.started_at else None,
             "finished_at": ex.finished_at.isoformat() if ex.finished_at else None,
