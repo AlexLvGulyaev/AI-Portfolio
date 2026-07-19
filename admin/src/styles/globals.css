@@ -2067,6 +2067,36 @@ body {
 /* Memory / Conversations dialog table */
 .memory-detail-panel {
   gap: 14px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.memory-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 1200px) {
+  .memory-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.memory-summary-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.memory-summary-col__title {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--admin-text-muted);
 }
 
 .memory-logs-item__user {
@@ -2075,16 +2105,27 @@ body {
   gap: 8px;
 }
 
+.memory-dialog-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 240px;
+  overflow: hidden;
+}
+
 .memory-dialog-panel__lead,
 .memory-dialog-panel__note {
   margin: 0 0 10px;
   font-size: 0.8125rem;
+  flex-shrink: 0;
 }
 
 .memory-dialog-table-wrap {
-  overflow-x: auto;
+  overflow: auto;
   border: 1px solid var(--admin-border);
   border-radius: var(--admin-radius);
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 .memory-dialog-table {
@@ -2108,6 +2149,9 @@ body {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.02em;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .memory-dialog-table tbody tr:last-child td {
@@ -2133,6 +2177,23 @@ body {
 .memory-dialog-table__empty {
   padding: 16px;
   text-align: center;
+}
+
+.memory-timeline-fold {
+  flex-shrink: 0;
+}
+
+.memory-timeline-fold__summary {
+  cursor: pointer;
+  user-select: none;
+}
+
+.memory-timeline-fold__summary:hover {
+  color: var(--admin-primary);
+}
+
+.memory-timeline-fold[open] .memory-timeline-fold__summary {
+  margin-bottom: 10px;
 }
 
 /* Modal */

@@ -34,7 +34,7 @@ import {
 } from '../utils/operationalLabels';
 
 const LIST_FETCH_LIMIT = 200;
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 7;
 
 const WINDOW_OPTIONS: Array<{ label: MemoryWindowLabel; ms: number }> = [
   { label: '24h', ms: 24 * 60 * 60 * 1000 },
@@ -118,10 +118,7 @@ function ConversationDetailPanel({
   return (
     <div className="logs-detail memory-detail-panel">
       <div className="logs-detail__head">
-        <div>
-          <h2 className="logs-detail__title">Сводка диалога</h2>
-          <p className="logs-detail__sub muted">{shortId(detail.id, 12)}</p>
-        </div>
+        <h2 className="logs-detail__title">Сводка диалога</h2>
         <ActiveBadge active={detail.is_active} />
       </div>
 
@@ -129,16 +126,17 @@ function ConversationDetailPanel({
         {routeLabelRu(routeKey).toUpperCase()} · {detail.is_active ? 'АКТИВНА' : 'НЕАКТИВНА'}
       </div>
 
-      <div className="logs-summary-grid">
-        <div className="logs-summary-col">
+      <div className="logs-summary-grid memory-summary-grid">
+        <div className="logs-summary-col memory-summary-col">
+          <h3 className="memory-summary-col__title">Параметры сессии</h3>
           <dl className="kv logs-detail-kv">
             <OpsRow
               label="session_id"
-              value={<span className="mono break-all">{detail.id}</span>}
+              value={<span className="mono break-all">{shortId(detail.id, 12)}</span>}
             />
             <OpsRow
-              label="visitor_id"
-              value={<span className="mono break-all">{detail.visitor_id || '—'}</span>}
+              label="visitor IP"
+              value={<span className="mono">{runtime?.client_ip || '—'}</span>}
             />
             <OpsRow label="Режим" value={<span className="mono">{detail.mode || '—'}</span>} />
             <OpsRow label="Активна" value={<ActiveBadge active={detail.is_active} />} />
@@ -156,7 +154,8 @@ function ConversationDetailPanel({
             />
           </dl>
         </div>
-        <div className="logs-summary-col">
+        <div className="logs-summary-col memory-summary-col">
+          <h3 className="memory-summary-col__title">Runtime memory context</h3>
           <dl className="kv logs-detail-kv">
             <OpsRow label="RAG" value={runtime?.rag_used ? 'да' : 'нет'} />
             <OpsRow
@@ -178,7 +177,8 @@ function ConversationDetailPanel({
             <OpsRow label="source" value={<span className="mono">{detail.memory_source}</span>} />
           </dl>
         </div>
-        <div className="logs-summary-col">
+        <div className="logs-summary-col memory-summary-col">
+          <h3 className="memory-summary-col__title">Memory policy / limits</h3>
           <dl className="kv logs-detail-kv">
             <OpsRow
               label="max_recent_messages"
@@ -196,7 +196,7 @@ function ConversationDetailPanel({
         </div>
       </div>
 
-      <div className="memory-dialog-panel page__mt-sm">
+      <div className="memory-dialog-panel">
         <h3 className="logs-detail-block__title">Диалог сессии</h3>
         <p className="muted memory-dialog-panel__lead">
           Парные реплики по времени; при неполном turn пустая ячейка.
@@ -234,8 +234,8 @@ function ConversationDetailPanel({
       </div>
 
       {latestExecution ? (
-        <>
-          <h3 className="logs-timeline-heading page__mt">
+        <details className="memory-timeline-fold page__mt" open>
+          <summary className="memory-timeline-fold__summary logs-timeline-heading">
             Таймлайн execution pipeline
             {latestExecution.is_backfilled ? (
               <span
@@ -245,7 +245,7 @@ function ConversationDetailPanel({
                 приблизительный
               </span>
             ) : null}
-          </h3>
+          </summary>
           <div className="logs-timeline">
             {latestExecution.steps.map((step, i) => {
               const prev = i > 0 ? toTs(latestExecution.steps[i - 1].created_at) : null;
@@ -299,7 +299,7 @@ function ConversationDetailPanel({
               );
             })}
           </div>
-        </>
+        </details>
       ) : null}
 
       <SessionJsonSnapshot

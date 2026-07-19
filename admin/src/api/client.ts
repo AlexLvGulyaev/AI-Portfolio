@@ -254,6 +254,7 @@ export interface ConversationLastExecution {
   status: string;
   provider_key: string | null;
   model_name: string | null;
+  client_ip: string | null;
   response_time_ms: number | null;
   cache_hit: boolean | null;
   rag_used: boolean;

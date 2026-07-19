@@ -244,6 +244,7 @@ class LogsConversationsService:
             "status": ex.status,
             "provider_key": ex.provider_key,
             "model_name": ex.model_name,
+            "client_ip": ex.client_ip,
             "response_time_ms": ex.duration_ms or meta.get("response_time_ms"),
             "cache_hit": log.from_cache if log else meta.get("from_cache"),
             "rag_used": ex.route == "rag" or bool(meta.get("rag_used")),
