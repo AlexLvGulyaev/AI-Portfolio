@@ -215,7 +215,7 @@ flowchart LR
 | 1 | Assistant Flow | Production-ready |
 | 2 | Review Flow | Демонстрационный MVP |
 | 3 | Lead Qualification | Production-ready |
-| 4 | HR Assistant | Production-ready |
+| 4 | HR Assistant — LoRA Fine-Tuning | Production-ready |
 | 5 | Prompt Review | Production-ready |
 | 6 | Telegram AI Gateway | Production-ready |
 | 7 | Competitor Monitor AI | — |

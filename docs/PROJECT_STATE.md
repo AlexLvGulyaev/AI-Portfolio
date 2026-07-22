@@ -86,7 +86,7 @@ AI-ассистент, RAG, Telegram и другие компоненты рас
 1. Assistant Flow
 2. Review Flow
 3. Lead Qualification
-4. HR Assistant
+4. HR Assistant — LoRA Fine-Tuning
 5. Prompt Review
 6. Telegram AI Gateway
 7. Competitor Monitor AI

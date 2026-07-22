@@ -40,7 +40,7 @@ class MockProvider(AIProvider):
 
         # Generate simple mock response
         if "кейс" in prompt.lower() or "case" in prompt.lower():
-            return "AI Portfolio включает следующие кейсы: Assistant Flow, Review Flow, Lead Qualification, HR Assistant, Prompt Review, Telegram AI Gateway, Competitor Monitor AI."
+            return "AI Portfolio включает следующие кейсы: Assistant Flow, Review Flow, Lead Qualification, HR Assistant — LoRA Fine-Tuning, Prompt Review, Telegram AI Gateway, Competitor Monitor AI."
         elif "услуг" in prompt.lower() or "service" in prompt.lower():
             return "Я предоставляю услуги по AI-автоматизации: интеграция AI-ассистентов, разработка RAG-систем, автоматизация бизнес-процессов."
         else:

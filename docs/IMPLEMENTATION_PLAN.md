@@ -229,7 +229,7 @@ flowchart LR
 
 ### Примечание
 
-Остальные кейсы (Assistant Flow, Review Flow, HR Assistant, Prompt Review, Telegram AI Gateway, Competitor Monitor AI) используют классические страницы кейсов. Переход на Narrative Blueprint + Scene Navigation является следующим этапом развития контента, но не блокирует текущую публикацию.
+Кейс HR Assistant переработан в narrative-страницу на базе существующих компонентов Portfolio. Остальные кейсы (Assistant Flow, Review Flow, Prompt Review, Telegram AI Gateway, Competitor Monitor AI) используют классические страницы кейсов. Переход на Narrative Blueprint + Scene Navigation является следующим этапом развития контента, но не блокирует текущую публикацию.
 
 ---
 

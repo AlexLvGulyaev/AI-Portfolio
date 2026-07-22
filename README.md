@@ -162,7 +162,7 @@ python -m http.server 8000
 1. **Assistant Flow** — AI-ассистент для обработки заявок клиентов
 2. **Review Flow** — Автоматизация работы с отзывами
 3. **Lead Qualification** — AI-система квалификации лидов
-4. **HR Assistant** — Telegram-бот для HR-автоматизации
+4. **HR Assistant** — LoRA Fine-Tuning Engineering для matching-модели HR-ассистента
 5. **Prompt Review** — Автоматическая проверка промптов
 6. **Telegram AI Gateway** — Шлюз для AI-моделей в Telegram
 7. **Competitor Monitor AI** — Мониторинг конкурентов

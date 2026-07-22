@@ -52,10 +52,10 @@ PROJECT_CARDS = [
     },
     {
         "slug": "hr-assistant",
-        "title": "HR Assistant",
-        "short_description": "Telegram-бот для HR-автоматизации и работы с сотрудниками.",
+        "title": "HR Assistant — LoRA Fine-Tuning",
+        "short_description": "Практическая реализация LoRA-дообучения Qwen2.5 для matching-модели HR-ассистента. Четыре эксперимента, датасет-инженерия, production smoke и оптимизация latency.",
         "category": "cases",
-        "tags": ["Telegram Bot", "HR", "CRM"],
+        "tags": ["LoRA", "Qwen", "Fine-Tuning", "ML"],
         "display_order": 4,
         "show_on_homepage": 3,
         "external_url": "/cases/hr-assistant.html",
