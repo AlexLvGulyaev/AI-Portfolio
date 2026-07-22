@@ -31,7 +31,6 @@
       position: sticky;
       top: 60px;
       z-index: 10;
-      border-bottom: 1px solid var(--border-subtle);
     }
 
     .scene-tabs__inner {
@@ -39,8 +38,6 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 var(--space-lg);
-      max-width: 1200px;
-      margin: 0 auto;
     }
 
     .scene-tabs__nav {
@@ -48,7 +45,8 @@
       gap: 0;
       overflow-x: auto;
       scrollbar-width: none;
-      flex: 1;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0;
     }
 
     .scene-tabs__nav::-webkit-scrollbar {
@@ -622,6 +620,12 @@
       .scene-tabs__tab {
         padding: var(--space-sm) var(--space-md);
         font-size: 0.875rem;
+      }
+
+      .scene-tabs__btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 80px;
       }
 
       .scene-content {
