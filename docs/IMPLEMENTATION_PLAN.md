@@ -229,7 +229,7 @@ flowchart LR
 
 ### Примечание
 
-Кейс HR Assistant переработан в narrative-страницу на базе существующих компонентов Portfolio. Остальные кейсы (Assistant Flow, Review Flow, Prompt Review, Telegram AI Gateway, Competitor Monitor AI) используют классические страницы кейсов. Переход на Narrative Blueprint + Scene Navigation является следующим этапом развития контента, но не блокирует текущую публикацию.
+Добавлен отдельный кейс HR Assistant — LoRA Fine-Tuning как восьмой проект. Он реализован как narrative-страница на базе существующих компонентов Portfolio. Классический HR Assistant сохранён как отдельный проект. Переход на Narrative Blueprint + Scene Navigation для остальных кейсов является следующим этапом развития контента, но не блокирует текущую публикацию.
 
 ---
 
