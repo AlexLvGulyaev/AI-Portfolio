@@ -139,8 +139,7 @@
        ============================================ */
 
     .scene-content {
-      padding: var(--space-xl) 0;
-      min-height: calc(100vh - 64px - 57px);
+      padding: 0;
     }
 
     .scene-panel {
@@ -160,7 +159,11 @@
     .scene-panel__inner {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 0 var(--space-lg);
+      padding: var(--space-sm) var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: calc(100vh - 64px - 52px - 68px - 16px);
     }
 
     /* ============================================
@@ -174,7 +177,7 @@
     }
 
     .about-header {
-      margin-bottom: var(--space-xl);
+      margin-bottom: var(--space-lg);
     }
 
     .about-header__title {
@@ -201,7 +204,7 @@
       gap: var(--space-xl);
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: var(--space-xl);
+      margin-bottom: var(--space-lg);
     }
 
     .about-metric {
@@ -227,7 +230,7 @@
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-xl);
-      padding: var(--space-xl);
+      padding: var(--space-lg);
     }
 
     .pipeline-title {
@@ -236,7 +239,7 @@
       color: var(--text-tertiary);
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      margin-bottom: var(--space-lg);
+      margin-bottom: var(--space-md);
       text-align: center;
     }
 
@@ -310,11 +313,11 @@
 
     .scene-intro {
       text-align: center;
-      margin-bottom: var(--space-lg);
+      margin-bottom: var(--space-md);
     }
 
     .scene-intro__title {
-      font-size: 1.75rem;
+      font-size: 1.5rem;
       font-weight: 700;
       margin-bottom: var(--space-sm);
     }
@@ -332,11 +335,10 @@
       gap: var(--space-md);
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: var(--space-lg);
     }
 
     .metric-card {
-      padding: var(--space-lg);
+      padding: var(--space-md) var(--space-lg);
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
@@ -346,7 +348,7 @@
 
     .metric-card__value {
       font-family: var(--font-display);
-      font-size: 1.75rem;
+      font-size: 1.5rem;
       font-weight: 800;
       color: var(--lora-accent);
     }
@@ -363,7 +365,7 @@
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-xl);
-      padding: var(--space-xl);
+      padding: var(--space-lg);
     }
 
     .info-list ul {
@@ -374,9 +376,9 @@
     .info-list li {
       position: relative;
       padding-left: var(--space-lg);
-      margin-bottom: var(--space-sm);
+      margin-bottom: var(--space-xs);
       color: var(--text-secondary);
-      line-height: 1.7;
+      line-height: 1.6;
     }
 
     .info-list li::before {
@@ -403,7 +405,7 @@
     }
 
     .timeline-card {
-      padding: var(--space-lg);
+      padding: var(--space-md);
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
@@ -423,27 +425,27 @@
       text-transform: uppercase;
       letter-spacing: 0.1em;
       color: var(--lora-accent);
-      margin-bottom: var(--space-sm);
+      margin-bottom: var(--space-xs);
     }
 
     .timeline-card__title {
-      font-size: 1rem;
+      font-size: 0.9375rem;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: var(--space-sm);
+      margin-bottom: var(--space-xs);
     }
 
     .timeline-card__desc {
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       color: var(--text-secondary);
-      line-height: 1.6;
-      margin-bottom: var(--space-md);
+      line-height: 1.5;
+      margin-bottom: var(--space-sm);
     }
 
     .timeline-card__result {
-      font-size: 0.8125rem;
+      font-size: 0.75rem;
       color: var(--text-tertiary);
-      padding-top: var(--space-sm);
+      padding-top: var(--space-xs);
       border-top: 1px solid var(--border-subtle);
     }
 
@@ -459,34 +461,29 @@
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-xl);
-      padding: var(--space-xl);
-      margin-bottom: var(--space-lg);
-    }
-
-    .visual-card:last-child {
-      margin-bottom: 0;
+      padding: var(--space-lg);
     }
 
     .visual-card__title {
-      font-size: 1.25rem;
+      font-size: 1.125rem;
       font-weight: 700;
       margin-bottom: var(--space-sm);
       text-align: center;
     }
 
     .visual-card__desc {
-      font-size: 0.9375rem;
+      font-size: 0.875rem;
       color: var(--text-secondary);
-      line-height: 1.6;
+      line-height: 1.5;
       max-width: 700px;
-      margin: 0 auto var(--space-md);
+      margin: 0 auto var(--space-sm);
       text-align: center;
     }
 
     .visual-card__img {
       display: block;
       width: 100%;
-      max-height: 420px;
+      max-height: 320px;
       height: auto;
       object-fit: contain;
       border-radius: var(--radius-md);
@@ -494,10 +491,72 @@
     }
 
     .visual-card__caption {
-      font-size: 0.8125rem;
+      font-size: 0.75rem;
       color: var(--text-tertiary);
-      margin-top: var(--space-sm);
+      margin-top: var(--space-xs);
       text-align: center;
+    }
+
+    /* ============================================
+       METRICS TAB - Inline metric toggle
+       ============================================ */
+
+    .metric-toggle {
+      display: inline-flex;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: var(--space-xs);
+      margin: 0 auto var(--space-sm);
+    }
+
+    .metric-toggle__btn {
+      padding: var(--space-sm) var(--space-lg);
+      background: none;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .metric-toggle__btn:hover {
+      color: var(--text-secondary);
+    }
+
+    .metric-toggle__btn--active {
+      background: var(--lora-accent);
+      color: var(--bg-primary);
+    }
+
+    .metric-view {
+      display: none;
+    }
+
+    .metric-view--active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .metric-view .visual-card__img {
+      max-height: 360px;
+    }
+
+    .metric-view .visual-card {
+      padding: var(--space-md);
+    }
+
+    .metric-view .visual-card__title {
+      font-size: 1rem;
+      margin-bottom: var(--space-xs);
+    }
+
+    .metric-view .visual-card__desc {
+      font-size: 0.8125rem;
+      margin-bottom: var(--space-xs);
     }
 
     /* ============================================
@@ -507,13 +566,13 @@
     .conclusion-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-lg);
+      gap: var(--space-md);
       max-width: 1100px;
       margin: 0 auto;
     }
 
     .conclusion-card {
-      padding: var(--space-lg);
+      padding: var(--space-md);
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
@@ -533,21 +592,21 @@
     }
 
     .conclusion-card__icon {
-      font-size: 1.25rem;
-      margin-bottom: var(--space-sm);
+      font-size: 1.125rem;
+      margin-bottom: var(--space-xs);
     }
 
     .conclusion-card__title {
-      font-size: 1rem;
+      font-size: 0.9375rem;
       font-weight: 600;
-      margin-bottom: var(--space-sm);
+      margin-bottom: var(--space-xs);
       color: var(--text-primary);
     }
 
     .conclusion-card__text {
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       color: var(--text-secondary);
-      line-height: 1.6;
+      line-height: 1.5;
     }
 
     /* ============================================
@@ -560,18 +619,18 @@
       justify-content: center;
       gap: var(--space-sm);
       max-width: 900px;
-      margin: var(--space-lg) auto 0;
+      margin: var(--space-md) auto 0;
     }
 
     .tech-item {
       display: flex;
       align-items: center;
       gap: var(--space-sm);
-      padding: var(--space-sm) var(--space-md);
+      padding: var(--space-xs) var(--space-md);
       background: var(--bg-tertiary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       color: var(--text-secondary);
     }
 
@@ -990,22 +1049,38 @@
           <!-- Metrics scene -->
           <div class="scene-panel" data-panel="metrics">
             <div class="scene-panel__inner">
-              <div class="visual-card">
-                <h3 class="visual-card__title">Эволюция точности решений</h3>
-                <p class="visual-card__desc">
-                  Точность matching-решений росла неравномерно: 44% → 78% → 67% → 80%. Падение на Exp 003 — осознанная жертва recall ради устойчивости к hard negatives.
+              <div class="scene-intro">
+                <h2 class="scene-intro__title">Эволюция метрик</h2>
+                <p class="scene-intro__desc">
+                  Два независимых измерения качества: точность matching-решений и средняя абсолютная ошибка композитного score.
                 </p>
-                <img class="visual-card__img" src="../assets/cases/hr-assistant/G-004-decision-accuracy-evolution.svg" alt="Эволюция decision accuracy по экспериментам" loading="lazy">
-                <p class="visual-card__caption">Рис. 1. Decision accuracy: Base Qwen vs LoRA по четырём экспериментам.</p>
               </div>
 
-              <div class="visual-card">
-                <h3 class="visual-card__title">Эволюция ошибки оценки</h3>
-                <p class="visual-card__desc">
-                  Средняя абсолютная ошибка композитного score снизилась с 38 до 15 баллов. Base model ошибался сильнее всех.
-                </p>
-                <img class="visual-card__img" src="../assets/cases/hr-assistant/G-005-mae-score-evolution.svg" alt="Эволюция MAE score по экспериментам" loading="lazy">
-                <p class="visual-card__caption">Рис. 2. MAE score: Base Qwen vs LoRA по четырём экспериментам. Меньше — лучше.</p>
+              <div class="metric-toggle">
+                <button class="metric-toggle__btn metric-toggle__btn--active" data-metric="accuracy">Точность решений</button>
+                <button class="metric-toggle__btn" data-metric="error">Ошибка оценки</button>
+              </div>
+
+              <div class="metric-view metric-view--active" data-metric-view="accuracy">
+                <div class="visual-card">
+                  <h3 class="visual-card__title">Точность решений</h3>
+                  <p class="visual-card__desc">
+                    Точность matching-решений росла неравномерно: 44% → 78% → 67% → 80%. Падение на Exp 003 — осознанная жертва recall ради устойчивости к hard negatives.
+                  </p>
+                  <img class="visual-card__img" src="../assets/cases/hr-assistant/G-004-decision-accuracy-evolution.svg" alt="Эволюция decision accuracy по экспериментам" loading="lazy">
+                  <p class="visual-card__caption">Рис. 1. Decision accuracy: Base Qwen vs LoRA по четырём экспериментам.</p>
+                </div>
+              </div>
+
+              <div class="metric-view" data-metric-view="error">
+                <div class="visual-card">
+                  <h3 class="visual-card__title">Ошибка оценки</h3>
+                  <p class="visual-card__desc">
+                    Средняя абсолютная ошибка композитного score снизилась с 38 до 15 баллов. Base model ошибался сильнее всех.
+                  </p>
+                  <img class="visual-card__img" src="../assets/cases/hr-assistant/G-005-mae-score-evolution.svg" alt="Эволюция MAE score по экспериментам" loading="lazy">
+                  <p class="visual-card__caption">Рис. 2. MAE score: Base Qwen vs LoRA по четырём экспериментам. Меньше — лучше.</p>
+                </div>
               </div>
             </div>
           </div>
@@ -1169,6 +1244,17 @@
         document.querySelectorAll('.scene-panel').forEach(p => p.classList.remove('scene-panel--active'));
         const panelId = tab.getAttribute('data-tab');
         document.querySelector(`[data-panel="${panelId}"]`).classList.add('scene-panel--active');
+      });
+    });
+
+    // Metrics inline toggle
+    document.querySelectorAll('.metric-toggle__btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const metric = btn.getAttribute('data-metric');
+        document.querySelectorAll('.metric-toggle__btn').forEach(b => b.classList.remove('metric-toggle__btn--active'));
+        btn.classList.add('metric-toggle__btn--active');
+        document.querySelectorAll('.metric-view').forEach(v => v.classList.remove('metric-view--active'));
+        document.querySelector(`[data-metric-view="${metric}"]`).classList.add('metric-view--active');
       });
     });
   </script>
