@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="HR Assistant — LoRA Fine-Tuning Engineering. Практическая реализация LoRA-дообучения Qwen2.5 для matching-модели HR-ассистента.">
+  <meta name="description" content="Практическая реализация LoRA-дообучения Qwen2.5 для matching-модели HR-ассистента. Четыре эксперимента, датасет-инженерия, production smoke и оптимизация latency.">
   <title>HR Assistant — LoRA Fine-Tuning — AI Portfolio</title>
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,204 +11,658 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
   <style>
-    /* HR Assistant LoRA — case-specific narrative helpers */
+    /* HR Assistant LoRA Fine-Tuning - Scene Navigation */
 
-    .case-narrative {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2xl);
+    :root {
+      /* Accent colors for this case */
+      --lora-accent: #14b8a6;
+      --lora-accent-soft: rgba(20, 184, 166, 0.15);
+      --lora-warm: #f59e0b;
+      --lora-cold: #60a5fa;
+      --lora-success: #22c55e;
     }
 
-    .case-narrative__section {
+    /* ============================================
+       CASE NAVIGATION - Tabs with Actions
+       ============================================ */
+
+    .scene-tabs {
+      background: var(--bg-primary);
+      position: sticky;
+      top: 60px;
+      z-index: 10;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .scene-tabs__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-lg);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .scene-tabs__nav {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      flex: 1;
+    }
+
+    .scene-tabs__nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .scene-tabs__tab {
+      padding: var(--space-md) var(--space-lg);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+    }
+
+    .scene-tabs__tab:hover {
+      color: var(--text-secondary);
+    }
+
+    .scene-tabs__tab--active {
+      color: var(--lora-accent);
+      border-bottom-color: var(--lora-accent);
+    }
+
+    .scene-tabs__actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-shrink: 0;
+      padding-left: var(--space-lg);
+    }
+
+    .scene-tabs__back {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color var(--transition-fast);
+    }
+
+    .scene-tabs__back:hover {
+      color: var(--text-primary);
+    }
+
+    .scene-tabs__back svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .scene-tabs__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-sm) var(--space-lg);
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+    }
+
+    .scene-tabs__btn--primary {
+      background: var(--lora-accent);
+      color: var(--bg-primary);
+    }
+
+    .scene-tabs__btn--primary:hover {
+      background: var(--accent-secondary);
+    }
+
+    .scene-tabs__btn--ghost {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-default);
+    }
+
+    .scene-tabs__btn--ghost:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    /* ============================================
+       SCENE CONTENT
+       ============================================ */
+
+    .scene-content {
+      padding: var(--space-xl) 0;
+      min-height: calc(100vh - 64px - 57px);
+    }
+
+    .scene-panel {
+      display: none;
+    }
+
+    .scene-panel--active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .scene-panel__inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--space-lg);
+    }
+
+    /* ============================================
+       ABOUT TAB - Pipeline as focal point
+       ============================================ */
+
+    .about-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .about-header {
+      margin-bottom: var(--space-xl);
+    }
+
+    .about-header__title {
+      font-size: clamp(2rem, 4vw, 2.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: var(--space-md);
+    }
+
+    .about-header__title-accent {
+      color: var(--lora-accent);
+    }
+
+    .about-header__subtitle {
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    .about-metrics {
+      display: flex;
+      gap: var(--space-xl);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: var(--space-xl);
+    }
+
+    .about-metric {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .about-metric__value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--lora-accent);
+    }
+
+    .about-metric__label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .pipeline-container {
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-xl);
       padding: var(--space-xl);
     }
 
-    .case-narrative__section--highlight {
-      background: var(--bg-tertiary);
-      border-color: var(--accent-border);
-    }
-
-    .case-narrative__section-title {
-      font-size: clamp(1.25rem, 2.5vw, 1.5rem);
-      font-weight: 700;
-      margin-bottom: var(--space-md);
-      color: var(--text-primary);
-    }
-
-    .case-narrative__lead {
-      font-size: 1.125rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
+    .pipeline-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
       margin-bottom: var(--space-lg);
-    }
-
-    .case-narrative__body {
-      color: var(--text-secondary);
-      line-height: 1.7;
-    }
-
-    .case-narrative__body p + p,
-    .case-narrative__body p + ul,
-    .case-narrative__body ul + p {
-      margin-top: var(--space-md);
-    }
-
-    .case-narrative__body ul {
-      list-style: none;
-      padding-left: 0;
-    }
-
-    .case-narrative__body li {
-      position: relative;
-      padding-left: var(--space-lg);
-      margin-bottom: var(--space-sm);
-      color: var(--text-secondary);
-    }
-
-    .case-narrative__body li::before {
-      content: '•';
-      position: absolute;
-      left: 0;
-      color: var(--accent-primary);
-    }
-
-    .case-narrative__metric-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: var(--space-md);
-      margin-top: var(--space-lg);
-    }
-
-    .case-narrative__metric {
-      padding: var(--space-md);
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
       text-align: center;
     }
 
-    .case-narrative__metric-value {
+    .pipeline-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+
+    .pipeline-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .pipeline-node__icon {
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-lg);
+      border: 2px solid;
+      transition: all var(--transition-normal);
+    }
+
+    .pipeline-node__icon svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .pipeline-node__label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .pipeline-node__desc {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      text-align: center;
+      max-width: 90px;
+    }
+
+    .pipeline-arrow svg {
+      width: 28px;
+      height: 12px;
+    }
+
+    .pipeline-node--dataset .pipeline-node__icon { background: rgba(34, 197, 94, 0.1); border-color: #22C55E; color: #22C55E; }
+    .pipeline-node--split .pipeline-node__icon { background: rgba(96, 165, 250, 0.1); border-color: #60A5FA; color: #60A5FA; }
+    .pipeline-node--lora .pipeline-node__icon { background: rgba(20, 184, 166, 0.1); border-color: #14B8A6; color: #14B8A6; }
+    .pipeline-node--eval .pipeline-node__icon { background: rgba(245, 158, 11, 0.1); border-color: #F59E0B; color: #F59E0B; }
+    .pipeline-node--vllm .pipeline-node__icon { background: rgba(34, 158, 217, 0.1); border-color: #229ED9; color: #229ED9; }
+    .pipeline-node--api .pipeline-node__icon { background: rgba(139, 92, 246, 0.1); border-color: #8B5CF6; color: #8B5CF6; }
+    .pipeline-node--telegram .pipeline-node__icon { background: rgba(34, 197, 94, 0.1); border-color: #22C55E; color: #22C55E; }
+
+    .pipeline-arrow--dataset { color: #22C55E; }
+    .pipeline-arrow--split { color: #60A5FA; }
+    .pipeline-arrow--lora { color: #14B8A6; }
+    .pipeline-arrow--eval { color: #F59E0B; }
+    .pipeline-arrow--vllm { color: #229ED9; }
+    .pipeline-arrow--api { color: #8B5CF6; }
+
+    /* ============================================
+       PROBLEM / WHY LoRA / CONCLUSIONS - Cards
+       ============================================ */
+
+    .scene-intro {
+      text-align: center;
+      margin-bottom: var(--space-lg);
+    }
+
+    .scene-intro__title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: var(--space-sm);
+    }
+
+    .scene-intro__desc {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .metric-row {
+      display: flex;
+      gap: var(--space-md);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: var(--space-lg);
+    }
+
+    .metric-card {
+      padding: var(--space-lg);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      min-width: 140px;
+    }
+
+    .metric-card__value {
       font-family: var(--font-display);
       font-size: 1.75rem;
       font-weight: 800;
-      color: var(--accent-primary);
-      letter-spacing: -0.02em;
+      color: var(--lora-accent);
     }
 
-    .case-narrative__metric-label {
+    .metric-card__label {
       font-size: 0.8125rem;
       color: var(--text-tertiary);
       margin-top: var(--space-xs);
     }
 
-    .case-narrative__visual {
-      margin-top: var(--space-lg);
+    .info-list {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
     }
 
-    .case-narrative__visual-caption {
+    .info-list ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .info-list li {
+      position: relative;
+      padding-left: var(--space-lg);
+      margin-bottom: var(--space-sm);
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .info-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--lora-accent);
+    }
+
+    .info-list strong {
+      color: var(--text-primary);
+    }
+
+    /* ============================================
+       EXPERIMENTS TAB - Timeline cards
+       ============================================ */
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .timeline-card {
+      padding: var(--space-lg);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      text-align: left;
+      position: relative;
+      transition: all var(--transition-normal);
+    }
+
+    .timeline-card:hover {
+      border-color: var(--lora-accent);
+      transform: translateY(-2px);
+    }
+
+    .timeline-card__exp {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--lora-accent);
+      margin-bottom: var(--space-sm);
+    }
+
+    .timeline-card__title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .timeline-card__desc {
       font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: var(--space-md);
+    }
+
+    .timeline-card__result {
+      font-size: 0.8125rem;
       color: var(--text-tertiary);
-      margin-top: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .timeline-card__result strong {
+      color: var(--text-secondary);
+    }
+
+    /* ============================================
+       VISUAL TAB - Graphs
+       ============================================ */
+
+    .visual-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      margin-bottom: var(--space-lg);
+    }
+
+    .visual-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .visual-card__title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: var(--space-sm);
       text-align: center;
     }
 
-    .case-narrative__visual img,
-    .case-narrative__visual svg {
+    .visual-card__desc {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      max-width: 700px;
+      margin: 0 auto var(--space-md);
+      text-align: center;
+    }
+
+    .visual-card__img {
       display: block;
       width: 100%;
+      max-height: 420px;
       height: auto;
-      max-height: 520px;
       object-fit: contain;
       border-radius: var(--radius-md);
       background: var(--bg-primary);
     }
 
-    .case-narrative__timeline {
+    .visual-card__caption {
+      font-size: 0.8125rem;
+      color: var(--text-tertiary);
+      margin-top: var(--space-sm);
+      text-align: center;
+    }
+
+    /* ============================================
+       CONCLUSIONS TAB - Three columns
+       ============================================ */
+
+    .conclusion-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: var(--space-md);
-      margin-top: var(--space-lg);
-    }
-
-    .case-narrative__timeline-card {
-      padding: var(--space-lg);
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-    }
-
-    .case-narrative__timeline-card strong {
-      color: var(--text-primary);
-      display: block;
-      margin-bottom: var(--space-xs);
-    }
-
-    .case-narrative__timeline-card span {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-    }
-
-    .case-narrative__conclusion-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: var(--space-lg);
-      margin-top: var(--space-lg);
+      max-width: 1100px;
+      margin: 0 auto;
     }
 
-    .case-narrative__conclusion-card {
+    .conclusion-card {
       padding: var(--space-lg);
-      background: var(--bg-tertiary);
+      background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
+      border-left: 4px solid;
     }
 
-    .case-narrative__conclusion-card h4 {
+    .conclusion-card--proven {
+      border-left-color: var(--lora-success);
+    }
+
+    .conclusion-card--partial {
+      border-left-color: var(--lora-warm);
+    }
+
+    .conclusion-card--next {
+      border-left-color: var(--lora-cold);
+    }
+
+    .conclusion-card__icon {
+      font-size: 1.25rem;
+      margin-bottom: var(--space-sm);
+    }
+
+    .conclusion-card__title {
       font-size: 1rem;
       font-weight: 600;
       margin-bottom: var(--space-sm);
       color: var(--text-primary);
     }
 
-    .case-narrative__conclusion-card p {
+    .conclusion-card__text {
       font-size: 0.875rem;
       color: var(--text-secondary);
       line-height: 1.6;
     }
 
-    .case-narrative__conclusion-card--proven {
-      border-left: 4px solid var(--success);
+    /* ============================================
+       TECH STACK
+       ============================================ */
+
+    .tech-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--space-sm);
+      max-width: 900px;
+      margin: var(--space-lg) auto 0;
     }
 
-    .case-narrative__conclusion-card--partial {
-      border-left: 4px solid var(--warm-primary);
+    .tech-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      color: var(--text-secondary);
     }
 
-    .case-narrative__conclusion-card--next {
-      border-left: 4px solid var(--cold-primary);
+    .tech-item svg {
+      width: 16px;
+      height: 16px;
+      color: var(--lora-accent);
+      flex-shrink: 0;
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+
+    @media (max-width: 1024px) {
+      .timeline {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .conclusion-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     @media (max-width: 768px) {
-      .case-narrative {
-        gap: var(--space-xl);
+      .scene-tabs__inner {
+        flex-direction: column;
+        gap: var(--space-sm);
+        padding: var(--space-sm) var(--space-md);
       }
 
-      .case-narrative__section {
-        padding: var(--space-lg);
+      .scene-tabs__nav {
+        width: 100%;
+        order: 2;
       }
 
-      .case-narrative__visual img,
-      .case-narrative__visual svg {
-        max-height: 360px;
+      .scene-tabs__actions {
+        width: 100%;
+        justify-content: flex-start;
+        padding-left: 0;
+        order: 1;
+        flex-wrap: wrap;
+        gap: var(--space-xs);
+      }
+
+      .scene-tabs__tab {
+        padding: var(--space-sm) var(--space-md);
+        font-size: 0.875rem;
+      }
+
+      .scene-content {
+        min-height: auto;
+      }
+
+      .scene-panel__inner {
+        padding: 0 var(--space-md);
+      }
+
+      .timeline {
+        grid-template-columns: 1fr;
+      }
+
+      .conclusion-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pipeline-flow {
+        flex-direction: column;
+        gap: var(--space-md);
+      }
+
+      .pipeline-arrow {
+        transform: rotate(90deg);
+      }
+
+      .visual-card__img {
+        max-height: 280px;
       }
     }
 
     @media (max-width: 480px) {
-      .case-narrative__visual img,
-      .case-narrative__visual svg {
-        max-height: 280px;
+      .about-metrics,
+      .metric-row {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .metric-card {
+        width: 100%;
       }
     }
   </style>
@@ -231,266 +685,462 @@
 
   <main class="main">
     <div class="page">
-      <article class="case-detail">
+
+      <!-- Scene tabs -->
+      <nav class="scene-tabs">
+        <div class="scene-tabs__inner">
+          <div class="scene-tabs__nav">
+            <button class="scene-tabs__tab scene-tabs__tab--active" data-tab="about">О проекте</button>
+            <button class="scene-tabs__tab" data-tab="problem">Проблема</button>
+            <button class="scene-tabs__tab" data-tab="why-lora">Почему LoRA</button>
+            <button class="scene-tabs__tab" data-tab="experiments">Эксперименты</button>
+            <button class="scene-tabs__tab" data-tab="metrics">Метрики</button>
+            <button class="scene-tabs__tab" data-tab="validation">Валидация</button>
+            <button class="scene-tabs__tab" data-tab="production">Production</button>
+            <button class="scene-tabs__tab" data-tab="dataset">Датасет</button>
+            <button class="scene-tabs__tab" data-tab="conclusions">Выводы</button>
+          </div>
+          <div class="scene-tabs__actions">
+            <a href="../portfolio.html" class="scene-tabs__back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M5 12L12 19M5 12L12 5"/>
+              </svg>
+              Все проекты
+            </a>
+            <a href="#" class="scene-tabs__btn scene-tabs__btn--ghost">GitHub</a>
+            <a href="#" class="scene-tabs__btn scene-tabs__btn--primary">Демо</a>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Scene content -->
+      <div class="scene-content">
         <div class="container">
-          <a href="../portfolio.html" class="case-detail__back">← Все проекты</a>
-          <header class="case-detail__header">
-            <div class="case-detail__title-section">
-              <h1 class="case-detail__title">HR Assistant — LoRA Fine-Tuning</h1>
-              <div class="case-detail__tags">
-                <span class="tag">LoRA</span>
-                <span class="tag">Qwen</span>
-                <span class="tag">Fine-Tuning</span>
-                <span class="tag">ML</span>
+
+          <!-- About scene -->
+          <div class="scene-panel scene-panel--active" data-panel="about">
+            <div class="scene-panel__inner">
+              <div class="about-content">
+                <div class="about-header">
+                  <h1 class="about-header__title">
+                    <span class="about-header__title-accent">HR Assistant</span> — LoRA Fine-Tuning
+                  </h1>
+                  <p class="about-header__subtitle">
+                    Практическая реализация LoRA-дообучения Qwen2.5 для matching-модели HR-ассистента. Четыре эксперимента показали, что инженерия датасета важнее тюнинга адаптера.
+                  </p>
+                </div>
+
+                <div class="about-metrics">
+                  <div class="about-metric">
+                    <span class="about-metric__value">4</span>
+                    <span class="about-metric__label">эксперимента</span>
+                  </div>
+                  <div class="about-metric">
+                    <span class="about-metric__value">93.1%</span>
+                    <span class="about-metric__label">decision accuracy</span>
+                  </div>
+                  <div class="about-metric">
+                    <span class="about-metric__value">~1.6с</span>
+                    <span class="about-metric__label">latency после vLLM</span>
+                  </div>
+                </div>
+
+                <div class="pipeline-container">
+                  <div class="pipeline-title">Конвейер проекта</div>
+                  <div class="pipeline-flow">
+                    <div class="pipeline-node pipeline-node--dataset">
+                      <div class="pipeline-node__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                          <ellipse cx="12" cy="6" rx="9" ry="3"/>
+                          <path d="M3 6v6c0 3 4 5 9 5s9-2 9-5V6"/>
+                          <path d="M3 12v6c0 3 4 5 9 5s9-2 9-5v-6"/>
+                        </svg>
+                      </div>
+                      <span class="pipeline-node__label">Teacher Dataset</span>
+                      <span class="pipeline-node__desc">90→123→162</span>
+                    </div>
+
+                    <div class="pipeline-arrow pipeline-arrow--dataset">
+                      <svg viewBox="0 0 32 12" fill="none">
+                        <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+
+                    <div class="pipeline-node pipeline-node--split">
+                      <div class="pipeline-node__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                          <rect x="4" y="4" width="16" height="16" rx="2"/>
+                          <path d="M4 9H20M9 4V20"/>
+                        </svg>
+                      </div>
+                      <span class="pipeline-node__label">Split</span>
+                      <span class="pipeline-node__desc">train/val/test</span>
+                    </div>
+
+                    <div class="pipeline-arrow pipeline-arrow--split">
+                      <svg viewBox="0 0 32 12" fill="none">
+                        <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+
+                    <div class="pipeline-node pipeline-node--lora">
+                      <div class="pipeline-node__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                          <path d="M12 2L4 6v6c0 4.4 3.4 8.4 8 10 4.6-1.6 8-5.6 8-10V6l-8-4z"/>
+                          <circle cx="12" cy="11" r="3"/>
+                          <path d="M12 14v4"/>
+                        </svg>
+                      </div>
+                      <span class="pipeline-node__label">LoRA</span>
+                      <span class="pipeline-node__desc">r=16, α=32</span>
+                    </div>
+
+                    <div class="pipeline-arrow pipeline-arrow--lora">
+                      <svg viewBox="0 0 32 12" fill="none">
+                        <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+
+                    <div class="pipeline-node pipeline-node--eval">
+                      <div class="pipeline-node__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                          <path d="M9 11l3 3L22 4"/>
+                          <circle cx="12" cy="12" r="10"/>
+                        </svg>
+                      </div>
+                      <span class="pipeline-node__label">Eval</span>
+                      <span class="pipeline-node__desc">offline + smoke</span>
+                    </div>
+
+                    <div class="pipeline-arrow pipeline-arrow--eval">
+                      <svg viewBox="0 0 32 12" fill="none">
+                        <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+
+                    <div class="pipeline-node pipeline-node--vllm">
+                      <div class="pipeline-node__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                          <path d="M13 2L4 7v10c0 5 4 5 8 5s8 0 8-5V7l-9-5z"/>
+                          <path d="M12 7v10M8 9l8 6M8 15l8-6"/>
+                        </svg>
+                      </div>
+                      <span class="pipeline-node__label">vLLM</span>
+                      <span class="pipeline-node__desc"> inference</span>
+                    </div>
+
+                    <div class="pipeline-arrow pipeline-arrow--vllm">
+                      <svg viewBox="0 0 32 12" fill="none">
+                        <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+
+                    <div class="pipeline-node pipeline-node--api">
+                      <div class="pipeline-node__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                          <path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7 0l-3 3"/>
+                          <path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 0l3-3"/>
+                        </svg>
+                      </div>
+                      <span class="pipeline-node__label">FastAPI</span>
+                      <span class="pipeline-node__desc">production API</span>
+                    </div>
+
+                    <div class="pipeline-arrow pipeline-arrow--api">
+                      <svg viewBox="0 0 32 12" fill="none">
+                        <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+
+                    <div class="pipeline-node pipeline-node--telegram">
+                      <div class="pipeline-node__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                          <path d="M21 5L2 12l9 3 3 9 7-19z"/>
+                        </svg>
+                      </div>
+                      <span class="pipeline-node__label">Telegram</span>
+                      <span class="pipeline-node__desc">channel</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="case-detail__actions">
-              <a href="#" class="btn btn-secondary">GitHub</a>
-              <a href="#" class="btn btn-primary">Demo</a>
-            </div>
-          </header>
+          </div>
 
-          <div class="case-narrative">
-            <!-- Section 1: Problem statement -->
-            <section class="case-narrative__section case-narrative__section--highlight">
-              <h2 class="case-narrative__section-title">Постановка проблемы</h2>
-              <p class="case-narrative__lead">
-                HR-ассистент должен решать, подходит ли кандидат на вакансию, и выдавать структурированный JSON с оценкой и обоснованием.
-              </p>
-              <div class="case-narrative__body">
-                <p>
-                  Базовая модель <code>Qwen2.5-1.5B-Instruct</code> сразу выдавала валидный JSON, но принимала плохие matching-решения: например, соглашалась, что врач подходит на вакансию Prompt Engineer. Валидный формат ответа ещё не означал правильного ответа.
+          <!-- Problem scene -->
+          <div class="scene-panel" data-panel="problem">
+            <div class="scene-panel__inner">
+              <div class="scene-intro">
+                <h2 class="scene-intro__title">Валидный JSON ещё не значит правильный ответ</h2>
+                <p class="scene-intro__desc">
+                  Базовая модель Qwen2.5-1.5B-Instruct сразу выдавала корректный JSON-контракт, но принимала плохие matching-решения — например, соглашалась, что врач подходит на вакансию Prompt Engineer.
                 </p>
+              </div>
+
+              <div class="metric-row">
+                <div class="metric-card">
+                  <div class="metric-card__value">44%</div>
+                  <div class="metric-card__label">Decision accuracy base model</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-card__value">100%</div>
+                  <div class="metric-card__label">Valid JSON rate</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-card__value">38.8</div>
+                  <div class="metric-card__label">MAE score base model</div>
+                </div>
+              </div>
+
+              <div class="info-list">
                 <ul>
-                  <li>Valid JSON: 100%, но точность решений — 44%.</li>
-                  <li>Perplexity и validation loss не предсказывали качество бизнес-логики.</li>
-                  <li>Нужно было научить модель смыслу, а не только формату.</li>
+                  <li><strong>Формат ≠ смысл.</strong> Модель быстро выучила JSON-шаблон, но не логику matching-решений.</li>
+                  <li><strong>Loss — не целевая метрика.</strong> Validation loss не предсказывал качество бизнес-решений.</li>
+                  <li><strong>Нужен контролируемый датасет.</strong> Teacher labels должны отражать реальные критерии matching.</li>
                 </ul>
               </div>
-              <div class="case-narrative__metric-row">
-                <div class="case-narrative__metric">
-                  <div class="case-narrative__metric-value">44%</div>
-                  <div class="case-narrative__metric-label">Decision accuracy base model</div>
+            </div>
+          </div>
+
+          <!-- Why LoRA scene -->
+          <div class="scene-panel" data-panel="why-lora">
+            <div class="scene-panel__inner">
+              <div class="scene-intro">
+                <h2 class="scene-intro__title">Почему LoRA</h2>
+                <p class="scene-intro__desc">
+                  Вместо облачного API был выбран локальный LoRA-адаптер. Это дало контроль над данными, моделью и процессом обучения, позволило многократно итерировать датасет.
+                </p>
+              </div>
+
+              <div class="metric-row">
+                <div class="metric-card">
+                  <div class="metric-card__value">r=16</div>
+                  <div class="metric-card__label">LoRA rank</div>
                 </div>
-                <div class="case-narrative__metric">
-                  <div class="case-narrative__metric-value">100%</div>
-                  <div class="case-narrative__metric-label">Valid JSON rate</div>
+                <div class="metric-card">
+                  <div class="metric-card__value">α=32</div>
+                  <div class="metric-card__label">LoRA alpha</div>
                 </div>
-                <div class="case-narrative__metric">
-                  <div class="case-narrative__metric-value">38.8</div>
-                  <div class="case-narrative__metric-label">MAE score base model</div>
+                <div class="metric-card">
+                  <div class="metric-card__value">7</div>
+                  <div class="metric-card__label">Target modules</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-card__value">~3 мин</div>
+                  <div class="metric-card__label">Training time</div>
                 </div>
               </div>
-            </section>
 
-            <!-- Section 2: Why LoRA -->
-            <section class="case-narrative__section">
-              <h2 class="case-narrative__section-title">Почему LoRA</h2>
-              <div class="case-narrative__body">
-                <p>
-                  Вместо того чтобы полагаться на облачный API, был выбран локальный LoRA-адаптер над Qwen2.5-1.5B-Instruct. Это дало контроль над данными, моделью и процессом обучения, позволило многократно итерировать датасет и воспроизводить результаты.
-                </p>
+              <div class="info-list">
                 <ul>
-                  <li><strong>Контроль.</strong> Teacher dataset собирался из собственной базы prompt evaluation, а не из публичных источников.</li>
-                  <li><strong>Итеративность.</strong> Адаптер обучается за ~3 минуты на одном GPU — можно быстро проверять гипотезы о данных.</li>
+                  <li><strong>Контроль.</strong> Teacher dataset собирался из собственной базы prompt evaluation.</li>
+                  <li><strong>Итеративность.</strong> Быстрое обучение позволяет проверять гипотезы о данных.</li>
                   <li><strong>Честная оговорка.</strong> Скорость и экономия не были начальными преимуществами; latency стала отдельной инженерной задачей.</li>
                 </ul>
               </div>
-              <div class="case-narrative__metric-row">
-                <div class="case-narrative__metric">
-                  <div class="case-narrative__metric-value">r=16</div>
-                  <div class="case-narrative__metric-label">LoRA rank</div>
-                </div>
-                <div class="case-narrative__metric">
-                  <div class="case-narrative__metric-value">α=32</div>
-                  <div class="case-narrative__metric-label">LoRA alpha</div>
-                </div>
-                <div class="case-narrative__metric">
-                  <div class="case-narrative__metric-value">7</div>
-                  <div class="case-narrative__metric-label">Target modules</div>
-                </div>
-                <div class="case-narrative__metric">
-                  <div class="case-narrative__metric-value">~3 мин</div>
-                  <div class="case-narrative__metric-label">Training time</div>
-                </div>
-              </div>
-            </section>
-
-            <!-- Section 3: Experiment arc -->
-            <section class="case-narrative__section">
-              <h2 class="case-narrative__section-title">Четыре эксперимента</h2>
-              <p class="case-narrative__lead">
-                Каждый эксперимент отвечал на вопрос, оставленный предыдущим. Гиперпараметры адаптера оставались фиксированными; менялся только состав teacher dataset.
-              </p>
-              <div class="case-narrative__timeline">
-                <div class="case-narrative__timeline-card">
-                  <strong>Exp 001 — Baseline</strong>
-                  <span>90 записей. LoRA не улучшила решения, хотя eval loss упал до 0.23.</span>
-                </div>
-                <div class="case-narrative__timeline-card">
-                  <strong>Exp 002 — Тюнинг ёмкости</strong>
-                  <span>90 записей. Accuracy выросла до 78%, но hard negatives всё ещё проходили.</span>
-                </div>
-                <div class="case-narrative__timeline-card">
-                  <strong>Exp 003 — Hard negatives</strong>
-                  <span>123 записи. Negative smoke заработал, но модель стала консервативной.</span>
-                </div>
-                <div class="case-narrative__timeline-card">
-                  <strong>Exp 004 — Баланс</strong>
-                  <span>162 записи. Positives и borderlines вернули recall; external validation 93.1%.</span>
-                </div>
-              </div>
-            </section>
-
-            <!-- Section 4: Decision accuracy evolution (G-004) -->
-            <section class="case-narrative__section">
-              <h2 class="case-narrative__section-title">Эволюция точности решений</h2>
-              <p class="case-narrative__lead">
-                Точность matching-решений росла неравномерно: 44% → 78% → 67% → 80%. Падение на Exp 003 — осознанная жертва recall ради устойчивости к hard negatives.
-              </p>
-              <div class="case-narrative__visual">
-                <img src="../assets/cases/hr-assistant/G-004-decision-accuracy-evolution.svg" alt="Эволюция decision accuracy по экспериментам: Base Qwen vs LoRA Exp 001–004" loading="lazy">
-                <p class="case-narrative__visual-caption">Рис. 1. Decision accuracy: Base Qwen vs LoRA по четырём экспериментам.</p>
-              </div>
-              <div class="case-narrative__body">
-                <p>
-                  Состав датасета влиял на качество решений сильнее, чем ёмкость адаптера. Experiment 001 имел самый низкий validation loss, но худшие решения — ключевое доказательство того, что loss не является целевой метрикой для этой задачи.
-                </p>
-              </div>
-            </section>
-
-            <!-- Section 5: MAE evolution (G-005) -->
-            <section class="case-narrative__section">
-              <h2 class="case-narrative__section-title">Эволюция ошибки оценки</h2>
-              <p class="case-narrative__lead">
-                Средняя абсолютная ошибка композитного score снизилась с 38 до 15 баллов. Base model ошибался сильнее всех; Exp 004 достиг минимальной MAE на тестовой выборке.
-              </p>
-              <div class="case-narrative__visual">
-                <img src="../assets/cases/hr-assistant/G-005-mae-score-evolution.svg" alt="Эволюция MAE score по экспериментам: Base Qwen vs LoRA Exp 001–004" loading="lazy">
-                <p class="case-narrative__visual-caption">Рис. 2. MAE score: Base Qwen vs LoRA по четырём экспериментам. Меньше — лучше.</p>
-              </div>
-              <div class="case-narrative__body">
-                <p>
-                  Ошибка score уменьшалась по мере улучшения примеров, а не по мере понижения loss. Это подтверждает главный инженерный вывод: инженерия датасета важнее тюнинга адаптера.
-                </p>
-              </div>
-            </section>
-
-            <!-- Section 6: External validation (G-008) -->
-            <section class="case-narrative__section">
-              <h2 class="case-narrative__section-title">External validation</h2>
-              <p class="case-narrative__lead">
-                На 102 независимых парах кандидат–вакансия LoRA достигла 93.1% decision accuracy против 94.1% у GPT-4o-mini. Модель обобщается, но score калибруется не идеально.
-              </p>
-              <div class="case-narrative__visual">
-                <img src="../assets/cases/hr-assistant/G-008-external-validation-scatter.svg" alt="External validation: LoRA score vs reference score на 102 независимых записях" loading="lazy">
-                <p class="case-narrative__visual-caption">Рис. 3. External validation scatter: LoRA score против reference score. Точки вблизи диагонали означают хорошую калибровку.</p>
-              </div>
-              <div class="case-narrative__metric-row">
-                <div class="case-narrative__metric">
-                  <div class="case-narrative__metric-value">93.1%</div>
-                  <div class="case-narrative__metric-label">LoRA decision accuracy</div>
-                </div>
-                <div class="case-narrative__metric">
-                  <div class="case-narrative__metric-value">94.1%</div>
-                  <div class="case-narrative__metric-label">GPT-4o-mini accuracy</div>
-                </div>
-                <div class="case-narrative__metric">
-                  <div class="case-narrative__metric-value">102</div>
-                  <div class="case-narrative__metric-label">Независимых записей</div>
-                </div>
-              </div>
-            </section>
-
-            <!-- Section 7: Production smoke (G-009) -->
-            <section class="case-narrative__section">
-              <h2 class="case-narrative__section-title">Telegram Production Smoke</h2>
-              <p class="case-narrative__lead">
-                Offline-метрики неэквивалентны production-качеству. Runtime smoke на реальном API выявил failure modes, которых не было в тестовой выборке.
-              </p>
-              <div class="case-narrative__visual">
-                <img src="../assets/cases/hr-assistant/G-009-runtime-smoke-pass-fail-matrix.svg" alt="Runtime smoke pass/fail matrix по категориям и экспериментам" loading="lazy">
-                <p class="case-narrative__visual-caption">Рис. 4. Production smoke matrix: positive, obvious negative, hard negative, edge case, invalid input, stability repeat.</p>
-              </div>
-              <div class="case-narrative__body">
-                <p>
-                  Experiment 002 провалил negative-кейсы на реальном API; hard negatives в Experiment 003 устранили это. В процессе evaluation также был найден production-баг: truncated JSON при <code>max_tokens=300</code> вызывал HTTP 422. Фикс — увеличение лимита до 512 и graceful JSON extraction — вернул 100% valid JSON.
-                </p>
-              </div>
-            </section>
-
-            <!-- Section 8: Dataset engineering (G-013) -->
-            <section class="case-narrative__section">
-              <h2 class="case-narrative__section-title">Dataset Engineering</h2>
-              <p class="case-narrative__lead">
-                Рост качества шёл за счёт инженерии датасета, а не адаптера: 90 → 123 → 162 записи. Hard negatives устранили false positives, positives и borderlines вернули recall.
-              </p>
-              <div class="case-narrative__visual">
-                <img src="../assets/cases/hr-assistant/G-013-dataset-evolution.svg" alt="Эволюция состава датасета по экспериментам: классы и split" loading="lazy">
-                <p class="case-narrative__visual-caption">Рис. 5. Эволюция teacher dataset: записи по классам и split в каждом эксперименте.</p>
-              </div>
-              <div class="case-narrative__body">
-                <p>
-                  Гиперпараметры LoRA оставались неизменными на протяжении всех четырёх экспериментов. Единственная систематически меняющаяся переменная — состав и баланс teacher dataset. Это делает датасет доминирующим фактором качества.
-                </p>
-              </div>
-            </section>
-
-            <!-- Section 9: Final conclusions -->
-            <section class="case-narrative__section case-narrative__section--highlight">
-              <h2 class="case-narrative__section-title">Итоговые выводы</h2>
-              <p class="case-narrative__lead">
-                Четыре эксперимента и финальное Telegram-расследование привели не только к работающей модели, но и к чёткому пониманию границ: что доказано, что частично доказано и что требует следующего цикла.
-              </p>
-              <div class="case-narrative__conclusion-grid">
-                <div class="case-narrative__conclusion-card case-narrative__conclusion-card--proven">
-                  <h4>✓ Доказано</h4>
-                  <p>Инженерия датасета важнее тюнинга адаптера. Hard negatives и positives/borderlines — рабочие рычаги качества. Технический контур и deployment воспроизводимы.</p>
-                </div>
-                <div class="case-narrative__conclusion-card case-narrative__conclusion-card--partial">
-                  <h4>~ Частично доказано</h4>
-                  <p>93.1% decision accuracy на external holdout и 100% production smoke pass. Hard-negative качество в реальных сценариях требует дополнительной stratified evaluation.</p>
-                </div>
-                <div class="case-narrative__conclusion-card case-narrative__conclusion-card--next">
-                  <h4>→ Next cycle</h4>
-                  <p>Калибровка score, уменьшение latency, расширение teacher dataset и добавление hard-negative метрик в валидационный pipeline.</p>
-                </div>
-              </div>
-            </section>
-
-            <!-- Section 10: Tech stack -->
-            <section class="case-narrative__section">
-              <h2 class="case-narrative__section-title">Технологии</h2>
-              <div class="case-detail__tech">
-                <div class="case-detail__tech-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                  Qwen2.5-1.5B-Instruct — base model
-                </div>
-                <div class="case-detail__tech-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                  PEFT / LoRA — адаптер
-                </div>
-                <div class="case-detail__tech-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7z"/></svg>
-                  TRL + PyTorch — обучение
-                </div>
-                <div class="case-detail__tech-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 5L2.5 12L21 19L17 12L21 5Z"/></svg>
-                  vLLM — inference optimization
-                </div>
-                <div class="case-detail__tech-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                  FastAPI — production API
-                </div>
-                <div class="case-detail__tech-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 5L2.5 12L21 19L17 12L21 5Z"/></svg>
-                  Telegram Bot API — канал
-                </div>
-              </div>
-            </section>
+            </div>
           </div>
+
+          <!-- Experiments scene -->
+          <div class="scene-panel" data-panel="experiments">
+            <div class="scene-panel__inner">
+              <div class="scene-intro">
+                <h2 class="scene-intro__title">Четыре эксперимента</h2>
+                <p class="scene-intro__desc">
+                  Гиперпараметры адаптера оставались фиксированными; менялся только состав teacher dataset.
+                </p>
+              </div>
+
+              <div class="timeline">
+                <div class="timeline-card">
+                  <div class="timeline-card__exp">Exp 001</div>
+                  <div class="timeline-card__title">Baseline</div>
+                  <div class="timeline-card__desc">90 записей. Проверка: решает ли базовый LoRA задачу.</div>
+                  <div class="timeline-card__result"><strong>Результат:</strong> valid JSON 100%, accuracy 44% — как у base.</div>
+                </div>
+
+                <div class="timeline-card">
+                  <div class="timeline-card__exp">Exp 002</div>
+                  <div class="timeline-card__title">Тюнинг ёмкости</div>
+                  <div class="timeline-card__desc">90 записей. Более выразительный адаптер и настройка обучения.</div>
+                  <div class="timeline-card__result"><strong>Результат:</strong> accuracy 78%, но hard negatives проходят.</div>
+                </div>
+
+                <div class="timeline-card">
+                  <div class="timeline-card__exp">Exp 003</div>
+                  <div class="timeline-card__title">Hard negatives</div>
+                  <div class="timeline-card__desc">123 записи. +33 hard-negative и edge-case примера.</div>
+                  <div class="timeline-card__result"><strong>Результат:</strong> smoke 7/7 passed, accuracy падает до 67%.</div>
+                </div>
+
+                <div class="timeline-card">
+                  <div class="timeline-card__exp">Exp 004</div>
+                  <div class="timeline-card__title">Баланс</div>
+                  <div class="timeline-card__desc">162 записи. +39 positive/borderline, hard negatives сохранены.</div>
+                  <div class="timeline-card__result"><strong>Результат:</strong> accuracy 80%, external validation 93.1%.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metrics scene -->
+          <div class="scene-panel" data-panel="metrics">
+            <div class="scene-panel__inner">
+              <div class="visual-card">
+                <h3 class="visual-card__title">Эволюция точности решений</h3>
+                <p class="visual-card__desc">
+                  Точность matching-решений росла неравномерно: 44% → 78% → 67% → 80%. Падение на Exp 003 — осознанная жертва recall ради устойчивости к hard negatives.
+                </p>
+                <img class="visual-card__img" src="../assets/cases/hr-assistant/G-004-decision-accuracy-evolution.svg" alt="Эволюция decision accuracy по экспериментам" loading="lazy">
+                <p class="visual-card__caption">Рис. 1. Decision accuracy: Base Qwen vs LoRA по четырём экспериментам.</p>
+              </div>
+
+              <div class="visual-card">
+                <h3 class="visual-card__title">Эволюция ошибки оценки</h3>
+                <p class="visual-card__desc">
+                  Средняя абсолютная ошибка композитного score снизилась с 38 до 15 баллов. Base model ошибался сильнее всех.
+                </p>
+                <img class="visual-card__img" src="../assets/cases/hr-assistant/G-005-mae-score-evolution.svg" alt="Эволюция MAE score по экспериментам" loading="lazy">
+                <p class="visual-card__caption">Рис. 2. MAE score: Base Qwen vs LoRA по четырём экспериментам. Меньше — лучше.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Validation scene -->
+          <div class="scene-panel" data-panel="validation">
+            <div class="scene-panel__inner">
+              <div class="visual-card">
+                <h3 class="visual-card__title">External validation</h3>
+                <p class="visual-card__desc">
+                  На 102 независимых парах кандидат–вакансия LoRA достигла 93.1% decision accuracy против 94.1% у GPT-4o-mini. Модель обобщается, но score калибруется не идеально.
+                </p>
+                <img class="visual-card__img" src="../assets/cases/hr-assistant/G-008-external-validation-scatter.svg" alt="External validation: LoRA score vs reference score" loading="lazy">
+                <p class="visual-card__caption">Рис. 3. External validation scatter: LoRA score против reference score.</p>
+              </div>
+
+              <div class="metric-row">
+                <div class="metric-card">
+                  <div class="metric-card__value">93.1%</div>
+                  <div class="metric-card__label">LoRA accuracy</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-card__value">94.1%</div>
+                  <div class="metric-card__label">GPT-4o-mini accuracy</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-card__value">102</div>
+                  <div class="metric-card__label">Независимых записей</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Production scene -->
+          <div class="scene-panel" data-panel="production">
+            <div class="scene-panel__inner">
+              <div class="visual-card">
+                <h3 class="visual-card__title">Telegram Production Smoke</h3>
+                <p class="visual-card__desc">
+                  Offline-метрики неэквивалентны production-качеству. Runtime smoke на реальном API выявил failure modes, которых не было в тестовой выборке.
+                </p>
+                <img class="visual-card__img" src="../assets/cases/hr-assistant/G-009-runtime-smoke-pass-fail-matrix.svg" alt="Runtime smoke pass/fail matrix" loading="lazy">
+                <p class="visual-card__caption">Рис. 4. Production smoke matrix по категориям и экспериментам.</p>
+              </div>
+
+              <div class="info-list">
+                <ul>
+                  <li><strong>Exp 002</strong> провалил negative-кейсы на реальном API.</li>
+                  <li><strong>Hard negatives в Exp 003</strong> устранили это: smoke 7/7 passed.</li>
+                  <li><strong>Truncation bug:</strong> при max_tokens=300 возникал HTTP 422. Фикс — max_tokens=512 + graceful JSON extraction.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dataset scene -->
+          <div class="scene-panel" data-panel="dataset">
+            <div class="scene-panel__inner">
+              <div class="visual-card">
+                <h3 class="visual-card__title">Dataset Engineering</h3>
+                <p class="visual-card__desc">
+                  Рост качества шёл за счёт инженерии датасета, а не адаптера: 90 → 123 → 162 записи. Hard negatives устранили false positives, positives и borderlines вернули recall.
+                </p>
+                <img class="visual-card__img" src="../assets/cases/hr-assistant/G-013-dataset-evolution.svg" alt="Эволюция состава датасета" loading="lazy">
+                <p class="visual-card__caption">Рис. 5. Эволюция teacher dataset: записи по классам и split.</p>
+              </div>
+
+              <div class="info-list">
+                <ul>
+                  <li>Гиперпараметры LoRA оставались неизменными на протяжении всех экспериментов.</li>
+                  <li>Единственная систематически меняющаяся переменная — состав и баланс teacher dataset.</li>
+                  <li>Инженерия датасета — доминирующий фактор качества.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Conclusions scene -->
+          <div class="scene-panel" data-panel="conclusions">
+            <div class="scene-panel__inner">
+              <div class="scene-intro">
+                <h2 class="scene-intro__title">Итоговые выводы</h2>
+                <p class="scene-intro__desc">
+                  Четыре эксперимента и финальное Telegram-расследование привели к чёткому пониманию границ: что доказано, что частично доказано и что требует следующего цикла.
+                </p>
+              </div>
+
+              <div class="conclusion-grid">
+                <div class="conclusion-card conclusion-card--proven">
+                  <div class="conclusion-card__icon">✓</div>
+                  <h4 class="conclusion-card__title">Доказано</h4>
+                  <p class="conclusion-card__text">Инженерия датасета важнее тюнинга адаптера. Hard negatives и positives/borderlines — рабочие рычаги качества. Технический контур и deployment воспроизводимы.</p>
+                </div>
+
+                <div class="conclusion-card conclusion-card--partial">
+                  <div class="conclusion-card__icon">~</div>
+                  <h4 class="conclusion-card__title">Частично доказано</h4>
+                  <p class="conclusion-card__text">93.1% decision accuracy на external holdout и 100% production smoke pass. Hard-negative качество в реальных сценариях требует дополнительной stratified evaluation.</p>
+                </div>
+
+                <div class="conclusion-card conclusion-card--next">
+                  <div class="conclusion-card__icon">→</div>
+                  <h4 class="conclusion-card__title">Next cycle</h4>
+                  <p class="conclusion-card__text">Калибровка score, уменьшение latency, расширение teacher dataset и добавление hard-negative метрик в валидационный pipeline.</p>
+                </div>
+              </div>
+
+              <div class="tech-grid">
+                <div class="tech-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 6v6c0 4.4 3.4 8.4 8 10 4.6-1.6 8-5.6 8-10V6l-8-4z"/><circle cx="12" cy="11" r="3"/></svg>
+                  Qwen2.5-1.5B-Instruct
+                </div>
+                <div class="tech-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  PEFT / LoRA
+                </div>
+                <div class="tech-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7z"/></svg>
+                  TRL + PyTorch
+                </div>
+                <div class="tech-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 5L2.5 12L21 19L17 12L21 5Z"/></svg>
+                  vLLM
+                </div>
+                <div class="tech-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  FastAPI
+                </div>
+                <div class="tech-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 5L2.5 12L21 19L17 12L21 5Z"/></svg>
+                  Telegram Bot API
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
-      </article>
+      </div>
+
     </div>
   </main>
 
@@ -506,6 +1156,18 @@
   </footer>
 
   <script src="../js/main.js"></script>
+  <script>
+    // Scene tabs navigation
+    document.querySelectorAll('.scene-tabs__tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.scene-tabs__tab').forEach(t => t.classList.remove('scene-tabs__tab--active'));
+        tab.classList.add('scene-tabs__tab--active');
+        document.querySelectorAll('.scene-panel').forEach(p => p.classList.remove('scene-panel--active'));
+        const panelId = tab.getAttribute('data-tab');
+        document.querySelector(`[data-panel="${panelId}"]`).classList.add('scene-panel--active');
+      });
+    });
+  </script>
   <script src="../js/api-client.js"></script>
   <script src="../js/chat-widget.js"></script>
 
