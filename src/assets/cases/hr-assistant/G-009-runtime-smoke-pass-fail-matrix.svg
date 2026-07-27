@@ -2965,12 +2965,12 @@ z
      <use xlink:href="#DejaVuSans-Bold-3c4" transform="translate(3488.90625 0)"/>
     </g>
    </g>
-   <g id="legend_1">
+   <g id="legend_1" transform="translate(130 0)">
     <g id="patch_23">
-     <path d="M 306.144625 388.905062 
-L 326.144625 388.905062 
-L 326.144625 381.905062 
-L 306.144625 381.905062 
+     <path d="M 306.144625 388.905062
+L 326.144625 388.905062
+L 326.144625 381.905062
+L 306.144625 381.905062
 z
 " style="fill: #238636; stroke: #0d1117; stroke-linejoin: miter"/>
     </g>

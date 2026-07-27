@@ -664,7 +664,7 @@
       display: flex;
       align-items: center;
       justify-content: flex-start;
-      gap: var(--space-sm);
+      gap: var(--space-xs);
       margin: var(--space-sm) 0 var(--space-md);
     }
 
@@ -673,7 +673,7 @@
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      padding: var(--space-xs) var(--space-sm);
+      padding: var(--space-md) var(--space-lg);
       text-align: center;
       position: relative;
       border-top: 3px solid var(--lora-accent);
@@ -682,23 +682,23 @@
 
     .dataset-step__size {
       font-family: var(--font-display);
-      font-size: 1.5rem;
+      font-size: 2rem;
       font-weight: 800;
       color: var(--lora-accent);
       margin-bottom: var(--space-xs);
     }
 
     .dataset-step__label {
-      font-size: 0.75rem;
+      font-size: 0.875rem;
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: var(--space-xs);
     }
 
     .dataset-step__mix {
-      font-size: 0.6875rem;
+      font-size: 0.8125rem;
       color: var(--text-tertiary);
-      line-height: 1.35;
+      line-height: 1.4;
     }
 
     .dataset-connector {
@@ -706,7 +706,7 @@
       flex-direction: column;
       align-items: center;
       gap: var(--space-xs);
-      min-width: 60px;
+      min-width: 50px;
       flex-shrink: 0;
     }
 
@@ -718,7 +718,8 @@
       font-weight: 600;
       color: var(--text-secondary);
       text-align: center;
-      line-height: 1.4;
+      line-height: 1.3;
+      white-space: pre-line;
     }
 
     /* Conclusion grid */
@@ -898,6 +899,8 @@
       padding: var(--space-sm) var(--space-md);
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--lora-accent);
+      border-right: 4px solid var(--lora-accent);
       border-radius: var(--radius-lg);
       font-size: 1rem;
       color: var(--text-primary);
@@ -910,7 +913,7 @@
 
     .section-note--compact {
       max-width: 700px;
-      padding: var(--space-xs) var(--space-md);
+      padding: var(--space-md) var(--space-lg);
     }
 
     /* =====================================================
@@ -1101,27 +1104,34 @@
     .timeline-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: var(--space-xs);
+      gap: var(--space-md);
+      width: 100%;
+      max-width: 900px;
     }
 
     .timeline-grid .timeline-card {
-      padding: var(--space-xs) var(--space-sm);
+      padding: var(--space-md) var(--space-lg);
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .timeline-grid .timeline-card__exp {
-      font-size: 0.65rem;
-      margin-bottom: 2px;
+      font-size: 0.75rem;
+      margin-bottom: var(--space-xs);
     }
 
     .timeline-grid .timeline-card__title {
-      font-size: 0.78rem;
-      margin-bottom: 2px;
+      font-size: 1rem;
+      margin-bottom: var(--space-xs);
     }
 
     .timeline-grid .timeline-card__result {
-      font-size: 0.7rem;
-      padding-top: var(--space-xs);
-      border-top: none;
+      font-size: 0.875rem;
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--border-subtle);
+      line-height: 1.4;
     }
 
     /* Compact inline lists for left column */
@@ -1172,30 +1182,63 @@
     }
 
     .conclusion-grid--stack {
-      grid-template-columns: 1fr;
-      gap: var(--space-xs);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      width: 100%;
+      max-width: 900px;
       margin-bottom: var(--space-sm);
     }
 
     .conclusion-grid--stack .conclusion-card {
-      padding: var(--space-xs) var(--space-sm);
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-md) var(--space-lg);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      border-top: 4px solid;
+      text-align: center;
     }
+
+    .conclusion-grid--stack .conclusion-card--proven { border-top-color: var(--lora-success); }
+    .conclusion-grid--stack .conclusion-card--partial { border-top-color: var(--lora-warm); }
+    .conclusion-grid--stack .conclusion-card--next { border-top-color: var(--lora-cold); }
 
     .conclusion-grid--stack .conclusion-card__title {
-      font-size: 0.9375rem;
-      margin-bottom: 2px;
+      font-size: 1.0625rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: var(--space-sm);
+      color: var(--text-primary);
     }
 
-    .conclusion-grid--stack .conclusion-card__text {
-      font-size: 0.8125rem;
-      line-height: 1.35;
+    .conclusion-grid--stack .conclusion-card__list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      text-align: left;
+    }
+
+    .conclusion-grid--stack .conclusion-card__list li {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    .conclusion-grid--stack .conclusion-card__list li .icon {
+      flex-shrink: 0;
+      width: 20px;
+      text-align: center;
+      color: var(--text-primary);
     }
 
     .conclusion-grid--stack .conclusion-card__icon {
-      width: 28px;
-      height: 28px;
-      font-size: 0.875rem;
-      margin-bottom: 2px;
+      display: none;
     }
 
     /* Compact timeline row */
@@ -1843,7 +1886,8 @@
                         <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </div>
-                    <div class="dataset-connector__label">+33 hard negatives</div>
+                    <div class="dataset-connector__label">+33 hard
+negatives</div>
                   </div>
                   <div class="dataset-step">
                     <div class="dataset-step__size">123</div>
@@ -1857,7 +1901,7 @@
                       </svg>
                     </div>
                     <div class="dataset-connector__label">+39 positives /
- borderlines</div>
+borderlines</div>
                   </div>
                   <div class="dataset-step">
                     <div class="dataset-step__size">162</div>
@@ -1899,17 +1943,28 @@
                   <div class="conclusion-card conclusion-card--proven">
                     <div class="conclusion-card__icon">✓</div>
                     <h4 class="conclusion-card__title">Доказано</h4>
-                    <p class="conclusion-card__text">Инженерия датасета важнее тюнинга адаптера. Hard negatives и positives/borderlines — рабочие рычаги качества.</p>
+                    <ul class="conclusion-card__list">
+                      <li><span class="icon">✓</span><span>Инженерия датасета важнее тюнинга адаптера.</span></li>
+                      <li><span class="icon">✓</span><span>Hard negatives и positives/borderlines — рабочие рычаги качества.</span></li>
+                    </ul>
                   </div>
                   <div class="conclusion-card conclusion-card--partial">
                     <div class="conclusion-card__icon">~</div>
                     <h4 class="conclusion-card__title">Частично доказано</h4>
-                    <p class="conclusion-card__text">93.1% decision accuracy на external holdout и 100% production smoke pass. Production-acceptable latency после vLLM.</p>
+                    <ul class="conclusion-card__list">
+                      <li><span class="icon">~</span><span>93.1% decision accuracy на external holdout.</span></li>
+                      <li><span class="icon">~</span><span>100% production smoke pass.</span></li>
+                      <li><span class="icon">~</span><span>Production-acceptable latency после vLLM.</span></li>
+                    </ul>
                   </div>
                   <div class="conclusion-card conclusion-card--next">
                     <div class="conclusion-card__icon">→</div>
                     <h4 class="conclusion-card__title">Next cycle</h4>
-                    <p class="conclusion-card__text">Калибровка score, stratified evaluation и real-world smoke set.</p>
+                    <ul class="conclusion-card__list">
+                      <li><span class="icon">→</span><span>Калибровка score.</span></li>
+                      <li><span class="icon">→</span><span>Stratified evaluation.</span></li>
+                      <li><span class="icon">→</span><span>Real-world smoke set.</span></li>
+                    </ul>
                   </div>
                 </div>
 
