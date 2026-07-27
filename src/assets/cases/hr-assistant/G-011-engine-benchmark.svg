@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Engine benchmark">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#ffffff"/></marker></defs>
+<rect width="640" height="360" fill="#0d0d10" rx="8"/>
+<text x="30" y="30" fill="#e8e8ec" font-size="16" font-family="Inter, sans-serif" text-anchor="start" font-weight="600">Inference engine benchmark</text>
+<text x="30" y="50" fill="#8a8a9a" font-size="11" font-family="Inter, sans-serif" text-anchor="start" font-weight="normal">vLLM cut latency several-fold</text>
+<rect x="80" y="198.01764997492558" width="120" height="101.98235002507441" fill="#FFB347" stroke="none" stroke-width="1" rx="4"/>
+<text x="140.0" y="188.01764997492558" fill="#FFB347" font-size="11" font-family="Inter, sans-serif" text-anchor="middle" font-weight="600">9101 ms</text>
+<text x="140.0" y="320" fill="#e8e8ec" font-size="11" font-family="Inter, sans-serif" text-anchor="middle" font-weight="normal">transformers fp16</text>
+<rect x="250" y="126.08695652173913" width="120" height="173.91304347826087" fill="#FF6B6B" stroke="none" stroke-width="1" rx="4"/>
+<text x="310.0" y="116.08695652173913" fill="#FF6B6B" font-size="11" font-family="Inter, sans-serif" text-anchor="middle" font-weight="600">15521 ms</text>
+<text x="310.0" y="320" fill="#e8e8ec" font-size="11" font-family="Inter, sans-serif" text-anchor="middle" font-weight="normal">transformers 4-bit</text>
+<rect x="420" y="275.4494608293997" width="120" height="24.55053917060028" fill="#96CEB4" stroke="none" stroke-width="1" rx="4"/>
+<text x="480.0" y="265.4494608293997" fill="#96CEB4" font-size="11" font-family="Inter, sans-serif" text-anchor="middle" font-weight="600">2191 ms</text>
+<text x="480.0" y="320" fill="#e8e8ec" font-size="11" font-family="Inter, sans-serif" text-anchor="middle" font-weight="normal">vLLM fp16</text>
+<line x1="60" y1="300" x2="560" y2="300" stroke="#8a8a9a" stroke-width="2"/>
+</svg>

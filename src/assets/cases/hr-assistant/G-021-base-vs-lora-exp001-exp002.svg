@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 520" width="1100" height="520" role="img" aria-label="Base vs LoRA: decision accuracy and MAE for Exp 001 and Exp 002">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#ffffff"/></marker></defs>
+<rect width="1100" height="520" fill="#0d0d10" rx="8"/>
+<text x="36" y="42" fill="#e8e8ec" font-size="24" font-family="Inter, sans-serif" text-anchor="start" font-weight="600">Base vs LoRA: Exp 001 и 002</text>
+<text x="36" y="76" fill="#8a8a9a" font-size="15" font-family="Inter, sans-serif" text-anchor="start" font-weight="normal">Первый рост качества — только во втором эксперименте</text>
+
+<!-- Decision Accuracy panel -->
+<rect x="60" y="115" width="460" height="320" fill="#1a1a24" stroke="#2a2a36" stroke-width="1" rx="6"/>
+<text x="290" y="156" fill="#ffffff" font-size="18" font-family="Inter, sans-serif" text-anchor="middle" font-weight="600">Decision Accuracy</text>
+<line x1="70" y1="406" x2="510" y2="406" stroke="#2a2a36" stroke-width="1"/>
+<text x="60" y="411" fill="#8a8a9a" font-size="11" font-family="Inter, sans-serif" text-anchor="end" font-weight="normal">0%</text>
+<line x1="70" y1="335.5" x2="510" y2="335.5" stroke="#2a2a36" stroke-width="1"/>
+<text x="60" y="340.5" fill="#8a8a9a" font-size="11" font-family="Inter, sans-serif" text-anchor="end" font-weight="normal">25%</text>
+<line x1="70" y1="265" x2="510" y2="265" stroke="#2a2a36" stroke-width="1"/>
+<text x="60" y="270" fill="#8a8a9a" font-size="11" font-family="Inter, sans-serif" text-anchor="end" font-weight="normal">50%</text>
+<line x1="70" y1="194.5" x2="510" y2="194.5" stroke="#2a2a36" stroke-width="1"/>
+<text x="60" y="199.5" fill="#8a8a9a" font-size="11" font-family="Inter, sans-serif" text-anchor="end" font-weight="normal">75%</text>
+<line x1="70" y1="124" x2="510" y2="124" stroke="#2a2a36" stroke-width="1"/>
+<text x="60" y="129" fill="#8a8a9a" font-size="11" font-family="Inter, sans-serif" text-anchor="end" font-weight="normal">100%</text>
+
+<!-- Exp 001 Base bar: 44% -->
+<rect x="115" y="292" width="55" height="114" fill="#8a8a9a" opacity="0.6" rx="4"/>
+<text x="142.5" y="340" fill="#e8e8ec" font-size="13" font-family="Inter, sans-serif" text-anchor="middle" font-weight="700">44%</text>
+<!-- Exp 001 LoRA bar: 44% -->
+<rect x="190" y="292" width="55" height="114" fill="#4ECDC4" opacity="0.85" rx="4"/>
+<text x="217.5" y="340" fill="#0d0d10" font-size="13" font-family="Inter, sans-serif" text-anchor="middle" font-weight="700">44%</text>
+
+<!-- Exp 002 Base bar: 44% -->
+<rect x="310" y="292" width="55" height="114" fill="#8a8a9a" opacity="0.6" rx="4"/>
+<text x="337.5" y="340" fill="#e8e8ec" font-size="13" font-family="Inter, sans-serif" text-anchor="middle" font-weight="700">44%</text>
+<!-- Exp 002 LoRA bar: 78% -->
+<rect x="385" y="205" width="55" height="201" fill="#2DD4BF" opacity="0.85" rx="4"/>
+<text x="412.5" y="297" fill="#0d0d10" font-size="13" font-family="Inter, sans-serif" text-anchor="middle" font-weight="700">78%</text>
+
+<text x="142.5" y="430" fill="#e8e8ec" font-size="12" font-family="Inter, sans-serif" text-anchor="middle" font-weight="600">Exp 001</text>
+<text x="337.5" y="430" fill="#e8e8ec" font-size="12" font-family="Inter, sans-serif" text-anchor="middle" font-weight="600">Exp 002</text>
+
+<!-- MAE Score panel -->
+<rect x="580" y="115" width="460" height="320" fill="#1a1a24" stroke="#2a2a36" stroke-width="1" rx="6"/>
+<text x="810" y="156" fill="#ffffff" font-size="18" font-family="Inter, sans-serif" text-anchor="middle" font-weight="600">MAE Score</text>
+<line x1="590" y1="406" x2="1030" y2="406" stroke="#2a2a36" stroke-width="1"/>
+<text x="580" y="411" fill="#8a8a9a" font-size="11" font-family="Inter, sans-serif" text-anchor="end" font-weight="normal">0</text>
+<line x1="590" y1="335.5" x2="1030" y2="335.5" stroke="#2a2a36" stroke-width="1"/>
+<text x="580" y="340.5" fill="#8a8a9a" font-size="11" font-family="Inter, sans-serif" text-anchor="end" font-weight="normal">10</text>
+<line x1="590" y1="265" x2="1030" y2="265" stroke="#2a2a36" stroke-width="1"/>
+<text x="580" y="270" fill="#8a8a9a" font-size="11" font-family="Inter, sans-serif" text-anchor="end" font-weight="normal">20</text>
+<line x1="590" y1="194.5" x2="1030" y2="194.5" stroke="#2a2a36" stroke-width="1"/>
+<text x="580" y="199.5" fill="#8a8a9a" font-size="11" font-family="Inter, sans-serif" text-anchor="end" font-weight="normal">30</text>
+<line x1="590" y1="124" x2="1030" y2="124" stroke="#2a2a36" stroke-width="1"/>
+<text x="580" y="129" fill="#8a8a9a" font-size="11" font-family="Inter, sans-serif" text-anchor="end" font-weight="normal">40</text>
+
+<!-- Exp 001 Base bar: 38.8 -->
+<rect x="635" y="183" width="55" height="223" fill="#8a8a9a" opacity="0.6" rx="4"/>
+<text x="662.5" y="289" fill="#e8e8ec" font-size="13" font-family="Inter, sans-serif" text-anchor="middle" font-weight="700">38.8</text>
+<!-- Exp 001 LoRA bar: 29.8 -->
+<rect x="710" y="246" width="55" height="160" fill="#4ECDC4" opacity="0.85" rx="4"/>
+<text x="737.5" y="320" fill="#0d0d10" font-size="13" font-family="Inter, sans-serif" text-anchor="middle" font-weight="700">29.8</text>
+
+<!-- Exp 002 Base bar: 38.8 -->
+<rect x="830" y="183" width="55" height="223" fill="#8a8a9a" opacity="0.6" rx="4"/>
+<text x="857.5" y="289" fill="#e8e8ec" font-size="13" font-family="Inter, sans-serif" text-anchor="middle" font-weight="700">38.8</text>
+<!-- Exp 002 LoRA bar: 21.9 -->
+<rect x="905" y="285" width="55" height="121" fill="#2DD4BF" opacity="0.85" rx="4"/>
+<text x="932.5" y="340" fill="#0d0d10" font-size="13" font-family="Inter, sans-serif" text-anchor="middle" font-weight="700">21.9</text>
+
+<text x="662.5" y="430" fill="#e8e8ec" font-size="12" font-family="Inter, sans-serif" text-anchor="middle" font-weight="600">Exp 001</text>
+<text x="857.5" y="430" fill="#e8e8ec" font-size="12" font-family="Inter, sans-serif" text-anchor="middle" font-weight="600">Exp 002</text>
+
+<!-- Legend -->
+<rect x="60" y="474" width="16" height="16" fill="#8a8a9a" opacity="0.6" rx="2"/>
+<text x="84" y="487" fill="#8a8a9a" font-size="13" font-family="Inter, sans-serif" text-anchor="start" font-weight="normal">base model</text>
+<rect x="190" y="474" width="16" height="16" fill="#4ECDC4" opacity="0.85" rx="2"/>
+<text x="214" y="487" fill="#8a8a9a" font-size="13" font-family="Inter, sans-serif" text-anchor="start" font-weight="normal">LoRA Exp 001</text>
+<rect x="340" y="474" width="16" height="16" fill="#2DD4BF" opacity="0.85" rx="2"/>
+<text x="364" y="487" fill="#8a8a9a" font-size="13" font-family="Inter, sans-serif" text-anchor="start" font-weight="normal">LoRA Exp 002</text>
+</svg>

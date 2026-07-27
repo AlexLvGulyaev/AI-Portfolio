@@ -3,29 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Практическая реализация LoRA-дообучения Qwen2.5 для matching-модели HR-ассистента. Четыре эксперимента, датасет-инженерия, production smoke и оптимизация latency.">
-  <title>HR Assistant — LoRA Fine-Tuning — AI Portfolio</title>
+  <meta name="description" content="Исследование замены облачного API с оплатой за inference на собственную локальную модель HR-ассистента с фиксированной инфраструктурой.">
+  <title>HR Assistant — переход от облачного API к собственной модели — AI Portfolio</title>
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
   <style>
-    /* HR Assistant LoRA Fine-Tuning - Scene Navigation */
+    /* HR Assistant LoRA — AI Portfolio Case Page */
 
     :root {
-      /* Accent colors for this case */
       --lora-accent: #14b8a6;
       --lora-accent-soft: rgba(20, 184, 166, 0.15);
       --lora-warm: #f59e0b;
       --lora-cold: #60a5fa;
       --lora-success: #22c55e;
+      --lora-hot: #ef4444;
     }
 
-    /* ============================================
-       CASE NAVIGATION - Tabs with Actions
-       ============================================ */
-
+    /* Scene tabs */
     .scene-tabs {
       background: var(--bg-primary);
       position: sticky;
@@ -49,9 +46,7 @@
       padding-bottom: 0;
     }
 
-    .scene-tabs__nav::-webkit-scrollbar {
-      display: none;
-    }
+    .scene-tabs__nav::-webkit-scrollbar { display: none; }
 
     .scene-tabs__tab {
       padding: var(--space-md) var(--space-lg);
@@ -66,9 +61,7 @@
       transition: all var(--transition-fast);
     }
 
-    .scene-tabs__tab:hover {
-      color: var(--text-secondary);
-    }
+    .scene-tabs__tab:hover { color: var(--text-secondary); }
 
     .scene-tabs__tab--active {
       color: var(--lora-accent);
@@ -93,14 +86,9 @@
       transition: color var(--transition-fast);
     }
 
-    .scene-tabs__back:hover {
-      color: var(--text-primary);
-    }
+    .scene-tabs__back:hover { color: var(--text-primary); }
 
-    .scene-tabs__back svg {
-      width: 16px;
-      height: 16px;
-    }
+    .scene-tabs__back svg { width: 16px; height: 16px; }
 
     .scene-tabs__btn {
       display: inline-flex;
@@ -119,9 +107,7 @@
       color: var(--bg-primary);
     }
 
-    .scene-tabs__btn--primary:hover {
-      background: var(--accent-secondary);
-    }
+    .scene-tabs__btn--primary:hover { background: var(--accent-secondary); }
 
     .scene-tabs__btn--ghost {
       background: var(--bg-secondary);
@@ -134,17 +120,15 @@
       color: var(--text-primary);
     }
 
-    /* ============================================
-       SCENE CONTENT
-       ============================================ */
+    /* Scene content */
+    .scene-content { padding: 0; }
 
-    .scene-content {
+    .scene-content .container {
+      max-width: none;
       padding: 0;
     }
 
-    .scene-panel {
-      display: none;
-    }
+    .scene-panel { display: none; }
 
     .scene-panel--active {
       display: block;
@@ -156,82 +140,88 @@
       to { opacity: 1; }
     }
 
-    .scene-panel__inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: var(--space-sm) var(--space-lg);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: var(--space-sm);
-      min-height: calc(100vh - 64px - 52px - 68px - 16px);
-    }
-
-    /* ============================================
-       ABOUT TAB - Pipeline as focal point
-       ============================================ */
-
-    .about-content {
-      max-width: 1000px;
-      margin: 0 auto;
+    /* Common intro */
+    .scene-intro {
       text-align: center;
+      margin-bottom: var(--space-xl);
     }
 
-    .about-header {
-      margin-bottom: var(--space-lg);
+    .scene-intro__eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--lora-accent);
+      margin-bottom: var(--space-sm);
     }
 
-    .about-header__title {
-      font-size: clamp(2rem, 4vw, 2.5rem);
+    .scene-intro__title {
+      font-size: clamp(1.625rem, 3.2vw, 2.25rem);
       font-weight: 800;
-      line-height: 1.1;
+      line-height: 1.15;
+      margin-bottom: var(--space-sm);
+      color: var(--text-primary);
+    }
+
+    .scene-intro__title-accent { color: var(--lora-accent); }
+
+    .scene-intro__desc {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .scene-section {
+      width: 94vw;
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    /* Metric cards */
+    .metric-row {
+      display: flex;
+      gap: var(--space-md);
+      justify-content: center;
+      flex-wrap: wrap;
       margin-bottom: var(--space-md);
     }
 
-    .about-header__title-accent {
-      color: var(--lora-accent);
+    .metric-card {
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      min-width: 120px;
+      border-top: 3px solid var(--lora-accent);
     }
 
-    .about-header__subtitle {
-      font-size: 1.125rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      max-width: 650px;
-      margin: 0 auto;
-    }
-
-    .about-metrics {
-      display: flex;
-      gap: var(--space-xl);
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: var(--space-lg);
-    }
-
-    .about-metric {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--space-xs);
-    }
-
-    .about-metric__value {
+    .metric-card__value {
       font-family: var(--font-display);
-      font-size: 2rem;
-      font-weight: 700;
+      font-size: 1.625rem;
+      font-weight: 800;
       color: var(--lora-accent);
+      margin-bottom: var(--space-xs);
     }
 
-    .about-metric__label {
-      font-size: 0.875rem;
+    .metric-card__label {
+      font-size: 0.75rem;
       color: var(--text-secondary);
+      line-height: 1.3;
     }
 
+    /* Pipeline */
     .pipeline-container {
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-xl);
-      padding: var(--space-lg);
+      padding: var(--space-md) var(--space-lg);
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .pipeline-title {
@@ -240,7 +230,7 @@
       color: var(--text-tertiary);
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      margin-bottom: var(--space-md);
+      margin-bottom: var(--space-xl);
       text-align: center;
     }
 
@@ -248,7 +238,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: var(--space-sm);
+      gap: var(--space-md);
       flex-wrap: wrap;
     }
 
@@ -260,8 +250,8 @@
     }
 
     .pipeline-node__icon {
-      width: 64px;
-      height: 64px;
+      width: 52px;
+      height: 52px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -270,26 +260,23 @@
       transition: all var(--transition-normal);
     }
 
-    .pipeline-node__icon svg {
-      width: 28px;
-      height: 28px;
-    }
+    .pipeline-node__icon svg { width: 24px; height: 24px; }
 
     .pipeline-node__label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 600;
       color: var(--text-primary);
     }
 
     .pipeline-node__desc {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: var(--text-tertiary);
       text-align: center;
-      max-width: 90px;
+      max-width: 80px;
     }
 
     .pipeline-arrow svg {
-      width: 28px;
+      width: 24px;
       height: 12px;
     }
 
@@ -307,384 +294,46 @@
     .pipeline-arrow--eval { color: #F59E0B; }
     .pipeline-arrow--vllm { color: #229ED9; }
     .pipeline-arrow--api { color: #8B5CF6; }
+    .pipeline-arrow--telegram { color: #22C55E; }
 
-    /* ============================================
-       PROBLEM / WHY LoRA / CONCLUSIONS - Cards
-       ============================================ */
-
-    .scene-intro {
-      text-align: center;
-      margin-bottom: var(--space-md);
-    }
-
-    .scene-intro__title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: var(--space-sm);
-    }
-
-    .scene-intro__desc {
-      font-size: 1.125rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      max-width: 700px;
-      margin: 0 auto;
-    }
-
-    .metric-row {
-      display: flex;
-      gap: var(--space-md);
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .metric-card {
-      padding: var(--space-md) var(--space-lg);
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      text-align: center;
-      min-width: 140px;
-    }
-
-    .metric-card__value {
-      font-family: var(--font-display);
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--lora-accent);
-    }
-
-    .metric-card__label {
-      font-size: 0.875rem;
-      color: var(--text-tertiary);
-      margin-top: var(--space-xs);
-    }
-
-    .info-list {
-      max-width: 800px;
-      margin: 0 auto;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      padding: var(--space-lg);
-    }
-
-    .info-list ul {
-      list-style: none;
-      padding-left: 0;
-    }
-
-    .info-list li {
-      position: relative;
-      padding-left: var(--space-lg);
-      margin-bottom: var(--space-xs);
-      color: var(--text-secondary);
-      line-height: 1.6;
-      font-size: 0.9375rem;
-    }
-
-    .info-list li::before {
-      content: '•';
-      position: absolute;
-      left: 0;
-      color: var(--lora-accent);
-    }
-
-    .info-list strong {
-      color: var(--text-primary);
-    }
-
-    /* ============================================
-       EXPERIMENTS TAB - Timeline cards
-       ============================================ */
-
-    .timeline {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-md);
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .timeline-card {
-      padding: var(--space-md);
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      text-align: left;
-      position: relative;
-      transition: all var(--transition-normal);
-    }
-
-    .timeline-card:hover {
-      border-color: var(--lora-accent);
-      transform: translateY(-2px);
-    }
-
-    .timeline-card__exp {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--lora-accent);
-      margin-bottom: var(--space-xs);
-    }
-
-    .timeline-card__title {
-      font-size: 0.9375rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: var(--space-xs);
-    }
-
-    .timeline-card__desc {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
-      margin-bottom: var(--space-sm);
-    }
-
-    .timeline-card__result {
-      font-size: 0.8125rem;
-      color: var(--text-tertiary);
-      padding-top: var(--space-xs);
-      border-top: 1px solid var(--border-subtle);
-    }
-
-    .timeline-card__result strong {
-      color: var(--text-secondary);
-    }
-
-    /* ============================================
-       VISUAL TAB - Graphs
-       ============================================ */
-
-    .visual-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      padding: var(--space-lg);
-    }
-
-    .visual-card__title {
-      font-size: 1.125rem;
-      font-weight: 700;
-      margin-bottom: var(--space-sm);
-      text-align: center;
-    }
-
-    .visual-card__desc {
-      font-size: 0.9375rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
-      max-width: 700px;
-      margin: 0 auto var(--space-sm);
-      text-align: center;
-    }
-
-    .visual-card__img {
-      display: block;
-      width: 100%;
-      max-height: 320px;
-      height: auto;
-      object-fit: contain;
-      border-radius: var(--radius-md);
-      background: var(--bg-primary);
-    }
-
-    .visual-card__caption {
-      font-size: 0.8125rem;
-      color: var(--text-tertiary);
-      margin-top: var(--space-xs);
-      text-align: center;
-    }
-
-    /* ============================================
-       METRICS TAB - Inline metric toggle
-       ============================================ */
-
-    .metric-toggle {
-      display: inline-flex;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: var(--space-xs);
-      margin: 0 auto var(--space-sm);
-    }
-
-    .metric-toggle__btn {
-      padding: var(--space-sm) var(--space-lg);
-      background: none;
-      border: none;
-      border-radius: var(--radius-sm);
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--text-tertiary);
-      cursor: pointer;
-      transition: all var(--transition-fast);
-      white-space: nowrap;
-    }
-
-    .metric-toggle__btn:hover {
-      color: var(--text-secondary);
-    }
-
-    .metric-toggle__btn--active {
-      background: var(--lora-accent);
-      color: var(--bg-primary);
-    }
-
-    .metric-view {
-      display: none;
-    }
-
-    .metric-view--active {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .metric-view .visual-card__img {
-      max-height: 360px;
-    }
-
-    .metric-view .visual-card {
-      padding: var(--space-md);
-    }
-
-    .metric-view .visual-card__title {
-      font-size: 1rem;
-      margin-bottom: var(--space-xs);
-    }
-
-    .metric-view .visual-card__desc {
-      font-size: 0.875rem;
-      margin-bottom: var(--space-xs);
-    }
-
-    /* ============================================
-       PROBLEM TAB - Before / after answer cards
-       ============================================ */
-
-    .before-after {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--space-md);
-      max-width: 900px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    .answer-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: var(--space-md);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .answer-card--wrong {
-      border-left: 4px solid var(--lq-hot);
-    }
-
-    .answer-card--right {
-      border-left: 4px solid var(--lora-success);
-    }
-
-    .answer-card__badge {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-xs);
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: var(--space-sm);
-    }
-
-    .answer-card--wrong .answer-card__badge { color: var(--lq-hot); }
-    .answer-card--right .answer-card__badge { color: var(--lora-success); }
-
-    .answer-card__context {
-      font-size: 0.9375rem;
-      color: var(--text-tertiary);
-      margin-bottom: var(--space-sm);
-      line-height: 1.5;
-    }
-
-    .answer-card__json {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: var(--space-sm);
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-      font-size: 0.8125rem;
-      line-height: 1.5;
-      color: var(--text-secondary);
-      overflow-x: auto;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .answer-card__json .key { color: var(--text-tertiary); }
-    .answer-card__json .string { color: var(--lq-cold); }
-    .answer-card__json .bool { color: var(--lora-warm); }
-    .answer-card__json .num { color: var(--lora-accent); }
-
-    .mini-metrics {
-      display: flex;
-      gap: var(--space-md);
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .mini-metric {
-      text-align: center;
-      min-width: 100px;
-    }
-
-    .mini-metric__value {
-      font-family: var(--font-display);
-      font-size: 1.375rem;
-      font-weight: 700;
-      color: var(--lora-accent);
-    }
-
-    .mini-metric__label {
-      font-size: 0.8125rem;
-      color: var(--text-tertiary);
-      margin-top: var(--space-xs);
-    }
-
-    /* ============================================
-       WHY LoRA TAB - Cloud vs Local trade-off
-       ============================================ */
-
+    /* Trade-off grid */
     .tradeoff-grid {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
-      gap: var(--space-md);
+      gap: var(--space-lg);
       align-items: stretch;
-      max-width: 900px;
-      margin: 0 auto;
       width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .tradeoff-card {
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: var(--space-md);
+      border-radius: var(--radius-xl);
+      padding: var(--space-lg);
       display: flex;
       flex-direction: column;
     }
 
+    .tradeoff-card--cloud { border-top: 4px solid var(--lora-cold); }
+    .tradeoff-card--local { border-top: 4px solid var(--lora-accent); }
+
     .tradeoff-card__title {
-      font-size: 1rem;
-      font-weight: 600;
+      font-size: 1.0625rem;
+      font-weight: 700;
       text-align: center;
-      margin-bottom: var(--space-sm);
+      margin-bottom: var(--space-xs);
       color: var(--text-primary);
+    }
+
+    .tradeoff-card__subtitle {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      text-align: center;
+      margin-bottom: var(--space-md);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
     .tradeoff-card__list {
@@ -698,20 +347,20 @@
     .tradeoff-card__list li {
       display: flex;
       align-items: flex-start;
-      gap: var(--space-sm);
-      font-size: 0.9375rem;
+      gap: var(--space-xs);
+      font-size: 0.875rem;
       color: var(--text-secondary);
-      line-height: 1.5;
+      line-height: 1.35;
     }
 
     .tradeoff-card__list li svg {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       flex-shrink: 0;
       margin-top: 2px;
     }
 
-    .tradeoff-card--cloud .tradeoff-card__list li svg { color: var(--text-tertiary); }
+    .tradeoff-card--cloud .tradeoff-card__list li svg { color: var(--lora-cold); }
     .tradeoff-card--local .tradeoff-card__list li svg { color: var(--lora-accent); }
 
     .tradeoff-vs {
@@ -721,7 +370,7 @@
       justify-content: center;
       color: var(--text-tertiary);
       font-size: 0.75rem;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.1em;
       gap: var(--space-xs);
@@ -734,58 +383,176 @@
     }
 
     .tradeoff-choice {
-      max-width: 700px;
-      margin: 0 auto;
+      max-width: 800px;
+      margin: var(--space-xl) auto 0;
       text-align: center;
-      font-size: 0.9375rem;
+      font-size: 1rem;
       color: var(--text-secondary);
-      line-height: 1.5;
+      line-height: 1.6;
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md) var(--space-xl);
+      border-left: 4px solid var(--lora-accent);
     }
 
-    /* ============================================
-       EXPERIMENTS TAB - Connected timeline
-       ============================================ */
+    /* Before/after cards */
+    .before-after {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+      width: 100%;
+      margin: 0 auto;
+    }
 
+    .answer-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .answer-card--wrong { border-left: 4px solid var(--lora-hot); }
+    .answer-card--right { border-left: 4px solid var(--lora-success); }
+
+    .answer-card__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-md);
+    }
+
+    .answer-card--wrong .answer-card__badge { color: var(--lora-hot); }
+    .answer-card--right .answer-card__badge { color: var(--lora-success); }
+
+    .answer-card__context {
+      font-size: 0.875rem;
+      color: var(--text-tertiary);
+      margin-bottom: var(--space-sm);
+      line-height: 1.35;
+    }
+
+    .answer-card__json {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: var(--space-sm);
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 0.75rem;
+      line-height: 1.45;
+      color: var(--text-secondary);
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .answer-card__json .key { color: var(--text-tertiary); }
+    .answer-card__json .string { color: var(--lora-cold); }
+    .answer-card__json .bool { color: var(--lora-warm); }
+    .answer-card__json .num { color: var(--lora-accent); }
+
+    /* Info list */
+    .info-list {
+      max-width: 800px;
+      margin: var(--space-xl) auto 0;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+    }
+
+    .info-list ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .info-list li {
+      position: relative;
+      padding-left: var(--space-lg);
+      margin-bottom: var(--space-sm);
+      color: var(--text-secondary);
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    .info-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.5em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--lora-accent);
+    }
+
+    .info-list strong { color: var(--text-primary); font-weight: 600; }
+
+    /* Timeline */
     .timeline {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: var(--space-md);
       max-width: 1100px;
       margin: 0 auto;
-      position: relative;
     }
 
     .timeline-card {
-      padding: var(--space-md);
+      padding: var(--space-lg);
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
       text-align: left;
       position: relative;
       transition: all var(--transition-normal);
+      border-top: 3px solid var(--border-subtle);
     }
 
     .timeline-card:hover {
-      border-color: var(--lora-accent);
+      border-color: var(--border-default);
       transform: translateY(-2px);
     }
 
+    .timeline-card--fail { border-top-color: var(--lora-hot); }
+    .timeline-card--partial { border-top-color: var(--lora-warm); }
+    .timeline-card--pass { border-top-color: var(--lora-success); }
+
+    .timeline-card__status {
+      position: absolute;
+      top: var(--space-md);
+      right: var(--space-md);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .timeline-card__status--fail { background: rgba(239, 68, 68, 0.15); color: var(--lora-hot); }
+    .timeline-card__status--partial { background: rgba(245, 158, 11, 0.15); color: var(--lora-warm); }
+    .timeline-card__status--pass { background: rgba(34, 197, 94, 0.15); color: var(--lora-success); }
+
     .timeline-card__exp {
       font-size: 0.75rem;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       color: var(--lora-accent);
       margin-bottom: var(--space-xs);
     }
 
     .timeline-card__title {
-      font-size: 0.9375rem;
-      font-weight: 600;
+      font-size: 1rem;
+      font-weight: 700;
       color: var(--text-primary);
       margin-bottom: var(--space-xs);
     }
@@ -794,60 +561,109 @@
       font-size: 0.875rem;
       color: var(--text-secondary);
       line-height: 1.5;
-      margin-bottom: var(--space-sm);
+      margin-bottom: var(--space-md);
     }
 
     .timeline-card__result {
       font-size: 0.8125rem;
       color: var(--text-tertiary);
-      padding-top: var(--space-xs);
+      padding-top: var(--space-sm);
       border-top: 1px solid var(--border-subtle);
+      line-height: 1.5;
     }
 
-    .timeline-card__result strong {
+    .timeline-card__result strong { color: var(--text-secondary); }
+
+    .timeline-card__business {
+      font-size: 0.8125rem;
+      color: var(--lora-accent);
+      margin-top: var(--space-sm);
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    /* Visual cards */
+    .visual-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      margin-bottom: var(--space-xl);
+    }
+
+    .visual-card__title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: var(--space-sm);
+      text-align: center;
+      color: var(--text-primary);
+    }
+
+    .visual-card__desc {
+      font-size: 1rem;
       color: var(--text-secondary);
+      line-height: 1.6;
+      max-width: 750px;
+      margin: 0 auto var(--space-lg);
+      text-align: center;
     }
 
-    .timeline-card__status {
-      position: absolute;
-      top: var(--space-md);
-      right: var(--space-md);
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
+    .visual-card__img {
+      display: block;
+      width: 100%;
+      max-height: 360px;
+      height: auto;
+      object-fit: contain;
+      border-radius: var(--radius-md);
+      background: var(--bg-primary);
+    }
+
+    .visual-card__caption {
+      font-size: 0.8125rem;
+      color: var(--text-tertiary);
+      margin-top: var(--space-sm);
+      text-align: center;
+    }
+
+    /* Toggle */
+    .metric-toggle {
       display: flex;
-      align-items: center;
       justify-content: center;
-      font-size: 0.75rem;
+      gap: var(--space-xs);
+      margin-bottom: var(--space-md);
     }
 
-    .timeline-card__status--fail {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--lq-hot);
+    .metric-toggle__btn {
+      padding: var(--space-sm) var(--space-lg);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
     }
 
-    .timeline-card__status--partial {
-      background: rgba(245, 158, 11, 0.15);
-      color: var(--lora-warm);
+    .metric-toggle__btn:hover { color: var(--text-secondary); }
+
+    .metric-toggle__btn--active {
+      background: var(--lora-accent);
+      color: var(--bg-primary);
+      border-color: var(--lora-accent);
     }
 
-    .timeline-card__status--pass {
-      background: rgba(34, 197, 94, 0.15);
-      color: var(--lora-success);
-    }
+    .metric-view { display: none; width: 100%; }
+    .metric-view--active { display: block; width: 100%; animation: fadeIn 0.3s ease; }
 
-    /* ============================================
-       DATASET TAB - Dataset transition flow
-       ============================================ */
-
+    /* Dataset transition */
     .dataset-transition {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       gap: var(--space-sm);
-      max-width: 900px;
-      margin: 0 auto;
-      width: 100%;
+      margin: var(--space-sm) 0 var(--space-md);
     }
 
     .dataset-step {
@@ -855,29 +671,32 @@
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      padding: var(--space-md);
+      padding: var(--space-xs) var(--space-sm);
       text-align: center;
       position: relative;
+      border-top: 3px solid var(--lora-accent);
+      min-width: 0;
     }
 
     .dataset-step__size {
       font-family: var(--font-display);
-      font-size: 1.75rem;
+      font-size: 1.5rem;
       font-weight: 800;
       color: var(--lora-accent);
       margin-bottom: var(--space-xs);
     }
 
     .dataset-step__label {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary);
       margin-bottom: var(--space-xs);
     }
 
     .dataset-step__mix {
-      font-size: 0.8125rem;
+      font-size: 0.6875rem;
       color: var(--text-tertiary);
-      line-height: 1.4;
+      line-height: 1.35;
     }
 
     .dataset-connector {
@@ -885,145 +704,540 @@
       flex-direction: column;
       align-items: center;
       gap: var(--space-xs);
-      min-width: 80px;
+      min-width: 60px;
+      flex-shrink: 0;
     }
 
-    .dataset-connector__arrow {
-      color: var(--lora-accent);
-      display: flex;
-      align-items: center;
-    }
-
-    .dataset-connector__arrow svg {
-      width: 32px;
-      height: 12px;
-    }
+    .dataset-connector__arrow { color: var(--lora-accent); }
+    .dataset-connector__arrow svg { width: 32px; height: 12px; }
 
     .dataset-connector__label {
       font-size: 0.8125rem;
       font-weight: 600;
       color: var(--text-secondary);
       text-align: center;
-      white-space: nowrap;
+      line-height: 1.4;
     }
 
-    /* ============================================
-       CONCLUSIONS TAB - Three columns
-       ============================================ */
-
+    /* Conclusion grid */
     .conclusion-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-md);
+      gap: var(--space-lg);
       max-width: 1100px;
       margin: 0 auto;
     }
 
     .conclusion-card {
-      padding: var(--space-md);
+      padding: var(--space-xl);
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      border-left: 4px solid;
+      border-radius: var(--radius-xl);
+      border-top: 4px solid;
     }
 
-    .conclusion-card--proven {
-      border-left-color: var(--lora-success);
-    }
-
-    .conclusion-card--partial {
-      border-left-color: var(--lora-warm);
-    }
-
-    .conclusion-card--next {
-      border-left-color: var(--lora-cold);
-    }
+    .conclusion-card--proven { border-top-color: var(--lora-success); }
+    .conclusion-card--partial { border-top-color: var(--lora-warm); }
+    .conclusion-card--next { border-top-color: var(--lora-cold); }
 
     .conclusion-card__icon {
-      font-size: 1.125rem;
-      margin-bottom: var(--space-xs);
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-md);
+      font-size: 1.25rem;
     }
 
+    .conclusion-card--proven .conclusion-card__icon { background: rgba(34, 197, 94, 0.1); }
+    .conclusion-card--partial .conclusion-card__icon { background: rgba(245, 158, 11, 0.1); }
+    .conclusion-card--next .conclusion-card__icon { background: rgba(96, 165, 250, 0.1); }
+
     .conclusion-card__title {
-      font-size: 0.9375rem;
-      font-weight: 600;
-      margin-bottom: var(--space-xs);
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: var(--space-sm);
       color: var(--text-primary);
     }
 
     .conclusion-card__text {
       font-size: 0.9375rem;
       color: var(--text-secondary);
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
-    /* ============================================
-       TECH STACK
-       ============================================ */
+    /* Comparison hero */
+    .comparison-hero {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-md);
+      width: 100%;
+      margin: 0 auto var(--space-md);
+    }
 
+    .comparison-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-md);
+      text-align: center;
+    }
+
+    .comparison-card--lora {
+      border-color: var(--lora-accent);
+      background: rgba(20, 184, 166, 0.05);
+    }
+
+    .comparison-card--gpt {
+      border-color: var(--lora-cold);
+      background: rgba(96, 165, 250, 0.05);
+    }
+
+    .comparison-card__label {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-tertiary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .comparison-card__name {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: var(--space-xs);
+      color: var(--text-primary);
+    }
+
+    .comparison-card__metric {
+      font-family: var(--font-display);
+      font-size: 2.25rem;
+      font-weight: 800;
+      margin-bottom: var(--space-xs);
+    }
+
+    .comparison-card--lora .comparison-card__metric { color: var(--lora-accent); }
+    .comparison-card--gpt .comparison-card__metric { color: var(--lora-cold); }
+
+    .comparison-card__caption {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .comparison-vs {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-tertiary);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      gap: var(--space-xs);
+    }
+
+    .comparison-vs svg {
+      width: 28px;
+      height: 28px;
+      color: var(--lora-accent);
+    }
+
+    .comparison-takeaway {
+      margin: 0 auto;
+      text-align: center;
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-md);
+      border-left: 4px solid var(--lora-accent);
+      border-right: 4px solid var(--lora-accent);
+    }
+
+    .comparison-takeaway strong { color: var(--text-primary); }
+
+    /* Tech grid */
     .tech-grid {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
-      gap: var(--space-sm);
-      max-width: 900px;
-      margin: var(--space-md) auto 0;
+      justify-content: flex-start;
+      gap: var(--space-xs);
+      max-width: 100%;
+      margin-top: var(--space-sm);
     }
 
     .tech-item {
       display: flex;
       align-items: center;
-      gap: var(--space-sm);
-      padding: var(--space-xs) var(--space-md);
+      gap: var(--space-xs);
+      padding: var(--space-xs) var(--space-sm);
       background: var(--bg-tertiary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
-      font-size: 0.875rem;
+      font-size: 0.6875rem;
       color: var(--text-secondary);
     }
 
     .tech-item svg {
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       color: var(--lora-accent);
       flex-shrink: 0;
     }
 
-    /* ============================================
-       RESPONSIVE
-       ============================================ */
+    /* Inline section note */
+    .section-note {
+      margin: var(--space-md) auto 0;
+      padding: var(--space-sm) var(--space-md);
+      background: rgba(20, 184, 166, 0.05);
+      border: 1px solid rgba(20, 184, 166, 0.2);
+      border-radius: var(--radius-lg);
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      text-align: center;
+      max-width: 900px;
+    }
 
+    .section-note strong { color: var(--lora-accent); }
+
+    /* =====================================================
+       Viewport-aware one-screen scenes (HRA LoRA only)
+       ===================================================== */
+
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 90;
+    }
+
+    .main {
+      padding-bottom: 68px;
+    }
+
+    .scene-panel {
+      display: none;
+    }
+
+    .scene-panel--active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 64px - 52px - 68px);
+      padding: var(--space-sm) 0;
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* Scene split: text left, visual right */
+    .scene-split {
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: var(--space-xl);
+      align-items: center;
+      width: 100%;
+    }
+
+    .scene-split--wide-viz {
+      grid-template-columns: 1fr 1.35fr;
+    }
+
+    .scene-split--text-heavy {
+      grid-template-columns: 1fr 1.35fr;
+    }
+
+    .scene-text-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-width: 0;
+    }
+
+    .scene-viz-col {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .scene-intro--left {
+      text-align: left;
+      align-items: flex-start;
+      margin-bottom: var(--space-md);
+    }
+
+    .scene-intro--left .scene-intro__desc {
+      margin: 0;
+      max-width: none;
+    }
+
+    .metric-row--left {
+      justify-content: flex-start;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-sm);
+    }
+
+    .metric-row--left .metric-card {
+      min-width: auto;
+      padding: var(--space-xs) var(--space-sm);
+    }
+
+    .metric-row--left .metric-card__value {
+      font-size: 1.5rem;
+    }
+
+    .metric-row--left .metric-card__label {
+      font-size: 0.75rem;
+      white-space: nowrap;
+      line-height: 1.25;
+    }
+
+    /* Visual panel (dark frame around chart) */
+    .viz-panel {
+      width: 100%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-sm);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .viz-panel__img {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      max-height: 64vh;
+      height: auto;
+      object-fit: contain;
+      border-radius: var(--radius-md);
+      background: var(--bg-primary);
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .viz-panel__caption {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      margin-top: var(--space-xs);
+      text-align: center;
+      line-height: 1.45;
+    }
+
+    /* Inline viz without panel frame */
+    .viz-inline {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      max-height: 70vh;
+      height: auto;
+      object-fit: contain;
+      border-radius: var(--radius-md);
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .viz-caption {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      margin-top: var(--space-xs);
+      text-align: center;
+      line-height: 1.45;
+    }
+
+    /* Timeline as 2x2 grid */
+    .timeline-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-xs);
+    }
+
+    .timeline-grid .timeline-card {
+      padding: var(--space-xs) var(--space-sm);
+    }
+
+    .timeline-grid .timeline-card__exp {
+      font-size: 0.65rem;
+      margin-bottom: 2px;
+    }
+
+    .timeline-grid .timeline-card__title {
+      font-size: 0.78rem;
+      margin-bottom: 2px;
+    }
+
+    .timeline-grid .timeline-card__result {
+      font-size: 0.7rem;
+      padding-top: var(--space-xs);
+      border-top: none;
+    }
+
+    /* Compact inline lists for left column */
+    .compact-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      margin-top: var(--space-md);
+      max-width: none;
+    }
+
+    .compact-list li {
+      position: relative;
+      padding-left: var(--space-md);
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .compact-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--lora-accent);
+    }
+
+    .compact-list strong { color: var(--text-primary); font-weight: 600; }
+
+    /* Wide scene: text on top, wide visual below */
+    .scene-wide {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xl);
+    }
+
+    .scene-wide .scene-intro {
+      margin-bottom: 0;
+    }
+
+    .scene-wide .viz-panel__img {
+      max-height: 52vh;
+    }
+
+    .conclusion-grid--stack {
+      grid-template-columns: 1fr;
+      gap: var(--space-xs);
+      margin-bottom: var(--space-sm);
+    }
+
+    .conclusion-grid--stack .conclusion-card {
+      padding: var(--space-xs) var(--space-sm);
+    }
+
+    .conclusion-grid--stack .conclusion-card__title {
+      font-size: 0.9375rem;
+      margin-bottom: 2px;
+    }
+
+    .conclusion-grid--stack .conclusion-card__text {
+      font-size: 0.8125rem;
+      line-height: 1.35;
+    }
+
+    .conclusion-grid--stack .conclusion-card__icon {
+      width: 28px;
+      height: 28px;
+      font-size: 0.875rem;
+      margin-bottom: 2px;
+    }
+
+    /* Compact timeline row */
+    .timeline-compact {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+
+    .timeline-compact .timeline-card {
+      padding: var(--space-md);
+    }
+
+    .timeline-compact .timeline-card__title {
+      font-size: 0.875rem;
+    }
+
+    .timeline-compact .timeline-card__desc {
+      font-size: 0.75rem;
+    }
+
+    .timeline-compact .timeline-card__result {
+      font-size: 0.75rem;
+    }
+
+    .timeline-compact .timeline-card__business {
+      display: none;
+    }
+
+    /* Centered scenes (about, why-lora) */
+    .scene-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .scene-center .scene-intro__desc {
+      margin: 0 auto;
+    }
+
+    .scene-center .scene-intro {
+      margin-bottom: var(--space-md);
+    }
+
+    .scene-center .metric-row {
+      margin-bottom: var(--space-md);
+    }
+
+    .scene-center .pipeline-container {
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* Responsive */
     @media (max-width: 1024px) {
-      .timeline {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .conclusion-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
+      .scene-section { width: 95vw; }
+      .scene-split,
+      .scene-split--wide-viz,
+      .scene-split--text-heavy { grid-template-columns: 1fr; gap: var(--space-lg); }
+      .viz-panel__img,
+      .viz-inline { max-height: 50vh; }
+      .timeline { grid-template-columns: repeat(2, 1fr); }
+      .timeline-grid { grid-template-columns: 1fr; }
+      .conclusion-grid { grid-template-columns: repeat(2, 1fr); }
+      .conclusion-grid--stack { grid-template-columns: 1fr; }
       .before-after,
-      .tradeoff-grid {
-        grid-template-columns: 1fr;
-      }
-
+      .tradeoff-grid { grid-template-columns: 1fr; }
       .tradeoff-vs {
         flex-direction: row;
         padding: var(--space-sm) 0;
       }
-
-      .dataset-transition {
-        flex-direction: column;
-      }
-
+      .dataset-transition { flex-direction: column; }
       .dataset-connector {
         flex-direction: row;
         min-width: auto;
       }
-
-      .dataset-connector__arrow svg {
-        transform: rotate(90deg);
-      }
+      .dataset-connector__arrow svg { transform: rotate(90deg); }
+      .comparison-hero { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 768px) {
@@ -1032,12 +1246,10 @@
         gap: var(--space-sm);
         padding: var(--space-sm) var(--space-md);
       }
-
       .scene-tabs__nav {
         width: 100%;
         order: 2;
       }
-
       .scene-tabs__actions {
         width: 100%;
         justify-content: flex-start;
@@ -1046,66 +1258,32 @@
         flex-wrap: wrap;
         gap: var(--space-xs);
       }
-
       .scene-tabs__tab {
         padding: var(--space-sm) var(--space-md);
         font-size: 0.875rem;
       }
-
       .scene-tabs__btn {
         flex: 1;
         justify-content: center;
         min-width: 80px;
       }
-
-      .scene-content {
-        min-height: auto;
-      }
-
-      .scene-panel__inner {
-        padding: 0 var(--space-md);
-      }
-
-      .timeline {
-        grid-template-columns: 1fr;
-      }
-
-      .conclusion-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .mini-metrics {
-        gap: var(--space-sm);
-      }
-
-      .answer-card__json {
-        font-size: 0.65rem;
-      }
-
-      .pipeline-flow {
-        flex-direction: column;
-        gap: var(--space-md);
-      }
-
-      .pipeline-arrow {
-        transform: rotate(90deg);
-      }
-
-      .visual-card__img {
-        max-height: 280px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .about-metrics,
-      .metric-row {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .metric-card {
-        width: 100%;
-      }
+      .timeline { grid-template-columns: 1fr; }
+      .conclusion-grid { grid-template-columns: 1fr; }
+      .metric-row { flex-direction: column; align-items: center; }
+      .metric-card { width: 100%; }
+      .pipeline-flow { flex-direction: column; gap: var(--space-md); }
+      .pipeline-arrow { transform: rotate(90deg); }
+      .visual-card__img { max-height: 280px; }
+      .answer-card__json { font-size: 0.7rem; }
+      .scene-section { width: 100%; padding: 0 var(--space-md); }
+      .scene-split,
+      .scene-split--wide-viz,
+      .scene-split--text-heavy { grid-template-columns: 1fr; gap: var(--space-xl); }
+      .scene-panel--active { min-height: auto; padding: var(--space-xl) 0; }
+      .viz-panel__img,
+      .viz-inline { max-height: 45vh; }
+      .timeline-compact { grid-template-columns: repeat(2, 1fr); }
+      .timeline-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -1133,8 +1311,8 @@
         <div class="scene-tabs__inner">
           <div class="scene-tabs__nav">
             <button class="scene-tabs__tab scene-tabs__tab--active" data-tab="about">О проекте</button>
-            <button class="scene-tabs__tab" data-tab="problem">Проблема</button>
             <button class="scene-tabs__tab" data-tab="why-lora">Почему LoRA</button>
+            <button class="scene-tabs__tab" data-tab="problem">Проблема</button>
             <button class="scene-tabs__tab" data-tab="experiments">Эксперименты</button>
             <button class="scene-tabs__tab" data-tab="metrics">Метрики</button>
             <button class="scene-tabs__tab" data-tab="validation">Валидация</button>
@@ -1149,8 +1327,8 @@
               </svg>
               Все проекты
             </a>
-            <a href="#" class="scene-tabs__btn scene-tabs__btn--ghost">GitHub</a>
-            <a href="#" class="scene-tabs__btn scene-tabs__btn--primary">Демо</a>
+            <a href="https://github.com/ai-automation-portfolio-lab/hr-assistant" target="_blank" rel="noopener noreferrer" class="scene-tabs__btn scene-tabs__btn--ghost">GitHub</a>
+            <a href="https://hra-lora.alex-n8n.site/" target="_blank" rel="noopener noreferrer" class="scene-tabs__btn scene-tabs__btn--primary">Демо</a>
           </div>
         </div>
       </nav>
@@ -1161,242 +1339,141 @@
 
           <!-- About scene -->
           <div class="scene-panel scene-panel--active" data-panel="about">
-            <div class="scene-panel__inner">
-              <div class="about-content">
-                <div class="about-header">
-                  <h1 class="about-header__title">
-                    <span class="about-header__title-accent">HR Assistant</span> — LoRA Fine-Tuning
-                  </h1>
-                  <p class="about-header__subtitle">
-                    Практическая реализация LoRA-дообучения Qwen2.5 для matching-модели HR-ассистента. Четыре эксперимента показали, что инженерия датасета важнее тюнинга адаптера.
-                  </p>
-                </div>
-
-                <div class="about-metrics">
-                  <div class="about-metric">
-                    <span class="about-metric__value">4</span>
-                    <span class="about-metric__label">эксперимента</span>
-                  </div>
-                  <div class="about-metric">
-                    <span class="about-metric__value">93.1%</span>
-                    <span class="about-metric__label">decision accuracy</span>
-                  </div>
-                  <div class="about-metric">
-                    <span class="about-metric__value">~1.6с</span>
-                    <span class="about-metric__label">latency после vLLM</span>
-                  </div>
-                </div>
-
-                <div class="pipeline-container">
-                  <div class="pipeline-title">Конвейер проекта</div>
-                  <div class="pipeline-flow">
-                    <div class="pipeline-node pipeline-node--dataset">
-                      <div class="pipeline-node__icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                          <ellipse cx="12" cy="6" rx="9" ry="3"/>
-                          <path d="M3 6v6c0 3 4 5 9 5s9-2 9-5V6"/>
-                          <path d="M3 12v6c0 3 4 5 9 5s9-2 9-5v-6"/>
-                        </svg>
-                      </div>
-                      <span class="pipeline-node__label">Teacher Dataset</span>
-                      <span class="pipeline-node__desc">90→123→162</span>
-                    </div>
-
-                    <div class="pipeline-arrow pipeline-arrow--dataset">
-                      <svg viewBox="0 0 32 12" fill="none">
-                        <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </div>
-
-                    <div class="pipeline-node pipeline-node--split">
-                      <div class="pipeline-node__icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                          <rect x="4" y="4" width="16" height="16" rx="2"/>
-                          <path d="M4 9H20M9 4V20"/>
-                        </svg>
-                      </div>
-                      <span class="pipeline-node__label">Split</span>
-                      <span class="pipeline-node__desc">train/val/test</span>
-                    </div>
-
-                    <div class="pipeline-arrow pipeline-arrow--split">
-                      <svg viewBox="0 0 32 12" fill="none">
-                        <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </div>
-
-                    <div class="pipeline-node pipeline-node--lora">
-                      <div class="pipeline-node__icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                          <path d="M12 2L4 6v6c0 4.4 3.4 8.4 8 10 4.6-1.6 8-5.6 8-10V6l-8-4z"/>
-                          <circle cx="12" cy="11" r="3"/>
-                          <path d="M12 14v4"/>
-                        </svg>
-                      </div>
-                      <span class="pipeline-node__label">LoRA</span>
-                      <span class="pipeline-node__desc">r=16, α=32</span>
-                    </div>
-
-                    <div class="pipeline-arrow pipeline-arrow--lora">
-                      <svg viewBox="0 0 32 12" fill="none">
-                        <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </div>
-
-                    <div class="pipeline-node pipeline-node--eval">
-                      <div class="pipeline-node__icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                          <path d="M9 11l3 3L22 4"/>
-                          <circle cx="12" cy="12" r="10"/>
-                        </svg>
-                      </div>
-                      <span class="pipeline-node__label">Eval</span>
-                      <span class="pipeline-node__desc">offline + smoke</span>
-                    </div>
-
-                    <div class="pipeline-arrow pipeline-arrow--eval">
-                      <svg viewBox="0 0 32 12" fill="none">
-                        <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </div>
-
-                    <div class="pipeline-node pipeline-node--vllm">
-                      <div class="pipeline-node__icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                          <path d="M13 2L4 7v10c0 5 4 5 8 5s8 0 8-5V7l-9-5z"/>
-                          <path d="M12 7v10M8 9l8 6M8 15l8-6"/>
-                        </svg>
-                      </div>
-                      <span class="pipeline-node__label">vLLM</span>
-                      <span class="pipeline-node__desc"> inference</span>
-                    </div>
-
-                    <div class="pipeline-arrow pipeline-arrow--vllm">
-                      <svg viewBox="0 0 32 12" fill="none">
-                        <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </div>
-
-                    <div class="pipeline-node pipeline-node--api">
-                      <div class="pipeline-node__icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                          <path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7 0l-3 3"/>
-                          <path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 0l3-3"/>
-                        </svg>
-                      </div>
-                      <span class="pipeline-node__label">FastAPI</span>
-                      <span class="pipeline-node__desc">production API</span>
-                    </div>
-
-                    <div class="pipeline-arrow pipeline-arrow--api">
-                      <svg viewBox="0 0 32 12" fill="none">
-                        <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </div>
-
-                    <div class="pipeline-node pipeline-node--telegram">
-                      <div class="pipeline-node__icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                          <path d="M21 5L2 12l9 3 3 9 7-19z"/>
-                        </svg>
-                      </div>
-                      <span class="pipeline-node__label">Telegram</span>
-                      <span class="pipeline-node__desc">channel</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Problem scene -->
-          <div class="scene-panel" data-panel="problem">
-            <div class="scene-panel__inner">
+            <div class="scene-section scene-center">
               <div class="scene-intro">
-                <h2 class="scene-intro__title">Валидный JSON ещё не значит правильный ответ</h2>
+                <div class="scene-intro__eyebrow">Исследование инфраструктурной замены</div>
+                <h1 class="scene-intro__title">
+                  <span class="scene-intro__title-accent">HR Assistant</span> — от облачного API к собственной модели
+                </h1>
                 <p class="scene-intro__desc">
-                  Базовая модель выдавала корректный JSON, но принимала плохие matching-решения. Формат выучен; смысл — нет.
+                  Замена облачного API с оплатой за inference на локальную модель на фиксированной инфраструктуре — без критической потери качества HR-matching.
                 </p>
               </div>
 
-              <div class="before-after">
-                <div class="answer-card answer-card--wrong">
-                  <div class="answer-card__badge">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                    Base model
-                  </div>
-                  <div class="answer-card__context">
-                    Врач подаёт резюме на вакансию Prompt Engineer.
-                  </div>
-                  <div class="answer-card__json">{
-  <span class="key">"match"</span>: <span class="bool">true</span>,
-  <span class="key">"score"</span>: <span class="num">72</span>,
-  <span class="key">"reasoning"</span>: <span class="string">"Кандидат имеет технический бэкграунд"</span>
-}</div>
+              <div class="metric-row">
+                <div class="metric-card">
+                  <div class="metric-card__value">93.1%</div>
+                  <div class="metric-card__label">decision accuracy LoRA<br>на внешней выборке</div>
                 </div>
-
-                <div class="answer-card answer-card--right">
-                  <div class="answer-card__badge">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg>
-                    Правильный ответ
-                  </div>
-                  <div class="answer-card__context">
-                    Та же пара кандидат–вакансия после дообучения.
-                  </div>
-                  <div class="answer-card__json">{
-  <span class="key">"match"</span>: <span class="bool">false</span>,
-  <span class="key">"score"</span>: <span class="num">12</span>,
-  <span class="key">"reasoning"</span>: <span class="string">"Роль и опыт не пересекаются"</span>
-}</div>
+                <div class="metric-card">
+                  <div class="metric-card__value">~1.6с</div>
+                  <div class="metric-card__label">latency после vLLM<br>на собственном железе</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-card__value">162</div>
+                  <div class="metric-card__label">записей в финальном<br>teacher dataset</div>
                 </div>
               </div>
 
-              <div class="mini-metrics">
-                <div class="mini-metric">
-                  <div class="mini-metric__value">44%</div>
-                  <div class="mini-metric__label">Decision accuracy base</div>
-                </div>
-                <div class="mini-metric">
-                  <div class="mini-metric__value">100%</div>
-                  <div class="mini-metric__label">Valid JSON rate</div>
-                </div>
-                <div class="mini-metric">
-                  <div class="mini-metric__value">38.8</div>
-                  <div class="mini-metric__label">MAE score base</div>
+              <div class="pipeline-container">
+                <div class="pipeline-title">Контур исследования: от business-вопроса к проверке</div>
+                <div class="pipeline-flow">
+                  <div class="pipeline-node pipeline-node--dataset">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <ellipse cx="12" cy="6" rx="9" ry="3"/>
+                        <path d="M3 6v6c0 3 4 5 9 5s9-2 9-5V6"/>
+                        <path d="M3 12v6c0 3 4 5 9 5s9-2 9-5v-6"/>
+                      </svg>
+                    </div>
+                    <span class="pipeline-node__label">Teacher Dataset</span>
+                    <span class="pipeline-node__desc">90→123→162</span>
+                  </div>
+                  <div class="pipeline-arrow pipeline-arrow--dataset">
+                    <svg viewBox="0 0 32 12" fill="none">
+                      <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="pipeline-node pipeline-node--lora">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M12 2L4 6v6c0 4.4 3.4 8.4 8 10 4.6-1.6 8-5.6 8-10V6l-8-4z"/>
+                        <circle cx="12" cy="11" r="3"/>
+                        <path d="M12 14v4"/>
+                      </svg>
+                    </div>
+                    <span class="pipeline-node__label">LoRA</span>
+                    <span class="pipeline-node__desc">Qwen 1.5B</span>
+                  </div>
+                  <div class="pipeline-arrow pipeline-arrow--lora">
+                    <svg viewBox="0 0 32 12" fill="none">
+                      <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="pipeline-node pipeline-node--eval">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M9 11l3 3L22 4"/>
+                        <circle cx="12" cy="12" r="10"/>
+                      </svg>
+                    </div>
+                    <span class="pipeline-node__label">Eval</span>
+                    <span class="pipeline-node__desc">offline + smoke</span>
+                  </div>
+                  <div class="pipeline-arrow pipeline-arrow--eval">
+                    <svg viewBox="0 0 32 12" fill="none">
+                      <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="pipeline-node pipeline-node--vllm">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M13 2L4 7v10c0 5 4 5 8 5s8 0 8-5V7l-9-5z"/>
+                        <path d="M12 7v10M8 9l8 6M8 15l8-6"/>
+                      </svg>
+                    </div>
+                    <span class="pipeline-node__label">vLLM</span>
+                    <span class="pipeline-node__desc">inference</span>
+                  </div>
+                  <div class="pipeline-arrow pipeline-arrow--vllm">
+                    <svg viewBox="0 0 32 12" fill="none">
+                      <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="pipeline-node pipeline-node--api">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7 0l-3 3"/>
+                        <path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 0l3-3"/>
+                      </svg>
+                    </div>
+                    <span class="pipeline-node__label">FastAPI</span>
+                    <span class="pipeline-node__desc">production API</span>
+                  </div>
                 </div>
               </div>
 
-              <div class="info-list">
-                <ul>
-                  <li><strong>Формат ≠ смысл.</strong> Модель быстро выучила JSON-шаблон, но не логику matching-решений.</li>
-                  <li><strong>Loss — не целевая метрика.</strong> Validation loss не предсказывал качество бизнес-решений.</li>
-                  <li><strong>Нужен контролируемый датасет.</strong> Teacher labels должны отражать реальные критерии matching.</li>
-                </ul>
+              <div class="section-note" style="padding: var(--space-xs) var(--space-md); font-size: 0.875rem; margin-top: var(--space-md);">
+                Проект про переход от переменных расходов на облачный API к предсказуемой собственной инфраструктуре. LoRA — инструмент проверки.
               </div>
             </div>
           </div>
 
           <!-- Why LoRA scene -->
           <div class="scene-panel" data-panel="why-lora">
-            <div class="scene-panel__inner">
+            <div class="scene-section scene-center">
               <div class="scene-intro">
-                <h2 class="scene-intro__title">Почему LoRA, а не облачный API</h2>
+                <div class="scene-intro__eyebrow">Бизнес-мотивация</div>
+                <h2 class="scene-intro__title">
+                  Почему вообще думать о <span class="scene-intro__title-accent">собственной модели</span>?
+                </h2>
                 <p class="scene-intro__desc">
-                  Локальный адаптер даёт контроль над данными и итеративность. Скорость и экономия — не начальные преимущества, а области для последующей работы.
+                  Production-модель HR Assistant работала на облачном API. Каждый inference оплачивался отдельно. Масштабирование означало рост переменных расходов и зависимость от внешнего провайдера.
                 </p>
               </div>
 
               <div class="tradeoff-grid">
                 <div class="tradeoff-card tradeoff-card--cloud">
                   <div class="tradeoff-card__title">Облачный API</div>
+                  <div class="tradeoff-card__subtitle">per-token</div>
                   <ul class="tradeoff-card__list">
                     <li>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
-                      Быстрый inference
+                      Быстрый старт без собственной инфраструктуры
                     </li>
                     <li>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
-                      Меньше инфраструктуры
+                      Расходы растут с нагрузкой: платишь за каждый запрос
                     </li>
                     <li>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
@@ -1404,7 +1481,7 @@
                     </li>
                     <li>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
-                      Меньше контроля над поведением
+                      Меньше контроля над поведением и latency
                     </li>
                   </ul>
                 </div>
@@ -1416,6 +1493,7 @@
 
                 <div class="tradeoff-card tradeoff-card--local">
                   <div class="tradeoff-card__title">Local LoRA</div>
+                  <div class="tradeoff-card__subtitle">fixed infrastructure</div>
                   <ul class="tradeoff-card__list">
                     <li>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
@@ -1423,106 +1501,185 @@
                     </li>
                     <li>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                      Контроль overfitting и гиперпараметров
+                      Предсказуемые расходы, не зависящие от количества запросов
                     </li>
                     <li>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                      Быстрые итерации датасета (~3 мин)
+                      Быстрые итерации под свой домен (~3 мин на пересборку)
                     </li>
                     <li>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                      Inference требует оптимизации
+                      Инженерный контроль overfitting и quality gates
                     </li>
                   </ul>
                 </div>
               </div>
 
               <div class="tradeoff-choice">
-                Выбор: локальный LoRA-адаптер над Qwen2.5-1.5B с фиксированными гиперпараметрами, чтобы единственной переменной оставался состав teacher dataset.
+                Исследовательский вопрос: можно ли получить приемлемое качество HR-matching на локальной модели, чтобы обсуждать <strong>fixed infrastructure</strong> как реальную альтернативу <strong>per-token API</strong>?
+              </div>
+            </div>
+          </div>
+
+          <!-- Problem scene -->
+          <div class="scene-panel" data-panel="problem">
+            <div class="scene-section scene-split">
+              <div class="scene-text-col">
+                <div class="scene-intro scene-intro--left">
+                  <div class="scene-intro__eyebrow">Препятствие перехода</div>
+                  <h2 class="scene-intro__title">
+                    Валидный JSON ещё не значит <span class="scene-intro__title-accent">правильный ответ</span>
+                  </h2>
+                  <p class="scene-intro__desc">
+                    Базовая Qwen2.5 выдавала корректный JSON, но принимала плохие matching-решения. Без дообучения экономия на токенах обернулась бы потерями от ошибок.
+                  </p>
+                </div>
+                <div class="metric-row metric-row--left">
+                  <div class="metric-card">
+                    <div class="metric-card__value">44%</div>
+                    <div class="metric-card__label">Decision accuracy base</div>
+                  </div>
+                  <div class="metric-card">
+                    <div class="metric-card__value">100%</div>
+                    <div class="metric-card__label">Valid JSON rate</div>
+                  </div>
+                  <div class="metric-card">
+                    <div class="metric-card__value">38.8</div>
+                    <div class="metric-card__label">MAE score base</div>
+                  </div>
+                </div>
+                <ul class="compact-list">
+                  <li><strong>Формат ≠ смысл.</strong> Модель выучила JSON-шаблон, но не логику решений.</li>
+                  <li><strong>Переход требует инвестиций.</strong> Без дообучения локальная модель обошлась бы дороже облачной.</li>
+                </ul>
+              </div>
+              <div class="scene-viz-col">
+                <div class="before-after">
+                  <div class="answer-card answer-card--wrong">
+                    <div class="answer-card__badge">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                      Base model
+                    </div>
+                    <div class="answer-card__context">
+                      Врач подаёт резюме на вакансию Prompt Engineer.
+                    </div>
+                    <div class="answer-card__json">{
+  <span class="key">"match"</span>: <span class="bool">true</span>,
+  <span class="key">"score"</span>: <span class="num">72</span>,
+  <span class="key">"reasoning"</span>: <span class="string">"Кандидат имеет технический бэкграунд"</span>
+}</div>
+                  </div>
+
+                  <div class="answer-card answer-card--right">
+                    <div class="answer-card__badge">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg>
+                      Правильный ответ
+                    </div>
+                    <div class="answer-card__context">
+                      Та же пара кандидат–вакансия после дообучения.
+                    </div>
+                    <div class="answer-card__json">{
+  <span class="key">"match"</span>: <span class="bool">false</span>,
+  <span class="key">"score"</span>: <span class="num">12</span>,
+  <span class="key">"reasoning"</span>: <span class="string">"Роль и опыт не пересекаются"</span>
+}</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Experiments scene -->
           <div class="scene-panel" data-panel="experiments">
-            <div class="scene-panel__inner">
-              <div class="scene-intro">
-                <h2 class="scene-intro__title">Четыре эксперимента — цепочка открытий</h2>
-                <p class="scene-intro__desc">
-                  Каждый эксперимент отвечал на вопрос, оставленный предыдущим. Гиперпараметры LoRA не менялись.
-                </p>
+            <div class="scene-section scene-split">
+              <div class="scene-text-col">
+                <div class="scene-intro scene-intro--left">
+                  <div class="scene-intro__eyebrow">Уменьшение неопределённости</div>
+                  <h2 class="scene-intro__title">
+                    Четыре эксперимента — <span class="scene-intro__title-accent">оценка рисков перехода</span>
+                  </h2>
+                  <p class="scene-intro__desc">
+                    Каждый эксперимент проверял один шаг к отказу от облачного API. Гиперпараметры LoRA не менялись — менялся только датасет.
+                  </p>
+                </div>
+
+                <div class="timeline-grid">
+                  <div class="timeline-card timeline-card--fail">
+                    <div class="timeline-card__status timeline-card__status--fail">×</div>
+                    <div class="timeline-card__exp">Exp 001 · Baseline</div>
+                    <div class="timeline-card__title">Работает ли пайплайн?</div>
+                    <div class="timeline-card__result">Качество как у base — переход невозможен.</div>
+                  </div>
+
+                  <div class="timeline-card timeline-card--partial">
+                    <div class="timeline-card__status timeline-card__status--partial">~</div>
+                    <div class="timeline-card__exp">Exp 002 · Ёмкость</div>
+                    <div class="timeline-card__title">Хватит ли адаптера?</div>
+                    <div class="timeline-card__result">Accuracy 78%, но false positives.</div>
+                  </div>
+
+                  <div class="timeline-card timeline-card--pass">
+                    <div class="timeline-card__status timeline-card__status--pass">✓</div>
+                    <div class="timeline-card__exp">Exp 003 · Hard negatives</div>
+                    <div class="timeline-card__title">Устранятся ли ложные срабатывания?</div>
+                    <div class="timeline-card__result">Smoke passed, recall падает.</div>
+                  </div>
+
+                  <div class="timeline-card timeline-card--pass">
+                    <div class="timeline-card__status timeline-card__status--pass">✓</div>
+                    <div class="timeline-card__exp">Exp 004 · Баланс</div>
+                    <div class="timeline-card__title">Можно ли восстановить recall?</div>
+                    <div class="timeline-card__result">Accuracy 80%, external 93.1%.</div>
+                  </div>
+                </div>
               </div>
 
-              <div class="timeline">
-                <div class="timeline-card">
-                  <div class="timeline-card__status timeline-card__status--fail">×</div>
-                  <div class="timeline-card__exp">Exp 001 — Baseline</div>
-                  <div class="timeline-card__title">Сразу ли LoRA работает?</div>
-                  <div class="timeline-card__desc">90 записей. Проверка базовой гипотезы.</div>
-                  <div class="timeline-card__result"><strong>Ответ:</strong> нет. Valid JSON 100%, accuracy 44% — как у base.</div>
-                </div>
-
-                <div class="timeline-card">
-                  <div class="timeline-card__status timeline-card__status--partial">~</div>
-                  <div class="timeline-card__exp">Exp 002 — Тюнинг ёмкости</div>
-                  <div class="timeline-card__title">Поможет ли более выразительный адаптер?</div>
-                  <div class="timeline-card__desc">90 записей. Увеличение выразительности модели.</div>
-                  <div class="timeline-card__result"><strong>Ответ:</strong> частично. Accuracy 78%, но hard negatives проходят.</div>
-                </div>
-
-                <div class="timeline-card">
-                  <div class="timeline-card__status timeline-card__status--pass">✓</div>
-                  <div class="timeline-card__exp">Exp 003 — Hard negatives</div>
-                  <div class="timeline-card__title">Дело в смещении датасета?</div>
-                  <div class="timeline-card__desc">123 записи. +33 hard-negative и edge-case примера.</div>
-                  <div class="timeline-card__result"><strong>Ответ:</strong> да. Smoke 7/7 passed, accuracy падает до 67%.</div>
-                </div>
-
-                <div class="timeline-card">
-                  <div class="timeline-card__status timeline-card__status--pass">✓</div>
-                  <div class="timeline-card__exp">Exp 004 — Баланс</div>
-                  <div class="timeline-card__title">Как вернуть recall?</div>
-                  <div class="timeline-card__desc">162 записи. +39 positive/borderline, hard negatives сохранены.</div>
-                  <div class="timeline-card__result"><strong>Ответ:</strong> positives восстанавливают recall: accuracy 80%, external validation 93.1%.</div>
-                </div>
+              <div class="scene-viz-col">
+                <img class="viz-inline" src="../assets/cases/hr-assistant/G-004-decision-accuracy-evolution.svg" alt="Эволюция decision accuracy по экспериментам" loading="lazy">
+                <p class="viz-caption">Decision accuracy по четырём экспериментам. Offline-метрики растут неравномерно, production-риск открывается в smoke.</p>
               </div>
             </div>
           </div>
 
           <!-- Metrics scene -->
           <div class="scene-panel" data-panel="metrics">
-            <div class="scene-panel__inner">
-              <div class="scene-intro">
-                <h2 class="scene-intro__title">Эволюция метрик</h2>
-                <p class="scene-intro__desc">
-                  Два независимых измерения качества: точность matching-решений и средняя абсолютная ошибка композитного score.
-                </p>
-              </div>
-
-              <div class="metric-toggle">
-                <button class="metric-toggle__btn metric-toggle__btn--active" data-metric="accuracy">Точность решений</button>
-                <button class="metric-toggle__btn" data-metric="error">Ошибка оценки</button>
-              </div>
-
-              <div class="metric-view metric-view--active" data-metric-view="accuracy">
-                <div class="visual-card">
-                  <h3 class="visual-card__title">Точность решений</h3>
-                  <p class="visual-card__desc">
-                    Точность matching-решений росла неравномерно: 44% → 78% → 67% → 80%. Падение на Exp 003 — осознанная жертва recall ради устойчивости к hard negatives.
+            <div class="scene-section scene-split scene-split--wide-viz">
+              <div class="scene-text-col">
+                <div class="scene-intro scene-intro--left">
+                  <div class="scene-intro__eyebrow">Качественный барьер</div>
+                  <h2 class="scene-intro__title">
+                    Какие метрики нужны, чтобы <span class="scene-intro__title-accent">доверить переход</span>?
+                  </h2>
+                  <p class="scene-intro__desc">
+                    Без объективных показателей локальная модель не может считаться альтернативой облачному API.
                   </p>
-                  <img class="visual-card__img" src="../assets/cases/hr-assistant/G-004-decision-accuracy-evolution.svg" alt="Эволюция decision accuracy по экспериментам" loading="lazy">
-                  <p class="visual-card__caption">Рис. 1. Decision accuracy: Base Qwen vs LoRA по четырём экспериментам.</p>
                 </div>
+
+                <div class="metric-toggle">
+                  <button class="metric-toggle__btn metric-toggle__btn--active" data-metric="accuracy">Точность решений</button>
+                  <button class="metric-toggle__btn" data-metric="error">Ошибка оценки</button>
+                </div>
+
+                <ul class="compact-list">
+                  <li><strong>Decision accuracy</strong> — доля правильных matching-решений.</li>
+                  <li><strong>MAE score</strong> — точность калибровки композитной оценки.</li>
+                  <li><strong>Valid JSON</strong> — базовый контракт API.</li>
+                </ul>
               </div>
 
-              <div class="metric-view" data-metric-view="error">
-                <div class="visual-card">
-                  <h3 class="visual-card__title">Ошибка оценки</h3>
-                  <p class="visual-card__desc">
-                    Средняя абсолютная ошибка композитного score снизилась с 38 до 15 баллов. Base model ошибался сильнее всех.
-                  </p>
-                  <img class="visual-card__img" src="../assets/cases/hr-assistant/G-005-mae-score-evolution.svg" alt="Эволюция MAE score по экспериментам" loading="lazy">
-                  <p class="visual-card__caption">Рис. 2. MAE score: Base Qwen vs LoRA по четырём экспериментам. Меньше — лучше.</p>
+              <div class="scene-viz-col">
+                <div class="metric-view metric-view--active" data-metric-view="accuracy">
+                  <div class="viz-panel">
+                    <img class="viz-panel__img" src="../assets/cases/hr-assistant/G-004-decision-accuracy-evolution.svg" alt="Эволюция decision accuracy по экспериментам" loading="lazy">
+                    <p class="viz-panel__caption">Точность решений: 44% → 78% → 67% → 80%. Падение на Exp 003 — жертва recall ради устойчивости к hard negatives.</p>
+                  </div>
+                </div>
+
+                <div class="metric-view" data-metric-view="error">
+                  <div class="viz-panel">
+                    <img class="viz-panel__img" src="../assets/cases/hr-assistant/G-005-mae-score-evolution.svg" alt="Эволюция MAE score по экспериментам" loading="lazy">
+                    <p class="viz-panel__caption">MAE score снизился с 38 до 15 баллов. Модель калибрует оценку, а не только принимает решения.</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1530,28 +1687,44 @@
 
           <!-- Validation scene -->
           <div class="scene-panel" data-panel="validation">
-            <div class="scene-panel__inner">
-              <div class="visual-card">
-                <h3 class="visual-card__title">External validation</h3>
-                <p class="visual-card__desc">
-                  На 102 независимых парах кандидат–вакансия LoRA достигла 93.1% decision accuracy против 94.1% у GPT-4o-mini. Модель обобщается, но score калибруется не идеально.
-                </p>
-                <img class="visual-card__img" src="../assets/cases/hr-assistant/G-008-external-validation-scatter.svg" alt="External validation: LoRA score vs reference score" loading="lazy">
-                <p class="visual-card__caption">Рис. 3. External validation scatter: LoRA score против reference score.</p>
+            <div class="scene-section scene-split scene-split--wide-viz">
+              <div class="scene-text-col">
+                <div class="scene-intro scene-intro--left">
+                  <div class="scene-intro__eyebrow">Проверка за пределами offline</div>
+                  <h2 class="scene-intro__title">
+                    Почему <span class="scene-intro__title-accent">offline-метрик</span> недостаточно?
+                  </h2>
+                  <p class="scene-intro__desc">
+                    Бизнес не может принимать решение по offline-метрикам. В Exp 002 высокие показатели провалили runtime smoke — нужны gates вне тестового набора.
+                  </p>
+                </div>
+
+                <div class="metric-row metric-row--left">
+                  <div class="metric-card">
+                    <div class="metric-card__value">93.1%</div>
+                    <div class="metric-card__label">LoRA accuracy<br>на 102 записях</div>
+                  </div>
+                  <div class="metric-card">
+                    <div class="metric-card__value">94.1%</div>
+                    <div class="metric-card__label">GPT-4o-mini accuracy<br>тот же датасет</div>
+                  </div>
+                  <div class="metric-card">
+                    <div class="metric-card__value">5.0%</div>
+                    <div class="metric-card__label">FPR LoRA<br>ниже, чем у GPT</div>
+                  </div>
+                </div>
+
+                <ul class="compact-list">
+                  <li><strong>Offline-метрики врут.</strong> Лучший eval loss в Exp 001 совпал с худшей accuracy.</li>
+                  <li><strong>External validation</strong> проверяет обобщение на независимом judge.</li>
+                  <li><strong>Runtime smoke</strong> ловит failure modes вне тестовой выборки.</li>
+                </ul>
               </div>
 
-              <div class="metric-row">
-                <div class="metric-card">
-                  <div class="metric-card__value">93.1%</div>
-                  <div class="metric-card__label">LoRA accuracy</div>
-                </div>
-                <div class="metric-card">
-                  <div class="metric-card__value">94.1%</div>
-                  <div class="metric-card__label">GPT-4o-mini accuracy</div>
-                </div>
-                <div class="metric-card">
-                  <div class="metric-card__value">102</div>
-                  <div class="metric-card__label">Независимых записей</div>
+              <div class="scene-viz-col">
+                <div class="viz-panel">
+                  <img class="viz-panel__img" src="../assets/cases/hr-assistant/G-008-external-validation-scatter.svg" alt="External validation: LoRA score vs reference score" loading="lazy">
+                  <p class="viz-panel__caption">External validation scatter: LoRA против reference score. Локальная модель держится рядом с облачным эталоном на незнакомых данных.</p>
                 </div>
               </div>
             </div>
@@ -1559,138 +1732,177 @@
 
           <!-- Production scene -->
           <div class="scene-panel" data-panel="production">
-            <div class="scene-panel__inner">
-              <div class="visual-card">
-                <h3 class="visual-card__title">Telegram Production Smoke</h3>
-                <p class="visual-card__desc">
-                  Offline-метрики неэквивалентны production-качеству. Runtime smoke на реальном API выявил failure modes, которых не было в тестовой выборке.
-                </p>
-                <img class="visual-card__img" src="../assets/cases/hr-assistant/G-009-runtime-smoke-pass-fail-matrix.svg" alt="Runtime smoke pass/fail matrix" loading="lazy">
-                <p class="visual-card__caption">Рис. 4. Production smoke matrix по категориям и экспериментам.</p>
+            <div class="scene-section scene-split scene-split--wide-viz">
+              <div class="scene-text-col">
+                <div class="scene-intro scene-intro--left">
+                  <div class="scene-intro__eyebrow">Production-viability</div>
+                  <h2 class="scene-intro__title">
+                    Может ли локальная инфраструктура <span class="scene-intro__title-accent">обслуживать запросы</span>?
+                  </h2>
+                  <p class="scene-intro__desc">
+                    Качественная модель не заменит облачный API, если отвечает по 10 секунд или падает на длинных входах. Production-готовность — условие fixed infrastructure.
+                  </p>
+                </div>
+
+                <div class="metric-row metric-row--left">
+                  <div class="metric-card">
+                    <div class="metric-card__value">7/7</div>
+                    <div class="metric-card__label">Runtime smoke<br>Exp 003–004 passed</div>
+                  </div>
+                  <div class="metric-card">
+                    <div class="metric-card__value">~11.7с</div>
+                    <div class="metric-card__label">p50 latency канонический</div>
+                  </div>
+                  <div class="metric-card">
+                    <div class="metric-card__value">~1.6с</div>
+                    <div class="metric-card__label">p50 latency после vLLM</div>
+                  </div>
+                </div>
+
+                <ul class="compact-list">
+                  <li><strong>Hard negatives в Exp 003</strong> устранили failed smoke.</li>
+                  <li><strong>Truncation bug:</strong> max_tokens=512 + graceful JSON extraction.</li>
+                  <li><strong>vLLM</strong> сократил latency до production-acceptable диапазона.</li>
+                </ul>
               </div>
 
-              <div class="info-list">
-                <ul>
-                  <li><strong>Exp 002</strong> провалил negative-кейсы на реальном API.</li>
-                  <li><strong>Hard negatives в Exp 003</strong> устранили это: smoke 7/7 passed.</li>
-                  <li><strong>Truncation bug:</strong> при max_tokens=300 возникал HTTP 422. Фикс — max_tokens=512 + graceful JSON extraction.</li>
-                </ul>
+              <div class="scene-viz-col">
+                <div class="viz-panel">
+                  <img class="viz-panel__img" src="../assets/cases/hr-assistant/G-009-runtime-smoke-pass-fail-matrix.svg" alt="Runtime smoke pass/fail matrix" loading="lazy">
+                  <p class="viz-panel__caption">Production smoke matrix по категориям и экспериментам. Exp 003–004 проходят 7/7.</p>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Dataset scene -->
           <div class="scene-panel" data-panel="dataset">
-            <div class="scene-panel__inner">
-              <div class="scene-intro">
-                <h2 class="scene-intro__title">Dataset Engineering</h2>
-                <p class="scene-intro__desc">
-                  Рост качества шёл за счёт инженерии датасета, а не адаптера. На каждом шаге добавлялись примеры, которые устраняли конкретный дефект.
-                </p>
-              </div>
-
-              <div class="dataset-transition">
-                <div class="dataset-step">
-                  <div class="dataset-step__size">90</div>
-                  <div class="dataset-step__label">Exp 001–002</div>
-                  <div class="dataset-step__mix">30 кандидатов × 3 вакансии<br>общий baseline</div>
+            <div class="scene-section scene-split">
+              <div class="scene-text-col">
+                <div class="scene-intro scene-intro--left">
+                  <div class="scene-intro__eyebrow">Главный рычаг качества</div>
+                  <h2 class="scene-intro__title">
+                    Dataset engineering <span class="scene-intro__title-accent">важнее тюнинга модели</span>
+                  </h2>
+                  <p class="scene-intro__desc">
+                    Все четыре эксперимента использовали одинаковые гиперпараметры LoRA. Рост качества получен не адаптером, а составом teacher dataset.
+                  </p>
                 </div>
 
-                <div class="dataset-connector">
-                  <div class="dataset-connector__arrow">
-                    <svg viewBox="0 0 32 12" fill="none">
-                      <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                <div class="dataset-transition">
+                  <div class="dataset-step">
+                    <div class="dataset-step__size">90</div>
+                    <div class="dataset-step__label">Exp 001–002</div>
+                    <div class="dataset-step__mix">baseline</div>
                   </div>
-                  <div class="dataset-connector__label">+33 hard negatives<br>+ edge cases</div>
-                </div>
-
-                <div class="dataset-step">
-                  <div class="dataset-step__size">123</div>
-                  <div class="dataset-step__label">Exp 003</div>
-                  <div class="dataset-step__mix">41 кандидат<br>устраняет false positives</div>
-                </div>
-
-                <div class="dataset-connector">
-                  <div class="dataset-connector__arrow">
-                    <svg viewBox="0 0 32 12" fill="none">
-                      <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                  <div class="dataset-connector">
+                    <div class="dataset-connector__arrow">
+                      <svg viewBox="0 0 32 12" fill="none">
+                        <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <div class="dataset-connector__label">+33 hard negatives</div>
                   </div>
-                  <div class="dataset-connector__label">+39 positives<br>+ borderlines</div>
+                  <div class="dataset-step">
+                    <div class="dataset-step__size">123</div>
+                    <div class="dataset-step__label">Exp 003</div>
+                    <div class="dataset-step__mix">убирает false positives</div>
+                  </div>
+                  <div class="dataset-connector">
+                    <div class="dataset-connector__arrow">
+                      <svg viewBox="0 0 32 12" fill="none">
+                        <path d="M0 6H24M24 6L18 1M24 6L18 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <div class="dataset-connector__label">+39 positives /
+ borderlines</div>
+                  </div>
+                  <div class="dataset-step">
+                    <div class="dataset-step__size">162</div>
+                    <div class="dataset-step__label">Exp 004</div>
+                    <div class="dataset-step__mix">восстанавливает recall</div>
+                  </div>
                 </div>
 
-                <div class="dataset-step">
-                  <div class="dataset-step__size">162</div>
-                  <div class="dataset-step__label">Exp 004</div>
-                  <div class="dataset-step__mix">54 кандидата<br>восстанавливает recall</div>
-                </div>
-              </div>
-
-              <div class="info-list">
-                <ul>
-                  <li>Гиперпараметры LoRA оставались неизменными на протяжении всех экспериментов.</li>
-                  <li>Единственная систематически меняющаяся переменная — состав и баланс teacher dataset.</li>
-                  <li>Hard negatives устранили false positives; positives и borderlines вернули recall.</li>
+                <ul class="compact-list">
+                  <li>Гиперпараметры LoRA оставались неизменными.</li>
+                  <li>Hard negatives убили false positives; positives вернули recall.</li>
                 </ul>
+              </div>
+
+              <div class="scene-viz-col">
+                <div class="viz-panel">
+                  <img class="viz-panel__img" src="../assets/cases/hr-assistant/G-013-dataset-evolution.svg" alt="Эволюция датасета от Exp 001 к Exp 004" loading="lazy">
+                  <p class="viz-panel__caption">Эволюция состава teacher dataset и метрик. Контролируемая переменная — только данные.</p>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Conclusions scene -->
           <div class="scene-panel" data-panel="conclusions">
-            <div class="scene-panel__inner">
-              <div class="scene-intro">
-                <h2 class="scene-intro__title">Итоговые выводы</h2>
-                <p class="scene-intro__desc">
-                  Четыре эксперимента и финальное Telegram-расследование привели к чёткому пониманию границ: что доказано, что частично доказано и что требует следующего цикла.
-                </p>
+            <div class="scene-section scene-split scene-split--text-heavy">
+              <div class="scene-text-col">
+                <div class="scene-intro scene-intro--left">
+                  <div class="scene-intro__eyebrow">Бизнес-ответ</div>
+                  <h2 class="scene-intro__title">
+                    При каких условиях <span class="scene-intro__title-accent">fixed infrastructure</span> — реальная альтернатива?
+                  </h2>
+                  <p class="scene-intro__desc">
+                    Четыре эксперимента и валидация дали понимание границ: что доказано, что частично и что требует следующего цикла.
+                  </p>
+                </div>
+
+                <div class="conclusion-grid conclusion-grid--stack">
+                  <div class="conclusion-card conclusion-card--proven">
+                    <div class="conclusion-card__icon">✓</div>
+                    <h4 class="conclusion-card__title">Доказано</h4>
+                    <p class="conclusion-card__text">Инженерия датасета важнее тюнинга адаптера. Hard negatives и positives/borderlines — рабочие рычаги качества.</p>
+                  </div>
+                  <div class="conclusion-card conclusion-card--partial">
+                    <div class="conclusion-card__icon">~</div>
+                    <h4 class="conclusion-card__title">Частично доказано</h4>
+                    <p class="conclusion-card__text">93.1% decision accuracy на external holdout и 100% production smoke pass. Production-acceptable latency после vLLM.</p>
+                  </div>
+                  <div class="conclusion-card conclusion-card--next">
+                    <div class="conclusion-card__icon">→</div>
+                    <h4 class="conclusion-card__title">Next cycle</h4>
+                    <p class="conclusion-card__text">Калибровка score, stratified evaluation и real-world smoke set.</p>
+                  </div>
+                </div>
+
+                <div class="tech-grid">
+                  <div class="tech-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 6v6c0 4.4 3.4 8.4 8 10 4.6-1.6 8-5.6 8-10V6l-8-4z"/><circle cx="12" cy="11" r="3"/></svg>
+                    Qwen2.5-1.5B-Instruct
+                  </div>
+                  <div class="tech-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    PEFT / LoRA
+                  </div>
+                  <div class="tech-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7z"/></svg>
+                    TRL + PyTorch
+                  </div>
+                  <div class="tech-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 5L2.5 12L21 19L17 12L21 5Z"/></svg>
+                    vLLM
+                  </div>
+                  <div class="tech-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    FastAPI
+                  </div>
+                  <div class="tech-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 5L2.5 12L21 19L17 12L21 5Z"/></svg>
+                    Telegram Bot API
+                  </div>
+                </div>
               </div>
 
-              <div class="conclusion-grid">
-                <div class="conclusion-card conclusion-card--proven">
-                  <div class="conclusion-card__icon">✓</div>
-                  <h4 class="conclusion-card__title">Доказано</h4>
-                  <p class="conclusion-card__text">Инженерия датасета важнее тюнинга адаптера. Hard negatives и positives/borderlines — рабочие рычаги качества. Технический контур и deployment воспроизводимы.</p>
-                </div>
-
-                <div class="conclusion-card conclusion-card--partial">
-                  <div class="conclusion-card__icon">~</div>
-                  <h4 class="conclusion-card__title">Частично доказано</h4>
-                  <p class="conclusion-card__text">93.1% decision accuracy на external holdout и 100% production smoke pass. Hard-negative качество в реальных сценариях требует дополнительной stratified evaluation.</p>
-                </div>
-
-                <div class="conclusion-card conclusion-card--next">
-                  <div class="conclusion-card__icon">→</div>
-                  <h4 class="conclusion-card__title">Next cycle</h4>
-                  <p class="conclusion-card__text">Калибровка score, уменьшение latency, расширение teacher dataset и добавление hard-negative метрик в валидационный pipeline.</p>
-                </div>
-              </div>
-
-              <div class="tech-grid">
-                <div class="tech-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 6v6c0 4.4 3.4 8.4 8 10 4.6-1.6 8-5.6 8-10V6l-8-4z"/><circle cx="12" cy="11" r="3"/></svg>
-                  Qwen2.5-1.5B-Instruct
-                </div>
-                <div class="tech-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                  PEFT / LoRA
-                </div>
-                <div class="tech-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7z"/></svg>
-                  TRL + PyTorch
-                </div>
-                <div class="tech-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 5L2.5 12L21 19L17 12L21 5Z"/></svg>
-                  vLLM
-                </div>
-                <div class="tech-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                  FastAPI
-                </div>
-                <div class="tech-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 5L2.5 12L21 19L17 12L21 5Z"/></svg>
-                  Telegram Bot API
+              <div class="scene-viz-col">
+                <div class="viz-panel">
+                  <img class="viz-panel__img" src="../assets/cases/hr-assistant/G-027-qwen-lora-vs-gpt.svg" alt="Qwen-LoRA vs GPT-4o-mini" loading="lazy">
+                  <p class="viz-panel__caption">Qwen-LoRA 93.1% vs GPT-4o-mini 94.1% decision accuracy на external validation. Вопрос больше не технический, а экономический.</p>
                 </div>
               </div>
             </div>
