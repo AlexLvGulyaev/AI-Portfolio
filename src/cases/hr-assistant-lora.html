@@ -208,9 +208,9 @@
     }
 
     .metric-card__label {
-      font-size: 0.75rem;
+      font-size: 0.875rem;
       color: var(--text-secondary);
-      line-height: 1.3;
+      line-height: 1.4;
     }
 
     /* Pipeline */
@@ -387,13 +387,14 @@
       margin: var(--space-xl) auto 0;
       text-align: center;
       font-size: 1rem;
-      color: var(--text-secondary);
+      color: var(--text-primary);
       line-height: 1.6;
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
       padding: var(--space-md) var(--space-xl);
       border-left: 4px solid var(--lora-accent);
+      border-right: 4px solid var(--lora-accent);
     }
 
     /* Before/after cards */
@@ -412,6 +413,7 @@
       padding: var(--space-md);
       position: relative;
       overflow: hidden;
+      text-align: left;
     }
 
     .answer-card--wrong { border-left: 4px solid var(--lora-hot); }
@@ -432,10 +434,10 @@
     .answer-card--right .answer-card__badge { color: var(--lora-success); }
 
     .answer-card__context {
-      font-size: 0.875rem;
-      color: var(--text-tertiary);
+      font-size: 1rem;
+      color: var(--text-secondary);
       margin-bottom: var(--space-sm);
-      line-height: 1.35;
+      line-height: 1.45;
     }
 
     .answer-card__json {
@@ -444,8 +446,8 @@
       border-radius: var(--radius-md);
       padding: var(--space-sm);
       font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-      font-size: 0.75rem;
-      line-height: 1.45;
+      font-size: 0.875rem;
+      line-height: 1.5;
       color: var(--text-secondary);
       overflow-x: auto;
       white-space: pre-wrap;
@@ -894,17 +896,22 @@
     .section-note {
       margin: var(--space-md) auto 0;
       padding: var(--space-sm) var(--space-md);
-      background: rgba(20, 184, 166, 0.05);
-      border: 1px solid rgba(20, 184, 166, 0.2);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      font-size: 0.9375rem;
-      color: var(--text-secondary);
-      line-height: 1.45;
+      font-size: 1rem;
+      color: var(--text-primary);
+      line-height: 1.5;
       text-align: center;
-      max-width: 900px;
+      max-width: 800px;
     }
 
     .section-note strong { color: var(--lora-accent); }
+
+    .section-note--compact {
+      max-width: 700px;
+      padding: var(--space-xs) var(--space-md);
+    }
 
     /* =====================================================
        Viewport-aware one-screen scenes (HRA LoRA only)
@@ -953,6 +960,42 @@
       grid-template-columns: 1fr 1.35fr;
     }
 
+    .scene-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      gap: var(--space-md);
+    }
+
+    .scene-stack .scene-intro {
+      margin-bottom: 0;
+    }
+
+    .scene-stack .scene-intro--left {
+      text-align: center;
+      align-items: center;
+    }
+
+    .scene-stack .scene-intro--left .scene-intro__desc {
+      margin: 0 auto;
+      max-width: 800px;
+    }
+
+    .scene-stack .metric-row {
+      margin-bottom: 0;
+    }
+
+    .scene-stack .compact-list {
+      margin-top: 0;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
     .scene-text-col {
       display: flex;
       flex-direction: column;
@@ -981,24 +1024,23 @@
     }
 
     .metric-row--left {
-      justify-content: flex-start;
-      gap: var(--space-sm);
-      margin-bottom: var(--space-sm);
+      justify-content: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
     }
 
     .metric-row--left .metric-card {
-      min-width: auto;
-      padding: var(--space-xs) var(--space-sm);
+      min-width: 160px;
+      padding: var(--space-md) var(--space-lg);
     }
 
     .metric-row--left .metric-card__value {
-      font-size: 1.5rem;
+      font-size: 2rem;
     }
 
     .metric-row--left .metric-card__label {
-      font-size: 0.75rem;
-      white-space: nowrap;
-      line-height: 1.25;
+      font-size: 0.875rem;
+      line-height: 1.4;
     }
 
     /* Visual panel (dark frame around chart) */
@@ -1087,17 +1129,18 @@
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: var(--space-xs);
+      gap: var(--space-sm);
       margin-top: var(--space-md);
       max-width: none;
+      text-align: left;
     }
 
     .compact-list li {
       position: relative;
       padding-left: var(--space-md);
-      font-size: 0.875rem;
+      font-size: 1rem;
       color: var(--text-secondary);
-      line-height: 1.4;
+      line-height: 1.45;
     }
 
     .compact-list li::before {
@@ -1443,7 +1486,7 @@
                 </div>
               </div>
 
-              <div class="section-note" style="padding: var(--space-xs) var(--space-md); font-size: 0.875rem; margin-top: var(--space-md);">
+              <div class="section-note section-note--compact">
                 Проект про переход от переменных расходов на облачный API к предсказуемой собственной инфраструктуре. LoRA — инструмент проверки.
               </div>
             </div>
@@ -1523,69 +1566,68 @@
 
           <!-- Problem scene -->
           <div class="scene-panel" data-panel="problem">
-            <div class="scene-section scene-split">
-              <div class="scene-text-col">
-                <div class="scene-intro scene-intro--left">
-                  <div class="scene-intro__eyebrow">Препятствие перехода</div>
-                  <h2 class="scene-intro__title">
-                    Валидный JSON ещё не значит <span class="scene-intro__title-accent">правильный ответ</span>
-                  </h2>
-                  <p class="scene-intro__desc">
-                    Базовая Qwen2.5 выдавала корректный JSON, но принимала плохие matching-решения. Без дообучения экономия на токенах обернулась бы потерями от ошибок.
-                  </p>
-                </div>
-                <div class="metric-row metric-row--left">
-                  <div class="metric-card">
-                    <div class="metric-card__value">44%</div>
-                    <div class="metric-card__label">Decision accuracy base</div>
-                  </div>
-                  <div class="metric-card">
-                    <div class="metric-card__value">100%</div>
-                    <div class="metric-card__label">Valid JSON rate</div>
-                  </div>
-                  <div class="metric-card">
-                    <div class="metric-card__value">38.8</div>
-                    <div class="metric-card__label">MAE score base</div>
-                  </div>
-                </div>
-                <ul class="compact-list">
-                  <li><strong>Формат ≠ смысл.</strong> Модель выучила JSON-шаблон, но не логику решений.</li>
-                  <li><strong>Переход требует инвестиций.</strong> Без дообучения локальная модель обошлась бы дороже облачной.</li>
-                </ul>
+            <div class="scene-section scene-stack">
+              <div class="scene-intro scene-intro--left">
+                <div class="scene-intro__eyebrow">Препятствие перехода</div>
+                <h2 class="scene-intro__title">
+                  Валидный JSON ещё не значит <span class="scene-intro__title-accent">правильный ответ</span>
+                </h2>
+                <p class="scene-intro__desc">
+                  Базовая Qwen2.5 выдавала корректный JSON, но принимала плохие matching-решения. Без дообучения экономия на токенах обернулась бы потерями от ошибок.
+                </p>
               </div>
-              <div class="scene-viz-col">
-                <div class="before-after">
-                  <div class="answer-card answer-card--wrong">
-                    <div class="answer-card__badge">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                      Base model
-                    </div>
-                    <div class="answer-card__context">
-                      Врач подаёт резюме на вакансию Prompt Engineer.
-                    </div>
-                    <div class="answer-card__json">{
+
+              <div class="before-after" style="max-width: 1100px;">
+                <div class="answer-card answer-card--wrong">
+                  <div class="answer-card__badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    Base model
+                  </div>
+                  <div class="answer-card__context">
+                    Врач подаёт резюме на вакансию Prompt Engineer.
+                  </div>
+                  <div class="answer-card__json">{
   <span class="key">"match"</span>: <span class="bool">true</span>,
   <span class="key">"score"</span>: <span class="num">72</span>,
   <span class="key">"reasoning"</span>: <span class="string">"Кандидат имеет технический бэкграунд"</span>
 }</div>
-                  </div>
+                </div>
 
-                  <div class="answer-card answer-card--right">
-                    <div class="answer-card__badge">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg>
-                      Правильный ответ
-                    </div>
-                    <div class="answer-card__context">
-                      Та же пара кандидат–вакансия после дообучения.
-                    </div>
-                    <div class="answer-card__json">{
+                <div class="answer-card answer-card--right">
+                  <div class="answer-card__badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg>
+                    Правильный ответ
+                  </div>
+                  <div class="answer-card__context">
+                    Та же пара кандидат–вакансия после дообучения.
+                  </div>
+                  <div class="answer-card__json">{
   <span class="key">"match"</span>: <span class="bool">false</span>,
   <span class="key">"score"</span>: <span class="num">12</span>,
   <span class="key">"reasoning"</span>: <span class="string">"Роль и опыт не пересекаются"</span>
 }</div>
-                  </div>
                 </div>
               </div>
+
+              <div class="metric-row metric-row--left">
+                <div class="metric-card">
+                  <div class="metric-card__value">44%</div>
+                  <div class="metric-card__label">Decision accuracy base</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-card__value">100%</div>
+                  <div class="metric-card__label">Valid JSON rate</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-card__value">38.8</div>
+                  <div class="metric-card__label">MAE score base</div>
+                </div>
+              </div>
+
+              <ul class="compact-list">
+                <li><strong>Формат ≠ смысл.</strong> Модель выучила JSON-шаблон, но не логику решений.</li>
+                <li><strong>Переход требует инвестиций.</strong> Без дообучения локальная модель обошлась бы дороже облачной.</li>
+              </ul>
             </div>
           </div>
 
