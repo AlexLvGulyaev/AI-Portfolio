@@ -3,13 +3,1182 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="HR Assistant — Telegram-бот для HR-автоматизации.">
+  <meta name="description" content="HR Assistant — AI-ассистент для первичной обработки резюме. Сокращает время отклика с 10–15 минут до менее 1 минуты.">
   <title>HR Assistant — AI Portfolio</title>
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600<link rel="stylesheet" href="../css/styles.css">display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* HR Assistant — AI Portfolio Case Page */
+
+    :root {
+      --hra-accent: #14b8a6;
+      --hra-accent-soft: rgba(20, 184, 166, 0.15);
+      --hra-success: #22c55e;
+      --hra-hot: #ef4444;
+      --hra-warm: #f59e0b;
+      --hra-cold: #60a5fa;
+    }
+
+    /* Scene tabs */
+    .scene-tabs {
+      background: var(--bg-primary);
+      position: sticky;
+      top: 60px;
+      z-index: 10;
+    }
+
+    .scene-tabs__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-lg);
+    }
+
+    .scene-tabs__nav {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0;
+    }
+
+    .scene-tabs__nav::-webkit-scrollbar { display: none; }
+
+    .scene-tabs__tab {
+      padding: var(--space-md) var(--space-lg);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+    }
+
+    .scene-tabs__tab:hover { color: var(--text-secondary); }
+
+    .scene-tabs__tab--active {
+      color: var(--hra-accent);
+      border-bottom-color: var(--hra-accent);
+    }
+
+    .scene-tabs__actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-shrink: 0;
+      padding-left: var(--space-lg);
+    }
+
+    .scene-tabs__back {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color var(--transition-fast);
+    }
+
+    .scene-tabs__back:hover { color: var(--text-primary); }
+
+    .scene-tabs__back svg { width: 16px; height: 16px; }
+
+    .scene-tabs__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-sm) var(--space-lg);
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+    }
+
+    .scene-tabs__btn--primary {
+      background: var(--hra-accent);
+      color: var(--bg-primary);
+    }
+
+    .scene-tabs__btn--primary:hover { background: var(--accent-secondary); }
+
+    .scene-tabs__btn--ghost {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-default);
+    }
+
+    .scene-tabs__btn--ghost:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    /* Fixed footer for viewport-aware scenes */
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 90;
+    }
+
+    .main {
+      padding-bottom: 68px;
+    }
+
+    /* Scene content */
+    .scene-content { padding: 0; }
+
+    .scene-panel { display: none; }
+
+    .scene-panel--active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 64px - 52px - 68px);
+      padding: var(--space-lg) 0;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .scene-section {
+      width: 96vw;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    /* Common intro */
+    .scene-intro {
+      text-align: center;
+      margin-bottom: var(--space-sm);
+    }
+
+    .scene-intro__eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--hra-accent);
+      margin-bottom: var(--space-sm);
+    }
+
+    .scene-intro__title {
+      font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: var(--space-sm);
+      color: var(--text-primary);
+    }
+
+    .scene-intro__title-accent { color: var(--hra-accent); }
+
+    .scene-intro__desc {
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .scene-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 100%;
+      max-width: 1300px;
+      margin: 0 auto;
+      gap: var(--space-md);
+    }
+
+    .scene-stack .scene-intro {
+      margin-bottom: 0;
+    }
+
+    .scene-split {
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: var(--space-xl);
+      align-items: center;
+      width: 100%;
+    }
+
+    .scene-text-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-width: 0;
+    }
+
+    .scene-viz-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .scene-intro--left {
+      text-align: left;
+      align-items: flex-start;
+      margin-bottom: var(--space-sm);
+    }
+
+    .scene-intro--left .scene-intro__desc {
+      margin: 0;
+      max-width: none;
+    }
+
+    /* Metric cards */
+    .metric-row {
+      display: flex;
+      gap: var(--space-md);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: var(--space-sm);
+    }
+
+    .metric-card {
+      padding: var(--space-md) var(--space-lg);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      min-width: 140px;
+      border-top: 3px solid var(--hra-accent);
+    }
+
+    .metric-card--hot { border-top-color: var(--hra-hot); }
+    .metric-card--success { border-top-color: var(--hra-success); }
+    .metric-card--warm { border-top-color: var(--hra-warm); }
+
+    .metric-card__value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--hra-accent);
+      margin-bottom: var(--space-xs);
+      letter-spacing: -0.02em;
+    }
+
+    .metric-card--hot .metric-card__value { color: var(--hra-hot); }
+    .metric-card--success .metric-card__value { color: var(--hra-success); }
+    .metric-card--warm .metric-card__value { color: var(--hra-warm); }
+
+    .metric-card__label {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.35;
+    }
+
+    /* Problem chain */
+    .problem-chain {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .chain-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-xl);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      min-width: 200px;
+      flex: 1;
+      max-width: 240px;
+    }
+
+    .chain-card__icon {
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .chain-card__icon svg { width: 28px; height: 28px; }
+
+.chain-card--teal { border-top: 3px solid var(--hra-accent); }
+    .chain-card--warm { border-top: 3px solid var(--hra-warm); }
+    .chain-card--hot { border-top: 3px solid var(--hra-hot); }
+    .chain-card--cold { border-top: 3px solid var(--hra-cold); }
+
+    .chain-card--teal .chain-card__icon { background: rgba(20, 184, 166, 0.1); color: var(--hra-accent); }
+    .chain-card--warm .chain-card__icon { background: rgba(245, 158, 11, 0.1); color: var(--hra-warm); }
+    .chain-card--hot .chain-card__icon { background: rgba(239, 68, 68, 0.1); color: var(--hra-hot); }
+    .chain-card--cold .chain-card__icon { background: rgba(96, 165, 250, 0.1); color: var(--hra-cold); }
+
+    .chain-card__title {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .chain-card__desc {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .chain-arrow {
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chain-arrow svg { width: 28px; height: 28px; }
+
+
+    /* Section note */
+    .section-note {
+      margin: 0 auto;
+      padding: var(--space-md) var(--space-2xl);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--hra-accent);
+      border-right: 4px solid var(--hra-accent);
+      border-radius: var(--radius-lg);
+      font-size: 1.0625rem;
+      color: var(--text-primary);
+      line-height: 1.5;
+      text-align: center;
+      max-width: 1100px;
+    }
+
+    .section-note strong { color: var(--hra-accent); }
+
+    /* Compact lists */
+    .compact-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      margin-top: var(--space-md);
+      text-align: left;
+    }
+
+    .compact-list li {
+      position: relative;
+      padding-left: var(--space-md);
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .compact-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--hra-accent);
+    }
+
+    .compact-list strong { color: var(--text-primary); font-weight: 600; }
+
+    /* Viz panel */
+    .viz-panel {
+      width: 100%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .viz-panel__caption {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      margin-top: var(--space-md);
+      text-align: center;
+      line-height: 1.45;
+    }
+
+    /* Scale table */
+    .scale-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+    }
+
+    .scale-table th,
+    .scale-table td {
+      padding: var(--space-md) var(--space-lg);
+      text-align: left;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .scale-table th {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      background: var(--bg-tertiary);
+    }
+
+    .scale-table tr:last-child td { border-bottom: none; }
+
+    .scale-table td { color: var(--text-secondary); }
+
+    .scale-table strong { color: var(--text-primary); font-weight: 600; }
+
+    /* Pipeline */
+    .pipeline-container {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .pipeline-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: var(--space-xl);
+      text-align: center;
+    }
+
+    .pipeline-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .pipeline-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .pipeline-node__icon {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-lg);
+      border: 2px solid;
+      transition: all var(--transition-normal);
+      flex-shrink: 0;
+    }
+
+    .pipeline-node__icon svg {
+      width: 28px;
+      height: 28px;
+      display: block;
+    }
+
+    .pipeline-node__label {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .pipeline-node__desc {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      text-align: center;
+      max-width: 110px;
+    }
+
+    .pipeline-arrow svg {
+      width: 32px;
+      height: 16px;
+      color: var(--text-tertiary);
+    }
+
+    .pipeline-node--teal .pipeline-node__icon { background: rgba(20, 184, 166, 0.1); border-color: #14B8A6; color: #14B8A6; }
+    .pipeline-node--green .pipeline-node__icon { background: rgba(34, 197, 94, 0.1); border-color: #22C55E; color: #22C55E; }
+    .pipeline-node--warm .pipeline-node__icon { background: rgba(245, 158, 11, 0.1); border-color: #F59E0B; color: #F59E0B; }
+    .pipeline-node--cold .pipeline-node__icon { background: rgba(96, 165, 250, 0.1); border-color: #60A5FA; color: #60A5FA; }
+    .pipeline-node--muted .pipeline-node__icon { background: var(--bg-tertiary); border-color: var(--border-strong); color: var(--text-tertiary); }
+    .pipeline-node--hot .pipeline-node__icon { background: rgba(239, 68, 68, 0.1); border-color: #EF4444; color: #EF4444; }
+    .pipeline-node--purple .pipeline-node__icon { background: rgba(168, 85, 247, 0.1); border-color: #A855F7; color: #A855F7; }
+    .pipeline-node--white .pipeline-node__icon { background: var(--bg-tertiary); border-color: var(--text-secondary); color: var(--text-secondary); }
+
+    /* Scorecard */
+    .scorecard {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      width: 100%;
+      max-width: 640px;
+    }
+
+    .scorecard__row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .scorecard__label {
+      width: 140px;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .scorecard__bar {
+      flex: 1;
+      height: 32px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .scorecard__fill {
+      height: 100%;
+      background: var(--hra-accent);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: var(--space-sm);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--bg-primary);
+    }
+
+    .scorecard__total {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border-subtle);
+      margin-top: var(--space-md);
+    }
+
+    .scorecard__total-label {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .scorecard__total-value {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--hra-success);
+    }
+
+    .scorecard__caption {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      margin-top: var(--space-sm);
+      text-align: center;
+    }
+
+    /* Format cards */
+    .format-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .format-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-lg);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      border-top: 3px solid var(--hra-accent);
+      transition: all var(--transition-normal);
+    }
+
+    .format-card:hover {
+      border-color: var(--border-default);
+      transform: translateY(-2px);
+    }
+
+    .format-card__icon {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      background: var(--bg-tertiary);
+      color: var(--hra-accent);
+    }
+
+    .format-card__icon svg { width: 24px; height: 24px; }
+
+    .format-card__title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .format-card__time {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--hra-accent);
+    }
+
+    .format-card__desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* Responsibility grid */
+    .responsibility-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: var(--space-lg);
+      align-items: stretch;
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .responsibility-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      display: flex;
+      flex-direction: column;
+      border-top: 4px solid;
+    }
+
+    .responsibility-card--ai { border-top-color: var(--hra-accent); }
+    .responsibility-card--hr { border-top-color: var(--hra-success); }
+
+    .responsibility-card__title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: var(--space-md);
+      color: var(--text-primary);
+    }
+
+    .responsibility-card__list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      flex: 1;
+    }
+
+    .responsibility-card__list li {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-xs);
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    .responsibility-card__list li svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .responsibility-card--ai .responsibility-card__list li svg { color: var(--hra-accent); }
+    .responsibility-card--hr .responsibility-card__list li svg { color: var(--hra-success); }
+
+    .responsibility-vs {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-tertiary);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .responsibility-vs svg {
+      width: 24px;
+      height: 24px;
+      color: var(--hra-accent);
+    }
+
+    /* Before/after */
+    .before-after {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .before-after__card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      text-align: left;
+    }
+
+    .before-after__card--before { border-left: 4px solid var(--hra-hot); }
+    .before-after__card--after { border-left: 4px solid var(--hra-success); }
+
+    .before-after__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-md);
+      white-space: nowrap;
+    }
+
+    .before-after__card--before .before-after__badge { color: var(--hra-hot); }
+    .before-after__card--after .before-after__badge { color: var(--hra-success); }
+
+    .before-after__title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-md);
+    }
+
+    .before-after__list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .before-after__list li {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    .before-after__list li svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .before-after__card--before .before-after__list li svg { color: var(--hra-hot); }
+    .before-after__card--after .before-after__list li svg { color: var(--hra-success); }
+
+    /* Economics */
+    .economics-grid {
+      display: grid;
+      grid-template-columns: 0.8fr 1.6fr;
+      gap: var(--space-xl);
+      align-items: start;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .economics-comparison {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: var(--space-lg);
+      align-items: center;
+      margin-bottom: var(--space-md);
+    }
+
+    .economics-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl) var(--space-2xl);
+      text-align: center;
+      min-width: 300px;
+      flex: 1;
+    }
+
+    .economics-card--manual { border-color: var(--border-strong); }
+    .economics-card--auto {
+      border-color: var(--hra-accent);
+      background: rgba(20, 184, 166, 0.05);
+    }
+
+    .economics-card__label {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-tertiary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .economics-card__title {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .economics-card__value {
+      font-family: var(--font-display);
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: var(--space-xs);
+      white-space: nowrap;
+      letter-spacing: -0.02em;
+    }
+
+    .economics-card--auto .economics-card__value { color: var(--hra-accent); }
+
+    .economics-card__desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .economics-vs {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-tertiary);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      gap: var(--space-xs);
+    }
+
+    .economics-vs svg {
+      width: 28px;
+      height: 28px;
+      color: var(--hra-accent);
+    }
+
+    /* TCO table */
+    .tco-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+    }
+
+    .tco-table th,
+    .tco-table td {
+      padding: var(--space-md) var(--space-lg);
+      text-align: left;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .tco-table th {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      background: var(--bg-tertiary);
+    }
+
+    .tco-table tr:last-child td { border-bottom: none; }
+
+    .tco-table td { color: var(--text-secondary); }
+
+    .tco-table strong { color: var(--text-primary); font-weight: 600; }
+
+    /* Info list */
+    .info-list {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      text-align: center;
+    }
+
+    .info-list ul {
+      list-style: none;
+      padding-left: 0;
+      display: block;
+      text-align: left;
+    }
+
+    .info-list li {
+      position: relative;
+      padding-left: var(--space-lg);
+      margin-bottom: var(--space-sm);
+      color: var(--text-secondary);
+      line-height: 1.6;
+      font-size: 1rem;
+      text-align: left;
+    }
+
+    .info-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--hra-accent);
+    }
+
+    .info-list strong { color: var(--text-primary); font-weight: 600; }
+
+    /* Conclusion */
+    .conclusion-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-lg);
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .conclusion-card {
+      padding: var(--space-xl);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      border-top: 4px solid;
+      text-align: center;
+    }
+
+    .conclusion-card--time { border-top-color: var(--hra-accent); }
+    .conclusion-card--format { border-top-color: var(--hra-success); }
+    .conclusion-card--score { border-top-color: var(--hra-warm); }
+
+    .conclusion-card__icon {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      margin: 0 auto var(--space-md);
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+    }
+
+    .conclusion-card--time .conclusion-card__icon { color: var(--hra-accent); }
+    .conclusion-card--format .conclusion-card__icon { color: var(--hra-success); }
+    .conclusion-card--score .conclusion-card__icon { color: var(--hra-warm); }
+
+    .conclusion-card__icon svg { width: 24px; height: 24px; }
+
+    .conclusion-card__value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .conclusion-card--time .conclusion-card__value { color: var(--hra-accent); }
+    .conclusion-card--format .conclusion-card__value { color: var(--hra-success); }
+    .conclusion-card--score .conclusion-card__value { color: var(--hra-warm); }
+
+    .conclusion-card__label {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .conclusion-card__desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* CTA section */
+    .cta-section {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .cta-section__text {
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      margin-bottom: var(--space-xl);
+    }
+
+    .cta-section__buttons {
+      display: flex;
+      gap: var(--space-md);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .cta-section__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-xl);
+      font-size: 1rem;
+      font-weight: 500;
+      border-radius: var(--radius-lg);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+    }
+
+    .cta-section__btn--primary {
+      background: var(--hra-accent);
+      color: var(--bg-primary);
+    }
+
+    .cta-section__btn--primary:hover {
+      background: var(--accent-secondary);
+      transform: translateY(-1px);
+    }
+
+    .cta-section__btn--ghost {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-default);
+    }
+
+    .cta-section__btn--ghost:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--border-strong);
+    }
+
+    /* Metric row left aligned */
+    .metric-row--left {
+      justify-content: flex-start;
+      margin-bottom: var(--space-md);
+    }
+
+    .metric-row--left .metric-card {
+      min-width: 140px;
+      padding: var(--space-sm) var(--space-md);
+    }
+
+    .metric-row--left .metric-card__value {
+      font-size: 1.75rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .scene-section { width: 95vw; }
+      .scene-split { grid-template-columns: 1fr; gap: var(--space-lg); }
+      .economics-grid { grid-template-columns: 1fr; }
+      .format-grid { grid-template-columns: repeat(2, 1fr); }
+      .problem-chain { flex-wrap: wrap; }
+      .chain-arrow { transform: rotate(90deg); }
+      .responsibility-grid { grid-template-columns: 1fr; }
+      .responsibility-vs { flex-direction: row; padding: var(--space-sm) 0; }
+      .economics-comparison { grid-template-columns: 1fr; }
+      .economics-vs { flex-direction: row; padding: var(--space-sm) 0; }
+      .conclusion-grid { grid-template-columns: repeat(2, 1fr); }
+      .before-after { grid-template-columns: 1fr; }
+      .delay-chain { flex-direction: column; }
+      .chain-card--large { min-width: auto; max-width: none; width: 100%; }
+    }
+
+    @media (max-width: 768px) {
+      .scene-tabs__inner {
+        flex-direction: column;
+        gap: var(--space-sm);
+        padding: var(--space-sm) var(--space-md);
+      }
+      .scene-tabs__nav {
+        width: 100%;
+        order: 2;
+      }
+      .scene-tabs__actions {
+        width: 100%;
+        justify-content: flex-start;
+        padding-left: 0;
+        order: 1;
+        flex-wrap: wrap;
+        gap: var(--space-xs);
+      }
+      .scene-tabs__tab {
+        padding: var(--space-sm) var(--space-md);
+        font-size: 0.875rem;
+      }
+      .scene-tabs__btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 80px;
+      }
+      .scene-panel--active { min-height: auto; padding: var(--space-xl) 0; }
+      .scene-section { width: 100%; padding: 0 var(--space-md); }
+      .scene-split { grid-template-columns: 1fr; gap: var(--space-xl); }
+      .scene-intro--left { text-align: center; align-items: center; }
+      .scene-intro--left .scene-intro__desc { margin: 0 auto; max-width: 600px; }
+      .metric-row--left { justify-content: center; }
+      .metric-card { width: 100%; }
+      .metric-row { flex-direction: column; align-items: center; }
+      .format-grid { grid-template-columns: 1fr; }
+      .conclusion-grid { grid-template-columns: 1fr; }
+      .pipeline-flow { flex-direction: column; gap: var(--space-md); }
+      .pipeline-arrow { transform: rotate(90deg); }
+      .problem-chain { flex-direction: column; align-items: stretch; }
+      .chain-card { max-width: none; }
+      .chain-arrow { transform: rotate(90deg); }
+      .scale-table { font-size: 0.8125rem; }
+      .scale-table th,
+      .scale-table td { padding: var(--space-sm); }
+      .info-list { padding: var(--space-lg); }
+      .info-list ul { display: block; }
+      .scorecard { padding: var(--space-md); }
+      .scorecard__label { width: 90px; font-size: 0.75rem; }
+      .scorecard__total-value { font-size: 1.25rem; }
+    }
+  </style>
 </head>
 <body>
   <header class="header">
@@ -29,109 +1198,805 @@
 
   <main class="main">
     <div class="page">
-      <article class="case-detail">
-        <div class="container">
-          <a href="../portfolio.html" class="case-detail__back">← Все проекты</a>
-          <header class="case-detail__header">
-            <div class="case-detail__title-section">
-              <h1 class="case-detail__title">HR Assistant</h1>
-              <div class="case-detail__tags">
-                <span class="tag">Telegram Bot</span>
-                <span class="tag">HR</span>
-                <span class="tag">CRM</span>
-              </div>
-            </div>
-            <div class="case-detail__actions">
-              <a href="#" class="btn btn-secondary">GitHub</a>
-              <a href="#" class="btn btn-primary">Demo</a>
-            </div>
-          </header>
 
-          <div class="tabs" style="min-height: 300px;">
-            <div class="tabs__nav">
-              <button class="tabs__tab tabs__tab--active" data-tab="task">Задача</button>
-              <button class="tabs__tab" data-tab="solution">Решение</button>
-              <button class="tabs__tab" data-tab="result">Результат</button>
-              <button class="tabs__tab" data-tab="tech">Технологии</button>
+      <!-- Scene tabs -->
+      <nav class="scene-tabs">
+        <div class="scene-tabs__inner">
+          <div class="scene-tabs__nav">
+            <button class="scene-tabs__tab scene-tabs__tab--active" data-tab="problem">Проблема</button>
+            <button class="scene-tabs__tab" data-tab="delay">Задержка</button>
+            <button class="scene-tabs__tab" data-tab="scale">Масштаб</button>
+            <button class="scene-tabs__tab" data-tab="budget">Бюджет</button>
+            <button class="scene-tabs__tab" data-tab="solution">Решение</button>
+            <button class="scene-tabs__tab" data-tab="score">Score</button>
+            <button class="scene-tabs__tab" data-tab="input">Ввод</button>
+            <button class="scene-tabs__tab" data-tab="hr">HR</button>
+            <button class="scene-tabs__tab" data-tab="result">Результат</button>
+            <button class="scene-tabs__tab" data-tab="price">Цена</button>
+            <button class="scene-tabs__tab" data-tab="limits">Границы</button>
+            <button class="scene-tabs__tab" data-tab="final">Итог</button>
+          </div>
+          <div class="scene-tabs__actions">
+            <a href="../portfolio.html" class="scene-tabs__back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              Все проекты
+            </a>
+            <a href="#" class="scene-tabs__btn scene-tabs__btn--ghost">GitHub</a>
+            <a href="#" class="scene-tabs__btn scene-tabs__btn--primary">Demo</a>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Scene content -->
+      <div class="scene-content">
+
+        <!-- Scene 1: Problem -->
+        <div class="scene-panel scene-panel--active" data-panel="problem">
+          <div class="scene-section">
+            <div class="scene-stack">
+              <div class="scene-intro">
+                <div class="scene-intro__eyebrow">Узкое место в найме</div>
+                <h1 class="scene-intro__title">Первичный отбор <span class="scene-intro__title-accent">тормозит весь процесс найма</span></h1>
+                <p class="scene-intro__desc">Большой поток откликов → очередь на обработку → кандидаты уходят к конкурентам → вакансии закрываются позже.</p>
+              </div>
+
+              <div class="metric-row">
+                <div class="metric-card metric-card--hot">
+                  <div class="metric-card__value">10–15 мин</div>
+                  <div class="metric-card__label">ручная обработка<br>одного резюме</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-card__value">&lt;1 мин</div>
+                  <div class="metric-card__label">автоматическая<br>обработка</div>
+                </div>
+                <div class="metric-card metric-card--success">
+                  <div class="metric-card__value">4 формата</div>
+                  <div class="metric-card__label">текст, голос, PDF,<br>фото резюме</div>
+                </div>
+              </div>
+
+              <div class="problem-chain">
+                <div class="chain-card chain-card--teal">
+                  <div class="chain-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  </div>
+                  <div class="chain-card__title">Поток откликов</div>
+                  <div class="chain-card__desc">Резюме приходят в разных форматах ежедневно</div>
+                </div>
+                <div class="chain-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                </div>
+                <div class="chain-card chain-card--warm">
+                  <div class="chain-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                  </div>
+                  <div class="chain-card__title">Очередь HR</div>
+                  <div class="chain-card__desc">10–15 минут на каждое резюме не масштабируются</div>
+                </div>
+                <div class="chain-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                </div>
+                <div class="chain-card chain-card--hot">
+                  <div class="chain-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6M15 18l6-6M3 6l6 6"/></svg>
+                  </div>
+                  <div class="chain-card__title">Кандидаты уходят</div>
+                  <div class="chain-card__desc">Сильные кандидаты принимают другие офферы</div>
+                </div>
+                <div class="chain-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                </div>
+                <div class="chain-card chain-card--cold">
+                  <div class="chain-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/></svg>
+                  </div>
+                  <div class="chain-card__title">Вакансии позже</div>
+                  <div class="chain-card__desc">time-to-hire растёт, бизнес теряет деньги</div>
+                </div>
+              </div>
+
+              <div class="section-note">
+                Проблема не в HR, а в <strong>бизнес-процессе найма</strong>: первичный отбор стал бутылочным горлышком.
+              </div>
             </div>
-            <div class="tabs__content">
-              <div class="tabs__panel tabs__panel--active" data-panel="task">
-                <div class="case-detail__section">
-                  <p style="color: var(--text-secondary); line-height: 1.7;">
-                    HR-отдел получал множество однотипных вопросов от сотрудников, что отвлекало от стратегических задач.
-                  </p>
-                  <p style="color: var(--text-secondary); line-height: 1.7; margin-top: var(--spacing-md);">
-                    <strong style="color: var(--text-primary);">Проблемы:</strong>
-                  </p>
-                  <ul style="color: var(--text-secondary); margin-top: var(--spacing-sm); padding-left: var(--spacing-lg);">
-                    <li style="margin-bottom: var(--spacing-sm);">Большое количество повторяющихся вопросов</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Задержки в ответах сотрудникам</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Рутина отвлекает HR-специалистов</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Нет единой базы знаний</li>
-                  </ul>
+          </div>
+        </div>
+
+        <!-- Scene 2: Delay -->
+        <div class="scene-panel" data-panel="delay">
+          <div class="scene-section">
+            <div class="scene-split">
+              <div class="scene-text-col">
+                <div class="scene-intro scene-intro--left">
+                  <div class="scene-intro__eyebrow">Стоимость задержки</div>
+                  <h2 class="scene-intro__title">Каждый день молчания — <span class="scene-intro__title-accent">это деньги и конкуренты</span></h2>
+                  <p class="scene-intro__desc">Задержка на первичном этапе увеличивает time-to-hire и риск отказа кандидата. Время обработки напрямую влияет на стоимость закрытия вакансии.</p>
                 </div>
-              </div>
-              <div class="tabs__panel" data-panel="solution">
-                <div class="case-detail__section">
-                  <p style="color: var(--text-secondary); line-height: 1.7;">
-                    Telegram-бот с AI-компонентом для автоматизации HR-процессов.
-                  </p>
-                  <p style="color: var(--text-secondary); line-height: 1.7; margin-top: var(--spacing-md);">
-                    <strong style="color: var(--text-primary);">Возможности:</strong>
-                  </p>
-                  <ul style="color: var(--text-secondary); margin-top: var(--spacing-sm); padding-left: var(--spacing-lg);">
-                    <li style="margin-bottom: var(--spacing-sm);">Автоответы на типовые вопросы</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Приём и обработка заявок</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Интеграция с базой знаний</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Напоминания о документах</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Связь с CRM-системой</li>
-                  </ul>
-                </div>
-              </div>
-              <div class="tabs__panel" data-panel="result">
-                <div class="case-detail__stats">
-                  <div class="case-detail__stat">
-                    <div class="case-detail__stat-value">75%</div>
-                    <div class="case-detail__stat-label">Автоматизация запросов</div>
+
+                <div class="metric-row metric-row--left">
+                  <div class="metric-card metric-card--hot">
+                    <div class="metric-card__value">10–15 мин</div>
+                    <div class="metric-card__label">время HR на одно<br>резюме вручную</div>
                   </div>
-                  <div class="case-detail__stat">
-                    <div class="case-detail__stat-value">90%</div>
-                    <div class="case-detail__stat-label">Мгновенные ответы</div>
-                  </div>
-                  <div class="case-detail__stat">
-                    <div class="case-detail__stat-value">40%</div>
-                    <div class="case-detail__stat-label">Снижение нагрузки на HR</div>
-                  </div>
-                  <div class="case-detail__stat">
-                    <div class="case-detail__stat-value">24/7</div>
-                    <div class="case-detail__stat-label">Доступность бота</div>
+                  <div class="metric-card">
+                    <div class="metric-card__value">&lt;1 мин</div>
+                    <div class="metric-card__label">время автоматической<br>обработки</div>
                   </div>
                 </div>
+
+                <ul class="compact-list">
+                  <li><strong>time-to-hire × ставка HR</strong> — прямые затраты на ручную обработку.</li>
+                  <li><strong>Риск потери кандидата</strong> — каждый день молчания повышает вероятность отказа.</li>
+                  <li><strong>Cost of vacancy</strong> — незакрытая вакансия стоит компании больше, чем часы HR.</li>
+                </ul>
               </div>
-              <div class="tabs__panel" data-panel="tech">
-                <div class="case-detail__tech">
-                  <div class="case-detail__tech-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 5L2.5 12L21 19L17 12L21 5Z"/></svg>
-                    Telegram Bot API
+
+              <div class="scene-viz-col">
+                <div class="viz-panel">
+                  <div class="problem-chain">
+                    <div class="chain-card chain-card--teal">
+                      <div class="chain-card__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                      </div>
+                      <div class="chain-card__title">Задержка</div>
+                      <div class="chain-card__desc">Резюме ждёт в очереди часами или днями</div>
+                    </div>
+                    <div class="chain-arrow">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                    </div>
+                    <div class="chain-card chain-card--warm">
+                      <div class="chain-card__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/></svg>
+                      </div>
+                      <div class="chain-card__title">Рост time-to-hire</div>
+                      <div class="chain-card__desc">Первичный отбор занимает львиную долю цикла найма</div>
+                    </div>
+                    <div class="chain-arrow">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                    </div>
+                    <div class="chain-card chain-card--hot">
+                      <div class="chain-card__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
+                      </div>
+                      <div class="chain-card__title">Скрытые потери</div>
+                      <div class="chain-card__desc">Потерянные кандидаты + незакрытая вакансия = убыток</div>
+                    </div>
                   </div>
-                  <div class="case-detail__tech-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    OpenAI / Claude — AI-движок
-                  </div>
-                  <div class="case-detail__tech-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                    n8n — автоматизация
-                  </div>
-                  <div class="case-detail__tech-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7z"/></svg>
-                    PostgreSQL — хранение
-                  </div>
+                  <div class="viz-panel__caption">Сценарная модель: расчёт точной стоимости требует ставки HR и cost of vacancy компании.</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </article>
+
+        <!-- Scene 3: Scale -->
+        <div class="scene-panel" data-panel="scale">
+          <div class="scene-section">
+            <div class="scene-stack">
+              <div class="scene-intro">
+                <div class="scene-intro__eyebrow">Масштаб потока</div>
+                <h2 class="scene-intro__title">Ручная обработка <span class="scene-intro__title-accent">не масштабируется</span></h2>
+                <p class="scene-intro__desc">При росте потока компания выбирает между наймом новых рекрутеров и автоматизацией рутины.</p>
+              </div>
+
+              <div class="viz-panel" style="max-width: 1000px;">
+                <table class="scale-table">
+                  <thead>
+                    <tr>
+                      <th>Откликов / месяц</th>
+                      <th>Часы HR вручную</th>
+                      <th>Путь: новые рекрутеры</th>
+                      <th>Путь: автоматизация</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>1 000</strong></td>
+                      <td>~250 ч/мес</td>
+                      <td>Найм + адаптация</td>
+                      <td>TCO ~$56/мес</td>
+                    </tr>
+                    <tr>
+                      <td><strong>5 000</strong></td>
+                      <td>~1 250 ч/мес</td>
+                      <td>Линейный рост штата</td>
+                      <td>TCO ~$130/мес</td>
+                    </tr>
+                    <tr>
+                      <td><strong>10 000</strong></td>
+                      <td>~2 500 ч/мес</td>
+                      <td>Пропорциональный рост затрат</td>
+                      <td>TCO ~$260/мес</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="section-note">
+                <strong>Два пути при росте:</strong> нанимать рекрутеров или автоматизировать первичный отбор. HR Assistant — второй путь.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scene 4: Budget -->
+        <div class="scene-panel" data-panel="budget">
+          <div class="scene-section">
+            <div class="scene-stack">
+              <div class="scene-intro">
+                <div class="scene-intro__eyebrow">Куда уходит бюджет найма</div>
+                <h2 class="scene-intro__title">Деньги утекают на рутину <span class="scene-intro__title-accent">вместо решений</span></h2>
+                <p class="scene-intro__desc">Чтение, извлечение данных, заполнение CRM, первичный matching и ответ кандидату — повторяющаяся работа, не требующая HR-экспертизы.</p>
+              </div>
+
+              <div class="pipeline-container">
+                <div class="pipeline-title">Первичный отбор как набор рутинных операций</div>
+                <div class="pipeline-flow">
+                  <div class="pipeline-node pipeline-node--cold">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+                    </div>
+                    <div class="pipeline-node__label">Резюме</div>
+                    <div class="pipeline-node__desc">Входящее</div>
+                  </div>
+                  <div class="pipeline-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                  </div>
+                  <div class="pipeline-node pipeline-node--teal">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+                    </div>
+                    <div class="pipeline-node__label">Чтение</div>
+                    <div class="pipeline-node__desc">Рутина</div>
+                  </div>
+                  <div class="pipeline-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                  </div>
+                  <div class="pipeline-node pipeline-node--green">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+                    </div>
+                    <div class="pipeline-node__label">Извлечение</div>
+                    <div class="pipeline-node__desc">Рутина</div>
+                  </div>
+                  <div class="pipeline-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                  </div>
+                  <div class="pipeline-node pipeline-node--warm">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7z"/></svg>
+                    </div>
+                    <div class="pipeline-node__label">CRM</div>
+                    <div class="pipeline-node__desc">Рутина</div>
+                  </div>
+                  <div class="pipeline-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                  </div>
+                  <div class="pipeline-node pipeline-node--hot">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M12 17V5M6 17v-4"/></svg>
+                    </div>
+                    <div class="pipeline-node__label">Matching</div>
+                    <div class="pipeline-node__desc">Рутина</div>
+                  </div>
+                  <div class="pipeline-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                  </div>
+                  <div class="pipeline-node pipeline-node--purple">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                    </div>
+                    <div class="pipeline-node__label">Ответ</div>
+                    <div class="pipeline-node__desc">Рутина</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section-note">
+                Каждый из этих этапов — это время, которое HR не тратит на <strong>интервью и закрытие вакансий</strong>.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scene 5: Solution -->
+        <div class="scene-panel" data-panel="solution">
+          <div class="scene-section">
+            <div class="scene-stack">
+              <div class="scene-intro">
+                <div class="scene-intro__eyebrow">Что передаётся системе</div>
+                <h2 class="scene-intro__title">Рутина первичного отбора <span class="scene-intro__title-accent">уходит AI-ассистенту</span></h2>
+                <p class="scene-intro__desc">Intake, extraction, matching и базовый ответ автоматизируются без потери контроля. HR получает готовый профиль.</p>
+              </div>
+
+              <div class="pipeline-container">
+                <div class="pipeline-title">Бизнес-пайплайн HR Assistant</div>
+                <div class="pipeline-flow">
+                  <div class="pipeline-node pipeline-node--white">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+                    </div>
+                    <div class="pipeline-node__label">Кандидат</div>
+                    <div class="pipeline-node__desc">4 формата</div>
+                  </div>
+                  <div class="pipeline-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                  </div>
+                  <div class="pipeline-node pipeline-node--teal">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
+                    </div>
+                    <div class="pipeline-node__label">Intake</div>
+                    <div class="pipeline-node__desc">Приём + OCR/STT</div>
+                  </div>
+                  <div class="pipeline-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                  </div>
+                  <div class="pipeline-node pipeline-node--green">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+                    </div>
+                    <div class="pipeline-node__label">Extraction</div>
+                    <div class="pipeline-node__desc">ФИО, навыки, опыт</div>
+                  </div>
+                  <div class="pipeline-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                  </div>
+                  <div class="pipeline-node pipeline-node--warm">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M12 17V5M6 17v-4"/></svg>
+                    </div>
+                    <div class="pipeline-node__label">Matching</div>
+                    <div class="pipeline-node__desc">Score 0–100</div>
+                  </div>
+                  <div class="pipeline-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                  </div>
+                  <div class="pipeline-node pipeline-node--green">
+                    <div class="pipeline-node__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+                    </div>
+                    <div class="pipeline-node__label">Готовый профиль</div>
+                    <div class="pipeline-node__desc">Для HR</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section-note">
+                Система не решает, кого нанимать. Она <strong>готовит кандидатов</strong> для HR-решений.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scene 6: Score -->
+        <div class="scene-panel" data-panel="score">
+          <div class="scene-section">
+            <div class="scene-split">
+              <div class="scene-text-col">
+                <div class="scene-intro scene-intro--left">
+                  <div class="scene-intro__eyebrow">Стандартизированная оценка</div>
+                  <h2 class="scene-intro__title">Score 0–100 <span class="scene-intro__title-accent">по 4 критериям</span> для всех кандидатов</h2>
+                  <p class="scene-intro__desc">Субъективная оценка заменяется прозрачным scorecard. Меньше спорных решений, быстрее движение к интервью.</p>
+                </div>
+
+                <div class="metric-row metric-row--left">
+                  <div class="metric-card">
+                    <div class="metric-card__value">4</div>
+                    <div class="metric-card__label">критерия<br>оценки</div>
+                  </div>
+                  <div class="metric-card">
+                    <div class="metric-card__value">0–100</div>
+                    <div class="metric-card__label">итоговый<br>score</div>
+                  </div>
+                  <div class="metric-card metric-card--success">
+                    <div class="metric-card__value">≥60</div>
+                    <div class="metric-card__label">порог<br>match</div>
+                  </div>
+                </div>
+
+                <ul class="compact-list">
+                  <li><strong>Должность / роль</strong> — соответствие желаемой позиции (0–30 баллов).</li>
+                  <li><strong>Навыки</strong> — пересечение с требованиями вакансии (0–35 баллов).</li>
+                  <li><strong>Опыт</strong> — соответствие лет опыта (0–20 баллов).</li>
+                  <li><strong>Город / формат / зарплата</strong> — условия (0–15 баллов).</li>
+                </ul>
+              </div>
+
+              <div class="scene-viz-col">
+                <div class="scorecard">
+                  <div class="scorecard__row">
+                    <div class="scorecard__label">Должность / роль</div>
+                    <div class="scorecard__bar">
+                      <div class="scorecard__fill" style="width: 100%">30 / 30</div>
+                    </div>
+                  </div>
+                  <div class="scorecard__row">
+                    <div class="scorecard__label">Навыки</div>
+                    <div class="scorecard__bar">
+                      <div class="scorecard__fill" style="width: 86%">30 / 35</div>
+                    </div>
+                  </div>
+                  <div class="scorecard__row">
+                    <div class="scorecard__label">Опыт</div>
+                    <div class="scorecard__bar">
+                      <div class="scorecard__fill" style="width: 85%">17 / 20</div>
+                    </div>
+                  </div>
+                  <div class="scorecard__row">
+                    <div class="scorecard__label">Условия</div>
+                    <div class="scorecard__bar">
+                      <div class="scorecard__fill" style="width: 80%">12 / 15</div>
+                    </div>
+                  </div>
+                  <div class="scorecard__total">
+                    <div class="scorecard__total-label">Итого</div>
+                    <div class="scorecard__total-value">89 / 100 — match</div>
+                  </div>
+                  <div class="scorecard__caption">Пример scorecard: каждый кандидат оценивается по одной и той же шкале.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scene 7: Input -->
+        <div class="scene-panel" data-panel="input">
+          <div class="scene-section">
+            <div class="scene-stack">
+              <div class="scene-intro">
+                <div class="scene-intro__eyebrow">Меньше барьеров для кандидатов</div>
+                <h2 class="scene-intro__title">Кандидаты откликаются <span class="scene-intro__title-accent">так, как удобно</span></h2>
+                <p class="scene-intro__desc">Текст, голос, PDF, фото — кандидат не конвертирует резюме, а просто отправляет. Больше откликов на входе — шире воронка.</p>
+              </div>
+
+              <div class="format-grid">
+                <div class="format-card">
+                  <div class="format-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                  </div>
+                  <div class="format-card__title">Текст</div>
+                  <div class="format-card__time">&lt;30 сек</div>
+                  <div class="format-card__desc">обычное сообщение</div>
+                </div>
+                <div class="format-card">
+                  <div class="format-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4"/></svg>
+                  </div>
+                  <div class="format-card__title">Голос</div>
+                  <div class="format-card__time">&lt;60 сек</div>
+                  <div class="format-card__desc">STT-транскрибация</div>
+                </div>
+                <div class="format-card">
+                  <div class="format-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+                  </div>
+                  <div class="format-card__title">PDF / DOCX</div>
+                  <div class="format-card__time">&lt;60 сек</div>
+                  <div class="format-card__desc">извлечение текста</div>
+                </div>
+                <div class="format-card">
+                  <div class="format-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                  </div>
+                  <div class="format-card__title">Фото</div>
+                  <div class="format-card__time">&lt;90 сек</div>
+                  <div class="format-card__desc">OCR-распознавание</div>
+                </div>
+              </div>
+
+              <div class="section-note">
+                Мультимодальный ввод снимает барьеры: кандидаты не отваливаются из-за неудобного формата.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scene 8: HR -->
+        <div class="scene-panel" data-panel="hr">
+          <div class="scene-section">
+            <div class="scene-stack">
+              <div class="scene-intro">
+                <div class="scene-intro__eyebrow">Зона ответственности</div>
+                <h2 class="scene-intro__title">Система готовит кандидатов, <span class="scene-intro__title-accent">HR принимает решения</span></h2>
+                <p class="scene-intro__desc">Интервью, soft skills, сложные случаи и проверка данных остаются за человеком. Система не заменяет HR, а освобождает для высокодоходной работы.</p>
+              </div>
+
+              <div class="responsibility-grid">
+                <div class="responsibility-card responsibility-card--ai">
+                  <div class="responsibility-card__title">AI-ассистент</div>
+                  <ul class="responsibility-card__list">
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                      Приём резюме в любом формате
+                    </li>
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                      Извлечение структурированных данных
+                    </li>
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                      Первичный matching по критериям
+                    </li>
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                      Быстрый базовый ответ кандидату
+                    </li>
+                  </ul>
+                </div>
+                <div class="responsibility-vs">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                </div>
+                <div class="responsibility-card responsibility-card--hr">
+                  <div class="responsibility-card__title">HR-специалист</div>
+                  <ul class="responsibility-card__list">
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                      Интервью и личное общение
+                    </li>
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                      Оценка soft skills и cultural fit
+                    </li>
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                      Сложные и пограничные случаи
+                    </li>
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                      Проверка данных, требующих суждения
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="section-note">
+                AI не решает, кого нанимать. Он <strong>убирает рутину</strong>, чтобы HR занимался тем, где нужен человек.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scene 9: Result -->
+        <div class="scene-panel" data-panel="result">
+          <div class="scene-section">
+            <div class="scene-stack">
+              <div class="scene-intro">
+                <div class="scene-intro__eyebrow">Главный результат</div>
+                <h2 class="scene-intro__title">Вакансии <span class="scene-intro__title-accent">закрываются быстрее</span></h2>
+                <p class="scene-intro__desc">Первичная обработка резюме падает с 10–15 минут до менее 1 минуты. Узкое место исчезает — найм ускоряется.</p>
+              </div>
+
+              <div class="metric-row">
+                <div class="metric-card metric-card--hot">
+                  <div class="metric-card__value">10–15×</div>
+                  <div class="metric-card__label">рост скорости<br>обработки</div>
+                </div>
+                <div class="metric-card metric-card--success">
+                  <div class="metric-card__value">80–90%</div>
+                  <div class="metric-card__label">экономия времени<br>на первичный отбор</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-card__value">&lt;1 мин</div>
+                  <div class="metric-card__label">на готовый<br>профиль</div>
+                </div>
+              </div>
+
+              <div class="before-after">
+                <div class="before-after__card before-after__card--before">
+                  <div class="before-after__badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    До автоматизации
+                  </div>
+                  <div class="before-after__title">Ручная обработка</div>
+                  <ul class="before-after__list">
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                      10–15 минут на резюме
+                    </li>
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                      Очередь из необработанных откликов
+                    </li>
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6M15 18l6-6M3 6l6 6"/></svg>
+                      Кандидаты уходят к конкурентам
+                    </li>
+                  </ul>
+                </div>
+                <div class="before-after__card before-after__card--after">
+                  <div class="before-after__badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                    С HR Assistant
+                  </div>
+                  <div class="before-after__title">Автоматический отбор</div>
+                  <ul class="before-after__list">
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                      &lt;1 минута на резюме
+                    </li>
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+                      Готовый профиль с score
+                    </li>
+                    <li>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                      Быстрее к интервью и закрытию
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="section-note">
+                <strong>Главный вывод:</strong> первичный отбор перестаёт быть бутылочным горлышком. Вакансии закрываются быстрее.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scene 10: Price -->
+        <div class="scene-panel" data-panel="price">
+          <div class="scene-section">
+            <div class="economics-grid">
+              <div class="scene-text-col">
+                <div class="scene-intro scene-intro--left">
+                  <div class="scene-intro__eyebrow">Сценарная экономика</div>
+                  <h2 class="scene-intro__title">Модель затрат <span class="scene-intro__title-accent">под ваш поток</span></h2>
+                  <p class="scene-intro__desc">Стоимость автоматической обработки на порядок ниже стоимости часа HR. Точная экономия зависит от ставки HR и объёма откликов.</p>
+                </div>
+
+                <ul class="compact-list">
+                  <li><strong>LLM-only обработка:</strong> ~$0.003–0.006 за резюме.</li>
+                  <li><strong>Базовый мультимодальный сценарий:</strong> $0.03–0.06 за кандидата.</li>
+                  <li><strong>TCO:</strong> $56 / $130 / $260 в месяц для 1K / 5K / 10K резюме.</li>
+                  <li><strong>Строгий ROI</strong> требует данных заказчика: ставка HR, объём откликов, cost of vacancy.</li>
+                </ul>
+              </div>
+
+              <div class="scene-viz-col">
+                <div class="economics-comparison">
+                  <div class="economics-card economics-card--manual">
+                    <div class="economics-card__label">Ручной час HR</div>
+                    <div class="economics-card__title">Ставка × время</div>
+                    <div class="economics-card__value">$?</div>
+                    <div class="economics-card__desc">зависит от ставки<br>и объёма</div>
+                  </div>
+                  <div class="economics-vs">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
+                    VS
+                  </div>
+                  <div class="economics-card economics-card--auto">
+                    <div class="economics-card__label">Автоматизация</div>
+                    <div class="economics-card__title">Cost per candidate</div>
+                    <div class="economics-card__value">$0.003–0.06</div>
+                    <div class="economics-card__desc">LLT + базовый<br>мультимодальный сценарий</div>
+                  </div>
+                </div>
+
+                <div class="viz-panel" style="padding: 0; overflow: hidden;">
+                  <table class="tco-table">
+                    <thead>
+                      <tr>
+                        <th>Масштаб</th>
+                        <th>Резюме/мес</th>
+                        <th>API</th>
+                        <th>Infrastructure</th>
+                        <th>TCO</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong>Small</strong></td>
+                        <td>1 000</td>
+                        <td>~$6</td>
+                        <td>~$50</td>
+                        <td><strong>~$56</strong></td>
+                      </tr>
+                      <tr>
+                        <td><strong>Medium</strong></td>
+                        <td>5 000</td>
+                        <td>~$30</td>
+                        <td>~$100</td>
+                        <td><strong>~$130</strong></td>
+                      </tr>
+                      <tr>
+                        <td><strong>Large</strong></td>
+                        <td>10 000</td>
+                        <td>~$60</td>
+                        <td>~$200</td>
+                        <td><strong>~$260</strong></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="section-note" style="margin-top: var(--space-md);">
+                  Цифры — <strong>расчётные оценки</strong> на основе GPT-4o-mini и self-hosted инфраструктуры.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scene 11: Limits -->
+        <div class="scene-panel" data-panel="limits">
+          <div class="scene-section">
+            <div class="scene-stack">
+              <div class="scene-intro">
+                <div class="scene-intro__eyebrow">Честные границы</div>
+                <h2 class="scene-intro__title">Где решение работает, <span class="scene-intro__title-accent">а где нет</span></h2>
+                <p class="scene-intro__desc">Честные оговорки повышают доверие к экономическим заявлениям и помогают принять взвешенное решение.</p>
+              </div>
+
+              <div class="info-list">
+                <ul>
+                  <li><strong>Не оценивает soft skills и cultural fit.</strong> Это остаётся за HR и интервью.</li>
+                  <li><strong>Не извлекает детальный опыт, образование, языки, сертификаты.</strong> Только базовые поля профиля.</li>
+                  <li><strong>Работает с русским языком.</strong> Другие языки требуют доработки.</li>
+                  <li><strong>Время &lt;1 минуты — целевая метрика.</strong> Фактическая production-статистика ещё не накоплена.</li>
+                  <li><strong>Стоимость $0.003–0.06 — расчётная оценка.</strong> Не включает интеграцию, поддержку и дообучение.</li>
+                </ul>
+              </div>
+
+              <div class="section-note">
+                Решение работает на <strong>первичном отборе</strong>. Сложные случаи остаются за HR.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scene 12: Final -->
+        <div class="scene-panel" data-panel="final">
+          <div class="scene-section">
+            <div class="scene-stack">
+              <div class="scene-intro">
+                <div class="scene-intro__eyebrow">Итоговое предложение</div>
+                <h2 class="scene-intro__title">HR Assistant устраняет <span class="scene-intro__title-accent">узкое место в найме</span></h2>
+                <p class="scene-intro__desc">Готовый к следующему этапу кандидат за секунды вместо часов или дней. Компания быстрее закрывает вакансии и не теряет сильных кандидатов из-за очереди.</p>
+              </div>
+
+              <div class="conclusion-grid">
+                <div class="conclusion-card conclusion-card--time">
+                  <div class="conclusion-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  </div>
+                  <div class="conclusion-card__value">&lt;1 мин</div>
+                  <div class="conclusion-card__label">первичная обработка</div>
+                  <div class="conclusion-card__desc">вместо 10–15 минут вручную</div>
+                </div>
+                <div class="conclusion-card conclusion-card--format">
+                  <div class="conclusion-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                  </div>
+                  <div class="conclusion-card__value">4 формата</div>
+                  <div class="conclusion-card__label">входных резюме</div>
+                  <div class="conclusion-card__desc">текст, голос, PDF, фото</div>
+                </div>
+                <div class="conclusion-card conclusion-card--score">
+                  <div class="conclusion-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M12 17V5M6 17v-4"/></svg>
+                  </div>
+                  <div class="conclusion-card__value">0–100</div>
+                  <div class="conclusion-card__label">прозрачный score</div>
+                  <div class="conclusion-card__desc">по 4 критериям, порог match ≥60</div>
+                </div>
+              </div>
+
+              <div class="cta-section">
+                <p class="cta-section__text">Если вакансии закрываются медленно, а поток откликов растёт быстрее HR-отдела — обсудим, как HR Assistant ускорит ваш найм.</p>
+                <div class="cta-section__buttons">
+                  <a href="#" class="cta-section__btn cta-section__btn--primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>
+                    Посмотреть демо
+                  </a>
+                  <a href="../contacts.html" class="cta-section__btn cta-section__btn--ghost">Обсудить проект</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </main>
 
@@ -180,5 +2045,26 @@
       </button>
     </div>
   </div>
+
+  <script>
+    // Scene tabs navigation
+    (function() {
+      const tabs = document.querySelectorAll('.scene-tabs__tab');
+      const panels = document.querySelectorAll('.scene-panel');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const target = tab.dataset.tab;
+
+          tabs.forEach(t => t.classList.remove('scene-tabs__tab--active'));
+          tab.classList.add('scene-tabs__tab--active');
+
+          panels.forEach(p => {
+            p.classList.toggle('scene-panel--active', p.dataset.panel === target);
+          });
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
