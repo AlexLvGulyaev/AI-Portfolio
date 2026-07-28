@@ -157,8 +157,20 @@
        SCENE CONTENT
        ============================================ */
 
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 90;
+    }
+
+    .main {
+      padding-bottom: 68px;
+    }
+
     .scene-content {
-      padding: var(--space-2xl) 0;
+      padding: 0;
     }
 
     .scene-panel {
@@ -166,7 +178,12 @@
     }
 
     .scene-panel--active {
-      display: block;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 64px - 52px - 68px);
+      padding: var(--space-lg) 0;
       animation: fadeIn 0.3s ease;
     }
 
@@ -185,15 +202,15 @@
     }
 
     .about-header {
-      margin-bottom: var(--space-2xl);
+      margin-bottom: var(--space-lg);
       text-align: center;
     }
 
     .about-header__title {
-      font-size: clamp(2rem, 4vw, 2.5rem);
+      font-size: clamp(1.75rem, 3.5vw, 2.25rem);
       font-weight: 800;
       line-height: 1.1;
-      margin-bottom: var(--space-md);
+      margin-bottom: var(--space-sm);
     }
 
     .about-header__title-accent {
@@ -201,9 +218,9 @@
     }
 
     .about-header__subtitle {
-      font-size: 1.125rem;
+      font-size: 1rem;
       color: var(--text-secondary);
-      line-height: 1.6;
+      line-height: 1.55;
       max-width: 600px;
       margin: 0 auto;
     }
@@ -213,7 +230,7 @@
       gap: var(--space-xl);
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: var(--space-3xl);
+      margin-bottom: var(--space-md);
     }
 
     .about-metric {
@@ -240,7 +257,7 @@
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-xl);
-      padding: var(--space-2xl);
+      padding: var(--space-lg);
     }
 
     .pipeline-title {
@@ -249,7 +266,7 @@
       color: var(--text-tertiary);
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      margin-bottom: var(--space-xl);
+      margin-bottom: var(--space-md);
       text-align: center;
     }
 
@@ -257,7 +274,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: var(--space-md);
+      gap: var(--space-sm);
       flex-wrap: wrap;
     }
 
@@ -266,12 +283,12 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: var(--space-sm);
+      gap: var(--space-xs);
     }
 
     .pipeline-node__icon {
-      width: 80px;
-      height: 80px;
+      width: 64px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -281,8 +298,8 @@
     }
 
     .pipeline-node__icon svg {
-      width: 36px;
-      height: 36px;
+      width: 28px;
+      height: 28px;
     }
 
     .pipeline-node__label {
@@ -306,8 +323,8 @@
     }
 
     .pipeline-arrow svg {
-      width: 32px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
     }
 
     /* Node color variants */
@@ -360,28 +377,29 @@
        ============================================ */
 
     .problem-intro {
-      margin-bottom: var(--space-xl);
+      margin-bottom: var(--space-md);
       text-align: center;
     }
 
     .problem-intro__title {
-      font-size: 1.5rem;
-      font-weight: 700;
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      font-weight: 800;
+      line-height: 1.15;
       margin-bottom: var(--space-sm);
     }
 
     .problem-intro__desc {
       font-size: 1rem;
       color: var(--text-secondary);
-      line-height: 1.6;
+      line-height: 1.55;
       max-width: 700px;
       margin: 0 auto;
     }
 
     .problem-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: var(--space-lg);
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: var(--space-md);
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -389,8 +407,8 @@
     /* Problem cards with left border accent */
     .problem-card {
       display: flex;
-      gap: var(--space-lg);
-      padding: var(--space-xl);
+      gap: var(--space-md);
+      padding: var(--space-md);
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
@@ -450,9 +468,9 @@
     }
 
     .problem-card__title {
-      font-size: 1.125rem;
+      font-size: 1rem;
       font-weight: 600;
-      margin-bottom: var(--space-sm);
+      margin-bottom: var(--space-xs);
       color: var(--text-primary);
     }
 
@@ -473,16 +491,17 @@
     }
 
     .solution-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: var(--space-md);
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: var(--space-sm);
     }
 
     .solution-desc {
       font-size: 1rem;
       color: var(--text-secondary);
-      line-height: 1.6;
-      margin-bottom: var(--space-2xl);
+      line-height: 1.55;
+      margin-bottom: var(--space-md);
       max-width: 700px;
       margin-left: auto;
       margin-right: auto;
@@ -492,15 +511,15 @@
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-xl);
-      padding: var(--space-2xl);
-      margin-bottom: var(--space-2xl);
+      padding: var(--space-md);
+      margin-bottom: var(--space-md);
     }
 
     .solution-flow {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: var(--space-md);
+      gap: var(--space-sm);
       flex-wrap: wrap;
     }
 
@@ -508,8 +527,8 @@
     .solution-result {
       display: flex;
       align-items: center;
-      gap: var(--space-xl);
-      padding: var(--space-2xl);
+      gap: var(--space-lg);
+      padding: var(--space-md);
       background: rgba(34, 197, 94, 0.05);
       border: 2px solid rgba(34, 197, 94, 0.3);
       border-radius: var(--radius-xl);
@@ -520,8 +539,8 @@
     }
 
     .solution-result__icon {
-      width: 64px;
-      height: 64px;
+      width: 48px;
+      height: 48px;
       flex-shrink: 0;
       background: rgba(34, 197, 94, 0.15);
       border-radius: 50%;
@@ -532,12 +551,12 @@
     }
 
     .solution-result__icon svg {
-      width: 32px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
     }
 
     .solution-result__title {
-      font-size: 1.25rem;
+      font-size: 1.125rem;
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: var(--space-xs);
@@ -554,28 +573,29 @@
        ============================================ */
 
     .features-intro {
-      margin-bottom: var(--space-xl);
+      margin-bottom: var(--space-md);
       text-align: center;
     }
 
     .features-intro__title {
-      font-size: 1.5rem;
-      font-weight: 700;
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      font-weight: 800;
+      line-height: 1.15;
       margin-bottom: var(--space-sm);
     }
 
     .features-intro__desc {
       font-size: 1rem;
       color: var(--text-secondary);
-      line-height: 1.6;
+      line-height: 1.55;
       max-width: 700px;
       margin: 0 auto;
     }
 
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: var(--space-lg);
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-md);
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -583,7 +603,7 @@
     /* Feature cards with top accent line */
     .feature-card {
       position: relative;
-      padding: var(--space-xl);
+      padding: var(--space-md);
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-xl);
@@ -621,18 +641,18 @@
     }
 
     .feature-card__icon {
-      width: 48px;
-      height: 48px;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: var(--radius-md);
-      margin-bottom: var(--space-md);
+      margin-bottom: var(--space-sm);
     }
 
     .feature-card__icon svg {
-      width: 28px;
-      height: 28px;
+      width: 22px;
+      height: 22px;
     }
 
     .feature-card--ai .feature-card__icon {
@@ -666,9 +686,9 @@
     }
 
     .feature-card__title {
-      font-size: 1.125rem;
+      font-size: 1rem;
       font-weight: 600;
-      margin-bottom: var(--space-sm);
+      margin-bottom: var(--space-xs);
       color: var(--text-primary);
     }
 
@@ -683,20 +703,21 @@
        ============================================ */
 
     .result-intro {
-      margin-bottom: var(--space-xl);
+      margin-bottom: var(--space-md);
       text-align: center;
     }
 
     .result-intro__title {
-      font-size: 1.5rem;
-      font-weight: 700;
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      font-weight: 800;
+      line-height: 1.15;
       margin-bottom: var(--space-sm);
     }
 
     .result-intro__desc {
       font-size: 1rem;
       color: var(--text-secondary);
-      line-height: 1.6;
+      line-height: 1.55;
       max-width: 600px;
       margin: 0 auto;
     }
@@ -705,14 +726,13 @@
     .result-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: var(--space-lg);
-      max-width: 1500px;
-      margin-left: calc(50% - 750px);
-      margin-right: calc(50% - 750px);
+      gap: var(--space-md);
+      max-width: 1300px;
+      margin: 0 auto;
     }
 
     .result-item {
-      padding: var(--space-xl);
+      padding: var(--space-md);
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-xl);
@@ -727,34 +747,87 @@
     }
 
     .result-number {
-      width: 56px;
-      height: 56px;
-      margin: 0 auto var(--space-md);
+      width: 44px;
+      height: 44px;
+      margin: 0 auto var(--space-sm);
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: var(--radius-lg);
       background: rgba(34, 197, 94, 0.1);
       font-family: var(--font-display);
-      font-size: 2rem;
+      font-size: 1.5rem;
       font-weight: 800;
       color: #22C55E;
     }
 
     .result-content h4 {
-      font-size: 1.125rem;
+      font-size: 1rem;
       font-weight: 600;
-      margin-bottom: var(--space-sm);
+      margin-bottom: var(--space-xs);
       color: var(--text-primary);
     }
 
     .result-content p {
-      font-size: 0.875rem;
+      font-size: 0.9375rem;
       color: var(--text-secondary);
       line-height: 1.5;
     }
 
-    @media (max-width: 1500px) {
+    .result-cta {
+      text-align: center;
+      margin-top: var(--space-sm);
+    }
+
+    .result-cta__text {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      max-width: 650px;
+      margin: 0 auto var(--space-sm);
+    }
+
+    .result-cta__buttons {
+      display: flex;
+      gap: var(--space-md);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .result-cta__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-lg);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+    }
+
+    .result-cta__btn--primary {
+      background: var(--accent-primary);
+      color: var(--bg-primary);
+    }
+
+    .result-cta__btn--primary:hover {
+      background: var(--accent-secondary);
+      transform: translateY(-1px);
+    }
+
+    .result-cta__btn--ghost {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-default);
+    }
+
+    .result-cta__btn--ghost:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    @media (max-width: 1200px) {
       .result-grid {
         grid-template-columns: repeat(4, 1fr);
         max-width: 1200px;
@@ -786,20 +859,21 @@
        ============================================ */
 
     .integrations-intro {
-      margin-bottom: var(--space-xl);
+      margin-bottom: var(--space-md);
       text-align: center;
     }
 
     .integrations-intro__title {
-      font-size: 1.5rem;
-      font-weight: 700;
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      font-weight: 800;
+      line-height: 1.15;
       margin-bottom: var(--space-sm);
     }
 
     .integrations-intro__desc {
       font-size: 1rem;
       color: var(--text-secondary);
-      line-height: 1.6;
+      line-height: 1.55;
       max-width: 600px;
       margin: 0 auto;
     }
@@ -807,13 +881,13 @@
     .integrations-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-lg);
+      gap: var(--space-md);
       max-width: 1200px;
       margin: 0 auto;
     }
 
     .integration-card {
-      padding: var(--space-xl);
+      padding: var(--space-md);
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-xl);
@@ -844,9 +918,9 @@
     }
 
     .integration-card__icon {
-      width: 56px;
-      height: 56px;
-      margin: 0 auto var(--space-md);
+      width: 44px;
+      height: 44px;
+      margin: 0 auto var(--space-sm);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -854,8 +928,8 @@
     }
 
     .integration-card__icon svg {
-      width: 32px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
     }
 
     .integration-card--kommo .integration-card__icon {
@@ -879,14 +953,14 @@
     }
 
     .integration-card__title {
-      font-size: 1.125rem;
+      font-size: 1rem;
       font-weight: 600;
-      margin-bottom: var(--space-sm);
+      margin-bottom: var(--space-xs);
       color: var(--text-primary);
     }
 
     .integration-card__desc {
-      font-size: 0.875rem;
+      font-size: 0.9375rem;
       color: var(--text-secondary);
       line-height: 1.5;
     }
@@ -896,20 +970,21 @@
        ============================================ */
 
     .interface-intro {
-      margin-bottom: var(--space-xl);
+      margin-bottom: var(--space-md);
       text-align: center;
     }
 
     .interface-intro__title {
-      font-size: 1.5rem;
-      font-weight: 700;
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      font-weight: 800;
+      line-height: 1.15;
       margin-bottom: var(--space-sm);
     }
 
     .interface-intro__desc {
       font-size: 1rem;
       color: var(--text-secondary);
-      line-height: 1.6;
+      line-height: 1.55;
       max-width: 600px;
       margin: 0 auto;
     }
@@ -927,7 +1002,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: var(--space-md) var(--space-lg);
+      padding: var(--space-sm) var(--space-md);
       background: var(--bg-tertiary);
       border-bottom: 1px solid var(--border-subtle);
     }
@@ -983,13 +1058,13 @@
 
     .dashboard__stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: var(--space-md);
-      padding: var(--space-xl);
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: var(--space-sm);
+      padding: var(--space-md);
     }
 
     .stat-card {
-      padding: var(--space-lg);
+      padding: var(--space-md);
       background: var(--bg-tertiary);
       border-radius: var(--radius-md);
       border-left: 3px solid;
@@ -1013,7 +1088,7 @@
 
     .stat-card__value {
       font-family: var(--font-display);
-      font-size: 2rem;
+      font-size: 1.5rem;
       font-weight: 700;
       margin-bottom: var(--space-xs);
     }
@@ -1024,7 +1099,7 @@
     .stat-card--crm .stat-card__value { color: #22C55E; }
 
     .stat-card__label {
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       color: var(--text-secondary);
     }
 
@@ -1036,17 +1111,17 @@
 
     /* Lead badges demo */
     .dashboard__leads {
-      padding: 0 var(--space-xl) var(--space-xl);
+      padding: 0 var(--space-md) var(--space-md);
       display: flex;
       flex-direction: column;
-      gap: var(--space-sm);
+      gap: var(--space-xs);
     }
 
     .lead-item {
       display: flex;
       align-items: center;
       gap: var(--space-md);
-      padding: var(--space-md);
+      padding: var(--space-sm);
       background: var(--bg-tertiary);
       border-radius: var(--radius-md);
     }
@@ -1101,6 +1176,11 @@
        ============================================ */
 
     @media (max-width: 768px) {
+      .scene-panel--active {
+        min-height: auto;
+        padding: var(--space-xl) var(--space-md);
+      }
+
       .scene-tabs__inner {
         flex-direction: column;
         gap: var(--space-sm);
@@ -1184,9 +1264,9 @@
             <button class="scene-tabs__tab" data-tab="problem">Проблема</button>
             <button class="scene-tabs__tab" data-tab="solution">Решение</button>
             <button class="scene-tabs__tab" data-tab="features">Возможности</button>
-            <button class="scene-tabs__tab" data-tab="result">Результат</button>
             <button class="scene-tabs__tab" data-tab="integrations">Интеграции</button>
             <button class="scene-tabs__tab" data-tab="interface">Интерфейс</button>
+            <button class="scene-tabs__tab" data-tab="result">Итог</button>
           </div>
           <div class="scene-tabs__actions">
             <a href="../portfolio.html" class="scene-tabs__back">
@@ -1195,12 +1275,8 @@
               </svg>
               Все проекты
             </a>
-            <a href="https://github.com/AlexLvGulyaev/Lead-Qualification-MVP" class="scene-tabs__btn scene-tabs__btn--ghost" target="_blank" rel="noopener noreferrer">
-              GitHub
-            </a>
-            <a href="https://lead-qual-demo.alex-n8n.site" class="scene-tabs__btn scene-tabs__btn--primary" target="_blank" rel="noopener noreferrer">
-              Демо
-            </a>
+            <a href="https://github.com/AlexLvGulyaev/Lead-Qualification-MVP" class="scene-tabs__btn scene-tabs__btn--ghost" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://lead-qual-demo.alex-n8n.site" class="scene-tabs__btn scene-tabs__btn--primary" target="_blank" rel="noopener noreferrer">Демо</a>
           </div>
         </div>
       </nav>
@@ -1642,53 +1718,6 @@
             </div>
           </div>
 
-          <!-- Result scene -->
-          <div class="scene-panel" data-panel="result">
-            <div class="result-intro">
-              <h2 class="result-intro__title">Что получает менеджер</h2>
-              <p class="result-intro__desc">
-                Автоматизация даёт менеджеру готового к работе лида без ручной обработки.
-              </p>
-            </div>
-            <div class="result-grid">
-              <div class="result-item">
-                <div class="result-number">1</div>
-                <div class="result-content">
-                  <h4>Приоритет</h4>
-                  <p>Лид уже ранжирован: hot / warm / cold. Менеджер видит приоритет сразу.</p>
-                </div>
-              </div>
-              <div class="result-item">
-                <div class="result-number">2</div>
-                <div class="result-content">
-                  <h4>Классификация</h4>
-                  <p>Тип обращения, уровень интереса, категория — все данные в карточке.</p>
-                </div>
-              </div>
-              <div class="result-item">
-                <div class="result-number">3</div>
-                <div class="result-content">
-                  <h4>AI-резюме</h4>
-                  <p>Краткое описание обращения, сформированное автоматически.</p>
-                </div>
-              </div>
-              <div class="result-item">
-                <div class="result-number">4</div>
-                <div class="result-content">
-                  <h4>Запись в CRM</h4>
-                  <p>Все результаты квалификации автоматически записаны в карточку лида.</p>
-                </div>
-              </div>
-              <div class="result-item">
-                <div class="result-number">5</div>
-                <div class="result-content">
-                  <h4>Уведомление и задача</h4>
-                  <p>Менеджер получает уведомление и готовую задачу для работы.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- Integrations scene - Brand colors -->
           <div class="scene-panel" data-panel="integrations">
             <div class="integrations-intro">
@@ -1813,6 +1842,61 @@
                     <div class="lead-source lead-source--telegram">Telegram Bot</div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Result scene -->
+          <div class="scene-panel" data-panel="result">
+            <div class="result-intro">
+              <h2 class="result-intro__title">Что получает менеджер</h2>
+              <p class="result-intro__desc">
+                Автоматизация даёт менеджеру готового к работе лида без ручной обработки.
+              </p>
+            </div>
+            <div class="result-grid">
+              <div class="result-item">
+                <div class="result-number">1</div>
+                <div class="result-content">
+                  <h4>Приоритет</h4>
+                  <p>Лид уже ранжирован: hot / warm / cold. Менеджер видит приоритет сразу.</p>
+                </div>
+              </div>
+              <div class="result-item">
+                <div class="result-number">2</div>
+                <div class="result-content">
+                  <h4>Классификация</h4>
+                  <p>Тип обращения, уровень интереса, категория — все данные в карточке.</p>
+                </div>
+              </div>
+              <div class="result-item">
+                <div class="result-number">3</div>
+                <div class="result-content">
+                  <h4>AI-резюме</h4>
+                  <p>Краткое описание обращения, сформированное автоматически.</p>
+                </div>
+              </div>
+              <div class="result-item">
+                <div class="result-number">4</div>
+                <div class="result-content">
+                  <h4>Запись в CRM</h4>
+                  <p>Все результаты квалификации автоматически записаны в карточку лида.</p>
+                </div>
+              </div>
+              <div class="result-item">
+                <div class="result-number">5</div>
+                <div class="result-content">
+                  <h4>Уведомление и задача</h4>
+                  <p>Менеджер получает уведомление и готовую задачу для работы.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="result-cta">
+              <p class="result-cta__text">Автоматическая квалификация лидов сокращает время обработки заявок с часов до секунд.</p>
+              <div class="result-cta__buttons">
+                <a href="https://lead-qual-demo.alex-n8n.site" class="result-cta__btn result-cta__btn--primary" target="_blank" rel="noopener noreferrer">Посмотреть демо</a>
+                <a href="../contacts.html" class="result-cta__btn result-cta__btn--ghost">Обсудить проект</a>
               </div>
             </div>
           </div>

@@ -3,13 +3,972 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Prompt Review — Автоматическая проверка промптов.">
+  <meta name="description" content="Prompt Review — AI-сервис для анализа качества промптов. Quality gate для LLM-инструкций.">
   <title>Prompt Review — AI Portfolio</title>
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600<link rel="stylesheet" href="../css/styles.css">display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Prompt Review — AI Portfolio Case Page */
+
+    :root {
+      --pr-accent: #14b8a6;
+      --pr-accent-soft: rgba(20, 184, 166, 0.15);
+      --pr-accent-border: rgba(20, 184, 166, 0.3);
+      --pr-cyan: #06b6d4;
+      --pr-cyan-soft: rgba(6, 182, 212, 0.15);
+      --pr-success: #22c55e;
+      --pr-success-soft: rgba(34, 197, 94, 0.15);
+      --pr-warning: #f59e0b;
+      --pr-warning-soft: rgba(245, 158, 11, 0.15);
+      --pr-danger: #ef4444;
+      --pr-danger-soft: rgba(239, 68, 68, 0.15);
+    }
+
+    /* Scene tabs */
+    .scene-tabs {
+      background: var(--bg-primary);
+      position: sticky;
+      top: 60px;
+      z-index: 10;
+    }
+
+    .scene-tabs__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-lg);
+    }
+
+    .scene-tabs__nav {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0;
+    }
+
+    .scene-tabs__nav::-webkit-scrollbar { display: none; }
+
+    .scene-tabs__tab {
+      padding: var(--space-md) var(--space-lg);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+    }
+
+    .scene-tabs__tab:hover { color: var(--text-secondary); }
+
+    .scene-tabs__tab--active {
+      color: var(--pr-accent);
+      border-bottom-color: var(--pr-accent);
+    }
+
+    .scene-tabs__actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-shrink: 0;
+      padding-left: var(--space-lg);
+    }
+
+    .scene-tabs__back {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color var(--transition-fast);
+    }
+
+    .scene-tabs__back:hover { color: var(--text-primary); }
+
+    .scene-tabs__back svg { width: 16px; height: 16px; }
+
+    .scene-tabs__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-sm) var(--space-lg);
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+    }
+
+    .scene-tabs__btn--primary {
+      background: var(--pr-accent);
+      color: var(--bg-primary);
+    }
+
+    .scene-tabs__btn--primary:hover { background: var(--accent-secondary); }
+
+    .scene-tabs__btn--ghost {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-default);
+    }
+
+    .scene-tabs__btn--ghost:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    /* Fixed footer for viewport-aware scenes */
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 90;
+    }
+
+    .main {
+      padding-bottom: 68px;
+    }
+
+    /* Scene content */
+    .scene-content { padding: 0; }
+
+    .scene-panel { display: none; }
+
+    .scene-panel--active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 64px - 52px - 68px);
+      padding: var(--space-lg) 0;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .scene-section {
+      width: 96vw;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    /* Common intro */
+    .scene-intro {
+      text-align: center;
+      margin-bottom: var(--space-md);
+    }
+
+    .scene-intro__eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--pr-accent);
+      margin-bottom: var(--space-sm);
+    }
+
+    .scene-intro__title {
+      font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: var(--space-sm);
+      color: var(--text-primary);
+    }
+
+    .scene-intro__title-accent { color: var(--pr-accent); }
+
+    .scene-intro__desc {
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .scene-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 100%;
+      max-width: 1300px;
+      margin: 0 auto;
+      gap: var(--space-md);
+    }
+
+    .scene-stack--compact {
+      gap: var(--space-sm);
+    }
+
+    .scene-stack--compact .scene-intro {
+      margin-bottom: var(--space-xs);
+    }
+
+    .scene-stack .scene-intro {
+      margin-bottom: 0;
+    }
+
+    .scene-split {
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: var(--space-xl);
+      align-items: center;
+      width: 100%;
+    }
+
+    .scene-text-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-width: 0;
+    }
+
+    .scene-viz-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .scene-intro--left {
+      text-align: left;
+      align-items: flex-start;
+      margin-bottom: var(--space-sm);
+    }
+
+    .scene-intro--left .scene-intro__desc {
+      margin: 0;
+      max-width: none;
+    }
+
+    /* Metric cards */
+    .metric-row {
+      display: flex;
+      gap: var(--space-md);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: var(--space-sm);
+    }
+
+    .metric-card {
+      padding: var(--space-md) var(--space-lg);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      min-width: 160px;
+      border-top: 3px solid var(--pr-accent);
+    }
+
+    .metric-card--cyan { border-top-color: var(--pr-cyan); }
+    .metric-card--success { border-top-color: var(--pr-success); }
+
+    .metric-card__value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--pr-accent);
+      margin-bottom: var(--space-xs);
+      letter-spacing: -0.02em;
+    }
+
+    .metric-card--cyan .metric-card__value { color: var(--pr-cyan); }
+    .metric-card--success .metric-card__value { color: var(--pr-success); }
+
+    .metric-card__label {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.35;
+    }
+
+    /* Process flow */
+    .process-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-sm);
+    }
+
+    .process-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-xs);
+      min-width: 120px;
+    }
+
+    .process-node__icon {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-lg);
+      background: var(--pr-accent-soft);
+      color: var(--pr-accent);
+      border: 1px solid var(--pr-accent-border);
+    }
+
+    .process-node__icon svg { width: 28px; height: 28px; }
+
+    .process-node__label {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .process-node__desc {
+      font-size: 0.8125rem;
+      color: var(--text-tertiary);
+    }
+
+    .process-arrow {
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .process-arrow svg { width: 24px; height: 24px; }
+
+    /* Section note */
+    .section-note {
+      margin: 0 auto;
+      padding: var(--space-md) var(--space-2xl);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--pr-accent);
+      border-right: 4px solid var(--pr-accent);
+      border-radius: var(--radius-lg);
+      font-size: 1.0625rem;
+      color: var(--text-primary);
+      line-height: 1.5;
+      text-align: center;
+      max-width: 1100px;
+    }
+
+    .section-note strong { color: var(--pr-accent); }
+
+    /* Problem chain */
+    .problem-chain {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .chain-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-xl);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      min-width: 200px;
+      flex: 1;
+      max-width: 240px;
+    }
+
+    .chain-card__icon {
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .chain-card__icon svg { width: 28px; height: 28px; }
+
+    .chain-card--teal { border-top: 3px solid var(--pr-accent); }
+    .chain-card--warning { border-top: 3px solid var(--pr-warning); }
+    .chain-card--danger { border-top: 3px solid var(--pr-danger); }
+    .chain-card--cyan { border-top: 3px solid var(--pr-cyan); }
+
+    .chain-card--teal .chain-card__icon { background: var(--pr-accent-soft); color: var(--pr-accent); }
+    .chain-card--warning .chain-card__icon { background: var(--pr-warning-soft); color: var(--pr-warning); }
+    .chain-card--danger .chain-card__icon { background: var(--pr-danger-soft); color: var(--pr-danger); }
+    .chain-card--cyan .chain-card__icon { background: var(--pr-cyan-soft); color: var(--pr-cyan); }
+
+    .chain-card__title {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .chain-card__desc {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .chain-arrow {
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chain-arrow svg { width: 28px; height: 28px; }
+
+    /* Feature grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .feature-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-xl);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      border-top: 3px solid var(--pr-warning);
+    }
+
+    .feature-card__icon {
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      background: var(--pr-warning-soft);
+      color: var(--pr-warning);
+    }
+
+    .feature-card__icon svg { width: 28px; height: 28px; }
+
+    .feature-card__title {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .feature-card__desc {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* Compact lists */
+    .compact-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      margin-top: var(--space-md);
+      text-align: left;
+    }
+
+    .compact-list li {
+      position: relative;
+      padding-left: var(--space-md);
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .compact-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--pr-accent);
+    }
+
+    .compact-list strong { color: var(--text-primary); font-weight: 600; }
+
+    /* Scorecard */
+    .scorecard {
+      width: 100%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .scorecard__title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-align: center;
+    }
+
+    .scorecard__grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+    }
+
+    .scorecard__item {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      text-align: center;
+    }
+
+    .scorecard__label {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .scorecard__bar {
+      height: 6px;
+      background: var(--bg-elevated);
+      border-radius: 3px;
+      margin-bottom: var(--space-xs);
+      overflow: hidden;
+    }
+
+    .scorecard__bar-fill {
+      height: 100%;
+      background: var(--pr-accent);
+      border-radius: 3px;
+    }
+
+    .scorecard__value {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--pr-accent);
+    }
+
+    .scorecard__footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .scorecard__level-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .scorecard__level-value {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--pr-accent);
+    }
+
+    /* Channel grid */
+    .channel-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-md);
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .channel-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-xl);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      border-top: 3px solid var(--pr-cyan);
+    }
+
+    .channel-card__icon {
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      background: var(--pr-cyan-soft);
+      color: var(--pr-cyan);
+    }
+
+    .channel-card__icon svg { width: 28px; height: 28px; }
+
+    .channel-card__title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .channel-card__desc {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .channel-card__source {
+      display: inline-block;
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      background: var(--bg-tertiary);
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--radius-sm);
+    }
+
+    /* Comparison */
+    .comparison-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: var(--space-lg);
+      align-items: center;
+      width: 100%;
+      max-width: 1100px;
+      margin-bottom: var(--space-sm);
+    }
+
+    .comparison-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-lg);
+      text-align: center;
+    }
+
+    .comparison-card--pr {
+      border-color: var(--pr-accent-border);
+      background: linear-gradient(180deg, var(--pr-accent-soft) 0%, var(--bg-secondary) 100%);
+    }
+
+    .comparison-card__eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-tertiary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .comparison-card__title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .comparison-card__value {
+      font-family: var(--font-display);
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .comparison-card--pr .comparison-card__value { color: var(--pr-accent); }
+
+    .comparison-card__desc {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .comparison-vs {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+    }
+
+    .comparison-vs svg {
+      width: 32px;
+      height: 32px;
+      color: var(--pr-accent);
+      margin-bottom: var(--space-xs);
+    }
+
+    /* Before/after prompt example */
+    .before-after {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .prompt-example {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-md);
+      text-align: left;
+    }
+
+    .prompt-example--weak {
+      border-left: 4px solid var(--pr-warning);
+    }
+
+    .prompt-example--improved {
+      border-left: 4px solid var(--pr-success);
+    }
+
+    .prompt-example__header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+
+    .prompt-example__header svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .prompt-example--weak .prompt-example__header { color: var(--pr-warning); }
+    .prompt-example--improved .prompt-example__header { color: var(--pr-success); }
+
+    .prompt-example__title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .prompt-example__text {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: var(--space-sm);
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin-bottom: var(--space-sm);
+      font-family: var(--font-body);
+    }
+
+    .prompt-example__list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .prompt-example__list li {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .prompt-example__list li svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      margin-top: 0.15em;
+    }
+
+    .prompt-example--weak .prompt-example__list li svg { color: var(--pr-warning); }
+    .prompt-example--improved .prompt-example__list li svg { color: var(--pr-success); }
+
+    /* Conclusion grid */
+    .conclusion-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-md);
+      width: 100%;
+      max-width: 1300px;
+      margin-bottom: var(--space-md);
+    }
+
+    .conclusion-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-lg);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      border-top: 3px solid var(--pr-accent);
+      transition: all var(--transition-fast);
+    }
+
+    .conclusion-card:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--pr-accent-border);
+    }
+
+    .conclusion-card__icon {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      background: var(--pr-accent-soft);
+      color: var(--pr-accent);
+    }
+
+    .conclusion-card__icon svg { width: 24px; height: 24px; }
+
+    .conclusion-card__title {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .conclusion-card__desc {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* CTA section */
+    .cta-section {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .cta-section__text {
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: var(--space-md);
+    }
+
+    .cta-section__buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .cta-section__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-md) var(--space-xl);
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+    }
+
+    .cta-section__btn--primary {
+      background: var(--pr-accent);
+      color: var(--bg-primary);
+    }
+
+    .cta-section__btn--primary:hover {
+      background: var(--accent-secondary);
+      transform: translateY(-2px);
+    }
+
+    .cta-section__btn--ghost {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-default);
+    }
+
+    .cta-section__btn--ghost:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .feature-grid { grid-template-columns: repeat(2, 1fr); }
+      .conclusion-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 992px) {
+      .scene-split {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+      }
+      .scorecard__grid { grid-template-columns: repeat(2, 1fr); }
+      .comparison-row { grid-template-columns: 1fr; gap: var(--space-md); }
+      .comparison-vs { display: none; }
+      .before-after { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .scene-tabs__inner {
+        flex-wrap: wrap;
+        padding: var(--space-sm) var(--space-md);
+      }
+      .scene-tabs__nav {
+        order: 2;
+        width: 100%;
+      }
+      .scene-tabs__actions {
+        order: 1;
+        width: 100%;
+        justify-content: flex-end;
+        padding-left: 0;
+        padding-bottom: var(--space-sm);
+      }
+      .scene-panel--active {
+        min-height: auto;
+        padding: var(--space-xl) var(--space-md);
+      }
+      .feature-grid { grid-template-columns: 1fr; }
+      .channel-grid { grid-template-columns: 1fr; }
+      .conclusion-grid { grid-template-columns: 1fr; }
+      .problem-chain { flex-direction: column; }
+      .chain-arrow { transform: rotate(90deg); }
+      .metric-row { flex-direction: column; align-items: center; }
+      .process-flow { flex-direction: column; }
+      .process-arrow { transform: rotate(90deg); }
+      .section-note {
+        padding: var(--space-md);
+        font-size: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <header class="header">
@@ -27,111 +986,484 @@
     </div>
   </header>
 
-  <main class="main">
-    <div class="page">
-      <article class="case-detail">
-        <div class="container">
-          <a href="../portfolio.html" class="case-detail__back">← Все проекты</a>
-          <header class="case-detail__header">
-            <div class="case-detail__title-section">
-              <h1 class="case-detail__title">Prompt Review</h1>
-              <div class="case-detail__tags">
-                <span class="tag">AI</span>
-                <span class="tag">Prompts</span>
-                <span class="tag">Quality</span>
-              </div>
-            </div>
-            <div class="case-detail__actions">
-              <a href="#" class="btn btn-secondary">GitHub</a>
-              <a href="#" class="btn btn-primary">Demo</a>
-            </div>
-          </header>
+  <div class="scene-tabs">
+    <div class="scene-tabs__inner">
+      <div class="scene-tabs__nav">
+        <button class="scene-tabs__tab scene-tabs__tab--active" data-tab="hero">Prompt Review</button>
+        <button class="scene-tabs__tab" data-tab="risk">Риск</button>
+        <button class="scene-tabs__tab" data-tab="manual">Ручное ревью</button>
+        <button class="scene-tabs__tab" data-tab="artefact">Артефакт</button>
+        <button class="scene-tabs__tab" data-tab="gate">Quality gate</button>
+        <button class="scene-tabs__tab" data-tab="stability">Стабильность</button>
+        <button class="scene-tabs__tab" data-tab="final">Итог</button>
+      </div>
+      <div class="scene-tabs__actions">
+        <a href="../portfolio.html" class="scene-tabs__back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Все проекты
+        </a>
+        <a href="https://github.com/AlexLvGulyaev/PromptReview" class="scene-tabs__btn scene-tabs__btn--ghost" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="../contacts.html" class="scene-tabs__btn scene-tabs__btn--primary">Demo</a>
+      </div>
+    </div>
+  </div>
 
-          <div class="tabs" style="min-height: 300px;">
-            <div class="tabs__nav">
-              <button class="tabs__tab tabs__tab--active" data-tab="task">Задача</button>
-              <button class="tabs__tab" data-tab="solution">Решение</button>
-              <button class="tabs__tab" data-tab="result">Результат</button>
-              <button class="tabs__tab" data-tab="tech">Технологии</button>
+  <main class="main">
+    <div class="scene-content">
+
+      <!-- Scene 1: Hero -->
+      <div class="scene-panel scene-panel--active" data-panel="hero">
+        <div class="scene-stack">
+          <div class="scene-intro">
+            <div class="scene-intro__eyebrow">Quality gate для промптов</div>
+            <h1 class="scene-intro__title">Делайте качество промптов <span class="scene-intro__title-accent">измеримым до production</span></h1>
+            <p class="scene-intro__desc">
+              Prompt Review анализирует промпт как инженерный артефакт: находит слабые места по 8 критериям, выдаёт приоритизированные рекомендации и готовую улучшенную редакцию.
+            </p>
+          </div>
+
+          <div class="metric-row">
+            <div class="metric-card">
+              <div class="metric-card__value">8</div>
+              <div class="metric-card__label">инженерных<br>критериев</div>
             </div>
-            <div class="tabs__content">
-              <div class="tabs__panel tabs__panel--active" data-panel="task">
-                <div class="case-detail__section">
-                  <p style="color: var(--text-secondary); line-height: 1.7;">
-                    Команда специалистов по AI работала с большим количеством промптов. Отсутствие стандартов приводило к нестабильным результатам.
-                  </p>
-                  <p style="color: var(--text-secondary); line-height: 1.7; margin-top: var(--spacing-md);">
-                    <strong style="color: var(--text-primary);">Проблемы:</strong>
-                  </p>
-                  <ul style="color: var(--text-secondary); margin-top: var(--spacing-sm); padding-left: var(--spacing-lg);">
-                    <li style="margin-bottom: var(--spacing-sm);">Низкое качество промптов</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Отсутствие best practices</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Сложность валидации</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Несогласованность в команде</li>
-                  </ul>
+            <div class="metric-card metric-card--cyan">
+              <div class="metric-card__value">30–60 сек</div>
+              <div class="metric-card__label">на полный<br>анализ</div>
+            </div>
+            <div class="metric-card metric-card--success">
+              <div class="metric-card__value">3</div>
+              <div class="metric-card__label">интерфейса:<br>Web, Telegram, API</div>
+            </div>
+          </div>
+
+          <div class="process-flow">
+            <div class="process-node">
+              <div class="process-node__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              </div>
+              <div class="process-node__label">Промпт</div>
+              <div class="process-node__desc">Входной текст</div>
+            </div>
+            <div class="process-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+            <div class="process-node">
+              <div class="process-node__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/></svg>
+              </div>
+              <div class="process-node__label">AI-анализ</div>
+              <div class="process-node__desc">8 критериев</div>
+            </div>
+            <div class="process-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+            <div class="process-node">
+              <div class="process-node__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M12 17V5M6 17v-4"/></svg>
+              </div>
+              <div class="process-node__label">Scorecard</div>
+              <div class="process-node__desc">Шкала 1–10</div>
+            </div>
+            <div class="process-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+            <div class="process-node">
+              <div class="process-node__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </div>
+              <div class="process-node__label">Ревизия</div>
+              <div class="process-node__desc">Улучшенная версия</div>
+            </div>
+          </div>
+
+          <div class="section-note">
+            Сервис <strong>не выполняет</strong> промпт — он ревьюит его структуру, как code review для кода.
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene 2: Risk -->
+      <div class="scene-panel" data-panel="risk">
+        <div class="scene-stack">
+          <div class="scene-intro">
+            <div class="scene-intro__eyebrow">Риск плохого промпта</div>
+            <h2 class="scene-intro__title">Проблема не в модели — <span class="scene-intro__title-accent">а в инструкции</span></h2>
+            <p class="scene-intro__desc">
+              Неявное допущение в промпте → непредсказуемый ответ LLM → инцидент или переделка. Проверка на входе дешевле исправления в production.
+            </p>
+          </div>
+
+          <div class="problem-chain">
+            <div class="chain-card chain-card--teal">
+              <div class="chain-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              </div>
+              <div class="chain-card__title">Неявное допущение</div>
+              <div class="chain-card__desc">Промпт предполагает контекст, который LLM не знает</div>
+            </div>
+            <div class="chain-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+            <div class="chain-card chain-card--warning">
+              <div class="chain-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              </div>
+              <div class="chain-card__title">Непредсказуемый ответ</div>
+              <div class="chain-card__desc">Результат варьируется от запуска к запуску</div>
+            </div>
+            <div class="chain-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+            <div class="chain-card chain-card--danger">
+              <div class="chain-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <div class="chain-card__title">Инцидент или откат</div>
+              <div class="chain-card__desc">AI-фича ведёт себя не так, как ожидал бизнес</div>
+            </div>
+            <div class="chain-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+            <div class="chain-card chain-card--cyan">
+              <div class="chain-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+              <div class="chain-card__title">Дорогие итерации</div>
+              <div class="chain-card__desc">Время инженера + LLM-вызовы на отладку</div>
+            </div>
+          </div>
+
+          <div class="section-note">
+            Проверка промпта на входе стоит <strong>одного анализа</strong>; исправление в production стоит гораздо больше.
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene 3: Manual review -->
+      <div class="scene-panel" data-panel="manual">
+        <div class="scene-stack">
+          <div class="scene-intro">
+            <div class="scene-intro__eyebrow">Почему ручное ревью не спасает</div>
+            <h2 class="scene-intro__title">Экспертная проверка <span class="scene-intro__title-accent">не масштабируется</span></h2>
+            <p class="scene-intro__desc">
+              Ручное ревью субъективно, не воспроизводимо и не встраивается в CI/CD. Экспертов мало, а промптов становится всё больше.
+            </p>
+          </div>
+
+          <div class="feature-grid">
+            <div class="feature-card">
+              <div class="feature-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div class="feature-card__title">Субъективность</div>
+              <div class="feature-card__desc">Один и тот же промпт получает разные оценки от разных экспертов</div>
+            </div>
+            <div class="feature-card">
+              <div class="feature-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M12 17V5M6 17v-4"/></svg>
+              </div>
+              <div class="feature-card__title">Невоспроизводимость</div>
+              <div class="feature-card__desc">Нет фиксированной модели оценки и единого стандарта</div>
+            </div>
+            <div class="feature-card">
+              <div class="feature-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div class="feature-card__title">Не масштабируется</div>
+              <div class="feature-card__desc">Рост числа промптов требует пропорционального роста экспертов</div>
+            </div>
+            <div class="feature-card">
+              <div class="feature-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <div class="feature-card__title">Вне CI/CD</div>
+              <div class="feature-card__desc">Ревью происходит ad-hoc, а не автоматически при каждом изменении</div>
+            </div>
+          </div>
+
+          <div class="section-note">
+            Экспертное время — <strong>дорогой и ограниченный ресурс</strong>. Его нельзя превратить в quality gate в потоке.
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene 4: Prompt as artifact -->
+      <div class="scene-panel" data-panel="artefact">
+        <div class="scene-section">
+          <div class="scene-split">
+            <div class="scene-text-col">
+              <div class="scene-intro scene-intro--left">
+                <div class="scene-intro__eyebrow">Промпт как инженерный артефакт</div>
+                <h2 class="scene-intro__title">Code review <span class="scene-intro__title-accent">для промптов</span></h2>
+                <p class="scene-intro__desc">
+                  Сервис не запускает промпт — он анализирует его структуру, оценивает по 8 критериям, выявляет сильные и слабые стороны и выдаёт готовую улучшенную редакцию.
+                </p>
+              </div>
+
+              <div class="metric-row" style="justify-content: flex-start;">
+                <div class="metric-card" style="min-width: 130px;">
+                  <div class="metric-card__value">8</div>
+                  <div class="metric-card__label">критериев<br>оценки</div>
+                </div>
+                <div class="metric-card metric-card--cyan" style="min-width: 130px;">
+                  <div class="metric-card__value">1–10</div>
+                  <div class="metric-card__label">шкала<br>по каждому</div>
+                </div>
+                <div class="metric-card metric-card--success" style="min-width: 130px;">
+                  <div class="metric-card__value">≥9</div>
+                  <div class="metric-card__label">уровень<br>excellent</div>
                 </div>
               </div>
-              <div class="tabs__panel" data-panel="solution">
-                <div class="case-detail__section">
-                  <p style="color: var(--text-secondary); line-height: 1.7;">
-                    Система автоматической проверки промптов.
-                  </p>
-                  <p style="color: var(--text-secondary); line-height: 1.7; margin-top: var(--spacing-md);">
-                    <strong style="color: var(--text-primary);">Возможности:</strong>
-                  </p>
-                  <ul style="color: var(--text-secondary); margin-top: var(--spacing-sm); padding-left: var(--spacing-lg);">
-                    <li style="margin-bottom: var(--spacing-sm);">Анализ структуры промпта</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Проверка на соответствие best practices</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Выявление потенциальных проблем</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Рекомендации по улучшению</li>
-                    <li style="margin-bottom: var(--spacing-sm);">База знаний с примерами</li>
-                  </ul>
+
+              <ul class="compact-list">
+                <li><strong>Ясность, полнота, однозначность</strong> — базовые инженерные свойства.</li>
+                <li><strong>Аудитория, формат, ограничения, предположения</strong> — контекст и границы.</li>
+                <li><strong>Повторяемость</strong> — можно ли получить тот же результат снова.</li>
+              </ul>
+            </div>
+
+            <div class="scene-viz-col">
+              <div class="scorecard">
+                <div class="scorecard__title">Scorecard анализа промпта</div>
+                <div class="scorecard__grid">
+                  <div class="scorecard__item">
+                    <div class="scorecard__label">Ясность</div>
+                    <div class="scorecard__bar"><div class="scorecard__bar-fill" style="width: 70%;"></div></div>
+                    <div class="scorecard__value">7 / 10</div>
+                  </div>
+                  <div class="scorecard__item">
+                    <div class="scorecard__label">Полнота</div>
+                    <div class="scorecard__bar"><div class="scorecard__bar-fill" style="width: 60%;"></div></div>
+                    <div class="scorecard__value">6 / 10</div>
+                  </div>
+                  <div class="scorecard__item">
+                    <div class="scorecard__label">Однозначность</div>
+                    <div class="scorecard__bar"><div class="scorecard__bar-fill" style="width: 50%;"></div></div>
+                    <div class="scorecard__value">5 / 10</div>
+                  </div>
+                  <div class="scorecard__item">
+                    <div class="scorecard__label">Аудитория</div>
+                    <div class="scorecard__bar"><div class="scorecard__bar-fill" style="width: 80%;"></div></div>
+                    <div class="scorecard__value">8 / 10</div>
+                  </div>
+                  <div class="scorecard__item">
+                    <div class="scorecard__label">Формат</div>
+                    <div class="scorecard__bar"><div class="scorecard__bar-fill" style="width: 40%;"></div></div>
+                    <div class="scorecard__value">4 / 10</div>
+                  </div>
+                  <div class="scorecard__item">
+                    <div class="scorecard__label">Ограничения</div>
+                    <div class="scorecard__bar"><div class="scorecard__bar-fill" style="width: 30%;"></div></div>
+                    <div class="scorecard__value">3 / 10</div>
+                  </div>
+                  <div class="scorecard__item">
+                    <div class="scorecard__label">Допущения</div>
+                    <div class="scorecard__bar"><div class="scorecard__bar-fill" style="width: 20%;"></div></div>
+                    <div class="scorecard__value">2 / 10</div>
+                  </div>
+                  <div class="scorecard__item">
+                    <div class="scorecard__label">Повторяемость</div>
+                    <div class="scorecard__bar"><div class="scorecard__bar-fill" style="width: 50%;"></div></div>
+                    <div class="scorecard__value">5 / 10</div>
+                  </div>
                 </div>
-              </div>
-              <div class="tabs__panel" data-panel="result">
-                <div class="case-detail__stats">
-                  <div class="case-detail__stat">
-                    <div class="case-detail__stat-value">40%</div>
-                    <div class="case-detail__stat-label">Повышение качества</div>
-                  </div>
-                  <div class="case-detail__stat">
-                    <div class="case-detail__stat-value">60%</div>
-                    <div class="case-detail__stat-label">Сокращение времени ревью</div>
-                  </div>
-                  <div class="case-detail__stat">
-                    <div class="case-detail__stat-value">3x</div>
-                    <div class="case-detail__stat-label">Меньше итераций доработки</div>
-                  </div>
-                  <div class="case-detail__stat">
-                    <div class="case-detail__stat-value">100%</div>
-                    <div class="case-detail__stat-label">Единые стандарты</div>
-                  </div>
-                </div>
-              </div>
-              <div class="tabs__panel" data-panel="tech">
-                <div class="case-detail__tech">
-                  <div class="case-detail__tech-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    OpenAI API — анализ и оценка
-                  </div>
-                  <div class="case-detail__tech-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                    n8n — оркестрация
-                  </div>
-                  <div class="case-detail__tech-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7z"/></svg>
-                    PostgreSQL — база знаний
-                  </div>
-                  <div class="case-detail__tech-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/></svg>
-                    Web Interface — UI
-                  </div>
+                <div class="scorecard__footer">
+                  <div class="scorecard__level-label">Уровень качества</div>
+                  <div class="scorecard__level-value">fair — 5 / 10</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </article>
+      </div>
+
+      <!-- Scene 5: Quality gate -->
+      <div class="scene-panel" data-panel="gate">
+        <div class="scene-stack">
+          <div class="scene-intro">
+            <div class="scene-intro__eyebrow">Quality gate в процессе</div>
+            <h2 class="scene-intro__title">Встраивайте проверку <span class="scene-intro__title-accent">туда, где работает команда</span></h2>
+            <p class="scene-intro__desc">
+              Web UI для ручной проверки, Telegram Bot для быстрой, REST API для CI/CD и пакетной обработки. Единый JSON-контракт для всех каналов.
+            </p>
+          </div>
+
+          <div class="channel-grid">
+            <div class="channel-card">
+              <div class="channel-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <div class="channel-card__title">Web UI</div>
+              <div class="channel-card__desc">Ручная проверка промптов через браузер</div>
+              <div class="channel-card__source">source: web</div>
+            </div>
+            <div class="channel-card">
+              <div class="channel-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              </div>
+              <div class="channel-card__title">Telegram Bot</div>
+              <div class="channel-card__desc">Быстрая проверка из мессенджера</div>
+              <div class="channel-card__source">source: telegram</div>
+            </div>
+            <div class="channel-card">
+              <div class="channel-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              </div>
+              <div class="channel-card__title">REST API / CI-CD</div>
+              <div class="channel-card__desc">Автоматизация ревью при каждом коммите</div>
+              <div class="channel-card__source">source: n8n, cli</div>
+            </div>
+          </div>
+
+          <div class="section-note">
+            Единый JSON-контракт для всех интерфейсов. Backend Adapter Pattern: <strong>LangFlow</strong> или <strong>LangChain</strong>.
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene 6: Stability -->
+      <div class="scene-panel" data-panel="stability">
+        <div class="scene-stack scene-stack--compact">
+          <div class="scene-intro">
+            <div class="scene-intro__eyebrow">Стабильность вместо угадывания</div>
+            <h2 class="scene-intro__title">AI-фичи становятся <span class="scene-intro__title-accent">предсказуемее</span></h2>
+            <p class="scene-intro__desc">
+              Каждый промпт проходит измеримую проверку до production. Команда работает по единому стандарту качества, а не по интуиции отдельного инженера.
+            </p>
+          </div>
+
+          <div class="comparison-row">
+            <div class="comparison-card">
+              <div class="comparison-card__eyebrow">Без ревью</div>
+              <div class="comparison-card__title">Запуск в production</div>
+              <div class="comparison-card__value">?</div>
+              <div class="comparison-card__desc">неожиданный результат → откат → итерации</div>
+            </div>
+            <div class="comparison-vs">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <div>vs</div>
+            </div>
+            <div class="comparison-card comparison-card--pr">
+              <div class="comparison-card__eyebrow">Prompt Review</div>
+              <div class="comparison-card__title">Оценка до запуска</div>
+              <div class="comparison-card__value">30–60 сек</div>
+              <div class="comparison-card__desc">исправление до production → стабильная фича</div>
+            </div>
+          </div>
+
+          <div class="before-after">
+            <div class="prompt-example prompt-example--weak">
+              <div class="prompt-example__header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                <div class="prompt-example__title">Слабый промпт</div>
+              </div>
+              <div class="prompt-example__text">
+                Напиши письмо клиенту о задержке.
+              </div>
+              <ul class="prompt-example__list">
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  Нет адресата и контекста
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  Не указан формат и тон
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  Результат неповторяем
+                </li>
+              </ul>
+            </div>
+            <div class="prompt-example prompt-example--improved">
+              <div class="prompt-example__header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <div class="prompt-example__title">Улучшенная редакция</div>
+              </div>
+              <div class="prompt-example__text">
+                Напиши вежливое деловое письмо на русском языке клиенту Иванову И.И. Тема: задержка поставки на 3 дня. Формат: 3 коротких абзаца. Укажи новую дату поставки: 30.07.2026. Тон: извиняющийся, но уверенный. Предложи связаться с менеджером.
+              </div>
+              <ul class="prompt-example__list">
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Аудитория и язык заданы
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Формат, тон, дата — явно
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Scorecard 1–10 по 8 критериям
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene 7: Final -->
+      <div class="scene-panel" data-panel="final">
+        <div class="scene-stack">
+          <div class="scene-intro">
+            <div class="scene-intro__eyebrow">Честные границы и итог</div>
+            <h2 class="scene-intro__title">Quality gate, <span class="scene-intro__title-accent">а не замена эксперту</span></h2>
+          </div>
+
+          <div class="conclusion-grid">
+            <div class="conclusion-card">
+              <div class="conclusion-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              </div>
+              <div class="conclusion-card__title">AI-оценка не абсолютна</div>
+              <div class="conclusion-card__desc">Оценки формируются LLM и могут интерпретировать промпт иначе, чем автор</div>
+            </div>
+            <div class="conclusion-card">
+              <div class="conclusion-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div class="conclusion-card__title">Доменная экспертиза остаётся за человеком</div>
+              <div class="conclusion-card__desc">Спорные и контекстно-зависимые случаи требуют эксперта</div>
+            </div>
+            <div class="conclusion-card">
+              <div class="conclusion-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              </div>
+              <div class="conclusion-card__title">Сервис анализирует структуру</div>
+              <div class="conclusion-card__desc">Не заменяет финальную валидацию улучшенной редакции</div>
+            </div>
+            <div class="conclusion-card">
+              <div class="conclusion-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M12 17V5M6 17v-4"/></svg>
+              </div>
+              <div class="conclusion-card__title">8 критериев, шкала 1–10</div>
+              <div class="conclusion-card__desc">Единый язык качества для команды вместо субъективных оценок</div>
+            </div>
+            <div class="conclusion-card">
+              <div class="conclusion-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div class="conclusion-card__title">Quality gate в CI/CD</div>
+              <div class="conclusion-card__desc">Плохой промпт выявляется до того, как он попадёт в production</div>
+            </div>
+          </div>
+
+          <div class="cta-section">
+            <p class="cta-section__text">
+              Если в команде растёт количество промптов и страдает стабильность AI-фич — обсудим, как Prompt Review сделает их качество измеримым.
+            </p>
+            <div class="cta-section__buttons">
+              <a href="../contacts.html" class="cta-section__btn cta-section__btn--primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>
+                Посмотреть демо
+              </a>
+              <a href="../contacts.html" class="cta-section__btn cta-section__btn--ghost">Обсудить проект</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -180,5 +1512,26 @@
       </button>
     </div>
   </div>
+
+  <script>
+    // Scene tabs navigation
+    (function() {
+      const tabs = document.querySelectorAll('.scene-tabs__tab');
+      const panels = document.querySelectorAll('.scene-panel');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const target = tab.dataset.tab;
+
+          tabs.forEach(t => t.classList.remove('scene-tabs__tab--active'));
+          tab.classList.add('scene-tabs__tab--active');
+
+          panels.forEach(p => {
+            p.classList.toggle('scene-panel--active', p.dataset.panel === target);
+          });
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
