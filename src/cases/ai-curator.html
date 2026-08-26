@@ -352,6 +352,65 @@
 
     .summary__value a { font-size: 0.9rem; }
 
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .metrics-grid > *:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      justify-self: center;
+      max-width: 50%;
+      width: 100%;
+    }
+
+    .metric-card {
+      display: flex;
+      gap: var(--space-md);
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .metric-card__icon {
+      width: 56px;
+      height: 56px;
+      min-width: 56px;
+      border-radius: var(--radius);
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+    }
+
+    .metric-card__content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .metric-card__label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .metric-card__value {
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.4;
+      color: var(--accent);
+    }
+
+    .metric-card__suffix {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
     /* Before/after */
     .ba-grid {
       display: grid;
@@ -1230,8 +1289,14 @@
       .final__inner { grid-template-columns: 1fr; }
       .summary__grid,
       .solution-grid,
+      .metrics-grid,
       .pipeline,
       .ba-grid { grid-template-columns: 1fr; }
+      .metrics-grid > *:last-child:nth-child(odd) {
+        grid-column: auto;
+        justify-self: stretch;
+        max-width: 100%;
+      }
       .ba-arrow { display: none; }
       .pipeline-cards { grid-template-columns: 1fr; }
       .pipeline__step:not(:last-child)::after {
@@ -1356,22 +1421,34 @@
           </div>
         </div>
 
-        <div class="summary__grid" style="grid-template-columns: repeat(4, 1fr);">
-          <div class="summary__item">
-            <div class="summary__label">Тесты</div>
-            <div class="summary__value"><strong>109</strong> pytest PASS</div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-card__icon">✅</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">Тесты</div>
+              <div class="metric-card__value">109<span class="metric-card__suffix"> pytest PASS</span></div>
+            </div>
           </div>
-          <div class="summary__item">
-            <div class="summary__label">E2E</div>
-            <div class="summary__value"><strong>26/26</strong> Phase 1 проверок</div>
+          <div class="metric-card">
+            <div class="metric-card__icon">🧪</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">E2E</div>
+              <div class="metric-card__value">26/26<span class="metric-card__suffix"> Phase 1 проверок</span></div>
+            </div>
           </div>
-          <div class="summary__item">
-            <div class="summary__label">Доступность</div>
-            <div class="summary__value"><strong>24/7</strong> для студентов</div>
+          <div class="metric-card">
+            <div class="metric-card__icon">🟢</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">Доступность</div>
+              <div class="metric-card__value">24/7<span class="metric-card__suffix"> для студентов</span></div>
+            </div>
           </div>
-          <div class="summary__item">
-            <div class="summary__label">Demo-роли</div>
-            <div class="summary__value"><strong>3</strong> для публичного доступа</div>
+          <div class="metric-card">
+            <div class="metric-card__icon">👤</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">Demo-роли</div>
+              <div class="metric-card__value">3<span class="metric-card__suffix"> для публичного доступа</span></div>
+            </div>
           </div>
         </div>
       </div>
