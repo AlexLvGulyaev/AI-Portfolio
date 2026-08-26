@@ -1168,7 +1168,8 @@ def lq_scenario_1_svg() -> str:
     svg.extend([
         f'  <rect x="{x2}" y="{panel_y}" width="{panel_w}" height="{panel_h}" rx="8" class="ui-source-card" style="fill:var(--surface-elevated);" />',
         f'  <text x="{x2 + panel_w // 2}" y="{panel_y + 36}" text-anchor="middle" class="ui-main-title" style="font-size:20px;">Новое обращение</text>',
-        f'  <text x="{x2 + panel_w // 2}" y="{panel_y + 60}" text-anchor="middle" class="ui-subtitle" style="font-size:12px;">Заполните форму, и наша система автоматически обработает ваш запрос</text>',
+        f'  <text x="{x2 + panel_w // 2}" y="{panel_y + 58}" text-anchor="middle" class="ui-subtitle" style="font-size:12px;">Заполните форму, и наша система автоматически</text>',
+        f'  <text x="{x2 + panel_w // 2}" y="{panel_y + 76}" text-anchor="middle" class="ui-subtitle" style="font-size:12px;">обработает ваш запрос</text>',
     ])
     render_steps(x2, panel_y + 100, [True, True, False], accent_line_to=0)
 
@@ -1184,7 +1185,7 @@ def lq_scenario_1_svg() -> str:
         f'  <text x="{x2 + 28}" y="{t_y + 140}" style="font-size:13px; fill:var(--text-primary);">интеграцией с CRM и автоматической постановкой</text>',
         f'  <text x="{x2 + 28}" y="{t_y + 160}" style="font-size:13px; fill:var(--text-primary);">задач менеджерам. Хотел бы обсудить сроки</text>',
         f'  <text x="{x2 + 28}" y="{t_y + 180}" style="font-size:13px; fill:var(--text-primary);">внедрения, возможности интеграции и бюджет.</text>',
-        f'  <text x="{x2 + panel_w - 22}" y="{t_y + 184}" text-anchor="end" class="ui-subtitle" style="font-size:11px;">271 / 2000</text>',
+        f'  <text x="{x2 + panel_w - 22}" y="{t_y + 204}" text-anchor="end" class="ui-subtitle" style="font-size:11px;">271 / 2000</text>',
         f'  <text x="{x2 + 18}" y="{t_y + 232}" style="font-size:13px; fill:#22c55e;">✓ Достаточно</text>',
         f'  <text x="{x2 + 18}" y="{t_y + 266}" style="font-size:12px; fill:var(--text-secondary);">Откуда вы узнали о нас? <tspan style="fill:#14b8a6;">*</tspan></text>',
         f'  <rect x="{x2 + 18}" y="{t_y + 272}" width="{panel_w - 36}" height="38" rx="5" class="ui-input" style="fill:var(--bg); stroke:var(--border);" />',
