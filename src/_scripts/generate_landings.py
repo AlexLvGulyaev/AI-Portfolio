@@ -1225,7 +1225,7 @@ def lq_scenario_1_svg() -> str:
 
 def lq_scenario_2_svg() -> str:
     """Lead Qualification admin lead detail page for LQ-100031 / Александр Петров."""
-    w, h = 1200, 720
+    w, h = 1200, 760
     m = 24
     gap = 16
     hdr_h = 50
@@ -1249,7 +1249,7 @@ def lq_scenario_2_svg() -> str:
 
     def label_value(x: int, y: int, label: str, value: str, value_color: str = "var(--text-primary)", value_weight: str = "500") -> None:
         svg.append(f'  <text x="{x}" y="{y}" style="font-size:13px; fill:var(--text-secondary);">{escape_text(label)}</text>')
-        svg.append(f'  <text x="{x + 150}" y="{y}" style="font-size:14px; fill:{value_color}; font-weight:{value_weight};">{escape_text(value)}</text>')
+        svg.append(f'  <text x="{x + 190}" y="{y}" style="font-size:14px; fill:{value_color}; font-weight:{value_weight};">{escape_text(value)}</text>')
 
     # Row 1: passport + qualification
     x1, x2 = m, m + card_w + gap
@@ -1266,8 +1266,8 @@ def lq_scenario_2_svg() -> str:
     section_title(x2 + 16, y1 + 26, "КВАЛИФИКАЦИЯ ЛИДА")
     label_value(x2 + 16, y1 + 60, "Квалифицирован", "16.06.2026, 16:20")
     svg.append(f'  <text x="{x2 + 16}" y="{y1 + 92}" style="font-size:13px; fill:var(--text-secondary);">Тип</text>')
-    svg.append(f'  <rect x="{x2 + 166}" y="{y1 + 78}" width="72" height="24" rx="4" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="1" />')
-    svg.append(f'  <text x="{x2 + 202}" y="{y1 + 95}" text-anchor="middle" style="font-size:13px; fill:#f59e0b; font-weight:600;">Тёплый</text>')
+    svg.append(f'  <rect x="{x2 + 206}" y="{y1 + 78}" width="72" height="24" rx="4" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="1" />')
+    svg.append(f'  <text x="{x2 + 242}" y="{y1 + 95}" text-anchor="middle" style="font-size:13px; fill:#f59e0b; font-weight:600;">Тёплый</text>')
     label_value(x2 + 16, y1 + 126, "Приоритет", "Средний")
     label_value(x2 + 16, y1 + 158, "Уверенность", "85 %")
     label_value(x2 + 16, y1 + 190, "Рекомендуемое действие", "Email")
