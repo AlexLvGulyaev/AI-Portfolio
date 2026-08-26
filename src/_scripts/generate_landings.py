@@ -1225,106 +1225,103 @@ def lq_scenario_1_svg() -> str:
 
 def lq_scenario_2_svg() -> str:
     """Lead Qualification admin lead detail page for LQ-100031 / Александр Петров."""
-    w, h = 1200, 640
+    w, h = 1200, 720
     m = 24
     gap = 16
     hdr_h = 50
     card_w = (w - 2 * m - gap) // 2
-    top_h = 210
-    mid_h = 170
-    bot_h = 130
+    card_h = 208
     y0 = m + hdr_h + gap
 
     svg = [
         f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Lead Qualification: карточка лида LQ-100031 Петрова Александра в админ-панели">',
         f'  <rect x="{m}" y="{m}" width="{w - 2 * m}" height="{hdr_h}" rx="6" class="ui-window" />',
-        f'  <text x="{m + 16}" y="{m + 33}" class="ui-main-title" style="font-size:18px; font-weight:700;">Лид LQ-100031</text>',
-        f'  <rect x="{w - m - 130}" y="{m + 12}" width="114" height="26" rx="5" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />',
-        f'  <text x="{w - m - 73}" y="{m + 30}" text-anchor="middle" style="font-size:11px; fill:#22c55e; font-weight:600; letter-spacing:0.3px;">ПЕРЕДАН В CRM</text>',
+        f'  <text x="{m + 16}" y="{m + 34}" class="ui-main-title" style="font-size:20px; font-weight:700;">Лид LQ-100031</text>',
+        f'  <rect x="{w - m - 138}" y="{m + 11}" width="122" height="28" rx="5" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />',
+        f'  <text x="{w - m - 77}" y="{m + 30}" text-anchor="middle" style="font-size:12px; fill:#22c55e; font-weight:600; letter-spacing:0.3px;">ПЕРЕДАН В CRM</text>',
     ]
 
     def card(x: int, y: int, cw: int, ch: int) -> None:
         svg.append(f'  <rect x="{x}" y="{y}" width="{cw}" height="{ch}" rx="8" class="ui-source-card" style="fill:var(--surface-elevated);" />')
 
     def section_title(x: int, y: int, title: str) -> None:
-        svg.append(f'  <text x="{x}" y="{y}" class="ui-source-label" style="font-size:11px; letter-spacing:0.5px;">{escape_text(title)}</text>')
+        svg.append(f'  <text x="{x}" y="{y}" class="ui-source-label" style="font-size:12px; letter-spacing:0.5px;">{escape_text(title)}</text>')
 
     def label_value(x: int, y: int, label: str, value: str, value_color: str = "var(--text-primary)", value_weight: str = "500") -> None:
-        svg.append(f'  <text x="{x}" y="{y}" style="font-size:12px; fill:var(--text-secondary);">{escape_text(label)}</text>')
-        svg.append(f'  <text x="{x + 130}" y="{y}" style="font-size:13px; fill:{value_color}; font-weight:{value_weight};">{escape_text(value)}</text>')
+        svg.append(f'  <text x="{x}" y="{y}" style="font-size:13px; fill:var(--text-secondary);">{escape_text(label)}</text>')
+        svg.append(f'  <text x="{x + 150}" y="{y}" style="font-size:14px; fill:{value_color}; font-weight:{value_weight};">{escape_text(value)}</text>')
 
     # Row 1: passport + qualification
     x1, x2 = m, m + card_w + gap
     y1 = y0
-    card(x1, y1, card_w, top_h)
-    section_title(x1 + 16, y1 + 24, "ПАСПОРТ ЛИДА")
-    label_value(x1 + 16, y1 + 56, "Создан", "16.06.2026, 16:16")
-    label_value(x1 + 16, y1 + 84, "Источник", "Website", "#22c55e")
-    label_value(x1 + 16, y1 + 112, "Клиент", "Петров Александр", "var(--text-primary)", "600")
-    label_value(x1 + 16, y1 + 140, "Телефон", "+7 (495) 123-45-67")
-    label_value(x1 + 16, y1 + 168, "Email", "a.petrov@example.com")
+    card(x1, y1, card_w, card_h)
+    section_title(x1 + 16, y1 + 26, "ПАСПОРТ ЛИДА")
+    label_value(x1 + 16, y1 + 60, "Создан", "16.06.2026, 16:16")
+    label_value(x1 + 16, y1 + 92, "Источник", "Website", "#22c55e")
+    label_value(x1 + 16, y1 + 124, "Клиент", "Петров Александр", "var(--text-primary)", "600")
+    label_value(x1 + 16, y1 + 156, "Телефон", "+7 (495) 123-45-67")
+    label_value(x1 + 16, y1 + 188, "Email", "a.petrov@example.com")
 
-    card(x2, y1, card_w, top_h)
-    section_title(x2 + 16, y1 + 24, "КВАЛИФИКАЦИЯ ЛИДА")
-    label_value(x2 + 16, y1 + 56, "Квалифицирован", "16.06.2026, 16:20")
-    svg.append(f'  <text x="{x2 + 16}" y="{y1 + 84}" style="font-size:12px; fill:var(--text-secondary);">Тип</text>')
-    svg.append(f'  <rect x="{x2 + 146}" y="{y1 + 70}" width="66" height="22" rx="4" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="1" />')
-    svg.append(f'  <text x="{x2 + 179}" y="{y1 + 85}" text-anchor="middle" style="font-size:12px; fill:#f59e0b; font-weight:600;">Тёплый</text>')
-    label_value(x2 + 16, y1 + 116, "Приоритет", "Средний")
-    label_value(x2 + 16, y1 + 144, "Уверенность", "85 %")
-    label_value(x2 + 16, y1 + 172, "Рекомендуемое действие", "Email")
+    card(x2, y1, card_w, card_h)
+    section_title(x2 + 16, y1 + 26, "КВАЛИФИКАЦИЯ ЛИДА")
+    label_value(x2 + 16, y1 + 60, "Квалифицирован", "16.06.2026, 16:20")
+    svg.append(f'  <text x="{x2 + 16}" y="{y1 + 92}" style="font-size:13px; fill:var(--text-secondary);">Тип</text>')
+    svg.append(f'  <rect x="{x2 + 166}" y="{y1 + 78}" width="72" height="24" rx="4" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="1" />')
+    svg.append(f'  <text x="{x2 + 202}" y="{y1 + 95}" text-anchor="middle" style="font-size:13px; fill:#f59e0b; font-weight:600;">Тёплый</text>')
+    label_value(x2 + 16, y1 + 126, "Приоритет", "Средний")
+    label_value(x2 + 16, y1 + 158, "Уверенность", "85 %")
+    label_value(x2 + 16, y1 + 190, "Рекомендуемое действие", "Email")
 
     # Row 2: client message + system decision
-    y2 = y1 + top_h + gap
-    card(x1, y2, card_w, mid_h)
-    svg.append(f'  <rect x="{x1 + 16}" y="{y2 + 18}" width="16" height="14" rx="2" fill="#14b8a6" />')
-    svg.append(f'  <text x="{x1 + 16}" y="{y2 + 30}" style="font-size:12px; fill:var(--bg); font-weight:600;" text-anchor="middle"></text>')
-    svg.append(f'  <text x="{x1 + 40}" y="{y2 + 30}" class="ui-main-title" style="font-size:15px;">Обращение клиента</text>')
+    y2 = y1 + card_h + gap
+    card(x1, y2, card_w, card_h)
+    svg.append(f'  <rect x="{x1 + 16}" y="{y2 + 20}" width="18" height="16" rx="2" fill="#14b8a6" />')
+    svg.append(f'  <text x="{x1 + 25}" y="{y2 + 33}" text-anchor="middle" style="font-size:10px; fill:var(--bg); font-weight:700;">≡</text>')
+    svg.append(f'  <text x="{x1 + 44}" y="{y2 + 34}" class="ui-main-title" style="font-size:16px;">Обращение клиента</text>')
     message_lines = [
-        "Здравствуйте!",
-        "Нужно автоматизировать обработку входящих заявок.",
-        "Интересует решение с AI-квалификацией лидов, интеграцией",
-        "с CRM и автоматической постановкой задач менеджерам.",
-        "Хотел бы обсудить сроки внедрения, возможности интеграции",
-        "и ориентировочный бюджет проекта.",
+        "Здравствуйте! Нужно автоматизировать обработку",
+        "входящих заявок. Интересует решение с AI-квалификацией",
+        "лидов, интеграцией с CRM и автоматической постановкой",
+        "задач менеджерам. Хотел бы обсудить сроки внедрения,",
+        "возможности интеграции и ориентировочный бюджет проекта.",
     ]
-    my = y2 + 58
+    my = y2 + 68
     for line in message_lines:
-        svg.append(f'  <text x="{x1 + 16}" y="{my}" style="font-size:12px; fill:var(--text-primary);">{escape_text(line)}</text>')
-        my += 19
+        svg.append(f'  <text x="{x1 + 16}" y="{my}" style="font-size:14px; fill:var(--text-primary);">{escape_text(line)}</text>')
+        my += 24
 
-    card(x2, y2, card_w, mid_h)
-    svg.append(f'  <circle cx="{x2 + 24}" cy="{y2 + 26}" r="9" fill="#14b8a6" fill-opacity="0.15" stroke="#14b8a6" stroke-width="1.5" />')
-    svg.append(f'  <text x="{x2 + 24}" y="{y2 + 30}" text-anchor="middle" style="font-size:12px; fill:#14b8a6; font-weight:700;">+</text>')
-    svg.append(f'  <text x="{x2 + 42}" y="{y2 + 30}" class="ui-main-title" style="font-size:15px;">Решение системы</text>')
-    svg.append(f'  <rect x="{x2 + card_w - 110}" y="{y2 + 14}" width="90" height="26" rx="5" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="1" />')
-    svg.append(f'  <text x="{x2 + card_w - 65}" y="{y2 + 32}" text-anchor="middle" style="font-size:12px; fill:#f59e0b; font-weight:600;">Тёплый 85%</text>')
+    card(x2, y2, card_w, card_h)
+    svg.append(f'  <circle cx="{x2 + 25}" cy="{y2 + 29}" r="10" fill="#14b8a6" fill-opacity="0.15" stroke="#14b8a6" stroke-width="1.5" />')
+    svg.append(f'  <text x="{x2 + 25}" y="{y2 + 33}" text-anchor="middle" style="font-size:13px; fill:#14b8a6; font-weight:700;">+</text>')
+    svg.append(f'  <text x="{x2 + 46}" y="{y2 + 34}" class="ui-main-title" style="font-size:16px;">Решение системы</text>')
+    svg.append(f'  <rect x="{x2 + card_w - 116}" y="{y2 + 16}" width="100" height="30" rx="5" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="1" />')
+    svg.append(f'  <text x="{x2 + card_w - 66}" y="{y2 + 36}" text-anchor="middle" style="font-size:13px; fill:#f59e0b; font-weight:600;">Тёплый 85%</text>')
     reason_lines = [
         "Клиент задаёт вопросы о сроках и возможностях, что",
         "указывает на интерес, но не на готовность к немедленному",
         "действию.",
     ]
-    ry = y2 + 64
+    ry = y2 + 72
     for line in reason_lines:
-        svg.append(f'  <text x="{x2 + 16}" y="{ry}" style="font-size:13px; fill:var(--text-primary);">{escape_text(line)}</text>')
-        ry += 21
+        svg.append(f'  <text x="{x2 + 16}" y="{ry}" style="font-size:14px; fill:var(--text-primary);">{escape_text(line)}</text>')
+        ry += 24
 
     # Row 3: CRM sync + deal state
-    y3 = y2 + mid_h + gap
-    card(x1, y3, card_w, bot_h)
-    section_title(x1 + 16, y3 + 22, "CRM СИНХРОНИЗАЦИЯ")
-    label_value(x1 + 16, y3 + 50, "Статус синхронизации", "Успешно", "#22c55e")
-    label_value(x1 + 16, y3 + 76, "Создана запись", "16.06.2026, 16:20")
-    label_value(x1 + 16, y3 + 102, "Последняя синхронизация", "16.06.2026, 16:20")
-    label_value(x1 + 16, y3 + 128, "Начальная задача создана", "Да")
-    svg.append(f'  <text x="{x1 + 16}" y="{y3 + bot_h - 12}" style="font-size:12px; fill:#14b8a6; font-weight:500;">↗ Открыть в Kommo</text>')
+    y3 = y2 + card_h + gap
+    card(x1, y3, card_w, card_h)
+    section_title(x1 + 16, y3 + 26, "CRM СИНХРОНИЗАЦИЯ")
+    label_value(x1 + 16, y3 + 62, "Статус синхронизации", "Успешно", "#22c55e")
+    label_value(x1 + 16, y3 + 96, "Создана запись", "16.06.2026, 16:20")
+    label_value(x1 + 16, y3 + 130, "Последняя синхронизация", "16.06.2026, 16:20")
+    label_value(x1 + 16, y3 + 164, "Начальная задача создана", "Да")
+    svg.append(f'  <text x="{x1 + 16}" y="{y3 + card_h - 14}" style="font-size:13px; fill:#14b8a6; font-weight:500;">↗ Открыть в Kommo</text>')
 
-    card(x2, y3, card_w, bot_h)
-    section_title(x2 + 16, y3 + 22, "СОСТОЯНИЕ СДЕЛКИ")
-    label_value(x2 + 16, y3 + 50, "Воронка", "Основная воронка")
-    label_value(x2 + 16, y3 + 76, "Статус сделки", "Переговоры")
-    label_value(x2 + 16, y3 + 102, "Активная задача", "Да")
-    label_value(x2 + 16, y3 + 128, "Ближайшая задача", "17.06.2026, 16:20")
+    card(x2, y3, card_w, card_h)
+    section_title(x2 + 16, y3 + 26, "СОСТОЯНИЕ СДЕЛКИ")
+    label_value(x2 + 16, y3 + 62, "Воронка", "Основная воронка")
+    label_value(x2 + 16, y3 + 96, "Статус сделки", "Переговоры")
+    label_value(x2 + 16, y3 + 130, "Активная задача", "Да")
+    label_value(x2 + 16, y3 + 164, "Ближайшая задача", "17.06.2026, 16:20")
 
     svg.append('</svg>')
     return "\n".join(svg)
