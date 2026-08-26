@@ -3,23 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="AI Curator берёт дедлайны и задания из LMS, учебные материалы — из управляемой Базы знаний, и всегда указывает источник.">
+  <meta name="description" content="AI Curator — AI-ассистент для образовательных платформ. Студенты получают ответы за секунды из LMS и Базы знаний, каждый ответ с источником.">
   <meta property="og:title" content="AI Curator — AI-ассистент для образовательных платформ">
-  <meta property="og:description" content="AI Curator берёт дедлайны и задания из LMS, учебные материалы — из управляемой Базы знаний, и всегда указывает источник.">
+  <meta property="og:description" content="AI-ассистент для образовательных платформ с LMS-интеграцией, Базой знаний и RAG. Студенты получают ответы за секунды, преподаватели перестают отвечать на одни и те же вопросы.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ai.alex-n8n.site/cases/ai-curator.html">
-  <meta property="og:image" content="/assets/screenshots/AIC_portfolio_light.png">
+  <meta property="og:image" content="https://ai.alex-n8n.site/assets/screenshots/AIC_portfolio_light.png">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AI Curator — AI-ассистент для образовательных платформ">
-  <meta name="twitter:description" content="AI Curator берёт дедлайны и задания из LMS, учебные материалы — из управляемой Базы знаний, и всегда указывает источник.">
-  <meta name="twitter:image" content="/assets/screenshots/AIC_portfolio_light.png">
+  <meta name="twitter:description" content="AI-ассистент для образовательных платформ с LMS-интеграцией, Базой знаний и RAG.">
+  <meta name="twitter:image" content="https://ai.alex-n8n.site/assets/screenshots/AIC_portfolio_light.png">
   <link rel="canonical" href="https://ai.alex-n8n.site/cases/ai-curator.html">
   <title>AI Curator — AI-ассистент для образовательных платформ</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  
   <script>
     (function() {
       const saved = localStorage.getItem('aip-theme-teal');
@@ -233,6 +232,7 @@
 
     .btn-ghost:hover { color: var(--text-primary); border-color: var(--text-muted); }
 
+    /* Hero */
     .hero {
       padding: var(--space-xl) 0 var(--space-2xl);
       border-bottom: 1px solid var(--border);
@@ -315,6 +315,7 @@
     :root[data-theme="dark"] .preview-dark { display: none; }
     :root[data-theme="dark"] .preview-light { display: block; }
 
+    /* Case summary */
     .summary {
       padding: 0 0 var(--space-3xl);
       border-bottom: 1px solid var(--border);
@@ -351,6 +352,7 @@
 
     .summary__value a { font-size: 0.9rem; }
 
+    /* Before/after */
     .ba-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -398,6 +400,7 @@
       font-size: 1.5rem;
     }
 
+    /* Problem */
     .problem-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -419,6 +422,7 @@
       margin: 0;
     }
 
+    /* Solution */
     .solution-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -460,6 +464,7 @@
       margin: 0;
     }
 
+    /* How it works */
     .pipeline-diagram {
       width: 100%;
       height: auto;
@@ -495,14 +500,22 @@
       fill: var(--accent);
     }
 
+    .pipeline-diagram .label-bg {
+      fill: var(--bg);
+      stroke: none;
+    }
+
+    .pipeline-diagram .label-accent {
+      fill: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
     .pipeline-diagram .title-text {
       font-family: var(--font-display);
       font-size: 15px;
       font-weight: 600;
-    }
-
-    .pipeline-diagram .title-text--large {
-      font-size: 17px;
     }
 
     .pipeline-diagram .body-text {
@@ -510,8 +523,17 @@
       fill: var(--text-secondary);
     }
 
-    .pipeline-diagram .body-text--large {
-      font-size: 15px;
+    .pipeline-diagram .source-badge {
+      fill: var(--accent-soft);
+      stroke: var(--accent);
+      stroke-width: 1;
+    }
+
+    .pipeline-diagram .source-text {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      fill: var(--accent);
+      font-weight: 500;
     }
 
     .pipeline-cards {
@@ -549,6 +571,7 @@
       margin: 0;
     }
 
+    /* UX - full-width demo blocks */
     .demo-block {
       margin-bottom: var(--space-2xl);
     }
@@ -634,11 +657,16 @@
       transform: translateY(0);
     }
 
+    /* UI Illustrations */
     .ui-illustration {
       width: 100%;
       height: auto;
       max-width: 100%;
       display: block;
+    }
+
+    .demo-frame svg {
+      max-height: 560px;
     }
 
     .ui-illustration text {
@@ -670,6 +698,100 @@
 
     .ui-illustration .ui-avatar {
       fill: var(--accent);
+    }
+
+    .ui-illustration .ui-toggle {
+      fill: var(--surface-elevated);
+      stroke: var(--border);
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-toggle-active {
+      fill: var(--accent-soft);
+      stroke: var(--accent);
+      stroke-width: 1.5;
+    }
+
+    .ui-illustration .ui-toggle-text {
+      font-size: 11px;
+      font-weight: 500;
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-toggle-text-inactive {
+      font-size: 11px;
+      fill: var(--text-muted);
+    }
+
+    .ui-illustration .ui-msg-user {
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-msg-bot {
+      fill: var(--surface-elevated);
+      stroke: var(--border);
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-msg-text-user {
+      font-size: 14px;
+      fill: #ffffff;
+    }
+
+    .ui-illustration .ui-msg-text-bot {
+      font-size: 14px;
+      fill: var(--text-primary);
+    }
+
+    .ui-illustration .ui-msg-text-bot-muted {
+      font-size: 12px;
+      fill: var(--text-secondary);
+    }
+
+    .ui-illustration .ui-source-card {
+      fill: var(--surface);
+      stroke: var(--accent);
+      stroke-width: 1.5;
+    }
+
+    .ui-illustration .ui-source-stripe {
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-source-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-source-title {
+      font-size: 13px;
+      font-weight: 600;
+      fill: var(--text-primary);
+    }
+
+    .ui-illustration .ui-input {
+      fill: var(--surface-elevated);
+      stroke: var(--border);
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-input-text {
+      font-size: 13px;
+      fill: var(--text-muted);
+    }
+
+    .ui-illustration .ui-send {
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-send-arrow {
+      stroke: #ffffff;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .ui-illustration .ui-sidebar {
@@ -713,50 +835,6 @@
       fill: var(--text-primary);
     }
 
-    .ui-illustration .ui-msg-user {
-      fill: var(--accent);
-    }
-
-    .ui-illustration .ui-msg-bot {
-      fill: var(--surface-elevated);
-      stroke: var(--border);
-      stroke-width: 1;
-    }
-
-    .ui-illustration .ui-msg-text-user {
-      font-size: 14px;
-      fill: #ffffff;
-    }
-
-    .ui-illustration .ui-msg-text-bot {
-      font-size: 14px;
-      fill: var(--text-primary);
-    }
-
-    .ui-illustration .ui-source-card {
-      fill: var(--surface);
-      stroke: var(--accent);
-      stroke-width: 1.5;
-    }
-
-    .ui-illustration .ui-source-label {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      font-weight: 500;
-      fill: var(--accent);
-    }
-
-    .ui-illustration .ui-input {
-      fill: var(--surface-elevated);
-      stroke: var(--border);
-      stroke-width: 1;
-    }
-
-    .ui-illustration .ui-input-text {
-      font-size: 13px;
-      fill: var(--text-muted);
-    }
-
     .ui-illustration .ui-btn-primary {
       fill: var(--accent);
     }
@@ -767,76 +845,72 @@
       fill: #ffffff;
     }
 
+    .ui-illustration .ui-table-header {
+      fill: var(--surface-elevated);
+      stroke: var(--border);
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-table-row {
+      fill: var(--surface);
+      stroke: var(--border);
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-table-header-text {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      fill: var(--text-muted);
+    }
+
+    .ui-illustration .ui-table-text {
+      font-size: 12px;
+      fill: var(--text-secondary);
+    }
+
+    .ui-illustration .ui-table-text-title {
+      font-size: 13px;
+      font-weight: 600;
+      fill: var(--text-primary);
+    }
+
+    .ui-illustration .ui-table-text-meta {
+      font-size: 10px;
+      fill: var(--text-muted);
+    }
+
+    .ui-illustration .ui-table-text-link {
+      font-size: 11px;
+      fill: var(--accent);
+      font-weight: 500;
+    }
+
     .ui-illustration .ui-status-published {
       fill: rgba(34, 197, 94, 0.15);
       stroke: #22c55e;
       stroke-width: 1;
     }
 
+    .ui-illustration .ui-status-draft {
+      fill: rgba(250, 204, 21, 0.12);
+      stroke: #facc15;
+      stroke-width: 1;
+    }
+
     .ui-illustration .ui-status-text {
-      font-size: 12px;
+      font-size: 10px;
       font-weight: 500;
       fill: #22c55e;
     }
 
-    .ui-illustration .ui-toggle {
-      fill: var(--surface-elevated);
-      stroke: var(--border);
-      stroke-width: 1;
-    }
-
-    .ui-illustration .ui-toggle-active {
-      fill: var(--accent-soft);
-      stroke: var(--accent);
-      stroke-width: 1.5;
-    }
-
-    .ui-illustration .ui-toggle-text {
-      font-size: 11px;
+    .ui-illustration .ui-status-text-draft {
+      font-size: 10px;
       font-weight: 500;
-      fill: var(--accent);
+      fill: #facc15;
     }
 
-    .ui-illustration .ui-toggle-text-inactive {
-      font-size: 11px;
-      fill: var(--text-muted);
-    }
-
-    .ui-illustration .ui-source-stripe {
-      fill: var(--accent);
-    }
-
-    .ui-illustration .ui-source-title {
-      font-size: 13px;
-      font-weight: 600;
-      fill: var(--text-primary);
-    }
-
-    .ui-illustration .ui-send {
-      fill: var(--accent);
-    }
-
-    .ui-illustration .ui-send-arrow {
-      stroke: #ffffff;
-      stroke-width: 2;
-      fill: none;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .ui-illustration .ui-msg-text-bot-muted {
-      font-size: 12px;
-      fill: var(--text-secondary);
-    }
-
-    .ui-illustration .ui-table-header-text {
-      font-size: 11px;
-      font-weight: 600;
-      fill: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-    }
-
+    /* Quote */
     .quote {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -861,6 +935,7 @@
 
     .quote__author strong { color: var(--text-primary); }
 
+    /* Final */
     .final {
       background: var(--surface);
       border-top: 1px solid var(--border);
@@ -915,6 +990,7 @@
       gap: var(--space-sm);
     }
 
+    /* Chat widget */
     .chat-launcher {
       position: fixed;
       bottom: 24px;
@@ -1115,19 +1191,27 @@
     .chat-send:disabled { opacity: 0.5; cursor: default; }
     .chat-send span { font-size: 1rem; }
 
+    /* Responsive */
     @media (max-width: 900px) {
       .final__inner { grid-template-columns: 1fr; }
       .summary__grid,
       .solution-grid,
+      .pipeline,
       .ba-grid { grid-template-columns: 1fr; }
       .ba-arrow { display: none; }
       .pipeline-cards { grid-template-columns: 1fr; }
+      .pipeline__step:not(:last-child)::after {
+        content: "↓";
+        right: 50%;
+        top: auto;
+        bottom: -1.4rem;
+        transform: translateX(50%);
+      }
       .section { padding: var(--space-2xl) 0; }
       .chat-widget { right: 16px; bottom: 84px; }
       .chat-launcher { right: 16px; bottom: 16px; }
     }
   </style>
-  
 </head>
 <body>
   <header class="site-header">
@@ -1144,23 +1228,25 @@
   </header>
 
   <main>
-    <!-- 1. Hero -->
+    <!-- 1. Hero: outcome first -->
     <section class="hero">
       <div class="container hero__inner">
         <div class="hero__body">
-          <p class="eyebrow hero__eyebrow">AI-ассистент для образовательных платформ</p>
-          <h1 class="hero__title">Снизьте нагрузку на преподавателей в 5 раз и дайте студентам мгновенные ответы 24/7</h1>
-          <p class="hero__lead">AI Curator берёт дедлайны и задания из LMS, учебные материалы — из управляемой Базы знаний, и всегда указывает источник.</p>
+          <p class="eyebrow hero__eyebrow">Featured Case · Образование / RAG</p>
+          <h1 class="hero__title">Студенты получают ответы за секунды. Преподаватели перестают отвечать на одни и те же вопросы.</h1>
+          <p class="hero__lead">
+            AI Curator — AI-ассистент для образовательных платформ. Он берёт учебный процесс из LMS, учебные материалы — из управляемой Базы знаний, и сопровождает каждый ответ ссылкой на источник.
+          </p>
           <div class="hero__actions">
             <a href="https://curator.alex-n8n.site" class="btn btn-primary" target="_blank" rel="noopener">Live demo</a>
             <a href="https://curator-admin.alex-n8n.site" class="btn btn-ghost" target="_blank" rel="noopener">Admin Console</a>
             <a href="https://github.com/AlexLvGulyaev/ai-curator" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a>
-            <a href="/contacts.html" class="btn btn-ghost" target="_blank" rel="noopener">Обсудить проект</a>
+            <a href="/contacts.html" class="btn btn-ghost">Обсудить проект</a>
           </div>
         </div>
         <div class="hero__media">
-          <img class="hero__screenshot preview-dark" src="/assets/screenshots/AIC_portfolio_dark.png" alt="Веб-интерфейс AI Curator: диалог студента с AI-ассистентом и карточками источников" loading="eager">
-          <img class="hero__screenshot preview-light" src="/assets/screenshots/AIC_portfolio_light.png" alt="Веб-интерфейс AI Curator: диалог студента с AI-ассистентом и карточками источников" loading="eager">
+          <img class="hero__screenshot preview-dark" src="/assets/screenshots/AIC_portfolio_dark.png" alt="AI Curator: тёмная операционная консоль диалога с ответом системы и источниками" loading="eager">
+          <img class="hero__screenshot preview-light" src="/assets/screenshots/AIC_portfolio_light.png" alt="AI Curator: светлый диалог студента с ответом AI и ссылкой на дедлайн" loading="eager">
         </div>
       </div>
     </section>
@@ -1169,47 +1255,38 @@
     <section class="summary">
       <div class="container">
         <div class="summary__grid">
-          
           <div class="summary__item">
             <div class="summary__label">Кейс</div>
             <div class="summary__value"><strong>AI Curator</strong></div>
           </div>
-          
           <div class="summary__item">
             <div class="summary__label">Для кого</div>
             <div class="summary__value">Онлайн-школы, корпоративные учебные центры, LMS-провайдеры</div>
           </div>
-          
           <div class="summary__item">
             <div class="summary__label">Статус</div>
             <div class="summary__value">Развёрнут · live demo · admin console</div>
           </div>
-          
           <div class="summary__item">
             <div class="summary__label">Стек</div>
             <div class="summary__value">FastAPI, React, PostgreSQL, ChromaDB, OpenAI, Moodle</div>
           </div>
-          
           <div class="summary__item">
             <div class="summary__label">Проверка</div>
             <div class="summary__value">109 pytest, 26 E2E-проверок Phase 1</div>
           </div>
-          
           <div class="summary__item">
             <div class="summary__label">Live demo</div>
-            <div class="summary__value"><a href='https://curator.alex-n8n.site' target='_blank' rel='noopener'>curator.alex-n8n.site</a></div>
+            <div class="summary__value"><a href="https://curator.alex-n8n.site" target="_blank" rel="noopener">curator.alex-n8n.site</a></div>
           </div>
-          
           <div class="summary__item">
             <div class="summary__label">Admin Console</div>
-            <div class="summary__value"><a href='https://curator-admin.alex-n8n.site' target='_blank' rel='noopener'>curator-admin.alex-n8n.site</a></div>
+            <div class="summary__value"><a href="https://curator-admin.alex-n8n.site" target="_blank" rel="noopener">curator-admin.alex-n8n.site</a></div>
           </div>
-          
           <div class="summary__item">
             <div class="summary__label">GitHub</div>
-            <div class="summary__value"><a href='https://github.com/AlexLvGulyaev/ai-curator' target='_blank' rel='noopener'>AlexLvGulyaev/ai-curator</a></div>
+            <div class="summary__value"><a href="https://github.com/AlexLvGulyaev/ai-curator" target="_blank" rel="noopener">AlexLvGulyaev/ai-curator</a></div>
           </div>
-          
         </div>
       </div>
     </section>
@@ -1219,87 +1296,75 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Результат</p>
-          <h2 class="section__title">Что меняется для студентов и преподавателей</h2>
-          <p class="section__lead">Студент получает ответ за секунды вместо часов ожидания, а преподаватель видит аналитику пробелов и нагрузки.</p>
+          <h2 class="section__title">Что меняется для команды</h2>
+          <p class="section__lead">AI Curator не заменяет преподавателя. Он забирает рутину и даёт студентам мгновенный доступ к актуальной информации.</p>
         </div>
 
         <div class="ba-grid">
           <div class="ba-card">
             <h3 class="ba-card__title"><span>❌</span> До</h3>
             <ul class="ba-card__list">
-              
-              <li>Преподаватель отвечает на однотипные вопросы многократно</li>
-              
-              <li>Дедлайны и материалы разрознены между LMS, мессенджерами и email</li>
-              
-              <li>Сложно понять, какие темы вызывают вопросы и где не хватает контента</li>
-              
+              <li>Студент ждёт ответа преподавателя часами, а иногда днями.</li>
+              <li>Информация разбросана: LMS, диск, мессенджеры, email, голова методиста.</li>
+              <li>Преподаватель отвечает на одни и те же вопросы десятки раз.</li>
+              <li>Методист не видит, каких материалов не хватает.</li>
             </ul>
           </div>
           <div class="ba-arrow">→</div>
           <div class="ba-card ba-card--accent">
             <h3 class="ba-card__title"><span>✅</span> После</h3>
             <ul class="ba-card__list">
-              
-              <li>Студент задаёт вопрос в едином веб-интерфейсе и получает ответ за секунды</li>
-              
-              <li>AI берёт факты из LMS и Базы знаний, всегда сопровождая ответ источником</li>
-              
-              <li>Аналитика показывает частоту тем, нагрузку на поддержку и пробелы в материалах</li>
-              
+              <li>Ответ на типовой вопрос — за секунды, 24/7.</li>
+              <li>Один источник истины: LMS + управляемая База знаний.</li>
+              <li>Каждый ответ сопровождается источником: LMS-ссылка или KB-бейдж.</li>
+              <li>Аналитика запросов показывает пробелы в материалах.</li>
             </ul>
           </div>
         </div>
 
-        
         <div class="summary__grid" style="grid-template-columns: repeat(4, 1fr);">
-          
           <div class="summary__item">
-            <div class="summary__label">Скорость ответа</div>
-            <div class="summary__value"><strong>< 5 сек</strong> для типовых вопросов</div>
+            <div class="summary__label">Тесты</div>
+            <div class="summary__value"><strong>109</strong> pytest PASS</div>
           </div>
-          
           <div class="summary__item">
-            <div class="summary__label">Снижение нагрузки</div>
-            <div class="summary__value"><strong>до 5×</strong> на преподавателей</div>
+            <div class="summary__label">E2E</div>
+            <div class="summary__value"><strong>26/26</strong> Phase 1 проверок</div>
           </div>
-          
           <div class="summary__item">
             <div class="summary__label">Доступность</div>
-            <div class="summary__value"><strong>24/7</strong> без участия человека</div>
+            <div class="summary__value"><strong>24/7</strong> для студентов</div>
           </div>
-          
           <div class="summary__item">
-            <div class="summary__label">Точность</div>
-            <div class="summary__value"><strong>источники</strong> проверяемы по LMS и БЗ</div>
+            <div class="summary__label">Demo-роли</div>
+            <div class="summary__value"><strong>3</strong> для публичного доступа</div>
           </div>
-          
         </div>
-        
       </div>
     </section>
 
-    <!-- 4. Problem -->
+    <!-- 4. Challenge -->
     <section class="section" id="problem">
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Проблема</p>
-          <h2 class="section__title">Почему преподаватели тонут в рутинных вопросах</h2>
-          <p class="section__lead">Студенты постоянно спрашивают об одном и том же, а актуальная информация живёт в разных системах.</p>
+          <h2 class="section__title">Каждый день одни и те же вопросы, а ответы содержатся в разных источниках</h2>
+          <p class="section__lead">В образовательных платформах большая часть обращений студентов — типовая: дедлайны, задания, темы, материалы. Но актуальная информация живёт в разных системах, а преподаватель становится единственным маршрутизатором.</p>
         </div>
 
-        <div class="ba-grid" style="grid-template-columns: repeat(2, 1fr);">
-          
+        <div class="ba-grid" style="grid-template-columns: repeat(3, 1fr);">
           <div class="problem-card">
-            <h3 class="problem-card__title">Многократные ответы</h3>
-            <p class="problem-card__text">Один и тот же вопрос о дедлайне, задании или лекции приходит десяткам студентов.</p>
+            <h3 class="problem-card__title">Повторяющиеся вопросы</h3>
+            <p class="problem-card__text">«Когда дедлайн?», «Где лекция?», «Объясни тему?» — преподаватель отвечает многократно в разных каналах.</p>
           </div>
-          
           <div class="problem-card">
             <h3 class="problem-card__title">Разрозненные источники</h3>
-            <p class="problem-card__text">Расписание в LMS, методички на диске, FAQ в чате — студент не знает, куда идти.</p>
+            <p class="problem-card__text">Дедлайны в LMS, методички на диске, FAQ в головах сотрудников. Студент не знает, где искать.</p>
           </div>
-          
+          <div class="problem-card">
+            <h3 class="problem-card__title">Нет обратной связи методисту</h3>
+            <p class="problem-card__text">Команда не видит, какие темы вызывают вопросы и каких материалов не хватает.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -1309,44 +1374,53 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Решение</p>
-          <h2 class="section__title">Единый AI-ассистент с двумя независимыми источниками</h2>
-          <p class="section__lead">AI Curator не заменяет преподавателя, а забирает рутину и даёт студенту персонализированный ответ с источниками.</p>
+          <h2 class="section__title">AI-ассистент, который объединяет LMS и Базу знаний</h2>
+          <p class="section__lead">AI Curator — самостоятельная подсистема образовательной платформы. Он читает учебный процесс из Moodle, ищет материалы в управляемой Базе знаний и отвечает студентам через публичный веб-интерфейс.</p>
         </div>
 
         <div class="solution-grid">
-          
+          <div class="solution-card">
+            <div class="solution-card__icon">📅</div>
+            <div>
+              <h3 class="solution-card__title">Организационные ответы из LMS</h3>
+              <p class="solution-card__text">Дедлайны, задания, расписание и прогресс берутся из Moodle в реальном времени через read-only API.</p>
+            </div>
+          </div>
+          <div class="solution-card">
+            <div class="solution-card__icon">📚</div>
+            <div>
+              <h3 class="solution-card__title">Учебные ответы из Базы знаний</h3>
+              <p class="solution-card__text">RAG-поиск по загруженным материалам: лекции, методички, FAQ. Бейдж источника под каждым ответом.</p>
+            </div>
+          </div>
+          <div class="solution-card">
+            <div class="solution-card__icon">🔗</div>
+            <div>
+              <h3 class="solution-card__title">Источники под каждым ответом</h3>
+              <p class="solution-card__text">Кликабельные LMS-ссылки и карточки KB. Студент видит, откуда взялась информация.</p>
+            </div>
+          </div>
+          <div class="solution-card">
+            <div class="solution-card__icon">🛡️</div>
+            <div>
+              <h3 class="solution-card__title">Чёткие границы</h3>
+              <p class="solution-card__text">AI Curator не выставляет оценки и не переносит дедлайны. Только отвечает на вопросы.</p>
+            </div>
+          </div>
           <div class="solution-card">
             <div class="solution-card__icon">🎓</div>
             <div>
               <h3 class="solution-card__title">Наставнический диалог</h3>
-              <p class="solution-card__text">AI общается в поддерживающем стиле и помогает разобраться, а не просто выдаёт факт.</p>
+              <p class="solution-card__text">AI адаптирует сложность ответа: базовый или углублённый. Поддерживающий стиль общения.</p>
             </div>
           </div>
-          
           <div class="solution-card">
-            <div class="solution-card__icon">📅</div>
+            <div class="solution-card__icon">📊</div>
             <div>
-              <h3 class="solution-card__title">Организационные ответы</h3>
-              <p class="solution-card__text">Дедлайны, задания, прогресс берутся из LMS в реальном времени.</p>
+              <h3 class="solution-card__title">Аналитика для команды</h3>
+              <p class="solution-card__text">Преподаватель и методист видят частые темы, вопросы без ответа и пробелы в материалах.</p>
             </div>
           </div>
-          
-          <div class="solution-card">
-            <div class="solution-card__icon">📚</div>
-            <div>
-              <h3 class="solution-card__title">Учебные ответы</h3>
-              <p class="solution-card__text">Система находит релевантные материалы в Базе знаний и адаптирует сложность под студента.</p>
-            </div>
-          </div>
-          
-          <div class="solution-card">
-            <div class="solution-card__icon">🔗</div>
-            <div>
-              <h3 class="solution-card__title">Ссылки на источники</h3>
-              <p class="solution-card__text">Каждый содержательный ответ сопровождается кликабельными карточками источников.</p>
-            </div>
-          </div>
-          
         </div>
       </div>
     </section>
@@ -1356,131 +1430,325 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Как это работает</p>
-          <h2 class="section__title">Как устроен AI Curator</h2>
-          <p class="section__lead">Единый backend объединяет LMS, Базу знаний и LLM, чтобы отвечать точно и ссылаться на источники.</p>
+          <h2 class="section__title">От вопроса до ответа — три шага</h2>
+          <p class="section__lead">Backend AI Curator — единый оркестратор. Он решает, где искать информацию, собирает контекст и проверяет ответ перед отправкой студенту.</p>
         </div>
 
-        <svg class="pipeline-diagram pipeline-diagram--two-row" viewBox="0 0 822 314" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы AI Curator: от входа к результату">
-  <defs>
-    <marker id="arrow-tr-24963" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
-    </marker>
-  </defs>
-  <g transform="translate(40, 28)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Студент</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Веб-интерфейс</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">вопрос 24/7</text>
-  </g>
-  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-24963)" />
-  <g transform="translate(306, 28)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Backend Core</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Классификация</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">Prompt Builder</text>
-  </g>
-  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-24963)" />
-  <g transform="translate(572, 28)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">LMS Adapter</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Дедлайны, задания</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">прогресс</text>
-  </g>
-  <path d="M 677.0 122 L 677.0 157.0" class="arrow" />
-  <path d="M 677.0 157.0 L 145.0 157.0" class="arrow" />
-  <path d="M 145.0 157.0 L 145.0 192" class="arrow" marker-end="url(#arrow-tr-24963)" />
-  <g transform="translate(40, 192)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">LangChain RAG</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">База знаний</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">Chroma + LLM</text>
-  </g>
-  <path d="M 250 239.0 L 306 239.0" class="arrow" marker-end="url(#arrow-tr-24963)" />
-  <g transform="translate(306, 192)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Answer Validator</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Проверка</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">источников</text>
-  </g>
-  <path d="M 516 239.0 L 572 239.0" class="arrow" marker-end="url(#arrow-tr-24963)" />
-  <g transform="translate(572, 192)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Ответ</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Текст + ссылки</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">на источники</text>
-  </g>
-</svg>
+        <svg class="pipeline-diagram" viewBox="0 0 1100 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы AI Curator: вопрос студента → Orchestrator → LMS API и База знаний → LLM → ответ с источниками">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
+            </marker>
+          </defs>
+
+          <!-- Step 1: Student question -->
+          <g transform="translate(10, 90)">
+            <rect x="0" y="0" width="150" height="90" rx="4" class="node-rect" />
+            <text x="75" y="26" text-anchor="middle" class="title-text">Вопрос студента</text>
+            <text x="75" y="48" text-anchor="middle" class="body-text">«Когда дедлайн</text>
+            <text x="75" y="66" text-anchor="middle" class="body-text">по заданию PE07?»</text>
+          </g>
+
+          <!-- Arrow 1 -->
+          <path d="M 160 135 L 200 135" class="arrow" marker-end="url(#arrow)" />
+
+          <!-- Orchestrator -->
+          <g transform="translate(200, 90)">
+            <rect x="0" y="0" width="170" height="90" rx="4" class="node-accent" />
+            <text x="85" y="26" text-anchor="middle" class="title-text">Orchestrator</text>
+            <text x="85" y="48" text-anchor="middle" class="body-text">Классификация:</text>
+            <text x="85" y="66" text-anchor="middle" class="body-text">LMS + Knowledge Base</text>
+          </g>
+
+          <!-- Branches -->
+          <path d="M 370 135 L 410 135" class="arrow" marker-end="url(#arrow)" />
+          <path d="M 410 135 L 410 70 L 450 70" class="arrow" marker-end="url(#arrow)" />
+          <path d="M 410 135 L 410 200 L 450 200" class="arrow" marker-end="url(#arrow)" />
+
+          <!-- LMS API -->
+          <g transform="translate(450, 30)">
+            <rect x="0" y="0" width="170" height="86" rx="4" class="node-rect" />
+            <text x="85" y="28" text-anchor="middle" class="title-text">Moodle LMS API</text>
+            <text x="85" y="52" text-anchor="middle" class="body-text">Курсы, задания, дедлайны</text>
+          </g>
+
+          <!-- Knowledge Base -->
+          <g transform="translate(450, 170)">
+            <rect x="0" y="0" width="170" height="86" rx="4" class="node-rect" />
+            <text x="85" y="28" text-anchor="middle" class="title-text">Knowledge Base + RAG</text>
+            <text x="85" y="52" text-anchor="middle" class="body-text">Лекции, методички, FAQ</text>
+          </g>
+
+          <!-- Merge arrows -->
+          <path d="M 620 73 L 715 73 L 715 90" class="arrow" marker-end="url(#arrow)" />
+          <path d="M 620 213 L 715 213 L 715 180" class="arrow" marker-end="url(#arrow)" />
+
+          <!-- LLM + Validator -->
+          <g transform="translate(660, 90)">
+            <rect x="0" y="0" width="170" height="90" rx="4" class="node-accent" />
+            <text x="85" y="26" text-anchor="middle" class="title-text">LLM + Validator</text>
+            <text x="85" y="48" text-anchor="middle" class="body-text">Формирует ответ</text>
+            <text x="85" y="66" text-anchor="middle" class="body-text">и проверяет границы</text>
+          </g>
+
+          <!-- Final arrow -->
+          <path d="M 830 135 L 870 135" class="arrow" marker-end="url(#arrow)" />
+
+          <!-- Answer -->
+          <g transform="translate(870, 90)">
+            <rect x="0" y="0" width="220" height="90" rx="4" class="node-rect" />
+            <text x="110" y="24" text-anchor="middle" class="title-text">Ответ с источниками</text>
+            <rect x="16" y="40" width="92" height="18" rx="2" class="source-badge" />
+            <text x="62" y="53" text-anchor="middle" class="source-text">LMS ссылка</text>
+            <rect x="116" y="40" width="86" height="18" rx="2" class="source-badge" />
+            <text x="159" y="53" text-anchor="middle" class="source-text">KB материал</text>
+            <text x="110" y="76" text-anchor="middle" class="body-text">Дедлайн: 2026-08-24</text>
+          </g>
+        </svg>
 
         <div class="pipeline-cards">
-          
           <div class="pipeline-card">
-            <div class="pipeline-card__number">01</div>
+            <div class="pipeline-card__number">Шаг 1</div>
             <h3 class="pipeline-card__title">Классификация запроса</h3>
-            <p class="pipeline-card__text">Backend определяет, организационный вопрос или учебный, и выбирает источники.</p>
+            <p class="pipeline-card__text">Orchestrator определяет, нужен ли ответ из LMS, из Базы знаний, или смешанный.</p>
           </div>
-          
           <div class="pipeline-card">
-            <div class="pipeline-card__number">02</div>
-            <h3 class="pipeline-card__title">Контекст из LMS и БЗ</h3>
-            <p class="pipeline-card__text">Адаптеры собирают релевантные факты: дедлайны, задания, материалы.</p>
+            <div class="pipeline-card__number">Шаг 2</div>
+            <h3 class="pipeline-card__title">Сбор контекста</h3>
+            <p class="pipeline-card__text">LMS-адаптер читает курсы и задания; RAG ищет релевантные материалы в Базе знаний.</p>
           </div>
-          
           <div class="pipeline-card">
-            <div class="pipeline-card__number">03</div>
-            <h3 class="pipeline-card__title">LLM-ответ с источниками</h3>
-            <p class="pipeline-card__text">LangChain генерирует ответ, Validator проверяет его обоснованность.</p>
+            <div class="pipeline-card__number">Шаг 3</div>
+            <h3 class="pipeline-card__title">Ответ с источниками</h3>
+            <p class="pipeline-card__text">LLM формирует ответ, валидатор проверяет его, UI показывает LMS-ссылку или KB-бейдж.</p>
           </div>
-          
         </div>
       </div>
     </section>
 
-    <!-- 7. UX -->
+    <!-- 7. UX / Demo -->
     <section class="section" id="ux">
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Интерфейсы</p>
-          <h2 class="section__title">Как это выглядит для студента и администратора</h2>
-          <p class="section__lead">Два интерфейса: веб-чат для студента и консоль администратора для управления знаниями, настройками и аналитикой.</p>
+          <h2 class="section__title">Как это выглядит внутри</h2>
+          <p class="section__lead">Два основных сценария: студенческий чат, где ответ подкреплён источником из LMS, и консоль администратора для управления учебными материалами в Базе знаний.</p>
         </div>
 
-        
         <div class="demo-block">
           <div class="demo-block__header">
-            <div class="demo-block__label">Сценарий 1</div>
-            <h3 class="demo-block__title">Студент задаёт организационный вопрос</h3>
-            <p class="demo-block__text">«Когда дедлайн по заданию PE07?» — AI Curator возвращает точную дату из LMS и ссылку на задание.</p>
+            <div class="demo-block__label">Web UI студента</div>
+            <h3 class="demo-block__title">Вопрос о дедлайне — ответ с источником из LMS</h3>
+            <p class="demo-block__text">Студент спрашивает про задание PE07 и получает точный дедлайн из Moodle с кликабельной ссылкой.</p>
           </div>
-          
-          <div class="demo-frame">
-            <img src="/assets/cases/ai-curator/scenario-1.png" alt="Веб-чат AI Curator: студент спрашивает о дедлайне">
-            <div class="demo-frame__hint">Кликните для полного размера</div>
-          </div>
-          
+
+          <svg class="ui-illustration" viewBox="0 0 980 540" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Интерфейс AI Curator: студент спрашивает дедлайн PE07, получает ответ из Moodle с источником">
+            <defs>
+              <clipPath id="window-clip">
+                <rect x="20" y="10" width="940" height="520" rx="8" />
+              </clipPath>
+              <g id="icon-lock">
+                <rect x="1" y="5" width="10" height="7" rx="1" fill="currentColor" />
+                <path d="M3 5 V 2.5 A 3 3 0 0 1 9 2.5 V 5" fill="none" stroke="currentColor" stroke-width="1.5" />
+              </g>
+              <g id="icon-cap">
+                <path d="M0 5 L10 0 L20 5 L10 10 Z" fill="currentColor" />
+                <path d="M2 6.5 V 10 L10 14 L18 10 V 6.5" fill="none" stroke="currentColor" stroke-width="1.2" />
+              </g>
+            </defs>
+
+            <!-- Window -->
+            <rect x="20" y="10" width="940" height="520" rx="8" class="ui-window" />
+            <rect x="20" y="10" width="940" height="62" class="ui-header" clip-path="url(#window-clip)" />
+
+            <!-- Header: AI Curator + backend status -->
+            <circle cx="48" cy="41" r="12" class="ui-avatar" />
+            <text x="72" y="38" class="ui-title">AI Curator</text>
+            <circle cx="180" cy="41" r="4" fill="#22c55e" />
+            <text x="192" y="45" class="ui-subtitle" style="font-size:12px;">Backend онлайн</text>
+
+            <!-- Header: demo session -->
+            <rect x="520" y="27" width="280" height="32" rx="4" class="ui-toggle" />
+            <use href="#icon-lock" transform="translate(534, 38)" style="color: var(--text-muted);" />
+            <text x="680" y="48" text-anchor="middle" class="ui-subtitle" style="font-size:12px;">Демо · осталось 19 запросов · 27:50</text>
+
+            <!-- Header: role -->
+            <rect x="810" y="27" width="135" height="32" rx="4" class="ui-toggle-active" />
+            <text x="877" y="48" text-anchor="middle" class="ui-toggle-text" style="font-size:11px;">Активный студент</text>
+
+            <!-- Sidebar -->
+            <rect x="20" y="72" width="210" height="458" class="ui-sidebar" clip-path="url(#window-clip)" />
+            <text x="42" y="110" class="ui-sidebar-title">Промпт-инжиниринг</text>
+
+            <!-- Difficulty buttons -->
+            <rect x="42" y="130" width="166" height="32" rx="4" class="ui-toggle-active" />
+            <text x="125" y="151" text-anchor="middle" class="ui-toggle-text">Базовый</text>
+
+            <rect x="42" y="170" width="166" height="32" rx="4" class="ui-toggle" />
+            <text x="125" y="191" text-anchor="middle" class="ui-sidebar-text" style="font-size:12px;">Углублённый</text>
+
+            <!-- Sidebar actions -->
+            <rect x="42" y="230" width="166" height="32" rx="4" class="ui-btn-primary" />
+            <text x="125" y="251" text-anchor="middle" class="ui-btn-text">Новый диалог</text>
+
+            <rect x="42" y="274" width="166" height="32" rx="4" class="ui-toggle" />
+            <text x="125" y="295" text-anchor="middle" class="ui-sidebar-text" style="font-size:12px;">Новая демо-сессия</text>
+
+            <rect x="42" y="318" width="166" height="32" rx="4" class="ui-toggle" />
+            <text x="125" y="339" text-anchor="middle" class="ui-sidebar-text" style="font-size:12px;">Сменить роль</text>
+
+            <!-- Main chat area -->
+            <rect x="230" y="72" width="730" height="458" fill="var(--bg)" clip-path="url(#window-clip)" />
+
+            <!-- Welcome message -->
+            <rect x="252" y="94" width="686" height="56" rx="8" class="ui-msg-bot" />
+            <text x="274" y="122" class="ui-msg-text-bot" style="font-size:13px;">Привет! Я AI Curator. Задайте вопрос по курсу — я найду ответ</text>
+            <text x="274" y="140" class="ui-msg-text-bot" style="font-size:13px;">в учебных материалах, проверю дедлайны и прогресс.</text>
+
+            <!-- User message -->
+            <rect x="560" y="170" width="378" height="46" rx="8" class="ui-msg-user" />
+            <text x="749" y="198" text-anchor="middle" class="ui-msg-text-user">Когда дедлайн по заданию PE07?</text>
+
+            <!-- Bot response -->
+            <rect x="252" y="236" width="440" height="86" rx="8" class="ui-msg-bot" />
+            <text x="274" y="266" class="ui-msg-text-bot" style="font-size:14px; font-weight:600;">Дедлайны заданий:</text>
+            <text x="274" y="296" class="ui-msg-text-bot" style="font-size:14px;">«ДЗ: PE07. Chain-of-thought»: 2026-08-24</text>
+
+            <!-- Source card -->
+            <rect x="252" y="338" width="296" height="56" rx="6" class="ui-source-card" />
+            <rect x="252" y="338" width="6" height="56" rx="2" class="ui-source-stripe" />
+            <text x="270" y="360" class="ui-source-label">ИСТОЧНИК · LMS</text>
+            <use href="#icon-cap" transform="translate(270, 370)" style="color: var(--accent);" />
+            <text x="296" y="382" class="ui-source-title" style="font-size:12px;">ДЗ: PE07. Chain-of-thought</text>
+
+            <!-- Rating -->
+            <text x="252" y="414" class="ui-msg-text-bot-muted" style="font-size:12px;">Спасибо за оценку!</text>
+            <text x="252" y="438" fill="#facc15" font-size="15">★ ★ ★ ★ ★ ★ ★ ★ ★ ★</text>
+
+            <!-- Input -->
+            <rect x="252" y="474" width="686" height="40" rx="20" class="ui-input" />
+            <text x="282" y="499" class="ui-input-text">Напишите вопрос...</text>
+            <circle cx="914" cy="494" r="14" class="ui-send" />
+            <path d="M906 494 L922 494 M916 488 L922 494 L916 500" class="ui-send-arrow" />
+          </svg>
         </div>
-        
+
         <div class="demo-block">
           <div class="demo-block__header">
-            <div class="demo-block__label">Сценарий 2</div>
-            <h3 class="demo-block__title">Администратор управляет Базой знаний</h3>
-            <p class="demo-block__text">Консоль администратора позволяет загружать материалы, настраивать AI и смотреть операционные логи.</p>
+            <div class="demo-block__label">Admin Console</div>
+            <h3 class="demo-block__title">Управляемая База знаний</h3>
+            <p class="demo-block__text">Методист загружает документ, заполняет метаданные курса/модуля/темы, переиндексирует и публикует для ответов студентам.</p>
           </div>
-          
-          <div class="demo-frame">
-            <img src="/assets/cases/ai-curator/scenario-2.png" alt="Консоль администратора AI Curator: управление знаниями и логами">
-            <div class="demo-frame__hint">Кликните для полного размера</div>
-          </div>
-          
+
+          <svg class="ui-illustration" viewBox="0 0 980 620" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Иллюстрация Admin Console: форма загрузки документа в Базу знаний">
+            <defs>
+              <clipPath id="admin-window-clip">
+                <rect x="20" y="10" width="940" height="600" rx="8" />
+              </clipPath>
+              <g id="icon-doc">
+                <rect x="2" y="2" width="14" height="18" rx="1" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <path d="M6 7 H12 M6 11 H12 M6 15 H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </g>
+            </defs>
+
+            <!-- Window -->
+            <rect x="20" y="10" width="940" height="600" rx="8" class="ui-window" />
+            <rect x="20" y="10" width="940" height="58" class="ui-header" clip-path="url(#admin-window-clip)" />
+
+            <!-- Header -->
+            <circle cx="46" cy="39" r="12" class="ui-avatar" />
+            <text x="70" y="40" class="ui-title">AI Curator</text>
+            <text x="260" y="32" class="ui-sidebar-title" style="font-size:16px;">Admin Console</text>
+            <text x="260" y="52" class="ui-subtitle">FastAPI · консоль наблюдаемости</text>
+            <text x="900" y="40" text-anchor="end" class="ui-subtitle" style="font-size:14px; font-weight:600; color: var(--accent);">Zerocoder</text>
+
+            <!-- Sidebar -->
+            <rect x="20" y="68" width="210" height="542" class="ui-sidebar" clip-path="url(#admin-window-clip)" />
+
+            <text x="40" y="100" class="ui-sidebar-text" style="font-size:11px;">СИСТЕМНЫЕ НАСТРОЙКИ</text>
+            <rect x="40" y="112" width="170" height="28" rx="4" class="ui-sidebar-item" />
+            <text x="56" y="131" class="ui-sidebar-text">Панель состояния</text>
+
+            <rect x="40" y="148" width="170" height="28" rx="4" class="ui-sidebar-item" />
+            <text x="56" y="167" class="ui-sidebar-text">AI и Retrieval</text>
+
+            <rect x="40" y="184" width="170" height="28" rx="4" class="ui-sidebar-item" />
+            <text x="56" y="203" class="ui-sidebar-text">Оркестратор</text>
+
+            <text x="40" y="244" class="ui-sidebar-text" style="font-size:11px;">КОНТЕНТ / БАЗА ЗНАНИЙ</text>
+            <rect x="40" y="256" width="170" height="28" rx="4" class="ui-sidebar-item-active" />
+            <text x="56" y="275" class="ui-sidebar-text-active">База знаний</text>
+
+            <text x="40" y="314" class="ui-sidebar-text" style="font-size:11px;">ОПЕРАЦИОННАЯ КОНСОЛЬ</text>
+            <rect x="40" y="326" width="170" height="28" rx="4" class="ui-sidebar-item" />
+            <text x="56" y="345" class="ui-sidebar-text">Логи</text>
+
+            <rect x="40" y="360" width="170" height="28" rx="4" class="ui-sidebar-item" />
+            <text x="56" y="379" class="ui-sidebar-text">Диалоги</text>
+
+            <rect x="40" y="394" width="170" height="28" rx="4" class="ui-sidebar-item" />
+            <text x="56" y="413" class="ui-sidebar-text">Журнал аудита</text>
+
+            <!-- Main area -->
+            <rect x="230" y="68" width="730" height="542" fill="var(--bg)" clip-path="url(#admin-window-clip)" />
+
+            <!-- Form card -->
+            <rect x="260" y="90" width="670" height="500" rx="6" class="ui-window" />
+
+            <text x="286" y="124" class="ui-main-title">Загрузка документа</text>
+            <text x="286" y="146" class="ui-subtitle">Создайте карточку документа и загрузите файл.</text>
+
+            <!-- Название -->
+            <text x="286" y="186" class="ui-table-header-text" style="font-size:12px;">Название</text>
+            <rect x="286" y="194" width="618" height="34" rx="4" class="ui-input" />
+            <text x="302" y="216" class="ui-input-text" style="fill: var(--text-primary);">FAQ по терминологии ИИ</text>
+
+            <!-- Тип документа + ID курса -->
+            <text x="286" y="254" class="ui-table-header-text" style="font-size:12px;">Тип документа</text>
+            <text x="514" y="254" class="ui-table-header-text" style="font-size:12px;">ID курса</text>
+            <rect x="286" y="262" width="204" height="34" rx="4" class="ui-input" />
+            <text x="302" y="284" class="ui-input-text" style="fill: var(--text-primary);">FAQ</text>
+            <text x="472" y="284" class="ui-input-text" style="fill: var(--text-primary);">▼</text>
+            <rect x="514" y="262" width="204" height="34" rx="4" class="ui-input" />
+            <text x="530" y="284" class="ui-input-text" style="fill: var(--text-primary);">99</text>
+
+            <!-- ID модуля + ID темы -->
+            <text x="286" y="322" class="ui-table-header-text" style="font-size:12px;">ID модуля</text>
+            <text x="514" y="322" class="ui-table-header-text" style="font-size:12px;">ID темы</text>
+            <rect x="286" y="330" width="204" height="34" rx="4" class="ui-input" />
+            <text x="302" y="352" class="ui-input-text" style="fill: var(--text-primary);">1</text>
+            <rect x="514" y="330" width="204" height="34" rx="4" class="ui-input" />
+            <text x="530" y="352" class="ui-input-text" style="fill: var(--text-primary);">1</text>
+
+            <!-- Описание -->
+            <text x="286" y="390" class="ui-table-header-text" style="font-size:12px;">Описание</text>
+            <rect x="286" y="398" width="618" height="54" rx="4" class="ui-input" />
+            <text x="302" y="418" class="ui-input-text" style="font-size:12px; fill: var(--text-primary);">Частые вопросы и термины из области искусственного интеллекта,</text>
+            <text x="302" y="436" class="ui-input-text" style="font-size:12px; fill: var(--text-primary);">машинного обучения и больших языковых моделей.</text>
+
+            <!-- Файл -->
+            <text x="286" y="476" class="ui-table-header-text" style="font-size:12px;">Файл</text>
+            <rect x="286" y="484" width="618" height="34" rx="4" class="ui-input" />
+            <rect x="290" y="488" width="90" height="26" rx="4" class="ui-toggle" />
+            <text x="335" y="505" text-anchor="middle" class="ui-sidebar-text" style="font-size:11px;">Выберите файл</text>
+            <text x="390" y="505" class="ui-input-text" style="fill: var(--text-primary);">faq-ai-terminology.md</text>
+
+            <!-- Buttons -->
+            <rect x="554" y="542" width="120" height="34" rx="4" class="ui-toggle" />
+            <text x="614" y="563" text-anchor="middle" class="ui-sidebar-text" style="font-size:12px;">Отмена</text>
+
+            <rect x="690" y="542" width="214" height="34" rx="4" class="ui-btn-primary" />
+            <text x="797" y="563" text-anchor="middle" class="ui-btn-text">Сохранить документ</text>
+          </svg>
         </div>
-        
       </div>
     </section>
 
-    <!-- 8. Quote -->
+    <!-- 8. Quote / validation -->
     <section class="section">
       <div class="container">
         <div class="quote">
-          <p class="quote__text">AI Curator не заменяет преподавателя. Он забирает рутину, чтобы преподаватель занимался тем, что действительно важно.</p>
+          <p class="quote__text">AI Curator не выставляет оценки, не переносит дедлайны и не изменяет учебный процесс. Его задача — быстро дать студенту точный ответ и ссылку на источник.</p>
         </div>
       </div>
     </section>
@@ -1490,10 +1758,10 @@
       <div class="container final__inner">
         <div>
           <p class="eyebrow">Следующий шаг</p>
-          <h2 class="final__title">Расскажите о вашей образовательной платформе</h2>
-          <p class="final__lead">Мы оценим, как AI Curator снизит нагрузку на преподавателей и ускорит ответы студентам.</p>
+          <h2 class="final__title">Нужен AI-ассистент для вашей образовательной платформы?</h2>
+          <p class="final__lead">Обсудим, как AI Curator может работать с вашей LMS и вашими учебными материалами.</p>
           <div class="final__actions">
-            <a href="/contacts.html" class="btn btn-primary" target="_blank" rel="noopener">Обсудить проект</a>
+            <a href="/contacts.html" class="btn btn-primary">Обсудить проект</a>
             <a href="https://curator.alex-n8n.site" class="btn btn-ghost" target="_blank" rel="noopener">Live demo</a>
             <a href="https://curator-admin.alex-n8n.site" class="btn btn-ghost" target="_blank" rel="noopener">Admin Console</a>
             <a href="https://github.com/AlexLvGulyaev/ai-curator" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a>
@@ -1503,9 +1771,6 @@
           <span><strong>Александр Гуляаев</strong>, AI Automation Portfolio Lab</span>
           <a href="https://t.me/AlexLvGulyaev" target="_blank" rel="noopener">Telegram: @AlexLvGulyaev</a>
           <a href="mailto:sbs.gulyaev.al@gmail.com">sbs.gulyaev.al@gmail.com</a>
-          
-          <a href="https://github.com/AlexLvGulyaev/ai-curator/blob/main/docs/BUSINESS_VALUE.md" target="_blank" rel="noopener">Документация: BUSINESS_VALUE.md</a>
-          
         </div>
       </div>
     </section>
@@ -1514,10 +1779,11 @@
   <footer class="site-footer">
     <div class="container site-footer__inner">
       <span>© 2026 AI Automation Portfolio Lab</span>
-      <span>AI-ассистент для образовательных платформ</span>
+      <span>AI Curator — AI-ассистент для образовательных платформ</span>
     </div>
   </footer>
 
+  <!-- Chat Widget -->
   <button class="chat-launcher" id="chat-launcher" aria-label="Открыть AI-ассистента">
     <span>💬</span>
   </button>
@@ -1542,7 +1808,6 @@
 
   <script src="../js/api-client.js"></script>
   <script src="../js/chat-widget.js"></script>
-  
   <script>
     (function() {
       const btn = document.getElementById('theme-toggle');
@@ -1574,7 +1839,7 @@
 
       updateIcon();
     })();
+
   </script>
-  
 </body>
 </html>
