@@ -1092,7 +1092,7 @@ def retail_metrics_svg() -> str:
 
 def lq_scenario_1_svg() -> str:
     """Lead Qualification composite scenario: contacts form, request form, success."""
-    w, h = 1320, 640
+    w, h = 1320, 680
     m = 24  # outer margin
     hdr_h = 44
     gap = 18
@@ -1106,7 +1106,7 @@ def lq_scenario_1_svg() -> str:
         # Header bar
         f'  <rect x="{m}" y="{m}" width="{w - 2 * m}" height="{hdr_h}" rx="6" class="ui-window" />',
         f'  <text x="{m + 16}" y="{m + 29}" class="ui-main-title" style="font-size:16px; font-weight:600;">Lead Qual</text>',
-        f'  <circle cx="{w - m - 132}" cy="{m + 23}" r="5" fill="#22c55e" />',
+        f'  <circle cx="{w - m - 146}" cy="{m + 23}" r="5" fill="#22c55e" />',
         f'  <text x="{w - m - 16}" y="{m + 29}" text-anchor="end" class="ui-subtitle" style="font-size:12px; letter-spacing:0.5px;">СИСТЕМА АКТИВНА</text>',
     ]
 
@@ -1137,7 +1137,8 @@ def lq_scenario_1_svg() -> str:
     svg.extend([
         f'  <rect x="{x1}" y="{panel_y}" width="{panel_w}" height="{panel_h}" rx="8" class="ui-source-card" style="fill:var(--surface-elevated);" />',
         f'  <text x="{x1 + panel_w // 2}" y="{panel_y + 36}" text-anchor="middle" class="ui-main-title" style="font-size:20px;">Новое обращение</text>',
-        f'  <text x="{x1 + panel_w // 2}" y="{panel_y + 60}" text-anchor="middle" class="ui-subtitle" style="font-size:12px;">Заполните форму, и наша система автоматически обработает ваш запрос</text>',
+        f'  <text x="{x1 + panel_w // 2}" y="{panel_y + 58}" text-anchor="middle" class="ui-subtitle" style="font-size:12px;">Заполните форму, и наша система автоматически</text>',
+        f'  <text x="{x1 + panel_w // 2}" y="{panel_y + 76}" text-anchor="middle" class="ui-subtitle" style="font-size:12px;">обработает ваш запрос</text>',
     ])
     render_steps(x1, panel_y + 100, [True, False, False], accent_line_to=-1)
 
@@ -1176,18 +1177,19 @@ def lq_scenario_1_svg() -> str:
         f'  <text x="{x2 + 18}" y="{t_y}" class="ui-main-title" style="font-size:16px;">Расскажите о вашем запросе</text>',
         f'  <text x="{x2 + 18}" y="{t_y + 22}" class="ui-subtitle" style="font-size:12px;">Подробное описание поможет быстрее обработать обращение</text>',
         f'  <text x="{x2 + 18}" y="{t_y + 52}" style="font-size:12px; fill:var(--text-secondary);">Описание обращения <tspan style="fill:#14b8a6;">*</tspan></text>',
-        f'  <rect x="{x2 + 18}" y="{t_y + 58}" width="{panel_w - 36}" height="132" rx="5" class="ui-input" style="fill:var(--bg); stroke:#14b8a6; stroke-width:1.5;" />',
-        f'  <text x="{x2 + 28}" y="{t_y + 82}" style="font-size:12px; fill:var(--text-primary);">Здравствуйте!</text>',
-        f'  <text x="{x2 + 28}" y="{t_y + 104}" style="font-size:12px; fill:var(--text-primary);">Необходимо автоматизировать обработку</text>',
-        f'  <text x="{x2 + 28}" y="{t_y + 122}" style="font-size:12px; fill:var(--text-primary);">входящих заявок. Интересует решение с AI-</text>',
-        f'  <text x="{x2 + 28}" y="{t_y + 140}" style="font-size:12px; fill:var(--text-primary);">квалификацией лидов, интеграцией с CRM</text>',
-        f'  <text x="{x2 + 28}" y="{t_y + 158}" style="font-size:12px; fill:var(--text-primary);">и автоматической постановкой задач.</text>',
-        f'  <text x="{x2 + panel_w - 22}" y="{t_y + 178}" text-anchor="end" class="ui-subtitle" style="font-size:11px;">271 / 2000</text>',
-        f'  <text x="{x2 + 18}" y="{t_y + 204}" style="font-size:12px; fill:#22c55e;">✓ Достаточно</text>',
-        f'  <text x="{x2 + 18}" y="{t_y + 236}" style="font-size:12px; fill:var(--text-secondary);">Откуда вы узнали о нас? <tspan style="fill:#14b8a6;">*</tspan></text>',
-        f'  <rect x="{x2 + 18}" y="{t_y + 242}" width="{panel_w - 36}" height="38" rx="5" class="ui-input" style="fill:var(--bg); stroke:var(--border);" />',
-        f'  <text x="{x2 + 28}" y="{t_y + 266}" style="font-size:13px; fill:var(--text-primary);">Сайт компании</text>',
-        f'  <text x="{x2 + panel_w - 32}" y="{t_y + 266}" style="font-size:13px; fill:var(--text-secondary);">⌄</text>',
+        f'  <rect x="{x2 + 18}" y="{t_y + 58}" width="{panel_w - 36}" height="148" rx="5" class="ui-input" style="fill:var(--bg); stroke:#14b8a6; stroke-width:1.5;" />',
+        f'  <text x="{x2 + 28}" y="{t_y + 84}" style="font-size:13px; fill:var(--text-primary);">Здравствуйте!</text>',
+        f'  <text x="{x2 + 28}" y="{t_y + 108}" style="font-size:13px; fill:var(--text-primary);">Необходимо автоматизировать обработку входящих заявок.</text>',
+        f'  <text x="{x2 + 28}" y="{t_y + 132}" style="font-size:13px; fill:var(--text-primary);">Интересует решение с AI-квалификацией лидов,</text>',
+        f'  <text x="{x2 + 28}" y="{t_y + 156}" style="font-size:13px; fill:var(--text-primary);">интеграцией с CRM и автоматической постановкой</text>',
+        f'  <text x="{x2 + 28}" y="{t_y + 180}" style="font-size:13px; fill:var(--text-primary);">задач менеджерам. Хотел бы обсудить сроки</text>',
+        f'  <text x="{x2 + 28}" y="{t_y + 204}" style="font-size:13px; fill:var(--text-primary);">внедрения, возможности интеграции и бюджет.</text>',
+        f'  <text x="{x2 + panel_w - 22}" y="{t_y + 194}" text-anchor="end" class="ui-subtitle" style="font-size:11px;">271 / 2000</text>',
+        f'  <text x="{x2 + 18}" y="{t_y + 232}" style="font-size:13px; fill:#22c55e;">✓ Достаточно</text>',
+        f'  <text x="{x2 + 18}" y="{t_y + 266}" style="font-size:12px; fill:var(--text-secondary);">Откуда вы узнали о нас? <tspan style="fill:#14b8a6;">*</tspan></text>',
+        f'  <rect x="{x2 + 18}" y="{t_y + 272}" width="{panel_w - 36}" height="38" rx="5" class="ui-input" style="fill:var(--bg); stroke:var(--border);" />',
+        f'  <text x="{x2 + 28}" y="{t_y + 296}" style="font-size:13px; fill:var(--text-primary);">Сайт компании</text>',
+        f'  <text x="{x2 + panel_w - 32}" y="{t_y + 296}" style="font-size:13px; fill:var(--text-secondary);">⌄</text>',
     ])
 
     btn_y2 = panel_y + panel_h - 72
