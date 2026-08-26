@@ -309,9 +309,9 @@ def hr_scenario_1_svg() -> str:
     canvas, matching the other composite illustrations in the portfolio and
     avoiding the small-scaling issues of a CSS side-by-side grid.
     """
-    w, h = 980, 620
+    w, h = 980, 760
     phone_w = 440
-    phone_h = 620
+    phone_h = 760
     left_x = 40
     right_x = w - phone_w - 40
     margin = 18
@@ -334,7 +334,7 @@ def hr_scenario_1_svg() -> str:
             is_user = msg.get("user", False)
             x = px + phone_w - margin - bubble_w if is_user else px + margin
             fill = "#d9fdd3" if is_user else "#ffffff"
-            # Preserve line breaks; wrap each paragraph
+            # Preserve line breaks; wrap each paragraph, but keep section headers bold-ish by prefixing
             lines = []
             for para in msg.get("text", "").split("\n"):
                 para = para.strip()
@@ -342,6 +342,8 @@ def hr_scenario_1_svg() -> str:
                     lines.extend(textwrap.wrap(para, width=38))
                 elif lines:
                     lines.append("")
+            # Limit total lines so the bubble fits inside a 760 px phone panel
+            lines = lines[:40]
             bubble_h = max(34, 14 + line_h * len(lines))
             svg.append(f'  <rect x="{x}" y="{y}" width="{bubble_w}" height="{bubble_h}" rx="10" fill="{fill}"/>')
             for i, line in enumerate(lines):
@@ -360,11 +362,48 @@ def hr_scenario_1_svg() -> str:
     ]
 
     request_messages = [
-        {"text": "Здравствуйте! Отправьте резюме или ссылку на вакансию.", "user": False},
-        {"text": "Анна Морозова, Москва. Ищу позицию системного аналитика.\n\nОпыт работы: 6 лет.\n\nКлючевые навыки: сбор и анализ требований, BPMN, UML, SQL, REST API, интеграционная аналитика, подготовка ТЗ, user stories, Jira, Confluence.\n\nЗ/П ожидания: 180000 рублей.", "user": True},
+        {
+            "text": "Готов принять новое резюме.\n\nОтправьте его текстом, файлом PDF/DOCX, фото или голосовым сообщением.",
+            "user": False,
+        },
+        {
+            "text": (
+                "Анна Морозова, Москва.\n\n"
+                "Ищу позицию системного аналитика.\n\n"
+                "Опыт работы: 6 лет.\n\n"
+                "Ключевые навыки:\n"
+                "сбор и анализ требований, интервью с заказчиками, описание бизнес-процессов, BPMN, UML, SQL, REST API, интеграционная аналитика, подготовка технических заданий, user stories, acceptance criteria, прототипирование интерфейсов, тестирование требований, Jira, Confluence.\n\n"
+                "Опыт:\n"
+                "Работала системным аналитиком в ИТ-проектах для банковского и корпоративного сектора. Согласовывала требования с бизнес-заказчиками, описывала процессы AS-IS и TO-BE, готовила спецификации API, участвовала в постановке задач разработчикам и сопровождала функциональность до внедрения.\n\n"
+                "Дополнительно:\n"
+                "Понимаю жизненный цикл разработки, умею работать с backlog, приоритизацией задач, документацией и межкомандным взаимодействием.\n\n"
+                "Зарплатные ожидания: 180000 рублей.\n\n"
+                "Контакты:\n"
+                "Email: anna.morozova.hrtest2026@example.com\n"
+                "Телефон: +79167778899"
+            ),
+            "user": True,
+        },
     ]
     response_messages = [
-        {"text": "💼 Системный аналитик\n\n📊 Совпадение: 100/100\n\nКритерии:\n• роль: 30/30\n• навыки: 35/35\n• опыт: 20/20\n• условия: 15/15\n\n📝 Кандидат полностью соответствует вакансии.", "user": False},
+        {
+            "text": (
+                "Резюме получено\n\n"
+                "Начинаю анализ...\n\n"
+                "Анализирую резюме\n\n"
+                "Сравниваю кандидата с открытыми вакансиями...\n\n"
+                "💼 Системный аналитик\n\n"
+                "📊 Совпадение: 100/100\n\n"
+                "Детализация:\n"
+                "• роль: 30/30\n"
+                "• навыки: 35/35\n"
+                "• опыт: 20/20\n"
+                "• условия: 15/15\n\n"
+                "📝 Кандидат полностью соответствует должности системного аналитика, имеет все необходимые навыки и опыт, а также зарплатные ожидания в пределах предложенного диапазона.\n\n"
+                "Вы можете откликнуться на вакансию или отправить другое резюме."
+            ),
+            "user": False,
+        },
     ]
 
     build_panel(svg, left_x, "Запрос пользователя", request_messages)
