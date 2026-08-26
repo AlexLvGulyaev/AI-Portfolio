@@ -1396,45 +1396,47 @@
           <p class="section__lead">От заявки на сайте или в Telegram до готовой сделки в CRM.</p>
         </div>
 
-        <svg class="pipeline-diagram pipeline-diagram--single" viewBox="0 0 1138 180" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Lead Qualification: от входа к результату">
+        <svg class="pipeline-diagram pipeline-diagram--two-row" viewBox="0 0 822 314" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Lead Qualification: от входа к результату">
   <defs>
-    <marker id="arrow-sr-58122" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-tr-24318" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
-  <g transform="translate(24, 50)">
-    <rect x="0" y="0" width="170" height="80" rx="4" class="node-rect" />
-    <text x="85.0" y="24" text-anchor="middle" class="title-text">Вход</text>
-    <text x="85.0" y="44" text-anchor="middle" class="body-text">Web-форма</text>
-    <text x="85.0" y="60" text-anchor="middle" class="body-text">Telegram</text>
+  <g transform="translate(40, 28)">
+    <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
+    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Вход</text>
+    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Web-форма</text>
+    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">Telegram</text>
   </g>
-  <path d="M 194 90.0 L 254 90.0" class="arrow" marker-end="url(#arrow-sr-58122)" />
-  <g transform="translate(254, 50)">
-    <rect x="0" y="0" width="170" height="80" rx="4" class="node-accent" />
-    <text x="85.0" y="24" text-anchor="middle" class="title-text">Ingestion</text>
-    <text x="85.0" y="44" text-anchor="middle" class="body-text">n8n приём</text>
-    <text x="85.0" y="60" text-anchor="middle" class="body-text">PostgreSQL</text>
+  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-24318)" />
+  <g transform="translate(306, 28)">
+    <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
+    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Ingestion</text>
+    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">n8n приём</text>
+    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">PostgreSQL</text>
   </g>
-  <path d="M 424 90.0 L 484 90.0" class="arrow" marker-end="url(#arrow-sr-58122)" />
-  <g transform="translate(484, 50)">
-    <rect x="0" y="0" width="170" height="80" rx="4" class="node-rect" />
-    <text x="85.0" y="24" text-anchor="middle" class="title-text">AI</text>
-    <text x="85.0" y="44" text-anchor="middle" class="body-text">Классификация</text>
-    <text x="85.0" y="60" text-anchor="middle" class="body-text">confidence</text>
+  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-24318)" />
+  <g transform="translate(572, 28)">
+    <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
+    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">AI</text>
+    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Классификация</text>
+    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">confidence</text>
   </g>
-  <path d="M 654 90.0 L 714 90.0" class="arrow" marker-end="url(#arrow-sr-58122)" />
-  <g transform="translate(714, 50)">
-    <rect x="0" y="0" width="170" height="80" rx="4" class="node-rect" />
-    <text x="85.0" y="24" text-anchor="middle" class="title-text">CRM Writer</text>
-    <text x="85.0" y="44" text-anchor="middle" class="body-text">Kommo</text>
-    <text x="85.0" y="60" text-anchor="middle" class="body-text">сделка + задача</text>
+  <path d="M 677.0 122 L 677.0 157.0" class="arrow" />
+  <path d="M 677.0 157.0 L 278.0 157.0" class="arrow" />
+  <path d="M 278.0 157.0 L 278.0 192" class="arrow" marker-end="url(#arrow-tr-24318)" />
+  <g transform="translate(173, 192)">
+    <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
+    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">CRM Writer</text>
+    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Kommo</text>
+    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">сделка + задача</text>
   </g>
-  <path d="M 884 90.0 L 944 90.0" class="arrow" marker-end="url(#arrow-sr-58122)" />
-  <g transform="translate(944, 50)">
-    <rect x="0" y="0" width="170" height="80" rx="4" class="node-accent" />
-    <text x="85.0" y="24" text-anchor="middle" class="title-text">Менеджер</text>
-    <text x="85.0" y="44" text-anchor="middle" class="body-text">Готовый лид</text>
-    <text x="85.0" y="60" text-anchor="middle" class="body-text">уведомление</text>
+  <path d="M 383 239.0 L 439 239.0" class="arrow" marker-end="url(#arrow-tr-24318)" />
+  <g transform="translate(439, 192)">
+    <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
+    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Менеджер</text>
+    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Готовый лид</text>
+    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">уведомление</text>
   </g>
 </svg>
 
