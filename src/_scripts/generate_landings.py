@@ -1903,6 +1903,66 @@ TEMPLATE = r'''<!doctype html>
       margin: 0;
     }
 
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .metrics-grid > *:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      justify-self: center;
+      max-width: 50%;
+      width: 100%;
+    }
+
+    .metric-card {
+      display: flex;
+      gap: var(--space-md);
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .metric-card__icon {
+      width: 56px;
+      height: 56px;
+      min-width: 56px;
+      border-radius: var(--radius);
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+    }
+
+    .metric-card__content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .metric-card__label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .metric-card__value {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text-primary);
+    }
+
+    .metric-card__suffix {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
     .pipeline-diagram {
       width: 100%;
       height: auto;
@@ -2567,7 +2627,13 @@ TEMPLATE = r'''<!doctype html>
       .final__inner { grid-template-columns: 1fr; }
       .summary__grid,
       .solution-grid,
+      .metrics-grid,
       .ba-grid { grid-template-columns: 1fr; }
+      .metrics-grid > *:last-child:nth-child(odd) {
+        grid-column: auto;
+        justify-self: stretch;
+        max-width: 100%;
+      }
       .ba-arrow { display: none; }
       .pipeline-cards { grid-template-columns: 1fr; }
       .section { padding: var(--space-2xl) 0; }
@@ -2657,11 +2723,14 @@ TEMPLATE = r'''<!doctype html>
         </div>
 
         {% if metrics %}
-        <div class="summary__grid" style="grid-template-columns: repeat({{ metrics|length }}, 1fr);">
+        <div class="metrics-grid">
           {% for m in metrics %}
-          <div class="summary__item">
-            <div class="summary__label">{{ m.label }}</div>
-            <div class="summary__value"><strong>{{ m.value }}</strong>{% if m.suffix %} {{ m.suffix }}{% endif %}</div>
+          <div class="metric-card">
+            <div class="metric-card__icon">{{ m.icon }}</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">{{ m.label }}</div>
+              <div class="metric-card__value">{{ m.value }}{% if m.suffix %}<span class="metric-card__suffix"> {{ m.suffix }}</span>{% endif %}</div>
+            </div>
           </div>
           {% endfor %}
         </div>
