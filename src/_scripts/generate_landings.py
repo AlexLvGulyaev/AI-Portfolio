@@ -735,7 +735,7 @@ def rar_scenario_1_svg() -> str:
 
 def rar_scenario_2_svg() -> str:
     """Scenario 2: /admin execution detail panel for the auto-responded review."""
-    w, h = 980, 720
+    w, h = 980, 470
     margin = 20
     hdr = 52
     inner_h = h - margin * 2 - hdr
@@ -822,7 +822,7 @@ def rar_scenario_2_svg() -> str:
     ])
 
     # --- System response ---
-    sr_h = 135
+    sr_h = 120
     svg.extend([
         f'  <rect x="{right_x}" y="{y}" width="{col_w}" height="{sr_h}" rx="6" class="ui-window" />',
         f'  <text x="{right_x + 12}" y="{y + 22}" class="ui-table-header-text">ОТВЕТ СИСТЕМЫ</text>',
