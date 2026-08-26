@@ -51,9 +51,9 @@ def copy_to_assets(src: Path, dest_dir: Path, dest_name: str) -> str:
 # ---------------------------------------------------------------------------
 
 def pipeline_svg(nodes, aria_label, title_line="") -> str:
-    """Build a horizontal or two-row pipeline SVG. Auto-wraps to two rows when > 5 nodes."""
+    """Build a horizontal or two-row pipeline SVG. Auto-wraps to two rows when > 4 nodes."""
     n = len(nodes)
-    if n <= 5:
+    if n <= 4:
         return _pipeline_single_row_svg(nodes, aria_label)
     return _pipeline_two_row_svg(nodes, aria_label)
 
