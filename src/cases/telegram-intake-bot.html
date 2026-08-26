@@ -494,6 +494,66 @@
       margin: 0;
     }
 
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .metrics-grid > *:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      justify-self: center;
+      max-width: 50%;
+      width: 100%;
+    }
+
+    .metric-card {
+      display: flex;
+      gap: var(--space-md);
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .metric-card__icon {
+      width: 56px;
+      height: 56px;
+      min-width: 56px;
+      border-radius: var(--radius);
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+    }
+
+    .metric-card__content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .metric-card__label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .metric-card__value {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text-primary);
+    }
+
+    .metric-card__suffix {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
     .pipeline-diagram {
       width: 100%;
       height: auto;
@@ -1158,7 +1218,13 @@
       .final__inner { grid-template-columns: 1fr; }
       .summary__grid,
       .solution-grid,
+      .metrics-grid,
       .ba-grid { grid-template-columns: 1fr; }
+      .metrics-grid > *:last-child:nth-child(odd) {
+        grid-column: auto;
+        justify-self: stretch;
+        max-width: 100%;
+      }
       .ba-arrow { display: none; }
       .pipeline-cards { grid-template-columns: 1fr; }
       .section { padding: var(--space-2xl) 0; }
@@ -1281,21 +1347,30 @@
         </div>
 
         
-        <div class="summary__grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="metrics-grid">
           
-          <div class="summary__item">
-            <div class="summary__label">Канал</div>
-            <div class="summary__value"><strong>Telegram</strong> привычный интерфейс</div>
+          <div class="metric-card">
+            <div class="metric-card__icon">💬</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">Канал</div>
+              <div class="metric-card__value">Telegram<span class="metric-card__suffix"> привычный интерфейс</span></div>
+            </div>
           </div>
           
-          <div class="summary__item">
-            <div class="summary__label">Роутинг</div>
-            <div class="summary__value"><strong>ScenarioRouter</strong> гибкие сценарии</div>
+          <div class="metric-card">
+            <div class="metric-card__icon">🧭</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">Роутинг</div>
+              <div class="metric-card__value">ScenarioRouter<span class="metric-card__suffix"> гибкие сценарии</span></div>
+            </div>
           </div>
           
-          <div class="summary__item">
-            <div class="summary__label">Данные</div>
-            <div class="summary__value"><strong>структурированные</strong> JSON Schema</div>
+          <div class="metric-card">
+            <div class="metric-card__icon">📝</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">Данные</div>
+              <div class="metric-card__value">структурированные<span class="metric-card__suffix"> JSON Schema</span></div>
+            </div>
           </div>
           
         </div>
@@ -1392,7 +1467,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--two-row" viewBox="0 0 822 314" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Telegram Intake Bot: от входа к результату">
   <defs>
-    <marker id="arrow-tr-8705" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-tr-1646" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1402,14 +1477,14 @@
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Сообщение</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">в Telegram</text>
   </g>
-  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-8705)" />
+  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-1646)" />
   <g transform="translate(306, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">ScenarioRouter</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Выбор</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">сценария</text>
   </g>
-  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-8705)" />
+  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-1646)" />
   <g transform="translate(572, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Извлечение</text>
@@ -1418,21 +1493,21 @@
   </g>
   <path d="M 677.0 122 L 677.0 157.0" class="arrow" />
   <path d="M 677.0 157.0 L 145.0 157.0" class="arrow" />
-  <path d="M 145.0 157.0 L 145.0 192" class="arrow" marker-end="url(#arrow-tr-8705)" />
+  <path d="M 145.0 157.0 L 145.0 192" class="arrow" marker-end="url(#arrow-tr-1646)" />
   <g transform="translate(40, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Guard layer</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Валидация</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">полей</text>
   </g>
-  <path d="M 250 239.0 L 306 239.0" class="arrow" marker-end="url(#arrow-tr-8705)" />
+  <path d="M 250 239.0 L 306 239.0" class="arrow" marker-end="url(#arrow-tr-1646)" />
   <g transform="translate(306, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">PostgreSQL</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Сессии</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">и заявки</text>
   </g>
-  <path d="M 516 239.0 L 572 239.0" class="arrow" marker-end="url(#arrow-tr-8705)" />
+  <path d="M 516 239.0 L 572 239.0" class="arrow" marker-end="url(#arrow-tr-1646)" />
   <g transform="translate(572, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Операторы</text>

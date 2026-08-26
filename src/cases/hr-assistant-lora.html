@@ -494,6 +494,66 @@
       margin: 0;
     }
 
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .metrics-grid > *:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      justify-self: center;
+      max-width: 50%;
+      width: 100%;
+    }
+
+    .metric-card {
+      display: flex;
+      gap: var(--space-md);
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .metric-card__icon {
+      width: 56px;
+      height: 56px;
+      min-width: 56px;
+      border-radius: var(--radius);
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+    }
+
+    .metric-card__content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .metric-card__label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .metric-card__value {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text-primary);
+    }
+
+    .metric-card__suffix {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
     .pipeline-diagram {
       width: 100%;
       height: auto;
@@ -1158,7 +1218,13 @@
       .final__inner { grid-template-columns: 1fr; }
       .summary__grid,
       .solution-grid,
+      .metrics-grid,
       .ba-grid { grid-template-columns: 1fr; }
+      .metrics-grid > *:last-child:nth-child(odd) {
+        grid-column: auto;
+        justify-self: stretch;
+        max-width: 100%;
+      }
       .ba-arrow { display: none; }
       .pipeline-cards { grid-template-columns: 1fr; }
       .section { padding: var(--space-2xl) 0; }
@@ -1286,21 +1352,30 @@
         </div>
 
         
-        <div class="summary__grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="metrics-grid">
           
-          <div class="summary__item">
-            <div class="summary__label">Модель</div>
-            <div class="summary__value"><strong>Qwen</strong> + LoRA</div>
+          <div class="metric-card">
+            <div class="metric-card__icon">🤖</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">Модель</div>
+              <div class="metric-card__value">Qwen<span class="metric-card__suffix"> + LoRA</span></div>
+            </div>
           </div>
           
-          <div class="summary__item">
-            <div class="summary__label">Задача</div>
-            <div class="summary__value"><strong>HR matching</strong> binary / multi-class</div>
+          <div class="metric-card">
+            <div class="metric-card__icon">🎯</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">Задача</div>
+              <div class="metric-card__value">HR matching<span class="metric-card__suffix"> binary / multi-class</span></div>
+            </div>
           </div>
           
-          <div class="summary__item">
-            <div class="summary__label">Baseline</div>
-            <div class="summary__value"><strong>→ fine-tuned</strong> значимый прирост</div>
+          <div class="metric-card">
+            <div class="metric-card__icon">📈</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">Baseline</div>
+              <div class="metric-card__value">→ fine-tuned<span class="metric-card__suffix"> значимый прирост</span></div>
+            </div>
           </div>
           
         </div>
@@ -1397,7 +1472,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--five" viewBox="0 0 1120 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы HR Assistant — LoRA: от входа к результату">
   <defs>
-    <marker id="arrow-5n-95094" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-5n-37024" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1407,28 +1482,28 @@
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Zero-shot</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">LLM</text>
   </g>
-  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-95094)" />
+  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-37024)" />
   <g transform="translate(250, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Датасет</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Разметка</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">HR-решений</text>
   </g>
-  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-95094)" />
+  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-37024)" />
   <g transform="translate(470, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">LoRA</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Fine-tuning</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">Qwen</text>
   </g>
-  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-95094)" />
+  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-37024)" />
   <g transform="translate(690, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Оценка</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Метрики</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">HR-задач</text>
   </g>
-  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-95094)" />
+  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-37024)" />
   <g transform="translate(910, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Сравнение</text>

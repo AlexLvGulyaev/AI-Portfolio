@@ -88,21 +88,25 @@
       ],
       "metrics": [
         {
+          "icon": "⏱️",
           "label": "Скорость ответа",
           "value": "< 5 сек",
           "suffix": "для типовых вопросов"
         },
         {
+          "icon": "📉",
           "label": "Снижение нагрузки",
           "value": "до 5×",
           "suffix": "на преподавателей"
         },
         {
+          "icon": "🌐",
           "label": "Доступность",
           "value": "24/7",
           "suffix": "без участия человека"
         },
         {
+          "icon": "🎯",
           "label": "Точность",
           "value": "источники",
           "suffix": "проверяемы по LMS и БЗ"
@@ -354,24 +358,28 @@
       ],
       "metrics": [
         {
-          "label": "Графики",
-          "value": "4 типа",
-          "suffix": "histogram / bar / line / pie"
+          "icon": "⏱️",
+          "label": "Скорость анализа",
+          "value": "секунды",
+          "suffix": "на естественно-языковой запрос"
         },
         {
-          "label": "Отчёты",
-          "value": "DOCX + Markdown",
-          "suffix": "скачиваются из чата"
+          "icon": "🗂️",
+          "label": "Реестры действий",
+          "value": "действия",
+          "suffix": "и графики из разрешённого списка"
         },
         {
-          "label": "Провайдеры",
+          "icon": "🔌",
+          "label": "Мультипровайдерность",
           "value": "4 пресета",
           "suffix": "OpenAI / GigaChat / YandexGPT / Свой"
         },
         {
-          "label": "Конфиг",
-          "value": "/admin",
-          "suffix": "без пересборки и рестарта"
+          "icon": "🎛️",
+          "label": "Runtime /admin",
+          "value": "без",
+          "suffix": "пересборки и рестарта"
         }
       ],
       "problem_title": "Данные есть, а быстрого self-hosted ассистента нет",
@@ -645,19 +653,28 @@
       ],
       "metrics": [
         {
-          "label": "Скорость",
+          "icon": "⚡",
+          "label": "Ускорение обработки",
           "value": "в 3-5×",
-          "suffix": "быстрее обработка"
+          "suffix": "быстрее за счёт AI-черновика"
         },
         {
-          "label": "Контроль",
-          "value": "HITL",
-          "suffix": "перед публикацией"
+          "icon": "🎯",
+          "label": "Confidence score",
+          "value": "на основе",
+          "suffix": "retrieval и политики"
         },
         {
-          "label": "Качество",
-          "value": "KB learning",
-          "suffix": "через кандидатов"
+          "icon": "👤",
+          "label": "Human-in-the-loop",
+          "value": "перед",
+          "suffix": "публикацией каждого ответа"
+        },
+        {
+          "icon": "🧠",
+          "label": "KB learning",
+          "value": "кандидаты",
+          "suffix": "становятся типовыми ситуациями"
         }
       ],
       "problem_title": "Обращения требуют скорости, но нельзя терять контроль",
@@ -927,19 +944,28 @@
       ],
       "metrics": [
         {
-          "label": "Реакция",
+          "icon": "⏱️",
+          "label": "Время реакции",
           "value": "секунды–минуты",
           "suffix": "вместо часов–дней"
         },
         {
+          "icon": "🏷️",
           "label": "Классификация",
           "value": "0 токенов",
           "suffix": "словарь маркеров"
         },
         {
+          "icon": "🌐",
           "label": "Покрытие",
           "value": "24/7",
-          "suffix": "включая fallback"
+          "suffix": "включая fallback LLM"
+        },
+        {
+          "icon": "📋",
+          "label": "Аудит",
+          "value": "execution-трейсы",
+          "suffix": "в /admin для каждого отзыва"
         }
       ],
       "problem_title": "Отзывы требуют постоянного ручного внимания",
@@ -1189,19 +1215,28 @@
       ],
       "metrics": [
         {
+          "icon": "💬",
           "label": "Канал",
           "value": "Telegram",
           "suffix": "естественный интерфейс"
         },
         {
+          "icon": "📎",
           "label": "Форматы",
           "value": "4+",
           "suffix": "текст / голос / фото / файл"
         },
         {
+          "icon": "🔗",
           "label": "Источники",
           "value": "всегда",
           "suffix": "цитаты и ссылки"
+        },
+        {
+          "icon": "📊",
+          "label": "Консоль",
+          "value": "диалоги и метрики",
+          "suffix": "для администратора"
         }
       ],
       "problem_title": "Мессенджер превращается в хаос знаний",
@@ -1433,21 +1468,25 @@
       ],
       "metrics": [
         {
-          "label": "Скорость",
+          "icon": "⏱️",
+          "label": "Скорость аудита",
           "value": "10–18 с",
           "suffix": "на запись ~2 мин"
         },
         {
-          "label": "Стоимость",
+          "icon": "💰",
+          "label": "Стоимость обработки",
           "value": "$0.02–0.03",
-          "suffix": "за обработку vs $15–30 ручного разбора"
+          "suffix": "vs $15–30 ручного разбора"
         },
         {
+          "icon": "🌐",
           "label": "Покрытие",
           "value": "100%",
           "suffix": "загруженных записей"
         },
         {
+          "icon": "📊",
           "label": "Observability",
           "value": "3 контура",
           "suffix": "stdout, execution trace, audit log"
@@ -1721,24 +1760,28 @@
       ],
       "metrics": [
         {
-          "label": "Скорость",
+          "icon": "⏱️",
+          "label": "AI-классификация",
           "value": "< 5 сек",
-          "suffix": "на AI-классификацию"
+          "suffix": "на тип лида и приоритет"
         },
         {
-          "label": "SLA",
-          "value": "15 / 24 / 7",
-          "suffix": "минут / часов / дней для hot/warm/cold"
-        },
-        {
-          "label": "Типы",
+          "icon": "🏷️",
+          "label": "Типы лидов",
           "value": "4",
           "suffix": "hot / warm / cold / spam"
         },
         {
+          "icon": "🔗",
+          "label": "CRM + задача",
+          "value": "авто",
+          "suffix": "сделка и задача менеджеру"
+        },
+        {
+          "icon": "🌐",
           "label": "Каналы",
           "value": "web + tg",
-          "suffix": "единая воронка"
+          "suffix": "единая воронка заявок"
         }
       ],
       "problem_title": "Лиды приходят хаотично и непроквалифицированными",
@@ -1995,31 +2038,37 @@
       ],
       "metrics": [
         {
+          "icon": "⏱️",
           "label": "Время обработки",
           "value": "< 1 мин",
           "suffix": "вместо 10–15 мин ручной работы"
         },
         {
+          "icon": "⚡",
           "label": "Ускорение",
           "value": "10–15×",
           "suffix": "производительность первичного отбора"
         },
         {
+          "icon": "📎",
           "label": "Форматы ввода",
           "value": "4",
           "suffix": "текст, голос, PDF, фото"
         },
         {
+          "icon": "🎯",
           "label": "Match score",
           "value": "0–100",
           "suffix": "роль 30 / навыки 35 / опыт 20 / условия 15"
         },
         {
+          "icon": "💰",
           "label": "Стоимость обработки",
           "value": "~$0.003",
           "suffix": "за резюме: extraction + matching на 1 вакансию"
         },
         {
+          "icon": "🟢",
           "label": "SLA доступности",
           "value": "99%",
           "suffix": "с watchdog и централизованной обработкой ошибок"
@@ -2274,16 +2323,19 @@
       ],
       "metrics": [
         {
+          "icon": "🤖",
           "label": "Модель",
           "value": "Qwen",
           "suffix": "+ LoRA"
         },
         {
+          "icon": "🎯",
           "label": "Задача",
           "value": "HR matching",
           "suffix": "binary / multi-class"
         },
         {
+          "icon": "📈",
           "label": "Baseline",
           "value": "→ fine-tuned",
           "suffix": "значимый прирост"
@@ -2509,16 +2561,19 @@
       ],
       "metrics": [
         {
+          "icon": "💬",
           "label": "Канал",
           "value": "Telegram",
           "suffix": "привычный интерфейс"
         },
         {
+          "icon": "🧭",
           "label": "Роутинг",
           "value": "ScenarioRouter",
           "suffix": "гибкие сценарии"
         },
         {
+          "icon": "📝",
           "label": "Данные",
           "value": "структурированные",
           "suffix": "JSON Schema"
@@ -2746,16 +2801,19 @@
       ],
       "metrics": [
         {
+          "icon": "💬",
           "label": "Канал",
           "value": "Telegram",
           "suffix": "привычный для сотрудников"
         },
         {
+          "icon": "📥",
           "label": "Контент",
           "value": "динамический",
           "suffix": "загрузка тем"
         },
         {
+          "icon": "✅",
           "label": "Валидация",
           "value": "OpenAI",
           "suffix": "проверка ответов"
@@ -2998,16 +3056,19 @@
       ],
       "metrics": [
         {
+          "icon": "⚡",
           "label": "Скорость",
           "value": "15–60 сек",
           "suffix": "на типовой звонок"
         },
         {
+          "icon": "🧑‍💻",
           "label": "Освобождение",
           "value": "2–3",
           "suffix": "операторов"
         },
         {
+          "icon": "💰",
           "label": "Экономика",
           "value": "~290 000 ₽/мес",
           "suffix": "прогноз пилота"
@@ -3258,16 +3319,19 @@
       ],
       "metrics": [
         {
+          "icon": "📋",
           "label": "Критерии",
           "value": "8",
           "suffix": "оценка качества"
         },
         {
+          "icon": "🖥️",
           "label": "Интерфейсы",
           "value": "3",
           "suffix": "Web / Telegram / API"
         },
         {
+          "icon": "🔗",
           "label": "Интеграция",
           "value": "CI/CD",
           "suffix": "GitLab / GitHub"
