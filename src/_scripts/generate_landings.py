@@ -42,7 +42,8 @@ def copy_to_assets(src: Path, dest_dir: Path, dest_name: str) -> str:
     dest_dir.mkdir(parents=True, exist_ok=True)
     ext = Path(src).suffix
     dest = dest_dir / f"{dest_name}{ext}"
-    shutil.copyfile(src, dest)
+    if src.resolve() != dest.resolve():
+        shutil.copyfile(src, dest)
     return f"{ASSET_PREFIX}/{dest_dir.name}/{dest_name}{ext}"
 
 
@@ -356,12 +357,6 @@ def hr_scenario_1_svg() -> str:
         '</svg>',
     ])
     return "\n".join(svg)
-
-
-def hr_scenario_image_pair_svg(src_dark: str, src_light: str, alt: str) -> str:
-    """Side-by-side images wrapped in a demo-frame-like SVG shell (legacy fallback)."""
-    # Not used when registry type is image_pair; kept for compatibility.
-    return ""
 
 
 def ada_scenario_1_svg() -> str:
@@ -1246,7 +1241,11 @@ def hr_scenario_2_svg() -> str:
         f'  <text x="{left_x + 520}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px;">11:05:40</text>',
         f'  <circle cx="{left_x + 590}" cy="{y + 60}" r="5" class="ui-status-published"/>',
         f'  <text x="{left_x + 605}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Отправлен match card в Telegram · SOT сохранён</text>',
-        f'  <text x="{left_x + 10}" y="{y + 86}" class="ui-sidebar-text" style="font-size:10px; fill:var(--text-secondary);">* — планируется к реализации; данные уже сохраняются в PostgreSQL.</text>',
+    ])
+
+    y += tl_h + gap
+    svg.extend([
+        f'  <text x="{left_x}" y="{y + 18}" class="ui-sidebar-text" style="font-size:13px; fill:var(--text-secondary);">* — планируется к реализации; данные уже сохраняются в PostgreSQL.</text>',
     ])
 
     svg.append('</svg>')
@@ -2990,13 +2989,7 @@ TEMPLATE = r'''<!doctype html>
             <h3 class="demo-block__title">{{ scenario.title }}</h3>
             <p class="demo-block__text">{{ scenario.text }}</p>
           </div>
-          {% if scenario.type == 'image_pair' %}
-          <div class="demo-frame demo-frame--side-by-side">
-            <img class="preview-dark" src="{{ scenario.src_dark }}" alt="{{ scenario.alt }}">
-            <img class="preview-light" src="{{ scenario.src_light }}" alt="{{ scenario.alt }}">
-            <div class="demo-frame__hint">Кликните для полного размера</div>
-          </div>
-          {% elif scenario.type == 'image' %}
+          {% if scenario.type == 'image' %}
           <div class="demo-frame">
             <img src="{{ scenario.src }}" alt="{{ scenario.alt }}">
             <div class="demo-frame__hint">Кликните для полного размера</div>
@@ -3165,21 +3158,14 @@ def build_project(project: dict) -> dict:
         }
         stype = sc.get("type", "image")
         src = sc.get("src", "")
-        image_dark = sc.get("image_dark", "")
-        image_light = sc.get("image_light", "")
         if stype == "image":
-            if image_dark or image_light:
-                entry["type"] = "image_pair"
-                entry["src_dark"] = image_dark
-                entry["src_light"] = image_light
+            src_path = rel_to_root(src)
+            if src_path.exists():
+                entry["type"] = "image"
+                entry["src"] = copy_to_assets(src_path, case_dir, f"scenario-{i}")
             else:
-                src_path = rel_to_root(src)
-                if src_path.exists():
-                    entry["type"] = "image"
-                    entry["src"] = copy_to_assets(src_path, case_dir, f"scenario-{i}")
-                else:
-                    entry["type"] = "image"
-                    entry["src"] = src  # keep as-is, may be broken
+                entry["type"] = "image"
+                entry["src"] = src  # keep as-is, may be broken
         elif stype == "svg":
             src_path = rel_to_root(src)
             if src_path.exists():

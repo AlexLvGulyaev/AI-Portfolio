@@ -1548,7 +1548,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--five" viewBox="0 0 1120 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы HR Assistant: от входа к результату">
   <defs>
-    <marker id="arrow-5n-69149" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-5n-20890" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1558,28 +1558,28 @@
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Текст / голос</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">PDF / фото</text>
   </g>
-  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-69149)" />
+  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-20890)" />
   <g transform="translate(250, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Intake</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Нормализация</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">входа</text>
   </g>
-  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-69149)" />
+  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-20890)" />
   <g transform="translate(470, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Извлечение</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">GPT-4o-mini</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">JSON Schema</text>
   </g>
-  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-69149)" />
+  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-20890)" />
   <g transform="translate(690, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">PostgreSQL</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">SOT</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">профили и вакансии</text>
   </g>
-  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-69149)" />
+  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-20890)" />
   <g transform="translate(910, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Matching</text>
@@ -1629,9 +1629,8 @@
             <p class="demo-block__text">Соискатель присылает текстовое резюме. Бот подтверждает получение и возвращает match score с разбивкой по 4 критериям.</p>
           </div>
           
-          <div class="demo-frame demo-frame--side-by-side">
-            <img class="preview-dark" src="/assets/screenshots/HRA-scenario-1.png" alt="Telegram-чат HR Assistant: соискатель отправляет резюме и получает match score">
-            <img class="preview-light" src="/assets/screenshots/HRA-scenario-1.png" alt="Telegram-чат HR Assistant: соискатель отправляет резюме и получает match score">
+          <div class="demo-frame">
+            <img src="/assets/cases/hr-assistant/scenario-1.png" alt="Telegram-чат HR Assistant: соискатель отправляет резюме и получает match score">
             <div class="demo-frame__hint">Кликните для полного размера</div>
           </div>
           
@@ -1641,7 +1640,7 @@
           <div class="demo-block__header">
             <div class="demo-block__label">Сценарий 2</div>
             <h3 class="demo-block__title">Детализация обработки резюме*</h3>
-            <p class="demo-block__text">Консоль рекрутера показывает параметры запроса, параметры исполнения (провайдер, модель, вакансия, score), исходный запрос пользователя, ответ системы и таймлайн пайплайна — от получения сообщения до отправки match card. * — планируется к реализации; данные уже сохраняются в PostgreSQL.</p>
+            <p class="demo-block__text">Консоль рекрутера показывает параметры запроса, параметры исполнения (провайдер, модель, вакансия, score), исходный запрос пользователя, ответ системы и таймлайн пайплайна — от получения сообщения до отправки match card.</p>
           </div>
           
           <svg class="ui-illustration" viewBox="0 0 980 620" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: детализация обработки резюме в консоли">
@@ -1711,7 +1710,7 @@
   <text x="562" y="438" class="ui-sidebar-text" style="font-size:11px;">11:05:40</text>
   <circle cx="632" cy="434" r="5" class="ui-status-published"/>
   <text x="647" y="438" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Отправлен match card в Telegram · SOT сохранён</text>
-  <text x="52" y="460" class="ui-sidebar-text" style="font-size:10px; fill:var(--text-secondary);">* — планируется к реализации; данные уже сохраняются в PostgreSQL.</text>
+  <text x="42" y="500" class="ui-sidebar-text" style="font-size:13px; fill:var(--text-secondary);">* — планируется к реализации; данные уже сохраняются в PostgreSQL.</text>
 </svg>
           
         </div>
