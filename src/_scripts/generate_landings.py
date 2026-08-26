@@ -309,9 +309,9 @@ def hr_scenario_1_svg() -> str:
     canvas, matching the other composite illustrations in the portfolio and
     avoiding the small-scaling issues of a CSS side-by-side grid.
     """
-    w, h = 980, 760
+    w, h = 980, 620
     phone_w = 440
-    phone_h = 760
+    phone_h = 620
     left_x = 40
     right_x = w - phone_w - 40
     margin = 18
@@ -339,11 +339,11 @@ def hr_scenario_1_svg() -> str:
             for para in msg.get("text", "").split("\n"):
                 para = para.strip()
                 if para:
-                    lines.extend(textwrap.wrap(para, width=38))
+                    lines.extend(textwrap.wrap(para, width=52))
                 elif lines:
                     lines.append("")
-            # Limit total lines so the bubble fits inside a 760 px phone panel
-            lines = lines[:40]
+            # Limit total lines so the bubble fits inside a 620 px phone panel
+            lines = lines[:29]
             bubble_h = max(34, 14 + line_h * len(lines))
             svg.append(f'  <rect x="{x}" y="{y}" width="{bubble_w}" height="{bubble_h}" rx="10" fill="{fill}"/>')
             for i, line in enumerate(lines):
