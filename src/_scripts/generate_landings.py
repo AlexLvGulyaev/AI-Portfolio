@@ -1092,127 +1092,128 @@ def retail_metrics_svg() -> str:
 
 def lq_scenario_1_svg() -> str:
     """Lead Qualification composite scenario: contacts form, request form, success."""
-    w, h = 1320, 560
+    w, h = 1320, 640
     m = 24  # outer margin
     hdr_h = 44
     gap = 18
     panel_w = (w - 2 * m - 2 * gap) // 3
     panel_h = h - m - hdr_h - m - 16
     panel_y = m + hdr_h + 10
+    step_r = 18
 
     svg = [
         f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Lead Qualification: композитный сценарий — контакты, запрос, подтверждение обращения">',
         # Header bar
         f'  <rect x="{m}" y="{m}" width="{w - 2 * m}" height="{hdr_h}" rx="6" class="ui-window" />',
-        f'  <text x="{m + 16}" y="{m + 28}" class="ui-main-title" style="font-size:15px; font-weight:600;">Lead Qual</text>',
-        f'  <circle cx="{w - m - 110}" cy="{m + 22}" r="4" fill="#22c55e" />',
-        f'  <text x="{w - m - 98}" y="{m + 27}" class="ui-subtitle" style="font-size:11px; letter-spacing:0.5px;">СИСТЕМА АКТИВНА</text>',
+        f'  <text x="{m + 16}" y="{m + 29}" class="ui-main-title" style="font-size:16px; font-weight:600;">Lead Qual</text>',
+        f'  <circle cx="{w - m - 132}" cy="{m + 23}" r="5" fill="#22c55e" />',
+        f'  <text x="{w - m - 16}" y="{m + 29}" text-anchor="end" class="ui-subtitle" style="font-size:12px; letter-spacing:0.5px;">СИСТЕМА АКТИВНА</text>',
     ]
 
     def panel_x(i: int) -> int:
         return m + i * (panel_w + gap)
 
+    def step_centers(x: int) -> list[int]:
+        return [x + 52, x + panel_w // 2, x + panel_w - 52]
+
+    def render_steps(x: int, y: int, active_mask: list[bool], accent_line_to: int = -1) -> None:
+        centers = step_centers(x)
+        for idx, (cx, active) in enumerate(zip(centers, active_mask)):
+            cls = "ui-accent-fill" if active else "ui-source-card"
+            text_cls = "var(--bg)" if active else "var(--text-secondary)"
+            stroke = "var(--border)" if not active else "none"
+            svg.append(f'  <circle cx="{cx}" cy="{y}" r="{step_r}" class="{cls}" stroke="{stroke}" stroke-width="1" />')
+            svg.append(f'  <text x="{cx}" y="{y + 5}" text-anchor="middle" style="font-size:13px; fill:{text_cls}; font-weight:600;">{idx + 1}</text>')
+        for i in range(2):
+            stroke = "#14b8a6" if (accent_line_to >= i) else "var(--border)"
+            svg.append(f'  <line x1="{centers[i] + step_r}" y1="{y}" x2="{centers[i + 1] - step_r}" y2="{y}" stroke="{stroke}" stroke-width="2" />')
+        labels = ["КОНТАКТЫ", "ЗАПРОС", "ОТПРАВКА"]
+        for cx, label, active in zip(centers, labels, active_mask):
+            cls = "ui-source-label" if active else "ui-subtitle"
+            svg.append(f'  <text x="{cx}" y="{y + 38}" text-anchor="middle" class="{cls}" style="font-size:11px;">{escape_text(label)}</text>')
+
     # Panel 1: contacts
     x1 = panel_x(0)
     svg.extend([
         f'  <rect x="{x1}" y="{panel_y}" width="{panel_w}" height="{panel_h}" rx="8" class="ui-source-card" style="fill:var(--surface-elevated);" />',
-        f'  <text x="{x1 + panel_w // 2}" y="{panel_y + 34}" text-anchor="middle" class="ui-main-title" style="font-size:18px;">Новое обращение</text>',
-        f'  <text x="{x1 + panel_w // 2}" y="{panel_y + 56}" text-anchor="middle" class="ui-subtitle" style="font-size:11px;">Заполните форму, и наша система автоматически обработает ваш запрос</text>',
+        f'  <text x="{x1 + panel_w // 2}" y="{panel_y + 36}" text-anchor="middle" class="ui-main-title" style="font-size:20px;">Новое обращение</text>',
+        f'  <text x="{x1 + panel_w // 2}" y="{panel_y + 60}" text-anchor="middle" class="ui-subtitle" style="font-size:12px;">Заполните форму, и наша система автоматически обработает ваш запрос</text>',
     ])
-    # steps
-    step_y = panel_y + 92
-    step_r = 16
-    step_centers = [x1 + 50, x1 + panel_w // 2, x1 + panel_w - 50]
-    for idx, (cx, active) in enumerate(zip(step_centers, [True, False, False])):
-        cls = "ui-accent-fill" if active else "ui-source-card"
-        text_cls = "var(--bg)" if active else "var(--text-secondary)"
-        stroke = "var(--border)" if not active else "none"
-        svg.append(f'  <circle cx="{cx}" cy="{step_y}" r="{step_r}" class="{cls}" stroke="{stroke}" stroke-width="1" />')
-        svg.append(f'  <text x="{cx}" y="{step_y + 5}" text-anchor="middle" style="font-size:12px; fill:{text_cls}; font-weight:600;">{idx + 1}</text>')
-    svg.extend([
-        f'  <line x1="{step_centers[0] + step_r}" y1="{step_y}" x2="{step_centers[1] - step_r}" y2="{step_y}" stroke="var(--border)" stroke-width="2" />',
-        f'  <line x1="{step_centers[1] + step_r}" y1="{step_y}" x2="{step_centers[2] - step_r}" y2="{step_y}" stroke="var(--border)" stroke-width="2" />',
-        f'  <text x="{step_centers[0]}" y="{step_y + 36}" text-anchor="middle" class="ui-source-label" style="font-size:10px;">КОНТАКТЫ</text>',
-        f'  <text x="{step_centers[1]}" y="{step_y + 36}" text-anchor="middle" class="ui-subtitle" style="font-size:10px;">ЗАПРОС</text>',
-        f'  <text x="{step_centers[2]}" y="{step_y + 36}" text-anchor="middle" class="ui-subtitle" style="font-size:10px;">ОТПРАВКА</text>',
-    ])
-    # fields
-    field_y = panel_y + 156
+    render_steps(x1, panel_y + 100, [True, False, False], accent_line_to=-1)
+
+    field_y = panel_y + 170
     fields = [
         ("Имя", "необязательно", "Петров Александр", False),
         ("Телефон", "*", "+7(495)123-45-67", True),
         ("Email", "*", "a.petrov@example.com", True),
     ]
     for label, marker, value, required in fields:
-        svg.append(f'  <text x="{x1 + 18}" y="{field_y}" style="font-size:11px; fill:var(--text-secondary);">{escape_text(label)} <tspan style="fill:#14b8a6;">{escape_text(marker)}</tspan></text>')
-        svg.append(f'  <rect x="{x1 + 18}" y="{field_y + 6}" width="{panel_w - 36}" height="36" rx="5" class="ui-input" style="fill:var(--bg); stroke:var(--border);" />')
-        svg.append(f'  <text x="{x1 + 28}" y="{field_y + 29}" style="font-size:12px; fill:var(--text-primary);">{escape_text(value)}</text>')
+        svg.append(f'  <text x="{x1 + 18}" y="{field_y}" style="font-size:12px; fill:var(--text-secondary);">{escape_text(label)} <tspan style="fill:#14b8a6;">{escape_text(marker)}</tspan></text>')
+        svg.append(f'  <rect x="{x1 + 18}" y="{field_y + 8}" width="{panel_w - 36}" height="40" rx="5" class="ui-input" style="fill:var(--bg); stroke:var(--border);" />')
+        svg.append(f'  <text x="{x1 + 28}" y="{field_y + 33}" style="font-size:13px; fill:var(--text-primary);">{escape_text(value)}</text>')
         if required:
-            svg.append(f'  <rect x="{x1 + 18}" y="{field_y + 6}" width="{panel_w - 36}" height="36" rx="5" fill="none" stroke="#14b8a6" stroke-width="1.5" />')
-        field_y += 74
-    svg.append(f'  <rect x="{x1 + 18}" y="{panel_y + panel_h - 62}" width="{panel_w - 36}" height="40" rx="6" class="ui-accent-fill" />')
-    svg.append(f'  <text x="{x1 + panel_w // 2}" y="{panel_y + panel_h - 38}" text-anchor="middle" style="font-size:13px; fill:var(--bg); font-weight:600;">Продолжить →</text>')
-    svg.append(f'  <text x="{x1 + panel_w // 2}" y="{panel_y + panel_h - 16}" text-anchor="middle" class="ui-subtitle" style="font-size:9px;">Ваши данные защищены и используются только для обработки обращения</text>')
+            svg.append(f'  <rect x="{x1 + 18}" y="{field_y + 8}" width="{panel_w - 36}" height="40" rx="5" fill="none" stroke="#14b8a6" stroke-width="1.5" />')
+        field_y += 86
+
+    btn_y = panel_y + panel_h - 72
+    svg.extend([
+        f'  <rect x="{x1 + 18}" y="{btn_y}" width="{panel_w - 36}" height="44" rx="6" class="ui-accent-fill" />',
+        f'  <text x="{x1 + panel_w // 2}" y="{btn_y + 28}" text-anchor="middle" style="font-size:14px; fill:var(--bg); font-weight:600;">Продолжить →</text>',
+        f'  <text x="{x1 + panel_w // 2}" y="{panel_y + panel_h - 16}" text-anchor="middle" class="ui-subtitle" style="font-size:10px;">Ваши данные защищены и используются только для обработки обращения</text>',
+    ])
 
     # Panel 2: request
     x2 = panel_x(1)
     svg.extend([
         f'  <rect x="{x2}" y="{panel_y}" width="{panel_w}" height="{panel_h}" rx="8" class="ui-source-card" style="fill:var(--surface-elevated);" />',
-        f'  <text x="{x2 + panel_w // 2}" y="{panel_y + 34}" text-anchor="middle" class="ui-main-title" style="font-size:18px;">Новое обращение</text>',
-        f'  <text x="{x2 + panel_w // 2}" y="{panel_y + 56}" text-anchor="middle" class="ui-subtitle" style="font-size:11px;">Заполните форму, и наша система автоматически обработает ваш запрос</text>',
+        f'  <text x="{x2 + panel_w // 2}" y="{panel_y + 36}" text-anchor="middle" class="ui-main-title" style="font-size:20px;">Новое обращение</text>',
+        f'  <text x="{x2 + panel_w // 2}" y="{panel_y + 60}" text-anchor="middle" class="ui-subtitle" style="font-size:12px;">Заполните форму, и наша система автоматически обработает ваш запрос</text>',
     ])
-    step_y2 = panel_y + 92
-    for idx, (cx, active) in enumerate(zip(step_centers, [True, True, False])):
-        cls = "ui-accent-fill" if active else "ui-source-card"
-        text_cls = "var(--bg)" if active else "var(--text-secondary)"
-        stroke = "var(--border)" if not active else "none"
-        svg.append(f'  <circle cx="{cx}" cy="{step_y2}" r="{step_r}" class="{cls}" stroke="{stroke}" stroke-width="1" />')
-        svg.append(f'  <text x="{cx}" y="{step_y2 + 5}" text-anchor="middle" style="font-size:12px; fill:{text_cls}; font-weight:600;">{idx + 1}</text>')
+    render_steps(x2, panel_y + 100, [True, True, False], accent_line_to=0)
+
+    t_y = panel_y + 168
     svg.extend([
-        f'  <line x1="{step_centers[0] + step_r}" y1="{step_y2}" x2="{step_centers[1] - step_r}" y2="{step_y2}" stroke="#14b8a6" stroke-width="2" />',
-        f'  <line x1="{step_centers[1] + step_r}" y1="{step_y2}" x2="{step_centers[2] - step_r}" y2="{step_y2}" stroke="var(--border)" stroke-width="2" />',
-        f'  <text x="{step_centers[0]}" y="{step_y2 + 36}" text-anchor="middle" class="ui-subtitle" style="font-size:10px;">КОНТАКТЫ</text>',
-        f'  <text x="{step_centers[1]}" y="{step_y2 + 36}" text-anchor="middle" class="ui-source-label" style="font-size:10px;">ЗАПРОС</text>',
-        f'  <text x="{step_centers[2]}" y="{step_y2 + 36}" text-anchor="middle" class="ui-subtitle" style="font-size:10px;">ОТПРАВКА</text>',
+        f'  <text x="{x2 + 18}" y="{t_y}" class="ui-main-title" style="font-size:16px;">Расскажите о вашем запросе</text>',
+        f'  <text x="{x2 + 18}" y="{t_y + 22}" class="ui-subtitle" style="font-size:12px;">Подробное описание поможет быстрее обработать обращение</text>',
+        f'  <text x="{x2 + 18}" y="{t_y + 52}" style="font-size:12px; fill:var(--text-secondary);">Описание обращения <tspan style="fill:#14b8a6;">*</tspan></text>',
+        f'  <rect x="{x2 + 18}" y="{t_y + 58}" width="{panel_w - 36}" height="132" rx="5" class="ui-input" style="fill:var(--bg); stroke:#14b8a6; stroke-width:1.5;" />',
+        f'  <text x="{x2 + 28}" y="{t_y + 82}" style="font-size:12px; fill:var(--text-primary);">Здравствуйте!</text>',
+        f'  <text x="{x2 + 28}" y="{t_y + 104}" style="font-size:12px; fill:var(--text-primary);">Необходимо автоматизировать обработку</text>',
+        f'  <text x="{x2 + 28}" y="{t_y + 122}" style="font-size:12px; fill:var(--text-primary);">входящих заявок. Интересует решение с AI-</text>',
+        f'  <text x="{x2 + 28}" y="{t_y + 140}" style="font-size:12px; fill:var(--text-primary);">квалификацией лидов, интеграцией с CRM</text>',
+        f'  <text x="{x2 + 28}" y="{t_y + 158}" style="font-size:12px; fill:var(--text-primary);">и автоматической постановкой задач.</text>',
+        f'  <text x="{x2 + panel_w - 22}" y="{t_y + 178}" text-anchor="end" class="ui-subtitle" style="font-size:11px;">271 / 2000</text>',
+        f'  <text x="{x2 + 18}" y="{t_y + 204}" style="font-size:12px; fill:#22c55e;">✓ Достаточно</text>',
+        f'  <text x="{x2 + 18}" y="{t_y + 236}" style="font-size:12px; fill:var(--text-secondary);">Откуда вы узнали о нас? <tspan style="fill:#14b8a6;">*</tspan></text>',
+        f'  <rect x="{x2 + 18}" y="{t_y + 242}" width="{panel_w - 36}" height="38" rx="5" class="ui-input" style="fill:var(--bg); stroke:var(--border);" />',
+        f'  <text x="{x2 + 28}" y="{t_y + 266}" style="font-size:13px; fill:var(--text-primary);">Сайт компании</text>',
+        f'  <text x="{x2 + panel_w - 32}" y="{t_y + 266}" style="font-size:13px; fill:var(--text-secondary);">⌄</text>',
     ])
+
+    btn_y2 = panel_y + panel_h - 72
     svg.extend([
-        f'  <text x="{x2 + 18}" y="{panel_y + 152}" class="ui-main-title" style="font-size:14px;">Расскажите о вашем запросе</text>',
-        f'  <text x="{x2 + 18}" y="{panel_y + 172}" class="ui-subtitle" style="font-size:10px;">Подробное описание поможет быстрее обработать обращение</text>',
-        f'  <text x="{x2 + 18}" y="{panel_y + 196}" style="font-size:10px; fill:var(--text-secondary);">Описание обращения <tspan style="fill:#14b8a6;">*</tspan></text>',
-        f'  <rect x="{x2 + 18}" y="{panel_y + 202}" width="{panel_w - 36}" height="120" rx="5" class="ui-input" style="fill:var(--bg); stroke:#14b8a6; stroke-width:1.5;" />',
-        f'  <text x="{x2 + 28}" y="{panel_y + 222}" style="font-size:11px; fill:var(--text-primary);">Здравствуйте!</text>',
-        f'  <text x="{x2 + 28}" y="{panel_y + 242}" style="font-size:11px; fill:var(--text-primary);">Необходимо автоматизировать обработку</text>',
-        f'  <text x="{x2 + 28}" y="{panel_y + 258}" style="font-size:11px; fill:var(--text-primary);">входящих заявок. Интересует решение с AI-</text>',
-        f'  <text x="{x2 + 28}" y="{panel_y + 274}" style="font-size:11px; fill:var(--text-primary);">квалификацией лидов, интеграцией с CRM</text>',
-        f'  <text x="{x2 + 28}" y="{panel_y + 290}" style="font-size:11px; fill:var(--text-primary);">и автоматической постановкой задач.</text>',
-        f'  <text x="{x2 + panel_w - 22}" y="{panel_y + 318}" text-anchor="end" class="ui-subtitle" style="font-size:10px;">271 / 2000</text>',
-        f'  <text x="{x2 + 18}" y="{panel_y + 340}" style="font-size:11px; fill:#22c55e;">✓ Достаточно</text>',
-        f'  <text x="{x2 + 18}" y="{panel_y + 368}" style="font-size:10px; fill:var(--text-secondary);">Откуда вы узнали о нас? <tspan style="fill:#14b8a6;">*</tspan></text>',
-        f'  <rect x="{x2 + 18}" y="{panel_y + 374}" width="{panel_w - 36}" height="34" rx="5" class="ui-input" style="fill:var(--bg); stroke:var(--border);" />',
-        f'  <text x="{x2 + 28}" y="{panel_y + 395}" style="font-size:12px; fill:var(--text-primary);">Сайт компании</text>',
-        f'  <text x="{x2 + panel_w - 32}" y="{panel_y + 395}" style="font-size:12px; fill:var(--text-secondary);">⌄</text>',
-        f'  <rect x="{x2 + 18}" y="{panel_y + panel_h - 52}" width="{panel_w // 2 - 24}" height="36" rx="5" class="ui-source-card" style="fill:var(--bg); stroke:var(--border);" />',
-        f'  <text x="{x2 + panel_w // 4}" y="{panel_y + panel_h - 31}" text-anchor="middle" style="font-size:12px; fill:var(--text-primary);">← Назад</text>',
-        f'  <rect x="{x2 + panel_w // 2 + 6}" y="{panel_y + panel_h - 52}" width="{panel_w // 2 - 24}" height="36" rx="5" class="ui-accent-fill" />',
-        f'  <text x="{x2 + panel_w * 3 // 4}" y="{panel_y + panel_h - 31}" text-anchor="middle" style="font-size:12px; fill:var(--bg); font-weight:600;">Отправить →</text>',
-        f'  <text x="{x2 + panel_w // 2}" y="{panel_y + panel_h - 16}" text-anchor="middle" class="ui-subtitle" style="font-size:9px;">Ваши данные защищены и используются только для обработки обращения</text>',
+        f'  <rect x="{x2 + 18}" y="{btn_y2}" width="{panel_w // 2 - 24}" height="40" rx="5" class="ui-source-card" style="fill:var(--bg); stroke:var(--border);" />',
+        f'  <text x="{x2 + panel_w // 4}" y="{btn_y2 + 25}" text-anchor="middle" style="font-size:13px; fill:var(--text-primary);">← Назад</text>',
+        f'  <rect x="{x2 + panel_w // 2 + 6}" y="{btn_y2}" width="{panel_w // 2 - 24}" height="40" rx="5" class="ui-accent-fill" />',
+        f'  <text x="{x2 + panel_w * 3 // 4}" y="{btn_y2 + 25}" text-anchor="middle" style="font-size:13px; fill:var(--bg); font-weight:600;">Отправить →</text>',
+        f'  <text x="{x2 + panel_w // 2}" y="{panel_y + panel_h - 16}" text-anchor="middle" class="ui-subtitle" style="font-size:10px;">Ваши данные защищены и используются только для обработки обращения</text>',
     ])
 
     # Panel 3: success
     x3 = panel_x(2)
     svg.extend([
         f'  <rect x="{x3}" y="{panel_y}" width="{panel_w}" height="{panel_h}" rx="8" class="ui-source-card" style="fill:var(--surface-elevated);" />',
-        f'  <circle cx="{x3 + panel_w // 2}" cy="{panel_y + 100}" r="40" fill="#22c55e" fill-opacity="0.12" stroke="#22c55e" stroke-width="2" />',
-        f'  <path d="M{x3 + panel_w // 2 - 14} {panel_y + 100} l8 8 l18 -18" fill="none" stroke="#22c55e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />',
-        f'  <text x="{x3 + panel_w // 2}" y="{panel_y + 176}" text-anchor="middle" style="font-size:22px; fill:#22c55e; font-weight:700;">Обращение принято</text>',
-        f'  <text x="{x3 + panel_w // 2}" y="{panel_y + 210}" text-anchor="middle" class="ui-subtitle" style="font-size:12px;">Ваше обращение успешно отправлено и</text>',
-        f'  <text x="{x3 + panel_w // 2}" y="{panel_y + 230}" text-anchor="middle" class="ui-subtitle" style="font-size:12px;">передано в обработку.</text>',
-        f'  <rect x="{x3 + 30}" y="{panel_y + 260}" width="{panel_w - 60}" height="74" rx="6" class="ui-source-card" style="fill:var(--bg); stroke:var(--border);" />',
-        f'  <text x="{x3 + panel_w // 2}" y="{panel_y + 288}" text-anchor="middle" class="ui-source-label" style="font-size:10px; letter-spacing:0.5px;">НОМЕР ОБРАЩЕНИЯ</text>',
-        f'  <text x="{x3 + panel_w // 2}" y="{panel_y + 318}" text-anchor="middle" style="font-size:22px; fill:#14b8a6; font-family:\'IBM Plex Mono\', monospace; font-weight:600;">LQ-100031</text>',
-        f'  <text x="{x3 + panel_w // 2}" y="{panel_y + 364}" text-anchor="middle" style="font-size:12px; fill:var(--text-primary);">Сохраните этот номер для уточнения статуса.</text>',
-        f'  <rect x="{x3 + 30}" y="{panel_y + panel_h - 62}" width="{panel_w - 60}" height="40" rx="6" class="ui-source-card" style="fill:var(--bg); stroke:var(--border);" />',
-        f'  <text x="{x3 + panel_w // 2}" y="{panel_y + panel_h - 38}" text-anchor="middle" style="font-size:13px; fill:var(--text-primary); font-weight:500;">Отправить ещё одно обращение</text>',
+        f'  <circle cx="{x3 + panel_w // 2}" cy="{panel_y + 120}" r="44" fill="#22c55e" fill-opacity="0.12" stroke="#22c55e" stroke-width="2" />',
+        f'  <path d="M{x3 + panel_w // 2 - 16} {panel_y + 120} l10 10 l22 -22" fill="none" stroke="#22c55e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />',
+        f'  <text x="{x3 + panel_w // 2}" y="{panel_y + 204}" text-anchor="middle" style="font-size:24px; fill:#22c55e; font-weight:700;">Обращение принято</text>',
+        f'  <text x="{x3 + panel_w // 2}" y="{panel_y + 242}" text-anchor="middle" class="ui-subtitle" style="font-size:13px;">Ваше обращение успешно отправлено и</text>',
+        f'  <text x="{x3 + panel_w // 2}" y="{panel_y + 264}" text-anchor="middle" class="ui-subtitle" style="font-size:13px;">передано в обработку.</text>',
+        f'  <rect x="{x3 + 30}" y="{panel_y + 300}" width="{panel_w - 60}" height="86" rx="6" class="ui-source-card" style="fill:var(--bg); stroke:var(--border);" />',
+        f'  <text x="{x3 + panel_w // 2}" y="{panel_y + 332}" text-anchor="middle" class="ui-source-label" style="font-size:11px; letter-spacing:0.5px;">НОМЕР ОБРАЩЕНИЯ</text>',
+        f'  <text x="{x3 + panel_w // 2}" y="{panel_y + 366}" text-anchor="middle" style="font-size:24px; fill:#14b8a6; font-family:\'IBM Plex Mono\', monospace; font-weight:600;">LQ-100031</text>',
+        f'  <text x="{x3 + panel_w // 2}" y="{panel_y + 418}" text-anchor="middle" style="font-size:13px; fill:var(--text-primary);">Сохраните этот номер для уточнения статуса.</text>',
+        f'  <rect x="{x3 + 30}" y="{panel_y + panel_h - 72}" width="{panel_w - 60}" height="44" rx="6" class="ui-source-card" style="fill:var(--bg); stroke:var(--border);" />',
+        f'  <text x="{x3 + panel_w // 2}" y="{panel_y + panel_h - 44}" text-anchor="middle" style="font-size:14px; fill:var(--text-primary); font-weight:500;">Отправить ещё одно обращение</text>',
     ])
 
     svg.append('</svg>')
