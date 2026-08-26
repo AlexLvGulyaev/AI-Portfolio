@@ -532,9 +532,43 @@ flowchart LR
 
 ---
 
+## 15. Операционный runbook
+
+### 15.1. Симптом: Admin Console возвращает 404 на `/api/admin/*`
+
+**Когда возникает:** после обновления `src/nginx.conf` или пересборки frontend-образа контейнер `ai-portfolio` может продолжать работать со старой конфигурацией nginx в памяти. Запросы к `/api/admin/...`, `/project-cards`, `/track-visit`, `/chat` попадают в fallback на статику и возвращают 404, хотя backend и маршруты живы.
+
+**Как проверить:**
+
+```bash
+# изнутри контейнера nginx запрос должен уходить на backend
+docker exec ai-portfolio curl -s http://localhost/api/admin/ai-providers \
+  -H 'Authorization: Bearer test-token'
+# ожидаемый ответ: 401/403 от backend, НЕ 404 от nginx
+
+# публичный health должен быть 200
+curl -s https://ai.alex-n8n.site/health
+```
+
+**Как починить:**
+
+```bash
+# перезагрузить nginx без остановки контейнера
+docker exec ai-portfolio nginx -s reload
+```
+
+После reload запросы `/api/admin/*` снова проксируются на backend.
+
+**Как избежать повторения:**
+
+- После любого изменения `src/nginx.conf` выполнять `docker compose up -d --build --force-recreate ai-portfolio-frontend` или `docker exec ai-portfolio nginx -s reload`.
+- Добавить reload в post-deploy hook / CI-скрипт.
+- Не использовать `pkill` или `kill` для управления nginx/backend на shared-хосте — см. паттерн `shared/patterns/multi-tenant-pkill-incident.md`.
+
 ## История изменений
 
 | Дата | Версия | Изменения |
 |------|--------|-----------|
 | 2026-07-12 | 1.0 | Первая версия ARCHITECTURE.md на основе SOT и принятых решений |
 | 2026-07-12 | 1.1 | Финальный редакторский проход: нейтральные формулировки, единообразие БЗ, связь с APL, принцип верифицируемости |
+| 2026-08-21 | 1.2 | Добавлен операционный runbook: nginx reload после обновления конфигурации; устранён инцидент 404 на `/api/admin/*` |

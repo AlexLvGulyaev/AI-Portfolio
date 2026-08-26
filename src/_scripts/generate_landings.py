@@ -20,6 +20,9 @@ SCREENSHOTS_DIR = ROOT / "assets" / "screenshots"
 ASSET_PREFIX = "/assets/cases"
 SCREENSHOT_PREFIX = "/assets/screenshots"
 
+# Cases whose HTML is maintained manually and must not be overwritten by the generator.
+MANUAL_CASES = {"ai-curator"}
+
 
 def ensure_dirs():
     (ROOT / "_data").mkdir(parents=True, exist_ok=True)
@@ -2390,12 +2393,21 @@ def main():
     data = json.loads(DATA_FILE.read_text(encoding="utf-8"))
     template = render_template()
     generated = []
+    skipped = []
     for project in data.get("projects", []):
+        pid = project.get("id")
+        if pid in MANUAL_CASES:
+            skipped.append(pid)
+            continue
         out = render_project(project, template)
         generated.append(str(out))
     print("Generated files:")
     for g in generated:
         print(g)
+    if skipped:
+        print("Skipped manual cases:")
+        for s in skipped:
+            print(f"  - {s}")
 
 
 if __name__ == "__main__":
