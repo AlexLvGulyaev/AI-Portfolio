@@ -309,9 +309,10 @@ def hr_scenario_1_svg() -> str:
     canvas, matching the other composite illustrations in the portfolio and
     avoiding the small-scaling issues of a CSS side-by-side grid.
     """
-    w, h = 980, 620
+    w, h = 980, 720
     phone_w = 440
     phone_h = 620
+    phone_y = 70
     left_x = 40
     right_x = w - phone_w - 40
     margin = 18
@@ -321,15 +322,15 @@ def hr_scenario_1_svg() -> str:
 
     def build_panel(svg, px, title, messages):
         # Phone body
-        svg.append(f'  <rect x="{px}" y="0" width="{phone_w}" height="{phone_h}" rx="0" fill="#e5f2e5"/>')
+        svg.append(f'  <rect x="{px}" y="{phone_y}" width="{phone_w}" height="{phone_h}" rx="0" fill="#e5f2e5"/>')
         # Header
-        svg.append(f'  <rect x="{px}" y="0" width="{phone_w}" height="{header_h}" fill="#2f7763"/>')
-        svg.append(f'  <circle cx="{px + margin + 17}" cy="{header_h // 2}" r="13" fill="#a8d5ba"/>')
+        svg.append(f'  <rect x="{px}" y="{phone_y}" width="{phone_w}" height="{header_h}" fill="#2f7763"/>')
+        svg.append(f'  <circle cx="{px + margin + 17}" cy="{phone_y + header_h // 2}" r="13" fill="#a8d5ba"/>')
         svg.append(
-            f'  <text x="{px + margin + 40}" y="{header_h // 2 + 5}" '
+            f'  <text x="{px + margin + 40}" y="{phone_y + header_h // 2 + 5}" '
             f'style="font-size:13px; fill:#ffffff; font-weight:600;">{escape_text(title)}</text>'
         )
-        y = header_h + 18
+        y = phone_y + header_h + 18
         for msg in messages:
             is_user = msg.get("user", False)
             x = px + phone_w - margin - bubble_w if is_user else px + margin
@@ -342,8 +343,8 @@ def hr_scenario_1_svg() -> str:
                     lines.extend(textwrap.wrap(para, width=52))
                 elif lines:
                     lines.append("")
-            # Limit total lines so the bubble fits inside a 620 px phone panel
-            lines = lines[:29]
+            # Limit total lines so the bubble fits inside the phone panel
+            lines = lines[:33]
             bubble_h = max(34, 14 + line_h * len(lines))
             svg.append(f'  <rect x="{x}" y="{y}" width="{bubble_w}" height="{bubble_h}" rx="10" fill="{fill}"/>')
             for i, line in enumerate(lines):
@@ -375,12 +376,9 @@ def hr_scenario_1_svg() -> str:
                 "сбор и анализ требований, интервью с заказчиками, описание бизнес-процессов, BPMN, UML, SQL, REST API, интеграционная аналитика, подготовка технических заданий, user stories, acceptance criteria, прототипирование интерфейсов, тестирование требований, Jira, Confluence.\n\n"
                 "Опыт:\n"
                 "Работала системным аналитиком в ИТ-проектах для банковского и корпоративного сектора. Согласовывала требования с бизнес-заказчиками, описывала процессы AS-IS и TO-BE, готовила спецификации API, участвовала в постановке задач разработчикам и сопровождала функциональность до внедрения.\n\n"
-                "Дополнительно:\n"
-                "Понимаю жизненный цикл разработки, умею работать с backlog, приоритизацией задач, документацией и межкомандным взаимодействием.\n\n"
                 "Зарплатные ожидания: 180000 рублей.\n\n"
                 "Контакты:\n"
-                "Email: anna.morozova.hrtest2026@example.com\n"
-                "Телефон: +79167778899"
+                "Email: anna.morozova.hrtest2026@example.com"
             ),
             "user": True,
         },
@@ -2290,6 +2288,14 @@ TEMPLATE = r'''<!doctype html>
       font-size: 0.95rem;
     }
 
+    .demo-block__scaled {
+      --scenario-scale: 1;
+      width: calc(var(--scenario-scale) * 100%);
+      transform-origin: top left;
+      transform: scale(var(--scenario-scale));
+      margin-bottom: calc((var(--scenario-scale) - 1) * 100%);
+    }
+
     .demo-frame {
       position: relative;
       background: var(--surface-elevated);
@@ -3051,6 +3057,10 @@ TEMPLATE = r'''<!doctype html>
             <img src="{{ scenario.src }}" alt="{{ scenario.alt }}">
             <div class="demo-frame__hint">Кликните для полного размера</div>
           </div>
+          {% elif scenario.scale %}
+          <div class="demo-block__scaled" style="--scenario-scale: {{ scenario.scale }}">
+            {{ scenario.svg_html }}
+          </div>
           {% else %}
           {{ scenario.svg_html }}
           {% endif %}
@@ -3228,6 +3238,7 @@ def build_project(project: dict) -> dict:
             if src_path.exists():
                 entry["type"] = "svg"
                 entry["svg_html"] = lora_scenario_svg(src_path)
+                entry["scale"] = sc.get("scale", 1.0)
             else:
                 entry["type"] = "image"
                 entry["src"] = src

@@ -677,6 +677,14 @@
       font-size: 0.95rem;
     }
 
+    .demo-block__scaled {
+      --scenario-scale: 1;
+      width: calc(var(--scenario-scale) * 100%);
+      transform-origin: top left;
+      transform: scale(var(--scenario-scale));
+      margin-bottom: calc((var(--scenario-scale) - 1) * 100%);
+    }
+
     .demo-frame {
       position: relative;
       background: var(--surface-elevated);
@@ -1551,7 +1559,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--five" viewBox="0 0 1120 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы HR Assistant: от входа к результату">
   <defs>
-    <marker id="arrow-5n-3005" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-5n-30988" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1561,28 +1569,28 @@
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Текст / голос</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">PDF / фото</text>
   </g>
-  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-3005)" />
+  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-30988)" />
   <g transform="translate(250, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Intake</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Нормализация</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">входа</text>
   </g>
-  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-3005)" />
+  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-30988)" />
   <g transform="translate(470, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Извлечение</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">GPT-4o-mini</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">JSON Schema</text>
   </g>
-  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-3005)" />
+  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-30988)" />
   <g transform="translate(690, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">PostgreSQL</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">SOT</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">профили и вакансии</text>
   </g>
-  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-3005)" />
+  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-30988)" />
   <g transform="translate(910, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Matching</text>
@@ -1632,62 +1640,60 @@
             <p class="demo-block__text">Соискатель присылает текстовое резюме. Бот подтверждает получение и возвращает match score с разбивкой по 4 критериям.</p>
           </div>
           
-          <svg class="ui-illustration" viewBox="0 0 980 620" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: запрос пользователя и ответ системы с match score">
-  <rect x="20" y="10" width="940" height="600" rx="8" class="ui-window" />
+          <svg class="ui-illustration" viewBox="0 0 980 720" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: запрос пользователя и ответ системы с match score">
+  <rect x="20" y="10" width="940" height="700" rx="8" class="ui-window" />
   <text x="490" y="44" text-anchor="middle" class="ui-title">Telegram · Запрос → Ответ</text>
-  <rect x="40" y="0" width="440" height="620" rx="0" fill="#e5f2e5"/>
-  <rect x="40" y="0" width="440" height="50" fill="#2f7763"/>
-  <circle cx="75" cy="25" r="13" fill="#a8d5ba"/>
-  <text x="98" y="30" style="font-size:13px; fill:#ffffff; font-weight:600;">Запрос пользователя</text>
-  <rect x="58" y="68" width="404" height="82" rx="10" fill="#ffffff"/>
-  <text x="70" y="88" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Готов принять новое резюме.</text>
-  <text x="70" y="122" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Отправьте его текстом, файлом PDF/DOCX, фото или</text>
-  <text x="70" y="139" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">голосовым сообщением.</text>
-  <rect x="58" y="162" width="404" height="507" rx="10" fill="#d9fdd3"/>
-  <text x="70" y="182" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Анна Морозова, Москва.</text>
-  <text x="70" y="216" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Ищу позицию системного аналитика.</text>
-  <text x="70" y="250" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Опыт работы: 6 лет.</text>
-  <text x="70" y="284" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Ключевые навыки:</text>
-  <text x="70" y="301" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">сбор и анализ требований, интервью с заказчиками,</text>
-  <text x="70" y="318" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">описание бизнес-процессов, BPMN, UML, SQL, REST API,</text>
-  <text x="70" y="335" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">интеграционная аналитика, подготовка технических</text>
-  <text x="70" y="352" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">заданий, user stories, acceptance criteria,</text>
-  <text x="70" y="369" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">прототипирование интерфейсов, тестирование</text>
-  <text x="70" y="386" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">требований, Jira, Confluence.</text>
-  <text x="70" y="420" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Опыт:</text>
-  <text x="70" y="437" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Работала системным аналитиком в ИТ-проектах для</text>
-  <text x="70" y="454" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">банковского и корпоративного сектора. Согласовывала</text>
-  <text x="70" y="471" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">требования с бизнес-заказчиками, описывала процессы</text>
-  <text x="70" y="488" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">AS-IS и TO-BE, готовила спецификации API,</text>
-  <text x="70" y="505" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">участвовала в постановке задач разработчикам и</text>
-  <text x="70" y="522" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">сопровождала функциональность до внедрения.</text>
-  <text x="70" y="556" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Дополнительно:</text>
-  <text x="70" y="573" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Понимаю жизненный цикл разработки, умею работать с</text>
-  <text x="70" y="590" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">backlog, приоритизацией задач, документацией и</text>
-  <text x="70" y="607" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">межкомандным взаимодействием.</text>
-  <text x="70" y="641" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Зарплатные ожидания: 180000 рублей.</text>
-  <rect x="500" y="0" width="440" height="620" rx="0" fill="#e5f2e5"/>
-  <rect x="500" y="0" width="440" height="50" fill="#2f7763"/>
-  <circle cx="535" cy="25" r="13" fill="#a8d5ba"/>
-  <text x="558" y="30" style="font-size:13px; fill:#ffffff; font-weight:600;">Ответ системы</text>
-  <rect x="518" y="68" width="404" height="439" rx="10" fill="#ffffff"/>
-  <text x="530" y="88" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Резюме получено</text>
-  <text x="530" y="122" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Начинаю анализ...</text>
-  <text x="530" y="156" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Анализирую резюме</text>
-  <text x="530" y="190" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Сравниваю кандидата с открытыми вакансиями...</text>
-  <text x="530" y="224" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">💼 Системный аналитик</text>
-  <text x="530" y="258" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">📊 Совпадение: 100/100</text>
-  <text x="530" y="292" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Детализация:</text>
-  <text x="530" y="309" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">• роль: 30/30</text>
-  <text x="530" y="326" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">• навыки: 35/35</text>
-  <text x="530" y="343" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">• опыт: 20/20</text>
-  <text x="530" y="360" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">• условия: 15/15</text>
-  <text x="530" y="394" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">📝 Кандидат полностью соответствует должности</text>
-  <text x="530" y="411" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">системного аналитика, имеет все необходимые навыки и</text>
-  <text x="530" y="428" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">опыт, а также зарплатные ожидания в пределах</text>
-  <text x="530" y="445" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">предложенного диапазона.</text>
-  <text x="530" y="479" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Вы можете откликнуться на вакансию или отправить</text>
-  <text x="530" y="496" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">другое резюме.</text>
+  <rect x="40" y="70" width="440" height="620" rx="0" fill="#e5f2e5"/>
+  <rect x="40" y="70" width="440" height="50" fill="#2f7763"/>
+  <circle cx="75" cy="95" r="13" fill="#a8d5ba"/>
+  <text x="98" y="100" style="font-size:13px; fill:#ffffff; font-weight:600;">Запрос пользователя</text>
+  <rect x="58" y="138" width="404" height="82" rx="10" fill="#ffffff"/>
+  <text x="70" y="158" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Готов принять новое резюме.</text>
+  <text x="70" y="192" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Отправьте его текстом, файлом PDF/DOCX, фото или</text>
+  <text x="70" y="209" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">голосовым сообщением.</text>
+  <rect x="58" y="232" width="404" height="456" rx="10" fill="#d9fdd3"/>
+  <text x="70" y="252" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Анна Морозова, Москва.</text>
+  <text x="70" y="286" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Ищу позицию системного аналитика.</text>
+  <text x="70" y="320" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Опыт работы: 6 лет.</text>
+  <text x="70" y="354" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Ключевые навыки:</text>
+  <text x="70" y="371" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">сбор и анализ требований, интервью с заказчиками,</text>
+  <text x="70" y="388" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">описание бизнес-процессов, BPMN, UML, SQL, REST API,</text>
+  <text x="70" y="405" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">интеграционная аналитика, подготовка технических</text>
+  <text x="70" y="422" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">заданий, user stories, acceptance criteria,</text>
+  <text x="70" y="439" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">прототипирование интерфейсов, тестирование</text>
+  <text x="70" y="456" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">требований, Jira, Confluence.</text>
+  <text x="70" y="490" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Опыт:</text>
+  <text x="70" y="507" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Работала системным аналитиком в ИТ-проектах для</text>
+  <text x="70" y="524" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">банковского и корпоративного сектора. Согласовывала</text>
+  <text x="70" y="541" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">требования с бизнес-заказчиками, описывала процессы</text>
+  <text x="70" y="558" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">AS-IS и TO-BE, готовила спецификации API,</text>
+  <text x="70" y="575" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">участвовала в постановке задач разработчикам и</text>
+  <text x="70" y="592" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">сопровождала функциональность до внедрения.</text>
+  <text x="70" y="626" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Зарплатные ожидания: 180000 рублей.</text>
+  <text x="70" y="660" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Контакты:</text>
+  <text x="70" y="677" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Email: anna.morozova.hrtest2026@example.com</text>
+  <rect x="500" y="70" width="440" height="620" rx="0" fill="#e5f2e5"/>
+  <rect x="500" y="70" width="440" height="50" fill="#2f7763"/>
+  <circle cx="535" cy="95" r="13" fill="#a8d5ba"/>
+  <text x="558" y="100" style="font-size:13px; fill:#ffffff; font-weight:600;">Ответ системы</text>
+  <rect x="518" y="138" width="404" height="439" rx="10" fill="#ffffff"/>
+  <text x="530" y="158" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Резюме получено</text>
+  <text x="530" y="192" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Начинаю анализ...</text>
+  <text x="530" y="226" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Анализирую резюме</text>
+  <text x="530" y="260" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Сравниваю кандидата с открытыми вакансиями...</text>
+  <text x="530" y="294" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">💼 Системный аналитик</text>
+  <text x="530" y="328" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">📊 Совпадение: 100/100</text>
+  <text x="530" y="362" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Детализация:</text>
+  <text x="530" y="379" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">• роль: 30/30</text>
+  <text x="530" y="396" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">• навыки: 35/35</text>
+  <text x="530" y="413" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">• опыт: 20/20</text>
+  <text x="530" y="430" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">• условия: 15/15</text>
+  <text x="530" y="464" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">📝 Кандидат полностью соответствует должности</text>
+  <text x="530" y="481" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">системного аналитика, имеет все необходимые навыки и</text>
+  <text x="530" y="498" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">опыт, а также зарплатные ожидания в пределах</text>
+  <text x="530" y="515" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">предложенного диапазона.</text>
+  <text x="530" y="549" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">Вы можете откликнуться на вакансию или отправить</text>
+  <text x="530" y="566" style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">другое резюме.</text>
 </svg>
           
         </div>
