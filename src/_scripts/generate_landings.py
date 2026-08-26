@@ -348,7 +348,7 @@ def hr_scenario_1_svg() -> str:
                 if line:
                     svg.append(
                         f'  <text x="{x + 12}" y="{y + 20 + i * line_h}" '
-                        f'class="ui-msg-text-bot" style="font-size:13px; fill:var(--text-primary); font-weight:500;">'
+                        f'style="font-size:14px; fill:#1A1A1C; font-family:system-ui, -apple-system, sans-serif;">'
                         f'{escape_text(line)}</text>'
                     )
             y += bubble_h + 12
