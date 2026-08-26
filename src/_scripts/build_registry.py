@@ -894,8 +894,7 @@ def hr_assistant():
             "label": "Сценарий 1",
             "title": "Кандидат отправляет резюме в Telegram",
             "text": "Соискатель присылает текстовое резюме. Бот подтверждает получение и возвращает match score с разбивкой по 4 критериям.",
-            "type": "image",
-            "src": "assets/cases/hr-assistant/scenario-1.png",
+            "type": "stylized",
             "alt": "Telegram-чат HR Assistant: соискатель отправляет резюме и получает match score",
         },
         "scenario_2": {

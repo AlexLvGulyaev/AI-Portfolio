@@ -1548,7 +1548,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--five" viewBox="0 0 1120 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы HR Assistant: от входа к результату">
   <defs>
-    <marker id="arrow-5n-20890" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-5n-78556" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1558,28 +1558,28 @@
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Текст / голос</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">PDF / фото</text>
   </g>
-  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-20890)" />
+  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-78556)" />
   <g transform="translate(250, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Intake</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Нормализация</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">входа</text>
   </g>
-  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-20890)" />
+  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-78556)" />
   <g transform="translate(470, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Извлечение</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">GPT-4o-mini</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">JSON Schema</text>
   </g>
-  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-20890)" />
+  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-78556)" />
   <g transform="translate(690, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">PostgreSQL</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">SOT</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">профили и вакансии</text>
   </g>
-  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-20890)" />
+  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-78556)" />
   <g transform="translate(910, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Matching</text>
@@ -1629,10 +1629,45 @@
             <p class="demo-block__text">Соискатель присылает текстовое резюме. Бот подтверждает получение и возвращает match score с разбивкой по 4 критериям.</p>
           </div>
           
-          <div class="demo-frame">
-            <img src="/assets/cases/hr-assistant/scenario-1.png" alt="Telegram-чат HR Assistant: соискатель отправляет резюме и получает match score">
-            <div class="demo-frame__hint">Кликните для полного размера</div>
-          </div>
+          <svg class="ui-illustration" viewBox="0 0 980 640" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: запрос пользователя и ответ системы с match score">
+  <defs>
+    <clipPath id="hra-s1-clip">
+      <rect x="20" y="10" width="940" height="620" rx="8" />
+    </clipPath>
+  </defs>
+  <rect x="20" y="10" width="940" height="620" rx="8" class="ui-window" />
+  <text x="490" y="44" text-anchor="middle" class="ui-title">Telegram · Запрос → Ответ</text>
+  <rect x="40" y="60" width="440" height="560" rx="0" fill="#e5f2e5"/>
+  <rect x="40" y="60" width="440" height="50" fill="#2f7763"/>
+  <circle cx="75" cy="85" r="13" fill="#a8d5ba"/>
+  <text x="98" y="90" style="font-size:13px; fill:#ffffff; font-weight:600;">Запрос пользователя</text>
+  <rect x="58" y="128" width="404" height="48" rx="10" fill="#ffffff"/>
+  <text x="70" y="148" style="font-size:12px; fill:var(--text-primary);">Здравствуйте! Отправьте резюме или</text>
+  <text x="70" y="165" style="font-size:12px; fill:var(--text-primary);">ссылку на вакансию.</text>
+  <rect x="58" y="188" width="404" height="150" rx="10" fill="#d9fdd3"/>
+  <text x="70" y="208" style="font-size:12px; fill:var(--text-primary);">Анна Морозова, Москва. Ищу позицию</text>
+  <text x="70" y="225" style="font-size:12px; fill:var(--text-primary);">системного аналитика. Опыт работы: 6</text>
+  <text x="70" y="242" style="font-size:12px; fill:var(--text-primary);">лет. Ключевые навыки: сбор и анализ</text>
+  <text x="70" y="259" style="font-size:12px; fill:var(--text-primary);">требований, BPMN, UML, SQL, REST</text>
+  <text x="70" y="276" style="font-size:12px; fill:var(--text-primary);">API, интеграционная аналитика,</text>
+  <text x="70" y="293" style="font-size:12px; fill:var(--text-primary);">подготовка ТЗ, user stories, Jira,</text>
+  <text x="70" y="310" style="font-size:12px; fill:var(--text-primary);">Confluence. З/П ожидания: 180000</text>
+  <text x="70" y="327" style="font-size:12px; fill:var(--text-primary);">рублей.</text>
+  <rect x="500" y="60" width="440" height="560" rx="0" fill="#e5f2e5"/>
+  <rect x="500" y="60" width="440" height="50" fill="#2f7763"/>
+  <circle cx="535" cy="85" r="13" fill="#a8d5ba"/>
+  <text x="558" y="90" style="font-size:13px; fill:#ffffff; font-weight:600;">Ответ системы</text>
+  <rect x="518" y="128" width="404" height="218" rx="10" fill="#ffffff"/>
+  <text x="530" y="148" style="font-size:12px; fill:var(--text-primary);">Системный аналитик</text>
+  <text x="530" y="182" style="font-size:12px; fill:var(--text-primary);">Совпадение: 100/100</text>
+  <text x="530" y="216" style="font-size:12px; fill:var(--text-primary);">Критерии:</text>
+  <text x="530" y="233" style="font-size:12px; fill:var(--text-primary);">- роль: 30/30</text>
+  <text x="530" y="250" style="font-size:12px; fill:var(--text-primary);">- навыки: 35/35</text>
+  <text x="530" y="267" style="font-size:12px; fill:var(--text-primary);">- опыт: 20/20</text>
+  <text x="530" y="284" style="font-size:12px; fill:var(--text-primary);">- условия: 15/15</text>
+  <text x="530" y="318" style="font-size:12px; fill:var(--text-primary);">Кандидат полностью соответствует</text>
+  <text x="530" y="335" style="font-size:12px; fill:var(--text-primary);">вакансии.</text>
+</svg>
           
         </div>
         

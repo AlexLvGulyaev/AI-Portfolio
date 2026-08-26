@@ -303,59 +303,84 @@ def telegram_phone_svg(title, messages, aria_label, width=440, height=620) -> st
 
 
 def hr_scenario_1_svg() -> str:
-    """Two Telegram phone panels side-by-side: user request and system response."""
-    w, h = 980, 620
-    phone_w, phone_h = 440, 620
+    """Two Telegram phone panels side-by-side: user request and system response.
+
+    Draws both panels directly inside a single SVG so text and colours are always
+    visible and match the MAB Telegram illustration pattern.
+    """
+    w, h = 980, 640
+    panel_w, panel_h = 440, 560
     left_x = 40
-    right_x = w - phone_w - 40
-    panel_h = 620
-    panel_y = 0
+    right_x = w - panel_w - 40
+    panel_y = 60
+    margin = 18
+    header_h = 50
+    bubble_w = panel_w - margin * 2
 
-    request_messages = [
-        {"text": "Здравствуйте! Отправьте резюме или ссылку на вакансию.", "user": False},
-        {"text": "Анна Морозова, Москва. Ищу позицию системного аналитика. Опыт работы: 6 лет. Ключевые навыки: сбор и анализ требований, BPMN, UML, SQL, REST API, интеграционная аналитика, подготовка ТЗ, user stories, Jira, Confluence. Зарплатные ожидания: 180000 рублей.", "user": True},
-    ]
-    response_messages = [
-        {"text": "💼 Системный аналитик\n\n📊 Совпадение: 100/100\n\nДетализация:\n• роль: 30/30\n• навыки: 35/35\n• опыт: 20/20\n• условия: 15/15\n\n📝 Кандидат полностью соответствует должности системного аналитика.", "user": False},
-        {"text": "Вы можете откликнуться на вакансию или отправить другое резюме.", "user": False},
-    ]
+    def _bubble(svg, x, y, text, is_user, max_lines=12):
+        fill = "#d9fdd3" if is_user else "#ffffff"
+        # Preserve explicit line breaks and wrap each paragraph separately
+        lines = []
+        for para in text.split("\n"):
+            if para.strip():
+                lines.extend(textwrap.wrap(para.strip(), width=36))
+            else:
+                lines.append("")  # paragraph spacing
+        visible = lines[:max_lines]
+        line_h = 17
+        bubble_h = max(34, 14 + line_h * len(visible))
+        svg.append(f'  <rect x="{x}" y="{y}" width="{bubble_w}" height="{bubble_h}" rx="10" fill="{fill}"/>')
+        for i, line in enumerate(visible):
+            if line:
+                svg.append(
+                    f'  <text x="{x + 12}" y="{y + 20 + i * line_h}" '
+                    f'style="font-size:12px; fill:var(--text-primary);">{escape_text(line)}</text>'
+                )
+        return y + bubble_h + 12
 
-    req_svg = telegram_phone_svg("Запрос пользователя", request_messages, "HR Assistant: запрос пользователя", width=phone_w, height=panel_h)
-    resp_svg = telegram_phone_svg("Ответ системы", response_messages, "HR Assistant: ответ системы с match score", width=phone_w, height=panel_h)
-
-    # Strip outer <svg> wrappers and re-wrap into a single SVG
-    def inner_content(svg_html: str) -> str:
-        start = svg_html.find("<svg")
-        end = svg_html.find(">", start)
-        close = svg_html.rfind("</svg>")
-        return svg_html[end + 1:close].strip()
-
-    req_body = inner_content(req_svg)
-    resp_body = inner_content(resp_svg)
+    def _panel(svg, px, title, messages):
+        # Phone frame
+        svg.append(f'  <rect x="{px}" y="{panel_y}" width="{panel_w}" height="{panel_h}" rx="0" fill="#e5f2e5"/>')
+        # Header
+        svg.append(f'  <rect x="{px}" y="{panel_y}" width="{panel_w}" height="{header_h}" fill="#2f7763"/>')
+        svg.append(f'  <circle cx="{px + margin + 17}" cy="{panel_y + header_h // 2}" r="13" fill="#a8d5ba"/>')
+        svg.append(
+            f'  <text x="{px + margin + 40}" y="{panel_y + header_h // 2 + 5}" '
+            f'style="font-size:13px; fill:#ffffff; font-weight:600;">{escape_text(title)}</text>'
+        )
+        y = panel_y + header_h + 18
+        for msg in messages:
+            is_user = msg.get("user", False)
+            text = msg.get("text", "")
+            if is_user:
+                x = px + panel_w - margin - bubble_w
+            else:
+                x = px + margin
+            y = _bubble(svg, x, y, text, is_user)
 
     svg = [
         f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: запрос пользователя и ответ системы с match score">',
-        f'  <defs>',
-        f'    <clipPath id="hra-s1-clip">',
-        f'      <rect x="20" y="10" width="{w-40}" height="{h-20}" rx="8" />',
-        f'    </clipPath>',
-        f'  </defs>',
-        f'  <rect x="20" y="10" width="{w-40}" height="{h-20}" rx="8" class="ui-window" />',
-        f'  <text x="{w//2}" y="44" text-anchor="middle" class="ui-title">Telegram · Запрос → Ответ</text>',
-        # Left phone panel
-        f'  <g transform="translate({left_x}, {panel_y})">',
+        '  <defs>',
+        '    <clipPath id="hra-s1-clip">',
+        f'      <rect x="20" y="10" width="{w - 40}" height="{h - 20}" rx="8" />',
+        '    </clipPath>',
+        '  </defs>',
+        f'  <rect x="20" y="10" width="{w - 40}" height="{h - 20}" rx="8" class="ui-window" />',
+        f'  <text x="{w // 2}" y="44" text-anchor="middle" class="ui-title">Telegram · Запрос → Ответ</text>',
     ]
-    svg.extend(["    " + line for line in req_body.split("\n") if line.strip()])
-    svg.extend([
-        '  </g>',
-        # Right phone panel
-        f'  <g transform="translate({right_x}, {panel_y})">',
-    ])
-    svg.extend(["    " + line for line in resp_body.split("\n") if line.strip()])
-    svg.extend([
-        '  </g>',
-        '</svg>',
-    ])
+
+    request_messages = [
+        {"text": "Здравствуйте! Отправьте резюме или ссылку на вакансию.", "user": False},
+        {"text": "Анна Морозова, Москва. Ищу позицию системного аналитика. Опыт работы: 6 лет. Ключевые навыки: сбор и анализ требований, BPMN, UML, SQL, REST API, интеграционная аналитика, подготовка ТЗ, user stories, Jira, Confluence. З/П ожидания: 180000 рублей.", "user": True},
+    ]
+    response_messages = [
+        {"text": "Системный аналитик\n\nСовпадение: 100/100\n\nКритерии:\n- роль: 30/30\n- навыки: 35/35\n- опыт: 20/20\n- условия: 15/15\n\nКандидат полностью соответствует вакансии.", "user": False},
+    ]
+
+    _panel(svg, left_x, "Запрос пользователя", request_messages)
+    _panel(svg, right_x, "Ответ системы", response_messages)
+
+    svg.append('</svg>')
     return "\n".join(svg)
 
 
