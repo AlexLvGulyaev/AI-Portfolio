@@ -264,18 +264,98 @@ def telegram_chat_svg(title, messages, aria_label, width=980, height=540) -> str
     return "\n".join(svg)
 
 
+def telegram_phone_svg(title, messages, aria_label, width=440, height=620) -> str:
+    """Single-phone Telegram panel for side-by-side compositions."""
+    margin = 18
+    header_h = 50
+    bubble_w = width - margin * 2
+    svg = [
+        f'<svg class="ui-illustration ui-illustration--phone" viewBox="0 0 {width} {height}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="{escape_attr(aria_label)}">',
+        f'  <rect x="0" y="0" width="{width}" height="{height}" rx="0" fill="#e5f2e5"/>',
+        f'  <rect x="0" y="0" width="{width}" height="{header_h}" fill="#2f7763"/>',
+        f'  <circle cx="{margin + 17}" cy="{header_h // 2}" r="13" fill="#a8d5ba"/>',
+        f'  <text x="{margin + 40}" y="{header_h // 2 + 5}" class="ui-title" style="font-size:13px; fill:#ffffff;">{escape_text(title)}</text>',
+    ]
+    y = header_h + 18
+    for msg in messages:
+        is_user = msg.get("user", False)
+        text = msg.get("text", "")
+        lines = textwrap.wrap(text, width=40)
+        h = max(40, 18 + 17 * len(lines[:6]))
+        if is_user:
+            x = width - margin - bubble_w
+            fill = "#d9fdd3"
+            tcls = "ui-msg-text-user"
+            tfill = "var(--text-primary)"
+        else:
+            x = margin
+            fill = "#ffffff"
+            tcls = "ui-msg-text-bot"
+            tfill = "var(--text-primary)"
+        svg.append(f'  <rect x="{x}" y="{y}" width="{bubble_w}" height="{h}" rx="10" fill="{fill}"/>')
+        for j, line in enumerate(lines[:6]):
+            tx = x + 12
+            svg.append(f'  <text x="{tx}" y="{y + 20 + j*17}" class="{tcls}" style="font-size:12px; fill:{tfill};">{escape_text(line)}</text>')
+        y += h + 12
+    svg.append('</svg>')
+    return "\n".join(svg)
+
+
 def hr_scenario_1_svg() -> str:
-    """Candidate sends CV in Telegram."""
-    return telegram_chat_svg(
-        "HR Assistant",
-        [
-            {"text": "Здравствуйте! Отправьте резюме или ссылку на вакансию.", "user": False},
-            {"text": "Отправляю резюме: Иванов Иван, ML Engineer", "user": True},
-            {"text": "Резюме получено. Анализируем опыт и соответствие открытым позициям...", "user": False},
-            {"text": "Match score: 92/100 · Рекомендуем пригласить на собеседование", "user": False},
-        ],
-        "HR Assistant: кандидат отправляет резюме в Telegram и получает match score",
-    )
+    """Two Telegram phone panels side-by-side: user request and system response."""
+    w, h = 980, 620
+    phone_w, phone_h = 440, 620
+    left_x = 40
+    right_x = w - phone_w - 40
+    panel_h = 620
+    panel_y = 0
+
+    request_messages = [
+        {"text": "Здравствуйте! Отправьте резюме или ссылку на вакансию.", "user": False},
+        {"text": "Анна Морозова, Москва. Ищу позицию системного аналитика. Опыт работы: 6 лет. Ключевые навыки: сбор и анализ требований, BPMN, UML, SQL, REST API, интеграционная аналитика, подготовка ТЗ, user stories, Jira, Confluence. Зарплатные ожидания: 180000 рублей.", "user": True},
+    ]
+    response_messages = [
+        {"text": "💼 Системный аналитик\n\n📊 Совпадение: 100/100\n\nДетализация:\n• роль: 30/30\n• навыки: 35/35\n• опыт: 20/20\n• условия: 15/15\n\n📝 Кандидат полностью соответствует должности системного аналитика.", "user": False},
+        {"text": "Вы можете откликнуться на вакансию или отправить другое резюме.", "user": False},
+    ]
+
+    req_svg = telegram_phone_svg("Запрос пользователя", request_messages, "HR Assistant: запрос пользователя", width=phone_w, height=panel_h)
+    resp_svg = telegram_phone_svg("Ответ системы", response_messages, "HR Assistant: ответ системы с match score", width=phone_w, height=panel_h)
+
+    # Strip outer <svg> wrappers and re-wrap into a single SVG
+    def inner_content(svg_html: str) -> str:
+        start = svg_html.find("<svg")
+        end = svg_html.find(">", start)
+        close = svg_html.rfind("</svg>")
+        return svg_html[end + 1:close].strip()
+
+    req_body = inner_content(req_svg)
+    resp_body = inner_content(resp_svg)
+
+    svg = [
+        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: запрос пользователя и ответ системы с match score">',
+        f'  <defs>',
+        f'    <clipPath id="hra-s1-clip">',
+        f'      <rect x="20" y="10" width="{w-40}" height="{h-20}" rx="8" />',
+        f'    </clipPath>',
+        f'  </defs>',
+        f'  <rect x="20" y="10" width="{w-40}" height="{h-20}" rx="8" class="ui-window" />',
+        f'  <text x="{w//2}" y="44" text-anchor="middle" class="ui-title">Telegram · Запрос → Ответ</text>',
+        # Left phone panel
+        f'  <g transform="translate({left_x}, {panel_y})">',
+    ]
+    svg.extend(["    " + line for line in req_body.split("\n") if line.strip()])
+    svg.extend([
+        '  </g>',
+        # Right phone panel
+        f'  <g transform="translate({right_x}, {panel_y})">',
+    ])
+    svg.extend(["    " + line for line in resp_body.split("\n") if line.strip()])
+    svg.extend([
+        '  </g>',
+        '</svg>',
+    ])
+    return "\n".join(svg)
 
 
 def ada_scenario_1_svg() -> str:
@@ -1052,53 +1132,118 @@ def mab_scenario_2_svg() -> str:
 
 
 def hr_scenario_2_svg() -> str:
-    """HR console candidate card."""
+    """HR execution detail panel: request params, execution params, request preview, response preview, timeline."""
     w, h = 980, 620
+    margin = 18
+    hdr = 48
+    pad = 14
+    gap = 14
+
     svg = [
-        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: карточка кандидата с match score и решением">',
+        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: детализация обработки резюме в консоли">',
         '  <defs>',
-        '    <clipPath id="hr-window-clip">',
-        f'      <rect x="20" y="10" width="{w-40}" height="{h-20}" rx="8" />',
-        '    </clipPath>',
+        f'    <clipPath id="hra-admin-clip">',
+        f'      <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="8" />',
+        f'    </clipPath>',
         '  </defs>',
-        f'  <rect x="20" y="10" width="{w-40}" height="{h-20}" rx="8" class="ui-window" />',
-        f'  <rect x="20" y="10" width="{w-40}" height="58" class="ui-header" clip-path="url(#hr-window-clip)" />',
-        '  <text x="40" y="42" class="ui-title">HR Assistant · Консоль рекрутера</text>',
-        '  <text x="700" y="42" class="ui-subtitle">PostgreSQL SOT · LLM matching</text>',
-        # sidebar
-        '  <rect x="20" y="68" width="210" height="552" class="ui-sidebar" clip-path="url(#hr-window-clip)" />',
-        '  <text x="40" y="100" class="ui-sidebar-title">Кандидаты</text>',
-        '  <rect x="40" y="120" width="170" height="32" rx="4" class="ui-sidebar-item-active" />',
-        '  <text x="56" y="141" class="ui-sidebar-text-active">Иванов Иван</text>',
-        '  <rect x="40" y="162" width="170" height="32" rx="4" class="ui-sidebar-item" />',
-        '  <text x="56" y="183" class="ui-sidebar-text">Петрова Мария</text>',
-        # card
-        '  <rect x="260" y="90" width="680" height="510" rx="6" class="ui-window" />',
-        '  <text x="286" y="130" class="ui-main-title">Иванов Иван — ML Engineer</text>',
-        '  <text x="286" y="156" class="ui-subtitle">Вакансия: Senior ML Engineer · Team AI</text>',
-        # match score
-        '  <rect x="286" y="190" width="180" height="80" rx="6" class="ui-source-card" />',
-        '  <text x="306" y="220" class="ui-source-label">MATCH SCORE</text>',
-        '  <text x="306" y="256" class="ui-main-title">92/100</text>',
-        # decision
-        '  <rect x="490" y="190" width="180" height="80" rx="6" class="ui-status-published" />',
-        '  <text x="510" y="220" class="ui-source-label">РЕШЕНИЕ</text>',
-        '  <text x="510" y="256" class="ui-status-text">Пригласить</text>',
-        # reasons
-        '  <text x="286" y="310" class="ui-sidebar-title">Причины решения</text>',
-        '  <rect x="286" y="330" width="618" height="36" rx="4" class="ui-input" />',
-        '  <text x="302" y="354" class="ui-input-text" style="fill:var(--text-primary);">✓ Опыт Python / ML 5+ лет</text>',
-        '  <rect x="286" y="374" width="618" height="36" rx="4" class="ui-input" />',
-        '  <text x="302" y="398" class="ui-input-text" style="fill:var(--text-primary);">✓ Проекты с LLM и RAG</text>',
-        '  <rect x="286" y="418" width="618" height="36" rx="4" class="ui-input" />',
-        '  <text x="302" y="442" class="ui-input-text" style="fill:var(--text-primary);">✓ Совпадение по стеку команды</text>',
-        # buttons
-        '  <rect x="286" y="540" width="180" height="40" rx="4" class="ui-btn-primary" />',
-        '  <text x="376" y="565" text-anchor="middle" class="ui-btn-text">Назначить интервью</text>',
-        '  <rect x="490" y="540" width="180" height="40" rx="4" class="ui-toggle" />',
-        '  <text x="580" y="565" text-anchor="middle" class="ui-sidebar-text">Отклонить</text>',
-        '</svg>',
+        f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="8" class="ui-window" />',
+        f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{hdr}" class="ui-header" clip-path="url(#hra-admin-clip)" />',
+        f'  <text x="{margin + pad}" y="{margin + 32}" class="ui-main-title" style="font-size:15px;">ДЕТАЛИЗАЦИЯ ОБРАБОТКИ РЕЗЮМЕ</text>',
+        f'  <rect x="{w - margin - 94}" y="{margin + 14}" width="80" height="20" rx="4" class="ui-status-published" />',
+        f'  <text x="{w - margin - 54}" y="{margin + 28}" text-anchor="middle" class="ui-status-text" style="font-size:10px;">MATCH</text>',
+        f'  <rect x="{margin + 10}" y="{margin + hdr}" width="{w - margin * 2 - 20}" height="{h - margin * 2 - hdr}" fill="var(--bg)" clip-path="url(#hra-admin-clip)" />',
     ]
+    y = margin + hdr + pad
+    col_w = (w - margin * 2 - 20 - gap - pad * 2) // 2
+    left_x = margin + pad + 10
+    right_x = left_x + col_w + gap
+
+    # Request params
+    rp_h = 136
+    svg.extend([
+        f'  <rect x="{left_x}" y="{y}" width="{col_w}" height="{rp_h}" rx="6" class="ui-window" />',
+        f'  <text x="{left_x + 10}" y="{y + 20}" class="ui-table-header-text">ПАРАМЕТРЫ ЗАПРОСА</text>',
+        f'  <text x="{left_x + 10}" y="{y + 40}" class="ui-sidebar-text" style="font-size:11px;">ФИО</text>',
+        f'  <text x="{left_x + 120}" y="{y + 40}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Анна Морозова</text>',
+        f'  <text x="{left_x + 10}" y="{y + 56}" class="ui-sidebar-text" style="font-size:11px;">Роль</text>',
+        f'  <text x="{left_x + 120}" y="{y + 56}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Системный аналитик</text>',
+        f'  <text x="{left_x + 10}" y="{y + 72}" class="ui-sidebar-text" style="font-size:11px;">Опыт</text>',
+        f'  <text x="{left_x + 120}" y="{y + 72}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">6 лет</text>',
+        f'  <text x="{left_x + 10}" y="{y + 88}" class="ui-sidebar-text" style="font-size:11px;">Город</text>',
+        f'  <text x="{left_x + 120}" y="{y + 88}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Москва</text>',
+        f'  <text x="{left_x + 10}" y="{y + 104}" class="ui-sidebar-text" style="font-size:11px;">Зарплатные ожидания</text>',
+        f'  <text x="{left_x + 120}" y="{y + 104}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">180 000 ₽</text>',
+        f'  <text x="{left_x + 10}" y="{y + 120}" class="ui-sidebar-text" style="font-size:11px;">Канал</text>',
+        f'  <text x="{left_x + 120}" y="{y + 120}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Telegram · текст</text>',
+    ])
+
+    # Execution params
+    ep_h = 136
+    svg.extend([
+        f'  <rect x="{right_x}" y="{y}" width="{col_w}" height="{ep_h}" rx="6" class="ui-window" />',
+        f'  <text x="{right_x + 10}" y="{y + 20}" class="ui-table-header-text">ПАРАМЕТРЫ ИСПОЛНЕНИЯ</text>',
+        f'  <text x="{right_x + 10}" y="{y + 40}" class="ui-sidebar-text" style="font-size:11px;">Провайдер</text>',
+        f'  <text x="{right_x + 120}" y="{y + 40}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">openai</text>',
+        f'  <text x="{right_x + 10}" y="{y + 56}" class="ui-sidebar-text" style="font-size:11px;">Модель</text>',
+        f'  <text x="{right_x + 120}" y="{y + 56}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">gpt-4o-mini</text>',
+        f'  <text x="{right_x + 10}" y="{y + 72}" class="ui-sidebar-text" style="font-size:11px;">Вакансия</text>',
+        f'  <text x="{right_x + 120}" y="{y + 72}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Системный аналитик</text>',
+        f'  <text x="{right_x + 10}" y="{y + 88}" class="ui-sidebar-text" style="font-size:11px;">Match score</text>',
+        f'  <text x="{right_x + 120}" y="{y + 88}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--accent);">100/100 · роль 30 · навыки 35 · опыт 20 · условия 15</text>',
+        f'  <text x="{right_x + 10}" y="{y + 104}" class="ui-sidebar-text" style="font-size:11px;">Решение</text>',
+        f'  <text x="{right_x + 120}" y="{y + 104}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Пригласить на собеседование</text>',
+        f'  <text x="{right_x + 10}" y="{y + 120}" class="ui-sidebar-text" style="font-size:11px;">Время обработки</text>',
+        f'  <text x="{right_x + 120}" y="{y + 120}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">~11 с (intake → match card)</text>',
+    ])
+
+    y += rp_h + gap
+
+    # User request preview
+    ur_h = 130
+    svg.extend([
+        f'  <rect x="{left_x}" y="{y}" width="{col_w}" height="{ur_h}" rx="6" class="ui-window" />',
+        f'  <text x="{left_x + 10}" y="{y + 20}" class="ui-table-header-text">ЗАПРОС ПОЛЬЗОВАТЕЛЯ</text>',
+        f'  <rect x="{left_x + 10}" y="{y + 32}" width="{col_w - 20}" height="82" rx="4" class="ui-input" />',
+        f'  <text x="{left_x + 18}" y="{y + 50}" class="ui-msg-text-bot" style="font-size:11px;">Анна Морозова, Москва. Ищу позицию системного аналитика.</text>',
+        f'  <text x="{left_x + 18}" y="{y + 68}" class="ui-msg-text-bot" style="font-size:11px;">Опыт: 6 лет · BPMN, UML, SQL, REST API, Jira, Confluence.</text>',
+        f'  <text x="{left_x + 18}" y="{y + 86}" class="ui-msg-text-bot" style="font-size:11px;">Зарплатные ожидания: 180000 рублей.</text>',
+        f'  <text x="{left_x + 18}" y="{y + 104}" class="ui-msg-text-bot" style="font-size:11px;">Email: anna.morozova.hrtest2026@example.com</text>',
+    ])
+
+    # System response preview
+    sr_h = 130
+    svg.extend([
+        f'  <rect x="{right_x}" y="{y}" width="{col_w}" height="{sr_h}" rx="6" class="ui-window" />',
+        f'  <text x="{right_x + 10}" y="{y + 20}" class="ui-table-header-text">ОТВЕТ СИСТЕМЫ</text>',
+        f'  <text x="{right_x + 10}" y="{y + 42}" class="ui-table-header-text" style="font-size:12px;">💼 Системный аналитик · 100/100</text>',
+        f'  <text x="{right_x + 10}" y="{y + 62}" class="ui-msg-text-bot" style="font-size:11px;">• роль: 30/30 · навыки: 35/35 · опыт: 20/20 · условия: 15/15</text>',
+        f'  <text x="{right_x + 10}" y="{y + 82}" class="ui-msg-text-bot" style="font-size:11px;">Кандидат полностью соответствует должности: роль, навыки,</text>',
+        f'  <text x="{right_x + 10}" y="{y + 100}" class="ui-msg-text-bot" style="font-size:11px;">опыт и зарплатные ожидания в пределах диапазона.</text>',
+        f'  <text x="{right_x + 10}" y="{y + 118}" class="ui-sidebar-text" style="font-size:10px;">Кнопки: Откликнуться · Другая вакансия · Отправить другое резюме</text>',
+    ])
+
+    y += ur_h + gap
+
+    # Pipeline timeline
+    tl_h = 94
+    svg.extend([
+        f'  <rect x="{left_x}" y="{y}" width="{col_w * 2 + gap}" height="{tl_h}" rx="6" class="ui-window" />',
+        f'  <text x="{left_x + 10}" y="{y + 20}" class="ui-table-header-text">ТАЙМЛАЙН ПАЙПЛАЙНА</text>',
+        f'  <text x="{left_x + 10}" y="{y + 44}" class="ui-sidebar-text" style="font-size:11px;">11:05:16</text>',
+        f'  <circle cx="{left_x + 80}" cy="{y + 40}" r="5" class="ui-status-published"/>',
+        f'  <text x="{left_x + 95}" y="{y + 44}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Получен запрос · Telegram text</text>',
+        f'  <text x="{left_x + 10}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px;">11:05:24</text>',
+        f'  <circle cx="{left_x + 80}" cy="{y + 60}" r="5" class="ui-status-published"/>',
+        f'  <text x="{left_x + 95}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Извлечение карточки · GPT-4o-mini · JSON Schema</text>',
+        f'  <text x="{left_x + 320}" y="{y + 44}" class="ui-sidebar-text" style="font-size:11px;">11:05:27</text>',
+        f'  <circle cx="{left_x + 390}" cy="{y + 40}" r="5" class="ui-status-published"/>',
+        f'  <text x="{left_x + 405}" y="{y + 44}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Matching · 4 критерия · score 0–100</text>',
+        f'  <text x="{left_x + 320}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px;">11:05:40</text>',
+        f'  <circle cx="{left_x + 390}" cy="{y + 60}" r="5" class="ui-status-published"/>',
+        f'  <text x="{left_x + 405}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Отправлен match card в Telegram · SOT сохранён</text>',
+    ])
+
+    svg.append('</svg>')
     return "\n".join(svg)
 
 
