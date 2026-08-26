@@ -706,6 +706,23 @@
       display: block;
     }
 
+    .demo-frame--side-by-side {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+      align-items: start;
+    }
+
+    .demo-frame--side-by-side img {
+      max-height: 520px;
+    }
+
+    @media (max-width: 768px) {
+      .demo-frame--side-by-side {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .demo-frame__hint {
       position: absolute;
       bottom: var(--space-md);
@@ -1531,7 +1548,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--five" viewBox="0 0 1120 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы HR Assistant: от входа к результату">
   <defs>
-    <marker id="arrow-5n-80980" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-5n-69149" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1541,28 +1558,28 @@
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Текст / голос</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">PDF / фото</text>
   </g>
-  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-80980)" />
+  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-69149)" />
   <g transform="translate(250, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Intake</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Нормализация</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">входа</text>
   </g>
-  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-80980)" />
+  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-69149)" />
   <g transform="translate(470, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Извлечение</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">GPT-4o-mini</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">JSON Schema</text>
   </g>
-  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-80980)" />
+  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-69149)" />
   <g transform="translate(690, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">PostgreSQL</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">SOT</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">профили и вакансии</text>
   </g>
-  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-80980)" />
+  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-69149)" />
   <g transform="translate(910, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Matching</text>
@@ -1609,58 +1626,22 @@
           <div class="demo-block__header">
             <div class="demo-block__label">Сценарий 1</div>
             <h3 class="demo-block__title">Кандидат отправляет резюме в Telegram</h3>
-            <p class="demo-block__text">Реальный пример: Анна Морозова присылает текстовое резюме на позицию системного аналитика. Бот подтверждает получение и возвращает match score 100/100 с разбивкой по 4 критериям.</p>
+            <p class="demo-block__text">Соискатель присылает текстовое резюме. Бот подтверждает получение и возвращает match score с разбивкой по 4 критериям.</p>
           </div>
           
-          <svg class="ui-illustration" viewBox="0 0 980 620" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: запрос пользователя и ответ системы с match score">
-  <defs>
-    <clipPath id="hra-s1-clip">
-      <rect x="20" y="10" width="940" height="600" rx="8" />
-    </clipPath>
-  </defs>
-  <rect x="20" y="10" width="940" height="600" rx="8" class="ui-window" />
-  <text x="490" y="44" text-anchor="middle" class="ui-title">Telegram · Запрос → Ответ</text>
-  <g transform="translate(40, 0)">
-    <rect x="0" y="0" width="440" height="620" rx="0" fill="#e5f2e5"/>
-      <rect x="0" y="0" width="440" height="50" fill="#2f7763"/>
-      <circle cx="35" cy="25" r="13" fill="#a8d5ba"/>
-      <text x="58" y="30" class="ui-title" style="font-size:13px; fill:#ffffff;">Запрос пользователя</text>
-      <rect x="18" y="68" width="404" height="52" rx="10" fill="#ffffff"/>
-      <text x="30" y="88" class="ui-msg-text-bot" style="font-size:12px; fill:var(--text-primary);">Здравствуйте! Отправьте резюме или</text>
-      <text x="30" y="105" class="ui-msg-text-bot" style="font-size:12px; fill:var(--text-primary);">ссылку на вакансию.</text>
-      <rect x="18" y="132" width="404" height="120" rx="10" fill="#d9fdd3"/>
-      <text x="30" y="152" class="ui-msg-text-user" style="font-size:12px; fill:var(--text-primary);">Анна Морозова, Москва. Ищу позицию</text>
-      <text x="30" y="169" class="ui-msg-text-user" style="font-size:12px; fill:var(--text-primary);">системного аналитика. Опыт работы: 6</text>
-      <text x="30" y="186" class="ui-msg-text-user" style="font-size:12px; fill:var(--text-primary);">лет. Ключевые навыки: сбор и анализ</text>
-      <text x="30" y="203" class="ui-msg-text-user" style="font-size:12px; fill:var(--text-primary);">требований, BPMN, UML, SQL, REST API,</text>
-      <text x="30" y="220" class="ui-msg-text-user" style="font-size:12px; fill:var(--text-primary);">интеграционная аналитика, подготовка ТЗ,</text>
-      <text x="30" y="237" class="ui-msg-text-user" style="font-size:12px; fill:var(--text-primary);">user stories, Jira, Confluence.</text>
-  </g>
-  <g transform="translate(500, 0)">
-    <rect x="0" y="0" width="440" height="620" rx="0" fill="#e5f2e5"/>
-      <rect x="0" y="0" width="440" height="50" fill="#2f7763"/>
-      <circle cx="35" cy="25" r="13" fill="#a8d5ba"/>
-      <text x="58" y="30" class="ui-title" style="font-size:13px; fill:#ffffff;">Ответ системы</text>
-      <rect x="18" y="68" width="404" height="120" rx="10" fill="#ffffff"/>
-      <text x="30" y="88" class="ui-msg-text-bot" style="font-size:12px; fill:var(--text-primary);">💼 Системный аналитик  📊 Совпадение:</text>
-      <text x="30" y="105" class="ui-msg-text-bot" style="font-size:12px; fill:var(--text-primary);">100/100  Детализация: • роль: 30/30 •</text>
-      <text x="30" y="122" class="ui-msg-text-bot" style="font-size:12px; fill:var(--text-primary);">навыки: 35/35 • опыт: 20/20 • условия:</text>
-      <text x="30" y="139" class="ui-msg-text-bot" style="font-size:12px; fill:var(--text-primary);">15/15  📝 Кандидат полностью</text>
-      <text x="30" y="156" class="ui-msg-text-bot" style="font-size:12px; fill:var(--text-primary);">соответствует должности системного</text>
-      <text x="30" y="173" class="ui-msg-text-bot" style="font-size:12px; fill:var(--text-primary);">аналитика.</text>
-      <rect x="18" y="200" width="404" height="52" rx="10" fill="#ffffff"/>
-      <text x="30" y="220" class="ui-msg-text-bot" style="font-size:12px; fill:var(--text-primary);">Вы можете откликнуться на вакансию или</text>
-      <text x="30" y="237" class="ui-msg-text-bot" style="font-size:12px; fill:var(--text-primary);">отправить другое резюме.</text>
-  </g>
-</svg>
+          <div class="demo-frame demo-frame--side-by-side">
+            <img class="preview-dark" src="/assets/screenshots/HRA-scenario-1.png" alt="Telegram-чат HR Assistant: соискатель отправляет резюме и получает match score">
+            <img class="preview-light" src="/assets/screenshots/HRA-scenario-1.png" alt="Telegram-чат HR Assistant: соискатель отправляет резюме и получает match score">
+            <div class="demo-frame__hint">Кликните для полного размера</div>
+          </div>
           
         </div>
         
         <div class="demo-block">
           <div class="demo-block__header">
             <div class="demo-block__label">Сценарий 2</div>
-            <h3 class="demo-block__title">Детализация обработки резюме</h3>
-            <p class="demo-block__text">Консоль рекрутера показывает параметры запроса, параметры исполнения (провайдер, модель, вакансия, score), исходный запрос пользователя, ответ системы и таймлайн пайплайна — от получения сообщения до отправки match card. Сейчас консоль планируется; данные уже сохраняются в PostgreSQL.</p>
+            <h3 class="demo-block__title">Детализация обработки резюме*</h3>
+            <p class="demo-block__text">Консоль рекрутера показывает параметры запроса, параметры исполнения (провайдер, модель, вакансия, score), исходный запрос пользователя, ответ системы и таймлайн пайплайна — от получения сообщения до отправки match card. * — планируется к реализации; данные уже сохраняются в PostgreSQL.</p>
           </div>
           
           <svg class="ui-illustration" viewBox="0 0 980 620" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: детализация обработки резюме в консоли">
@@ -1671,7 +1652,7 @@
   </defs>
   <rect x="18" y="18" width="944" height="584" rx="8" class="ui-window" />
   <rect x="18" y="18" width="944" height="48" class="ui-header" clip-path="url(#hra-admin-clip)" />
-  <text x="32" y="50" class="ui-main-title" style="font-size:15px;">ДЕТАЛИЗАЦИЯ ОБРАБОТКИ РЕЗЮМЕ</text>
+  <text x="32" y="50" class="ui-main-title" style="font-size:15px;">ДЕТАЛИЗАЦИЯ ОБРАБОТКИ РЕЗЮМЕ*</text>
   <rect x="868" y="32" width="80" height="20" rx="4" class="ui-status-published" />
   <text x="908" y="46" text-anchor="middle" class="ui-status-text" style="font-size:10px;">MATCH</text>
   <rect x="28" y="66" width="924" height="536" fill="var(--bg)" clip-path="url(#hra-admin-clip)" />
@@ -1685,7 +1666,7 @@
   <text x="162" y="152" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">6 лет</text>
   <text x="52" y="168" class="ui-sidebar-text" style="font-size:11px;">Город</text>
   <text x="162" y="168" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Москва</text>
-  <text x="52" y="184" class="ui-sidebar-text" style="font-size:11px;">Зарплатные ожидания</text>
+  <text x="52" y="184" class="ui-sidebar-text" style="font-size:11px;">З/П ожидания</text>
   <text x="162" y="184" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">180 000 ₽</text>
   <text x="52" y="200" class="ui-sidebar-text" style="font-size:11px;">Канал</text>
   <text x="162" y="200" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Telegram · текст</text>
@@ -1716,7 +1697,6 @@
   <text x="507" y="292" class="ui-msg-text-bot" style="font-size:11px;">• роль: 30/30 · навыки: 35/35 · опыт: 20/20 · условия: 15/15</text>
   <text x="507" y="312" class="ui-msg-text-bot" style="font-size:11px;">Кандидат полностью соответствует должности: роль, навыки,</text>
   <text x="507" y="330" class="ui-msg-text-bot" style="font-size:11px;">опыт и зарплатные ожидания в пределах диапазона.</text>
-  <text x="507" y="348" class="ui-sidebar-text" style="font-size:10px;">Кнопки: Откликнуться · Другая вакансия · Отправить другое резюме</text>
   <rect x="42" y="374" width="896" height="94" rx="6" class="ui-window" />
   <text x="52" y="394" class="ui-table-header-text">ТАЙМЛАЙН ПАЙПЛАЙНА</text>
   <text x="52" y="418" class="ui-sidebar-text" style="font-size:11px;">11:05:16</text>
@@ -1725,12 +1705,13 @@
   <text x="52" y="438" class="ui-sidebar-text" style="font-size:11px;">11:05:24</text>
   <circle cx="122" cy="434" r="5" class="ui-status-published"/>
   <text x="137" y="438" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Извлечение карточки · GPT-4o-mini · JSON Schema</text>
-  <text x="362" y="418" class="ui-sidebar-text" style="font-size:11px;">11:05:27</text>
-  <circle cx="432" cy="414" r="5" class="ui-status-published"/>
-  <text x="447" y="418" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Matching · 4 критерия · score 0–100</text>
-  <text x="362" y="438" class="ui-sidebar-text" style="font-size:11px;">11:05:40</text>
-  <circle cx="432" cy="434" r="5" class="ui-status-published"/>
-  <text x="447" y="438" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Отправлен match card в Telegram · SOT сохранён</text>
+  <text x="562" y="418" class="ui-sidebar-text" style="font-size:11px;">11:05:27</text>
+  <circle cx="632" cy="414" r="5" class="ui-status-published"/>
+  <text x="647" y="418" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Matching · 4 критерия · score 0–100</text>
+  <text x="562" y="438" class="ui-sidebar-text" style="font-size:11px;">11:05:40</text>
+  <circle cx="632" cy="434" r="5" class="ui-status-published"/>
+  <text x="647" y="438" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Отправлен match card в Telegram · SOT сохранён</text>
+  <text x="52" y="460" class="ui-sidebar-text" style="font-size:10px; fill:var(--text-secondary);">* — планируется к реализации; данные уже сохраняются в PostgreSQL.</text>
 </svg>
           
         </div>
