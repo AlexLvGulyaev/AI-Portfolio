@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Storytelling-лендинг о том, как малая модель Qwen с LoRA адаптировалась под задачи рекрутинга и сравнилась с GPT-4 по качеству решений.">
+  <meta name="description" content="Эксперимент с Qwen2.5-1.5B-Instruct + LoRA на 162 HR-парах: offline accuracy 93.3%, external validation 93.1% vs GPT-4o-mini 94.1%, vLLM-движок снижает latency до ~2.1 сек. Рабочий on-premise / edge кандидат; production остаётся за GPT-4o-mini.">
   <meta property="og:title" content="HR Assistant — LoRA · история дообучения модели">
-  <meta property="og:description" content="Storytelling-лендинг о том, как малая модель Qwen с LoRA адаптировалась под задачи рекрутинга и сравнилась с GPT-4 по качеству решений.">
+  <meta property="og:description" content="Эксперимент с Qwen2.5-1.5B-Instruct + LoRA на 162 HR-парах: offline accuracy 93.3%, external validation 93.1% vs GPT-4o-mini 94.1%, vLLM-движок снижает latency до ~2.1 сек. Рабочий on-premise / edge кандидат; production остаётся за GPT-4o-mini.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ai.alex-n8n.site/cases/hr-assistant-lora.html">
   <meta property="og:image" content="/assets/screenshots/HRA-Lora_portfolio_light.png">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="HR Assistant — LoRA · история дообучения модели">
-  <meta name="twitter:description" content="Storytelling-лендинг о том, как малая модель Qwen с LoRA адаптировалась под задачи рекрутинга и сравнилась с GPT-4 по качеству решений.">
+  <meta name="twitter:description" content="Эксперимент с Qwen2.5-1.5B-Instruct + LoRA на 162 HR-парах: offline accuracy 93.3%, external validation 93.1% vs GPT-4o-mini 94.1%, vLLM-движок снижает latency до ~2.1 сек. Рабочий on-premise / edge кандидат; production остаётся за GPT-4o-mini.">
   <meta name="twitter:image" content="/assets/screenshots/HRA-Lora_portfolio_light.png">
   <link rel="canonical" href="https://ai.alex-n8n.site/cases/hr-assistant-lora.html">
   <title>HR Assistant — LoRA · история дообучения модели</title>
@@ -677,6 +677,14 @@
       font-size: 0.95rem;
     }
 
+    .demo-block__scaled {
+      --scenario-scale: 1;
+      width: calc(var(--scenario-scale) * 100%);
+      transform-origin: top left;
+      transform: scale(var(--scenario-scale));
+      margin-bottom: calc((var(--scenario-scale) - 1) * 100%);
+    }
+
     .demo-frame {
       position: relative;
       background: var(--surface-elevated);
@@ -1273,11 +1281,11 @@
       <div class="container hero__inner">
         <div class="hero__body">
           <p class="eyebrow hero__eyebrow">История дообучения LLM для HR-задач</p>
-          <h1 class="hero__title">Как LoRA-дообучение подняло точность HR-решений</h1>
-          <p class="hero__lead">Storytelling-лендинг о том, как малая модель Qwen с LoRA адаптировалась под задачи рекрутинга и сравнилась с GPT-4 по качеству решений.</p>
+          <h1 class="hero__title">Малая модель + LoRA против GPT-4o-mini в HR-задаче</h1>
+          <p class="hero__lead">Эксперимент с Qwen2.5-1.5B-Instruct + LoRA на 162 HR-парах: offline accuracy 93.3%, external validation 93.1% vs GPT-4o-mini 94.1%, vLLM-движок снижает latency до ~2.1 сек. Рабочий on-premise / edge кандидат; production остаётся за GPT-4o-mini.</p>
           <div class="hero__actions">
             <a href="https://hra-lora.alex-n8n.site" class="btn btn-primary" target="_blank" rel="noopener">Storytelling</a>
-            <a href="https://github.com/AlexLvGulyaev/HR-Assistant" class="btn btn-ghost" target="_blank" rel="noopener">Parent GitHub</a>
+            <a href="https://github.com/AlexLvGulyaev/HR-Assistant/blob/main/finetuning/README.md" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a>
             <a href="/contacts.html" class="btn btn-ghost" target="_blank" rel="noopener">Обсудить проект</a>
             
           </div>
@@ -1306,7 +1314,12 @@
           
           <div class="summary__item">
             <div class="summary__label">Модель</div>
-            <div class="summary__value">Qwen + LoRA</div>
+            <div class="summary__value">Qwen2.5-1.5B-Instruct + LoRA r=16</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Стек</div>
+            <div class="summary__value">Python 3.12 · PyTorch 2.6 · Transformers · PEFT · TRL · FastAPI · n8n · RunPod RTX A5000</div>
           </div>
           
           <div class="summary__item">
@@ -1316,7 +1329,7 @@
           
           <div class="summary__item">
             <div class="summary__label">Статус</div>
-            <div class="summary__value">Визуальная история готова</div>
+            <div class="summary__value">Эксперимент завершён; on-premise / edge candidate</div>
           </div>
           
           <div class="summary__item">
@@ -1325,8 +1338,8 @@
           </div>
           
           <div class="summary__item">
-            <div class="summary__label">Parent GitHub</div>
-            <div class="summary__value"><a href='https://github.com/AlexLvGulyaev/HR-Assistant' target='_blank' rel='noopener'>AlexLvGulyaev/HR-Assistant</a></div>
+            <div class="summary__label">GitHub</div>
+            <div class="summary__value"><a href='https://github.com/AlexLvGulyaev/HR-Assistant/blob/main/finetuning/README.md' target='_blank' rel='noopener'>finetuning/README.md</a></div>
           </div>
           
         </div>
@@ -1338,8 +1351,8 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Результат</p>
-          <h2 class="section__title">Малая адаптированная модель против большого GPT</h2>
-          <p class="section__lead">LoRA позволила обучить компактную модель на HR-решающих задачах и добиться сопоставимой точности.</p>
+          <h2 class="section__title">LoRA достигает ~93% точности и сопоставимой с GPT-4o-mini latency</h2>
+          <p class="section__lead">На внешней выборке 102 пары fine-tuned Qwen показывает 93.1% decision accuracy против 94.1% у GPT-4o-mini; с vLLM p95 latency падает до ~2.1 сек.</p>
         </div>
 
         <div class="ba-grid">
@@ -1347,11 +1360,13 @@
             <h3 class="ba-card__title"><span>❌</span> До</h3>
             <ul class="ba-card__list">
               
-              <li>LLM-решения для HR требуют дорогих вызовов крупных моделей</li>
+              <li>Production зависит от внешнего GPT-4o-mini: стоимость, latency и политика API</li>
               
-              <li>Нет датасета и метрик, специфичных для рекрутинговых решений</li>
+              <li>Нет размеченного датасета и метрик, специфичных для рекрутинговых решений</li>
               
-              <li>Сложно объяснить заказчику, почему стоит доверять AI-оценке</li>
+              <li>Непонятно, может ли малая модель конкурировать с большим LLM на узкой задаче</li>
+              
+              <li>Нет прозрачных сравнений и failure modes для бизнес-решений</li>
               
             </ul>
           </div>
@@ -1360,11 +1375,13 @@
             <h3 class="ba-card__title"><span>✅</span> После</h3>
             <ul class="ba-card__list">
               
-              <li>Собран размеченный датасет HR-решений для дообучения</li>
+              <li>Собран teacher dataset из 162 записей (54 кандидата × 3 вакансии) с GPT-4.1 Judge</li>
               
-              <li>LoRA-адаптация Qwen показала рост точности на целевых сценариях</li>
+              <li>Обучен LoRA-адаптер Qwen2.5-1.5B: offline accuracy 93.3%, valid JSON 100%</li>
               
-              <li>Результаты оформлены в публичную визуальную историю</li>
+              <li>Внешняя валидация n=102: LoRA 93.1% vs GPT-4o-mini 94.1%</li>
+              
+              <li>Runtime smoke 7/7 passed; vLLM runtime доводит p95 latency до ~2.1 сек</li>
               
             </ul>
           </div>
@@ -1377,23 +1394,47 @@
             <div class="metric-card__icon">🤖</div>
             <div class="metric-card__content">
               <div class="metric-card__label">Модель</div>
-              <div class="metric-card__value">Qwen<span class="metric-card__suffix"> + LoRA</span></div>
+              <div class="metric-card__value">Qwen2.5-1.5B<span class="metric-card__suffix"> + LoRA r=16 α=32</span></div>
             </div>
           </div>
           
           <div class="metric-card">
             <div class="metric-card__icon">🎯</div>
             <div class="metric-card__content">
-              <div class="metric-card__label">Задача</div>
-              <div class="metric-card__value">HR matching<span class="metric-card__suffix"> binary / multi-class</span></div>
+              <div class="metric-card__label">Offline test</div>
+              <div class="metric-card__value">decision accuracy<span class="metric-card__suffix"> 93.3%</span></div>
             </div>
           </div>
           
           <div class="metric-card">
-            <div class="metric-card__icon">📈</div>
+            <div class="metric-card__icon">📊</div>
             <div class="metric-card__content">
-              <div class="metric-card__label">Baseline</div>
-              <div class="metric-card__value">→ fine-tuned<span class="metric-card__suffix"> значимый прирост</span></div>
+              <div class="metric-card__label">External val</div>
+              <div class="metric-card__value">LoRA vs GPT-4o-mini<span class="metric-card__suffix"> 93.1% vs 94.1%</span></div>
+            </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-card__icon">⚡</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">vLLM latency</div>
+              <div class="metric-card__value">p95<span class="metric-card__suffix"> ~2.1 сек</span></div>
+            </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-card__icon">🧪</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">Runtime smoke</div>
+              <div class="metric-card__value">hard-negative<span class="metric-card__suffix"> 7/7 pass</span></div>
+            </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-card__icon">📝</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">Teacher dataset</div>
+              <div class="metric-card__value">162 записей<span class="metric-card__suffix"> 54 кандидата × 3 вакансии</span></div>
             </div>
           </div>
           
@@ -1407,8 +1448,8 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Проблема</p>
-          <h2 class="section__title">Как сделать HR-AI дешевле и понятнее</h2>
-          <p class="section__lead">Крупные модели хорошо рассуждают, но их сложно и дорого встроить в production, а объяснить результат бизнесу непросто.</p>
+          <h2 class="section__title">HR-AI привязан к внешним API: стоимость, latency и политика</h2>
+          <p class="section__lead">Крупные модели хорошо решают задачу, но заказчику нужна автономность, предсказуемая стоимость и прозрачные метрики, чтобы решить, доверять ли малой модели.</p>
         </div>
 
         <div class="problem-grid">
@@ -1416,16 +1457,24 @@
           <div class="problem-card">
             <div class="problem-card__icon">💰</div>
             <div>
-              <h3 class="problem-card__title">Стоимость</h3>
-              <p class="problem-card__text">Вызовы GPT-4 для каждого резюме быстро становятся дорогими при масштабе.</p>
+              <h3 class="problem-card__title">Зависимость от внешнего API</h3>
+              <p class="problem-card__text">Каждый вызов GPT-4o-mini — плата, квоты и политика провайдера; при масштабе это становится риском.</p>
             </div>
           </div>
           
           <div class="problem-card">
             <div class="problem-card__icon">🔍</div>
             <div>
-              <h3 class="problem-card__title">Объяснимость</h3>
-              <p class="problem-card__text">Бизнесу нужны не score из чёрного ящика, а прозрачные метрики и сравнения.</p>
+              <h3 class="problem-card__title">Нет специфичных метрик</h3>
+              <p class="problem-card__text">Бизнесу нужны не общие LLM-оценки, а decision accuracy, FPR/FNR, MAE score и runtime smoke на HR-кейсах.</p>
+            </div>
+          </div>
+          
+          <div class="problem-card">
+            <div class="problem-card__icon">⚖️</div>
+            <div>
+              <h3 class="problem-card__title">Неочевидный trade-off</h3>
+              <p class="problem-card__text">Малая модель может быть быстрее и дешевле, но пока неясно, сохранит ли она качество на реальных анкетах.</p>
             </div>
           </div>
           
@@ -1438,8 +1487,8 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Решение</p>
-          <h2 class="section__title">LoRA-дообучение малой модели под HR-решения</h2>
-          <p class="section__lead">Собственный датасет, адаптация Qwen и визуальная история, которая показывает эволюцию точности.</p>
+          <h2 class="section__title">LoRA-адаптер + dataset engineering + многоуровневая валидация</h2>
+          <p class="section__lead">Обучаем Qwen2.5-1.5B на размеченном teacher dataset, сравниваем с GPT-4o-mini на offline, external и Telegram smoke, и честно фиксируем failure modes.</p>
         </div>
 
         <div class="solution-grid">
@@ -1447,8 +1496,8 @@
           <div class="solution-card">
             <div class="solution-card__icon">📊</div>
             <div>
-              <h3 class="solution-card__title">Датасет HR-решений</h3>
-              <p class="solution-card__text">Разметка кандидатов, вакансий и эталонных решений для обучения.</p>
+              <h3 class="solution-card__title">Teacher dataset HRA-EXP-V4</h3>
+              <p class="solution-card__text">162 записи, 54 кандидата, 3 вакансии; obvious_match / borderline / obvious_no_match + hard negatives.</p>
             </div>
           </div>
           
@@ -1456,23 +1505,39 @@
             <div class="solution-card__icon">⚙️</div>
             <div>
               <h3 class="solution-card__title">LoRA fine-tuning</h3>
-              <p class="solution-card__text">Эффективная адаптация Qwen под специфику рекрутинговых задач.</p>
+              <p class="solution-card__text">r=16, alpha=32, target_modules=all linear; best checkpoint — epoch 3, eval_loss 0.3273, peak VRAM 7.46 GB.</p>
             </div>
           </div>
           
           <div class="solution-card">
-            <div class="solution-card__icon">📈</div>
+            <div class="solution-card__icon">🧪</div>
             <div>
-              <h3 class="solution-card__title">Эволюция точности</h3>
-              <p class="solution-card__text">Графики роста качества от baseline до fine-tuned модели.</p>
+              <h3 class="solution-card__title">Runtime smoke</h3>
+              <p class="solution-card__text">7/7 passed на hard-negative/edge кейсах; zero unexpected matches.</p>
             </div>
           </div>
           
           <div class="solution-card">
             <div class="solution-card__icon">🆚</div>
             <div>
-              <h3 class="solution-card__title">Сравнение с GPT</h3>
-              <p class="solution-card__text">Визуальное сопоставление малой модели и большого LLM по метрикам.</p>
+              <h3 class="solution-card__title">Сравнение с GPT-4o-mini</h3>
+              <p class="solution-card__text">External validation n=102: LoRA 93.1% vs GPT-4o-mini 94.1%; vLLM latency p95 ~2.1 сек.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">🔍</div>
+            <div>
+              <h3 class="solution-card__title">Честные failure modes</h3>
+              <p class="solution-card__text">Telegram smoke 35% LoRA vs 43% GPT-4o-mini; teacher-label mismatch и hard-negative gaps задокументированы.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">📖</div>
+            <div>
+              <h3 class="solution-card__title">Storytelling landing</h3>
+              <p class="solution-card__text">21 сцена с inline SVG-графиками и персонажем Люмина показывают эволюцию модели.</p>
             </div>
           </div>
           
@@ -1485,13 +1550,13 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Как это работает</p>
-          <h2 class="section__title">Эволюция точности модели</h2>
-          <p class="section__lead">От baseline до адаптированной модели: данные, обучение, оценка, сравнение.</p>
+          <h2 class="section__title">От baseline до production-ready candidate</h2>
+          <p class="section__lead">Zero-shot baseline → teacher dataset → LoRA training → offline/runtime/external validation → сравнение с GPT-4o-mini.</p>
         </div>
 
         <svg class="pipeline-diagram pipeline-diagram--five" viewBox="0 0 1120 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы HR Assistant — LoRA: от входа к результату">
   <defs>
-    <marker id="arrow-5n-88673" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-5n-33982" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1499,35 +1564,35 @@
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Baseline</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Zero-shot</text>
-    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">LLM</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">Qwen 33.3%</text>
   </g>
-  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-88673)" />
+  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-33982)" />
   <g transform="translate(250, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Датасет</text>
-    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Разметка</text>
-    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">HR-решений</text>
+    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">162 записи</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">GPT-4.1 Judge</text>
   </g>
-  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-88673)" />
+  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-33982)" />
   <g transform="translate(470, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">LoRA</text>
-    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Fine-tuning</text>
-    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">Qwen</text>
+    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Qwen 1.5B</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">r=16 α=32</text>
   </g>
-  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-88673)" />
+  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-33982)" />
   <g transform="translate(690, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
-    <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Оценка</text>
-    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Метрики</text>
-    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">HR-задач</text>
+    <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Offline</text>
+    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">93.3%</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">valid JSON</text>
   </g>
-  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-88673)" />
+  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-33982)" />
   <g transform="translate(910, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
-    <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Сравнение</text>
-    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">LoRA vs</text>
-    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">GPT-4</text>
+    <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">External</text>
+    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">vs GPT-4o-mini</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">102 записи</text>
   </g>
 </svg>
 
@@ -1535,20 +1600,20 @@
           
           <div class="pipeline-card">
             <div class="pipeline-card__number">01</div>
-            <h3 class="pipeline-card__title">Baseline</h3>
-            <p class="pipeline-card__text">Измеряем качество zero-shot LLM на HR-решениях.</p>
+            <h3 class="pipeline-card__title">Baseline и teacher dataset</h3>
+            <p class="pipeline-card__text">Zero-shot Qwen даёт 33.3% accuracy; GPT-4.1 Judge размечает 162 HR-пары для обучения.</p>
           </div>
           
           <div class="pipeline-card">
             <div class="pipeline-card__number">02</div>
-            <h3 class="pipeline-card__title">Датасет и LoRA</h3>
-            <p class="pipeline-card__text">Собираем размеченные примеры и дообучаем Qwen адаптером.</p>
+            <h3 class="pipeline-card__title">LoRA fine-tuning</h3>
+            <p class="pipeline-card__text">Обучаем Qwen2.5-1.5B-Instruct с LoRA; лучший checkpoint — конец эпохи 3, eval_loss 0.3273.</p>
           </div>
           
           <div class="pipeline-card">
             <div class="pipeline-card__number">03</div>
-            <h3 class="pipeline-card__title">Оценка и сравнение</h3>
-            <p class="pipeline-card__text">Считаем метрики и сравниваем fine-tuned модель с крупным LLM.</p>
+            <h3 class="pipeline-card__title">Валидация и сравнение</h3>
+            <p class="pipeline-card__text">Offline test, runtime smoke 7/7, external validation n=102 и сравнение latency с GPT-4o-mini.</p>
           </div>
           
         </div>
@@ -1560,8 +1625,8 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Визуальная история</p>
-          <h2 class="section__title">Графики эволюции и сравнения моделей</h2>
-          <p class="section__lead">Storytelling-лендинг использует SVG-графики для показа роста точности и сравнения с GPT.</p>
+          <h2 class="section__title">Эволюция точности и сравнение с GPT-4o-mini</h2>
+          <p class="section__lead">Два ключевых артефакта эксперимента: рост decision accuracy от zero-shot baseline до LoRA и прямое сравнение с production-моделью GPT-4o-mini.</p>
         </div>
 
         
@@ -1569,10 +1634,11 @@
           <div class="demo-block__header">
             <div class="demo-block__label">График 1</div>
             <h3 class="demo-block__title">Эволюция точности решений</h3>
-            <p class="demo-block__text">Как менялась точность модели от baseline к fine-tuned варианту на HR-датасете.</p>
+            <p class="demo-block__text">Как менялась decision accuracy от zero-shot baseline (33.3%) до fine-tuned LoRA (93.3%) на HR-датасете.</p>
           </div>
           
-          <?xml version="1.0" encoding="utf-8" standalone="no"?>
+          <div class="demo-block__scaled" style="--scenario-scale: 1.0">
+            <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns:xlink="http://www.w3.org/1999/xlink" width="677.397734pt" height="457.820099pt" viewBox="0 0 677.397734 457.820099" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -4253,18 +4319,21 @@ z
  </defs>
 </svg>
 
+          </div>
           
         </div>
         
         <div class="demo-block">
           <div class="demo-block__header">
             <div class="demo-block__label">График 2</div>
-            <h3 class="demo-block__title">LoRA Qwen против GPT</h3>
-            <p class="demo-block__text">Сравнение адаптированной малой модели и большого LLM по ключевым метрикам.</p>
+            <h3 class="demo-block__title">LoRA Qwen против GPT-4o-mini</h3>
+            <p class="demo-block__text">Сравнение по decision accuracy, FPR/FNR, MAE score и latency на external validation n=102.</p>
           </div>
           
-          <?xml version='1.0' encoding='utf-8'?>
+          <div class="demo-block__scaled" style="--scenario-scale: 0.75">
+            <?xml version='1.0' encoding='utf-8'?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1150" viewBox="0 0 1200 1150" role="img" aria-label="Qwen-LoRA vs GPT-4o-mini comparison"><rect x="0" y="0" width="1200" height="1150" fill="#0d0d10" /><text x="600.0" y="60" fill="#e8e8ec" font-size="30" font-family="Inter, sans-serif" text-anchor="middle" font-weight="bold">Qwen-LoRA vs GPT-4o-mini</text><text x="600.0" y="96" fill="#8a8a9a" font-size="16" font-family="Inter, sans-serif" text-anchor="middle" font-weight="normal">External validation on 102 unseen records (vLLM + warm process)</text><defs><radialGradient id="qwen-glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#4ECDC4" stop-opacity="0.30" /><stop offset="60%" stop-color="#4ECDC4" stop-opacity="0.12" /><stop offset="100%" stop-color="#4ECDC4" stop-opacity="0" /></radialGradient><radialGradient id="gpt-glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#6B8FA3" stop-opacity="0.26" /><stop offset="60%" stop-color="#6B8FA3" stop-opacity="0.10" /><stop offset="100%" stop-color="#6B8FA3" stop-opacity="0" /></radialGradient></defs><circle cx="300" cy="300" r="217.5" fill="url(#qwen-glow)" /><circle cx="300" cy="300" r="152.25" fill="none" stroke="#4ECDC4" stroke-width="1.6" opacity="0.55" /><circle cx="300" cy="300" r="123.25" fill="none" stroke="#4ECDC4" stroke-width="2.1" opacity="0.41000000000000003" /><circle cx="300" cy="300" r="94.25" fill="none" stroke="#4ECDC4" stroke-width="2.6" opacity="0.27" /><line x1="255.68099197714753" y1="239.00011862412896" x2="224.99860180748044" y2="196.76943151775671" stroke="#4ECDC4" stroke-width="4.06" stroke-linecap="round" opacity="0.92" /><circle cx="224.99860180748044" cy="196.76943151775671" r="7.25" fill="#4ECDC4" opacity="0.95" /><line x1="276.70011862412895" y1="228.2903386713454" x2="257.8809836666947" y2="170.37099682897056" stroke="#4ECDC4" stroke-width="4.06" stroke-linecap="round" opacity="0.92" /><circle cx="257.8809836666947" cy="170.37099682897056" r="7.25" fill="#4ECDC4" opacity="0.95" /><line x1="300.0" y1="224.60000000000002" x2="300.0" y2="155.0" stroke="#4ECDC4" stroke-width="4.06" stroke-linecap="round" opacity="0.92" /><circle cx="300.0" cy="155.0" r="7.25" fill="#4ECDC4" opacity="0.95" /><line x1="323.29988137587105" y1="228.29033867134544" x2="347.4959120354294" y2="153.8226134454349" stroke="#4ECDC4" stroke-width="4.06" stroke-linecap="round" opacity="0.92" /><circle cx="347.4959120354294" cy="153.8226134454349" r="7.25" fill="#4ECDC4" opacity="0.95" /><line x1="344.3190080228525" y1="239.00011862412896" x2="395.45632497229764" y2="168.61564011350856" stroke="#4ECDC4" stroke-width="4.06" stroke-linecap="round" opacity="0.92" /><circle cx="395.45632497229764" cy="168.61564011350856" r="7.25" fill="#4ECDC4" opacity="0.95" /><circle cx="452.25" cy="300.0" r="5.075" fill="#4ECDC4" opacity="0.70" /><circle cx="407.65700743565185" cy="407.65700743565185" r="5.075" fill="#4ECDC4" opacity="0.70" /><circle cx="300.0" cy="452.25" r="5.075" fill="#4ECDC4" opacity="0.70" /><circle cx="192.34299256434815" cy="407.65700743565185" r="5.075" fill="#4ECDC4" opacity="0.70" /><circle cx="147.75" cy="300.0" r="5.075" fill="#4ECDC4" opacity="0.70" /><circle cx="192.3429925643481" cy="192.34299256434815" r="5.075" fill="#4ECDC4" opacity="0.70" /><circle cx="300.0" cy="147.75" r="5.075" fill="#4ECDC4" opacity="0.70" /><circle cx="407.65700743565185" cy="192.3429925643481" r="5.075" fill="#4ECDC4" opacity="0.70" /><circle cx="300" cy="300" r="78.3" fill="rgba(10,10,12,0.55)" stroke="#4ECDC4" stroke-width="3.625" opacity="0.95" /><ellipse cx="265.2" cy="291.3" rx="23.2" ry="13.049999999999999" fill="#ffffff" opacity="0.9" /><circle cx="265.2" cy="291.3" r="7.25" fill="#4ECDC4" opacity="0.8" /><ellipse cx="334.8" cy="291.3" rx="23.2" ry="13.049999999999999" fill="#ffffff" opacity="0.9" /><circle cx="334.8" cy="291.3" r="7.25" fill="#4ECDC4" opacity="0.8" /><path d="M285.5 320.3 Q300 330.45 314.5 320.3" fill="none" stroke="#ffffff" stroke-width="3.48" stroke-linecap="round" opacity="0.85" /><circle cx="900" cy="300" r="198.9" fill="url(#gpt-glow)" /><polygon points="900.0,159.6 1021.5899666913351,229.8 1021.5899666913352,370.2 900.0,440.4 778.4100333086649,370.20000000000005 778.4100333086649,229.79999999999998" fill="#1A2A35" stroke="#3A4F5C" stroke-width="2.6" opacity="0.80" /><polygon points="900.0,198.6 971.7006276123159,228.2993723876841 1001.4,300.0 971.7006276123159,371.7006276123159 900.0,401.4 828.2993723876841,371.70062761231594 798.6,300.0 828.2993723876841,228.2993723876841" fill="rgba(10,10,12,0.60)" stroke="#6B8FA3" stroke-width="3.3800000000000003" opacity="0.95" /><line x1="900" y1="300" x2="900.0" y2="141.39999999999998" stroke="#6B8FA3" stroke-width="2.8600000000000003" opacity="0.70" /><circle cx="900.0" cy="141.39999999999998" r="5.8500000000000005" fill="#6B8FA3" opacity="0.85" /><line x1="900" y1="300" x2="1058.6" y2="300.0" stroke="#6B8FA3" stroke-width="2.8600000000000003" opacity="0.70" /><circle cx="1058.6" cy="300.0" r="5.8500000000000005" fill="#6B8FA3" opacity="0.85" /><line x1="900" y1="300" x2="900.0" y2="458.6" stroke="#6B8FA3" stroke-width="2.8600000000000003" opacity="0.70" /><circle cx="900.0" cy="458.6" r="5.8500000000000005" fill="#6B8FA3" opacity="0.85" /><line x1="900" y1="300" x2="741.4" y2="300.0" stroke="#6B8FA3" stroke-width="2.8600000000000003" opacity="0.70" /><circle cx="741.4" cy="300.0" r="5.8500000000000005" fill="#6B8FA3" opacity="0.85" /><circle cx="866.2" cy="294.8" r="7.800000000000001" fill="#ffffff" opacity="0.90" /><circle cx="933.8" cy="294.8" r="7.800000000000001" fill="#ffffff" opacity="0.90" /><line x1="884.4" y1="326.0" x2="915.6" y2="326.0" stroke="#ffffff" stroke-width="3.12" stroke-linecap="round" opacity="0.75" /><text x="300" y="485" fill="#4ECDC4" font-size="26" font-family="Inter, sans-serif" text-anchor="middle" font-weight="bold">Qwen-LoRA</text><text x="300" y="520" fill="#8a8a9a" font-size="18" font-family="Inter, sans-serif" text-anchor="middle" font-weight="normal">local · fine-tuned</text><text x="900" y="485" fill="#6B8FA3" font-size="26" font-family="Inter, sans-serif" text-anchor="middle" font-weight="bold">GPT-4o-mini</text><text x="900" y="520" fill="#8a8a9a" font-size="18" font-family="Inter, sans-serif" text-anchor="middle" font-weight="normal">cloud reference</text><rect x="50.0" y="580" width="350" height="170" fill="#16161f" rx="12" stroke="#2a2a36" stroke-width="1" /><text x="225.0" y="614" fill="#8a8a9a" font-size="18" font-family="Inter, sans-serif" text-anchor="middle" font-weight="normal">Decision accuracy</text><text x="78.0" y="680" fill="#4ECDC4" font-size="42" font-family="Inter, sans-serif" text-anchor="start" font-weight="bold">93.1%</text><text x="78.0" y="714" fill="#8a8a9a" font-size="15" font-family="Inter, sans-serif" text-anchor="start" font-weight="normal">Qwen-LoRA</text><text x="372.0" y="680" fill="#6B8FA3" font-size="40" font-family="Inter, sans-serif" text-anchor="end" font-weight="bold">92.2%</text><text x="372.0" y="714" fill="#8a8a9a" font-size="15" font-family="Inter, sans-serif" text-anchor="end" font-weight="normal">GPT</text><rect x="425.0" y="580" width="350" height="170" fill="#16161f" rx="12" stroke="#2a2a36" stroke-width="1" /><text x="600.0" y="614" fill="#8a8a9a" font-size="18" font-family="Inter, sans-serif" text-anchor="middle" font-weight="normal">MAE score</text><text x="453.0" y="680" fill="#4ECDC4" font-size="42" font-family="Inter, sans-serif" text-anchor="start" font-weight="bold">19.5</text><text x="453.0" y="714" fill="#8a8a9a" font-size="15" font-family="Inter, sans-serif" text-anchor="start" font-weight="normal">Qwen-LoRA</text><text x="747.0" y="680" fill="#6B8FA3" font-size="40" font-family="Inter, sans-serif" text-anchor="end" font-weight="bold">6.9</text><text x="747.0" y="714" fill="#8a8a9a" font-size="15" font-family="Inter, sans-serif" text-anchor="end" font-weight="normal">GPT</text><rect x="800.0" y="580" width="350" height="170" fill="#16161f" rx="12" stroke="#2a2a36" stroke-width="1" /><text x="975.0" y="614" fill="#8a8a9a" font-size="18" font-family="Inter, sans-serif" text-anchor="middle" font-weight="normal">Latency p50</text><text x="828.0" y="680" fill="#4ECDC4" font-size="42" font-family="Inter, sans-serif" text-anchor="start" font-weight="bold">1.7s</text><text x="828.0" y="714" fill="#8a8a9a" font-size="15" font-family="Inter, sans-serif" text-anchor="start" font-weight="normal">Qwen-LoRA</text><text x="1122.0" y="680" fill="#6B8FA3" font-size="40" font-family="Inter, sans-serif" text-anchor="end" font-weight="bold">1.3s</text><text x="1122.0" y="714" fill="#8a8a9a" font-size="15" font-family="Inter, sans-serif" text-anchor="end" font-weight="normal">GPT</text><rect x="60" y="785" width="1080" height="170" fill="#4D3A1F" rx="14" stroke="#FFB347" stroke-width="2" /><rect x="60" y="785" width="10" height="170" fill="#FFB347" rx="14" /><text x="600.0" y="826.0" fill="#FFB347" font-size="24" font-family="Inter, sans-serif" text-anchor="middle" font-weight="bold">Runtime cost</text><line x1="600.0" y1="856.0" x2="600.0" y2="928.0" stroke="#FFB347" stroke-width="2" opacity="0.4" /><text x="562.0" y="896.0" fill="#FFB347" font-size="42" font-family="Inter, sans-serif" text-anchor="end" font-weight="bold">fixed infra</text><text x="562.0" y="930.0" fill="#8a8a9a" font-size="16" font-family="Inter, sans-serif" text-anchor="end" font-weight="normal">Qwen-LoRA — predictable</text><text x="638.0" y="896.0" fill="#E8C080" font-size="42" font-family="Inter, sans-serif" text-anchor="start" font-weight="bold">per-token API</text><text x="638.0" y="930.0" fill="#8a8a9a" font-size="16" font-family="Inter, sans-serif" text-anchor="start" font-weight="normal">GPT-4o-mini — scales with load</text></svg>
+          </div>
           
         </div>
         
@@ -4275,7 +4344,7 @@ z
     <section class="section">
       <div class="container">
         <div class="quote">
-          <p class="quote__text">LoRA показала, что малая адаптированная модель может быть конкурентоспособной на узкой задаче — и намного дешевле в production.</p>
+          <p class="quote__text">Гипотеза частично подтверждена: LoRA обобщается на внешних данных и сопоставима с GPT-4o-mini по accuracy, но пока уступает по MAE score и real-world hard-negative кейсам. Модель — рабочий on-premise / edge кандидат, production остаётся за GPT-4o-mini.</p>
         </div>
       </div>
     </section>
@@ -4286,11 +4355,11 @@ z
         <div>
           <p class="eyebrow">Следующий шаг</p>
           <h2 class="final__title">Расскажите о вашей задаче с LLM</h2>
-          <p class="final__lead">Мы оценим, как LoRA-дообучение может сделать вашу модель дешевле и понятнее на узкой задаче.</p>
+          <p class="final__lead">Мы оценим, может ли LoRA-дообучение малой модели стать автономной альтернативой внешнему API на вашей узкой задаче — с честными метриками и ограничениями.</p>
           <div class="final__actions">
             <a href="/contacts.html" class="btn btn-primary" target="_blank" rel="noopener">Обсудить проект</a>
             <a href="https://hra-lora.alex-n8n.site" class="btn btn-ghost" target="_blank" rel="noopener">Storytelling</a>
-            <a href="https://github.com/AlexLvGulyaev/HR-Assistant" class="btn btn-ghost" target="_blank" rel="noopener">Parent GitHub</a>
+            <a href="https://github.com/AlexLvGulyaev/HR-Assistant/blob/main/finetuning/README.md" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a>
             
           </div>
         </div>

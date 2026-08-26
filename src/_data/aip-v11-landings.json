@@ -2253,8 +2253,8 @@
       "title": "HR Assistant — LoRA · история дообучения модели",
       "og_title": "HR Assistant — LoRA · история дообучения модели",
       "eyebrow": "История дообучения LLM для HR-задач",
-      "hero_title": "Как LoRA-дообучение подняло точность HR-решений",
-      "hero_lead": "Storytelling-лендинг о том, как малая модель Qwen с LoRA адаптировалась под задачи рекрутинга и сравнилась с GPT-4 по качеству решений.",
+      "hero_title": "Малая модель + LoRA против GPT-4o-mini в HR-задаче",
+      "hero_lead": "Эксперимент с Qwen2.5-1.5B-Instruct + LoRA на 162 HR-парах: offline accuracy 93.3%, external validation 93.1% vs GPT-4o-mini 94.1%, vLLM-движок снижает latency до ~2.1 сек. Рабочий on-premise / edge кандидат; production остаётся за GPT-4o-mini.",
       "hero_cta_primary": {
         "text": "Storytelling",
         "href": "https://hra-lora.alex-n8n.site",
@@ -2263,8 +2263,8 @@
         "disabled": false
       },
       "hero_cta_secondary": {
-        "text": "Parent GitHub",
-        "href": "https://github.com/AlexLvGulyaev/HR-Assistant",
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/HR-Assistant/blob/main/finetuning/README.md",
         "primary": false,
         "target_blank": true,
         "disabled": false
@@ -2290,7 +2290,11 @@
         },
         {
           "label": "Модель",
-          "value": "Qwen + LoRA"
+          "value": "Qwen2.5-1.5B-Instruct + LoRA r=16"
+        },
+        {
+          "label": "Стек",
+          "value": "Python 3.12 · PyTorch 2.6 · Transformers · PEFT · TRL · FastAPI · n8n · RunPod RTX A5000"
         },
         {
           "label": "Задача",
@@ -2298,167 +2302,203 @@
         },
         {
           "label": "Статус",
-          "value": "Визуальная история готова"
+          "value": "Эксперимент завершён; on-premise / edge candidate"
         },
         {
           "label": "Storytelling",
           "value_html": "<a href='https://hra-lora.alex-n8n.site' target='_blank' rel='noopener'>hra-lora.alex-n8n.site</a>"
         },
         {
-          "label": "Parent GitHub",
-          "value_html": "<a href='https://github.com/AlexLvGulyaev/HR-Assistant' target='_blank' rel='noopener'>AlexLvGulyaev/HR-Assistant</a>"
+          "label": "GitHub",
+          "value_html": "<a href='https://github.com/AlexLvGulyaev/HR-Assistant/blob/main/finetuning/README.md' target='_blank' rel='noopener'>finetuning/README.md</a>"
         }
       ],
-      "results_title": "Малая адаптированная модель против большого GPT",
-      "results_lead": "LoRA позволила обучить компактную модель на HR-решающих задачах и добиться сопоставимой точности.",
+      "results_title": "LoRA достигает ~93% точности и сопоставимой с GPT-4o-mini latency",
+      "results_lead": "На внешней выборке 102 пары fine-tuned Qwen показывает 93.1% decision accuracy против 94.1% у GPT-4o-mini; с vLLM p95 latency падает до ~2.1 сек.",
       "before": [
-        "LLM-решения для HR требуют дорогих вызовов крупных моделей",
-        "Нет датасета и метрик, специфичных для рекрутинговых решений",
-        "Сложно объяснить заказчику, почему стоит доверять AI-оценке"
+        "Production зависит от внешнего GPT-4o-mini: стоимость, latency и политика API",
+        "Нет размеченного датасета и метрик, специфичных для рекрутинговых решений",
+        "Непонятно, может ли малая модель конкурировать с большим LLM на узкой задаче",
+        "Нет прозрачных сравнений и failure modes для бизнес-решений"
       ],
       "after": [
-        "Собран размеченный датасет HR-решений для дообучения",
-        "LoRA-адаптация Qwen показала рост точности на целевых сценариях",
-        "Результаты оформлены в публичную визуальную историю"
+        "Собран teacher dataset из 162 записей (54 кандидата × 3 вакансии) с GPT-4.1 Judge",
+        "Обучен LoRA-адаптер Qwen2.5-1.5B: offline accuracy 93.3%, valid JSON 100%",
+        "Внешняя валидация n=102: LoRA 93.1% vs GPT-4o-mini 94.1%",
+        "Runtime smoke 7/7 passed; vLLM runtime доводит p95 latency до ~2.1 сек"
       ],
       "metrics": [
         {
           "icon": "🤖",
           "label": "Модель",
-          "value": "Qwen",
-          "suffix": "+ LoRA"
+          "value": "Qwen2.5-1.5B",
+          "suffix": "+ LoRA r=16 α=32"
         },
         {
           "icon": "🎯",
-          "label": "Задача",
-          "value": "HR matching",
-          "suffix": "binary / multi-class"
+          "label": "Offline test",
+          "value": "decision accuracy",
+          "suffix": "93.3%"
         },
         {
-          "icon": "📈",
-          "label": "Baseline",
-          "value": "→ fine-tuned",
-          "suffix": "значимый прирост"
+          "icon": "📊",
+          "label": "External val",
+          "value": "LoRA vs GPT-4o-mini",
+          "suffix": "93.1% vs 94.1%"
+        },
+        {
+          "icon": "⚡",
+          "label": "vLLM latency",
+          "value": "p95",
+          "suffix": "~2.1 сек"
+        },
+        {
+          "icon": "🧪",
+          "label": "Runtime smoke",
+          "value": "hard-negative",
+          "suffix": "7/7 pass"
+        },
+        {
+          "icon": "📝",
+          "label": "Teacher dataset",
+          "value": "162 записей",
+          "suffix": "54 кандидата × 3 вакансии"
         }
       ],
-      "problem_title": "Как сделать HR-AI дешевле и понятнее",
-      "problem_lead": "Крупные модели хорошо рассуждают, но их сложно и дорого встроить в production, а объяснить результат бизнесу непросто.",
+      "problem_title": "HR-AI привязан к внешним API: стоимость, latency и политика",
+      "problem_lead": "Крупные модели хорошо решают задачу, но заказчику нужна автономность, предсказуемая стоимость и прозрачные метрики, чтобы решить, доверять ли малой модели.",
       "problem_cards": [
         {
           "icon": "💰",
-          "title": "Стоимость",
-          "text": "Вызовы GPT-4 для каждого резюме быстро становятся дорогими при масштабе."
+          "title": "Зависимость от внешнего API",
+          "text": "Каждый вызов GPT-4o-mini — плата, квоты и политика провайдера; при масштабе это становится риском."
         },
         {
           "icon": "🔍",
-          "title": "Объяснимость",
-          "text": "Бизнесу нужны не score из чёрного ящика, а прозрачные метрики и сравнения."
+          "title": "Нет специфичных метрик",
+          "text": "Бизнесу нужны не общие LLM-оценки, а decision accuracy, FPR/FNR, MAE score и runtime smoke на HR-кейсах."
+        },
+        {
+          "icon": "⚖️",
+          "title": "Неочевидный trade-off",
+          "text": "Малая модель может быть быстрее и дешевле, но пока неясно, сохранит ли она качество на реальных анкетах."
         }
       ],
-      "solution_title": "LoRA-дообучение малой модели под HR-решения",
-      "solution_lead": "Собственный датасет, адаптация Qwen и визуальная история, которая показывает эволюцию точности.",
+      "solution_title": "LoRA-адаптер + dataset engineering + многоуровневая валидация",
+      "solution_lead": "Обучаем Qwen2.5-1.5B на размеченном teacher dataset, сравниваем с GPT-4o-mini на offline, external и Telegram smoke, и честно фиксируем failure modes.",
       "solution_cards": [
         {
           "icon": "📊",
-          "title": "Датасет HR-решений",
-          "text": "Разметка кандидатов, вакансий и эталонных решений для обучения."
+          "title": "Teacher dataset HRA-EXP-V4",
+          "text": "162 записи, 54 кандидата, 3 вакансии; obvious_match / borderline / obvious_no_match + hard negatives."
         },
         {
           "icon": "⚙️",
           "title": "LoRA fine-tuning",
-          "text": "Эффективная адаптация Qwen под специфику рекрутинговых задач."
+          "text": "r=16, alpha=32, target_modules=all linear; best checkpoint — epoch 3, eval_loss 0.3273, peak VRAM 7.46 GB."
         },
         {
-          "icon": "📈",
-          "title": "Эволюция точности",
-          "text": "Графики роста качества от baseline до fine-tuned модели."
+          "icon": "🧪",
+          "title": "Runtime smoke",
+          "text": "7/7 passed на hard-negative/edge кейсах; zero unexpected matches."
         },
         {
           "icon": "🆚",
-          "title": "Сравнение с GPT",
-          "text": "Визуальное сопоставление малой модели и большого LLM по метрикам."
+          "title": "Сравнение с GPT-4o-mini",
+          "text": "External validation n=102: LoRA 93.1% vs GPT-4o-mini 94.1%; vLLM latency p95 ~2.1 сек."
+        },
+        {
+          "icon": "🔍",
+          "title": "Честные failure modes",
+          "text": "Telegram smoke 35% LoRA vs 43% GPT-4o-mini; teacher-label mismatch и hard-negative gaps задокументированы."
+        },
+        {
+          "icon": "📖",
+          "title": "Storytelling landing",
+          "text": "21 сцена с inline SVG-графиками и персонажем Люмина показывают эволюцию модели."
         }
       ],
-      "pipeline_title": "Эволюция точности модели",
-      "pipeline_lead": "От baseline до адаптированной модели: данные, обучение, оценка, сравнение.",
+      "pipeline_title": "От baseline до production-ready candidate",
+      "pipeline_lead": "Zero-shot baseline → teacher dataset → LoRA training → offline/runtime/external validation → сравнение с GPT-4o-mini.",
       "pipeline_svg_nodes": [
         {
           "title": "Baseline",
           "lines": [
             "Zero-shot",
-            "LLM"
+            "Qwen 33.3%"
           ]
         },
         {
           "title": "Датасет",
           "lines": [
-            "Разметка",
-            "HR-решений"
+            "162 записи",
+            "GPT-4.1 Judge"
           ],
           "accent": true
         },
         {
           "title": "LoRA",
           "lines": [
-            "Fine-tuning",
-            "Qwen"
+            "Qwen 1.5B",
+            "r=16 α=32"
           ]
         },
         {
-          "title": "Оценка",
+          "title": "Offline",
           "lines": [
-            "Метрики",
-            "HR-задач"
+            "93.3%",
+            "valid JSON"
           ],
           "accent": true
         },
         {
-          "title": "Сравнение",
+          "title": "External",
           "lines": [
-            "LoRA vs",
-            "GPT-4"
+            "vs GPT-4o-mini",
+            "102 записи"
           ]
         }
       ],
       "pipeline_steps": [
         {
           "number": "01",
-          "title": "Baseline",
-          "text": "Измеряем качество zero-shot LLM на HR-решениях."
+          "title": "Baseline и teacher dataset",
+          "text": "Zero-shot Qwen даёт 33.3% accuracy; GPT-4.1 Judge размечает 162 HR-пары для обучения."
         },
         {
           "number": "02",
-          "title": "Датасет и LoRA",
-          "text": "Собираем размеченные примеры и дообучаем Qwen адаптером."
+          "title": "LoRA fine-tuning",
+          "text": "Обучаем Qwen2.5-1.5B-Instruct с LoRA; лучший checkpoint — конец эпохи 3, eval_loss 0.3273."
         },
         {
           "number": "03",
-          "title": "Оценка и сравнение",
-          "text": "Считаем метрики и сравниваем fine-tuned модель с крупным LLM."
+          "title": "Валидация и сравнение",
+          "text": "Offline test, runtime smoke 7/7, external validation n=102 и сравнение latency с GPT-4o-mini."
         }
       ],
       "ux_title": "Визуальная история",
-      "ux_main_title": "Графики эволюции и сравнения моделей",
-      "ux_lead": "Storytelling-лендинг использует SVG-графики для показа роста точности и сравнения с GPT.",
+      "ux_main_title": "Эволюция точности и сравнение с GPT-4o-mini",
+      "ux_lead": "Два ключевых артефакта эксперимента: рост decision accuracy от zero-shot baseline до LoRA и прямое сравнение с production-моделью GPT-4o-mini.",
       "scenario_1": {
         "label": "График 1",
         "title": "Эволюция точности решений",
-        "text": "Как менялась точность модели от baseline к fine-tuned варианту на HR-датасете.",
+        "text": "Как менялась decision accuracy от zero-shot baseline (33.3%) до fine-tuned LoRA (93.3%) на HR-датасете.",
         "type": "svg",
         "src": "../../hr-assistant/finetuning/landing/assets/visuals/G-004-decision-accuracy-evolution.svg",
         "alt": "График эволюции точности HR-решений"
       },
       "scenario_2": {
         "label": "График 2",
-        "title": "LoRA Qwen против GPT",
-        "text": "Сравнение адаптированной малой модели и большого LLM по ключевым метрикам.",
+        "title": "LoRA Qwen против GPT-4o-mini",
+        "text": "Сравнение по decision accuracy, FPR/FNR, MAE score и latency на external validation n=102.",
         "type": "svg",
         "src": "../../hr-assistant/finetuning/landing/assets/visuals/G-027-qwen-lora-vs-gpt.svg",
-        "alt": "Сравнение Qwen LoRA и GPT"
+        "alt": "Сравнение Qwen LoRA и GPT-4o-mini",
+        "scale": 0.75
       },
-      "quote": "LoRA показала, что малая адаптированная модель может быть конкурентоспособной на узкой задаче — и намного дешевле в production.",
+      "quote": "Гипотеза частично подтверждена: LoRA обобщается на внешних данных и сопоставима с GPT-4o-mini по accuracy, но пока уступает по MAE score и real-world hard-negative кейсам. Модель — рабочий on-premise / edge кандидат, production остаётся за GPT-4o-mini.",
       "final_title": "Расскажите о вашей задаче с LLM",
-      "final_lead": "Мы оценим, как LoRA-дообучение может сделать вашу модель дешевле и понятнее на узкой задаче.",
+      "final_lead": "Мы оценим, может ли LoRA-дообучение малой модели стать автономной альтернативой внешнему API на вашей узкой задаче — с честными метриками и ограничениями.",
       "final_cta_primary": {
         "text": "Обсудить проект",
         "href": "/contacts.html",
@@ -2474,8 +2514,8 @@
         "disabled": false
       },
       "final_cta_tertiary": {
-        "text": "Parent GitHub",
-        "href": "https://github.com/AlexLvGulyaev/HR-Assistant",
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/HR-Assistant/blob/main/finetuning/README.md",
         "primary": false,
         "target_blank": true,
         "disabled": false
