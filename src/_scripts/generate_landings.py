@@ -1090,6 +1090,87 @@ def retail_metrics_svg() -> str:
     return "\n".join(svg)
 
 
+def lq_scenario_1_svg() -> str:
+    """Lead Qualification user-facing success page after submitting a lead form."""
+    w, h = 720, 420
+    svg = [
+        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Lead Qualification: пользователь получил подтверждение заявки">',
+        f'  <rect x="20" y="10" width="{w-40}" height="{h-20}" rx="8" class="ui-window" />',
+        '  <circle cx="360" cy="120" r="36" class="ui-accent-fill" />',
+        '  <path d="M348 120 l10 10 l18 -22" fill="none" stroke="var(--bg)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />',
+        '  <text x="360" y="195" text-anchor="middle" class="ui-main-title">Заявка получена</text>',
+        '  <text x="360" y="230" text-anchor="middle" class="ui-subtitle">Lead Qualification уже распределяет обращение по приоритету</text>',
+        '  <g transform="translate(100, 270)">',
+        '    <rect x="0" y="0" width="160" height="80" rx="6" class="ui-source-card" />',
+        '    <text x="80" y="28" text-anchor="middle" class="ui-source-label">САЙТ / TELEGRAM</text>',
+        '    <text x="80" y="55" text-anchor="middle" class="ui-source-value">Заявка</text>',
+        '  </g>',
+        '  <line x1="260" y1="310" x2="300" y2="310" class="ui-flow-line" />',
+        '  <polygon points="300,305 312,310 300,315" class="ui-accent-fill" />',
+        '  <g transform="translate(312, 270)">',
+        '    <rect x="0" y="0" width="96" height="80" rx="6" class="ui-source-card" />',
+        '    <text x="48" y="28" text-anchor="middle" class="ui-source-label">AI</text>',
+        '    <text x="48" y="55" text-anchor="middle" class="ui-source-value">hot</text>',
+        '  </g>',
+        '  <line x1="408" y1="310" x2="448" y2="310" class="ui-flow-line" />',
+        '  <polygon points="448,305 460,310 448,315" class="ui-accent-fill" />',
+        '  <g transform="translate(460, 270)">',
+        '    <rect x="0" y="0" width="160" height="80" rx="6" class="ui-source-card" />',
+        '    <text x="80" y="28" text-anchor="middle" class="ui-source-label">KOMMO + МЕНЕДЖЕР</text>',
+        '    <text x="80" y="55" text-anchor="middle" class="ui-source-value">SLA 15 мин</text>',
+        '  </g>',
+        '</svg>',
+    ]
+    return "\n".join(svg)
+
+
+def lq_scenario_2_svg() -> str:
+    """Lead Qualification admin console dashboard."""
+    w, h = 980, 540
+    svg = [
+        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Lead Qualification: админ-панель с разбором лидов по классам hot, warm, cold, spam">',
+        f'  <rect x="20" y="10" width="{w-40}" height="{h-20}" rx="8" class="ui-window" />',
+        '  <rect x="50" y="40" width="180" height="470" rx="6" class="ui-source-card" style="opacity:0.4;" />',
+        '  <text x="140" y="70" text-anchor="middle" class="ui-source-label">LEAD QUAL</text>',
+        '  <line x1="80" y1="100" x2="200" y2="100" class="ui-flow-line" />',
+        '  <text x="80" y="130" class="ui-subtitle">Dashboard</text>',
+        '  <text x="80" y="165" class="ui-subtitle" style="opacity:0.7;">Leads</text>',
+        '  <text x="80" y="200" class="ui-subtitle" style="opacity:0.7;">Rules</text>',
+        '  <text x="80" y="235" class="ui-subtitle" style="opacity:0.7;">Logs</text>',
+        '  <rect x="260" y="40" width="700" height="60" rx="6" class="ui-source-card" style="opacity:0.3;" />',
+        '  <text x="290" y="75" class="ui-main-title">Lead Qualification Dashboard</text>',
+        '  <text x="840" y="75" text-anchor="end" class="ui-subtitle">12 hot · 8 warm · 34 cold · 3 spam</text>',
+    ]
+    headers = ["Lead", "Источник", "Класс", "Confidence", "SLA", "Действие"]
+    col_x = [290, 430, 560, 650, 770, 870]
+    for x, label in zip(col_x, headers):
+        svg.append(f'  <text x="{x}" y="145" class="ui-source-label">{escape_text(label)}</text>')
+    leads = [
+        ("Анна П.", "Website", "hot", "0.94", "14 мин", "→ CRM"),
+        ("ООО Техно", "Telegram", "hot", "0.91", "9 мин", "→ CRM"),
+        ("Иван С.", "Website", "warm", "0.78", "22 ч", "→ CRM"),
+        ("spam@mail.ru", "Telegram", "spam", "0.89", "—", "Отклонить"),
+        ("Елена К.", "Website", "cold", "0.62", "6 дн", "→ Nurturing"),
+    ]
+    row_h = 48
+    for i, (lead, source, cls, conf, sla, action) in enumerate(leads):
+        y = 180 + i * row_h
+        svg.append(f'  <rect x="260" y="{y-12}" width="700" height="{row_h}" rx="4" class="ui-source-card" style="opacity:0.15;" />')
+        svg.append(f'  <text x="{col_x[0]}" y="{y+15}" class="ui-subtitle">{escape_text(lead)}</text>')
+        svg.append(f'  <text x="{col_x[1]}" y="{y+15}" class="ui-subtitle">{escape_text(source)}</text>')
+        badge_cls = "ui-accent-fill" if cls in ("hot", "spam") else "ui-source-card"
+        badge_text = "#14b8a6" if cls in ("hot", "spam") else "var(--text-primary)"
+        if cls == "spam":
+            badge_text = "#ef4444"
+        svg.append(f'  <rect x="{col_x[2]-24}" y="{y+2}" width="76" height="22" rx="4" class="{badge_cls}" style="fill-opacity:0.2;" />')
+        svg.append(f'  <text x="{col_x[2]+14}" y="{y+18}" text-anchor="middle" class="ui-source-value" style="font-size:11px;fill:{badge_text};">{escape_text(cls.upper())}</text>')
+        svg.append(f'  <text x="{col_x[3]}" y="{y+15}" class="ui-subtitle">{escape_text(conf)}</text>')
+        svg.append(f'  <text x="{col_x[4]}" y="{y+15}" class="ui-subtitle">{escape_text(sla)}</text>')
+        svg.append(f'  <text x="{col_x[5]}" y="{y+15}" class="ui-source-label" style="font-size:10px;">{escape_text(action)}</text>')
+    svg.append('</svg>')
+    return "\n".join(svg)
+
+
 def lora_scenario_svg(src_path: Path) -> str:
     """LoRA scenarios are already SVG files; read inline."""
     return src_path.read_text(encoding="utf-8")
@@ -2636,6 +2717,8 @@ def build_project(project: dict) -> dict:
                 entry["svg_html"] = rar_scenario_1_svg() if i == 1 else rar_scenario_2_svg()
             elif pid == "meeting-audit-bot":
                 entry["svg_html"] = mab_scenario_1_svg() if i == 1 else mab_scenario_2_svg()
+            elif pid == "lead-qualification":
+                entry["svg_html"] = lq_scenario_1_svg() if i == 1 else lq_scenario_2_svg()
             elif pid == "retail-group" and i == 2:
                 entry["svg_html"] = retail_metrics_svg()
             else:
