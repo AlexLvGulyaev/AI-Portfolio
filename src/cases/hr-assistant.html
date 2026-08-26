@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="HR Assistant принимает резюме в Telegram, извлекает данные, сохраняет в PostgreSQL как SOT и сопоставляет кандидата с вакансиями через LLM.">
+  <meta name="description" content="HR Assistant устраняет узкое место в найме: кандидат отправляет резюме в Telegram текстом, голосом, PDF или фото, а система возвращает match score 0–100 с обоснованием и готовит карточку для HR-решения. Компания быстрее закрывает вакансии и не теряет сильных кандидатов из-за очереди.">
   <meta property="og:title" content="HR Assistant — AI-помощник рекрутера в Telegram">
-  <meta property="og:description" content="HR Assistant принимает резюме в Telegram, извлекает данные, сохраняет в PostgreSQL как SOT и сопоставляет кандидата с вакансиями через LLM.">
+  <meta property="og:description" content="HR Assistant устраняет узкое место в найме: кандидат отправляет резюме в Telegram текстом, голосом, PDF или фото, а система возвращает match score 0–100 с обоснованием и готовит карточку для HR-решения. Компания быстрее закрывает вакансии и не теряет сильных кандидатов из-за очереди.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ai.alex-n8n.site/cases/hr-assistant.html">
   <meta property="og:image" content="/assets/screenshots/HRA_portfolio_light.png">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="HR Assistant — AI-помощник рекрутера в Telegram">
-  <meta name="twitter:description" content="HR Assistant принимает резюме в Telegram, извлекает данные, сохраняет в PostgreSQL как SOT и сопоставляет кандидата с вакансиями через LLM.">
+  <meta name="twitter:description" content="HR Assistant устраняет узкое место в найме: кандидат отправляет резюме в Telegram текстом, голосом, PDF или фото, а система возвращает match score 0–100 с обоснованием и готовит карточку для HR-решения. Компания быстрее закрывает вакансии и не теряет сильных кандидатов из-за очереди.">
   <meta name="twitter:image" content="/assets/screenshots/HRA_portfolio_light.png">
   <link rel="canonical" href="https://ai.alex-n8n.site/cases/hr-assistant.html">
   <title>HR Assistant — AI-помощник рекрутера в Telegram</title>
@@ -1188,13 +1188,13 @@
       <div class="container hero__inner">
         <div class="hero__body">
           <p class="eyebrow hero__eyebrow">AI-помощник рекрутера в Telegram</p>
-          <h1 class="hero__title">Кандидаты в Telegram, match score и решение — без ручной обработки резюме</h1>
-          <p class="hero__lead">HR Assistant принимает резюме в Telegram, извлекает данные, сохраняет в PostgreSQL как SOT и сопоставляет кандидата с вакансиями через LLM.</p>
+          <h1 class="hero__title">Первичный отбор резюме за секунды вместо 10–15 минут ручной работы</h1>
+          <p class="hero__lead">HR Assistant устраняет узкое место в найме: кандидат отправляет резюме в Telegram текстом, голосом, PDF или фото, а система возвращает match score 0–100 с обоснованием и готовит карточку для HR-решения. Компания быстрее закрывает вакансии и не теряет сильных кандидатов из-за очереди.</p>
           <div class="hero__actions">
             <a href="https://t.me/PEm05_HR_assistant_bot" class="btn btn-primary" target="_blank" rel="noopener">Открыть в Telegram</a>
             <a href="https://github.com/AlexLvGulyaev/HR-Assistant" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a>
+            <a href="/cases/hr-assistant-lora.html" class="btn btn-ghost" target="_blank" rel="noopener">Storytelling</a>
             <a href="/contacts.html" class="btn btn-ghost" target="_blank" rel="noopener">Обсудить проект</a>
-            
           </div>
         </div>
         <div class="hero__media">
@@ -1226,7 +1226,7 @@
           
           <div class="summary__item">
             <div class="summary__label">Стек</div>
-            <div class="summary__value">Python, PostgreSQL, Telegram Bot API, LLM</div>
+            <div class="summary__value">n8n, PostgreSQL, Telegram Bot API, OpenAI GPT-4o-mini</div>
           </div>
           
           <div class="summary__item">
@@ -1253,8 +1253,8 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Результат</p>
-          <h2 class="section__title">Рекрутинг с первичным скринингом от AI</h2>
-          <p class="section__lead">HR получает структурированную карточку кандидата с match score и обоснованием решения.</p>
+          <h2 class="section__title">Быстрее закрывать вакансии без линейного роста HR-штаба</h2>
+          <p class="section__lead">HR Assistant забирает рутину первичного отбора: кандидаты получают быстрый ответ, а рекрутеры — структурированные профили с прозрачным score.</p>
         </div>
 
         <div class="ba-grid">
@@ -1262,11 +1262,13 @@
             <h3 class="ba-card__title"><span>❌</span> До</h3>
             <ul class="ba-card__list">
               
-              <li>Резюме приходят в разных форматах и каналах</li>
+              <li>10–15 минут ручного анализа на каждое резюме: чтение, извлечение данных, сопоставление с вакансией</li>
               
-              <li>HR вручную переносит данные в таблицы или ATS</li>
+              <li>Резюме приходят в разных форматах — PDF, DOCX, фото, голосовые — и HR вынужден конвертировать и переносить данные</li>
               
-              <li>Сопоставление с вакансиями занимает время и зависит от субъективной оценки</li>
+              <li>Субъективная оценка соответствия: решение «подходит / не подходит» разнится от рекрутера к рекрутеру</li>
+              
+              <li>Поток откликов растёт быстрее HR-отдела: очередь, потеря кандидатов, задержка закрытия вакансий</li>
               
             </ul>
           </div>
@@ -1275,32 +1277,49 @@
             <h3 class="ba-card__title"><span>✅</span> После</h3>
             <ul class="ba-card__list">
               
-              <li>Кандидат отправляет резюме в Telegram — бот подтверждает получение</li>
+              <li>Кандидат отправляет резюме в Telegram текстом, голосом, PDF или фото — бот подтверждает получение</li>
               
-              <li>AI извлекает навыки, опыт и ожидания, сохраняя всё в PostgreSQL</li>
+              <li>AI извлекает ФИО, контакты, опыт, навыки, зарплатные ожидания и сохраняет всё в PostgreSQL как SOT</li>
               
-              <li>Система возвращает match score и рекомендацию по собеседованию</li>
+              <li>LLM сравнивает профиль с вакансиями по 4 критериям и возвращает match score 0–100 с обоснованием</li>
+              
+              <li>HR получает готовую карточку кандидата и рекомендацию — интервью и сложные случаи остаются за человеком</li>
               
             </ul>
           </div>
         </div>
 
         
-        <div class="summary__grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="summary__grid" style="grid-template-columns: repeat(6, 1fr);">
           
           <div class="summary__item">
-            <div class="summary__label">Канал</div>
-            <div class="summary__value"><strong>Telegram</strong> естественный для кандидатов</div>
+            <div class="summary__label">Время обработки</div>
+            <div class="summary__value"><strong>< 1 мин</strong> вместо 10–15 мин ручной работы</div>
           </div>
           
           <div class="summary__item">
-            <div class="summary__label">SOT</div>
-            <div class="summary__value"><strong>PostgreSQL</strong> единый источник правды</div>
+            <div class="summary__label">Ускорение</div>
+            <div class="summary__value"><strong>10–15×</strong> производительность первичного отбора</div>
           </div>
           
           <div class="summary__item">
-            <div class="summary__label">Matching</div>
-            <div class="summary__value"><strong>LLM</strong> с обоснованием</div>
+            <div class="summary__label">Форматы ввода</div>
+            <div class="summary__value"><strong>4</strong> текст, голос, PDF, фото</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Match score</div>
+            <div class="summary__value"><strong>0–100</strong> роль 30 / навыки 35 / опыт 20 / условия 15</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Стоимость обработки</div>
+            <div class="summary__value"><strong>~$0.003</strong> за резюме: extraction + matching на 1 вакансию</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">SLA доступности</div>
+            <div class="summary__value"><strong>99%</strong> с watchdog и централизованной обработкой ошибок</div>
           </div>
           
         </div>
@@ -1313,17 +1332,25 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Проблема</p>
-          <h2 class="section__title">Первичный скрининг отнимает у HR большую часть времени</h2>
-          <p class="section__lead">Резюме много, форматы разные, а ручная оценка соответствия вакансии не масштабируется.</p>
+          <h2 class="section__title">Первичный отбор тормозит весь процесс найма</h2>
+          <p class="section__lead">Большой поток откликов превращается в очередь, кандидаты уходят к конкурентам, а ручная оценка не масштабируется.</p>
         </div>
 
         <div class="problem-grid">
           
           <div class="problem-card">
-            <div class="problem-card__icon">✍️</div>
+            <div class="problem-card__icon">⏱️</div>
             <div>
-              <h3 class="problem-card__title">Ручной ввод</h3>
-              <p class="problem-card__text">Контакты, навыки и опыт копируются из резюме вручную, с ошибками и задержками.</p>
+              <h3 class="problem-card__title">Резюме задерживаются в очереди</h3>
+              <p class="problem-card__text">10–15 минут ручного анализа на каждое резюме → HR не справляется с потоком и сильные кандидаты получают ответ слишком поздно.</p>
+            </div>
+          </div>
+          
+          <div class="problem-card">
+            <div class="problem-card__icon">📎</div>
+            <div>
+              <h3 class="problem-card__title">Множество форматов — одна воронка</h3>
+              <p class="problem-card__text">PDF, DOCX, фото, голосовые приходят в разных каналах; конвертация и перенос данных отнимают время и добавляют ошибки.</p>
             </div>
           </div>
           
@@ -1331,7 +1358,15 @@
             <div class="problem-card__icon">⚖️</div>
             <div>
               <h3 class="problem-card__title">Субъективный matching</h3>
-              <p class="problem-card__text">HR решает «подходит или нет» без формализованного score и причин.</p>
+              <p class="problem-card__text">Решение «подходит / не подходит» принимается без единого score и прозрачных причин; решения разнятся между рекрутерами.</p>
+            </div>
+          </div>
+          
+          <div class="problem-card">
+            <div class="problem-card__icon">📈</div>
+            <div>
+              <h3 class="problem-card__title">Ручная обработка не масштабируется</h3>
+              <p class="problem-card__text">100 / 500 / 1000 откликов в месяц = линейный рост часов HR или найм новых рекрутеров.</p>
             </div>
           </div>
           
@@ -1344,17 +1379,17 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Решение</p>
-          <h2 class="section__title">Telegram-бот с LLM-matching и PostgreSQL SOT</h2>
-          <p class="section__lead">HR Assistant превращает резюме в структурированную карточку с match score и обоснованием.</p>
+          <h2 class="section__title">Telegram-бот с AI-извлечением, PostgreSQL SOT и LLM-matching</h2>
+          <p class="section__lead">HR Assistant превращает любое резюме в структурированную карточку с match score и обоснованием, оставляя HR человеческие решения.</p>
         </div>
 
         <div class="solution-grid">
           
           <div class="solution-card">
-            <div class="solution-card__icon">📤</div>
+            <div class="solution-card__icon">💬</div>
             <div>
-              <h3 class="solution-card__title">Приём в Telegram</h3>
-              <p class="solution-card__text">Кандидат отправляет резюме или ссылку в привычном мессенджере.</p>
+              <h3 class="solution-card__title">Telegram-бот для кандидатов</h3>
+              <p class="solution-card__text">Привычный мессенджер: текст, голос, документ или фото — кандидат откликается так, как удобно.</p>
             </div>
           </div>
           
@@ -1362,23 +1397,39 @@
             <div class="solution-card__icon">🗄️</div>
             <div>
               <h3 class="solution-card__title">PostgreSQL SOT</h3>
-              <p class="solution-card__text">Все данные, вакансии и решения хранятся в единой базе.</p>
+              <p class="solution-card__text">Все профили, вакансии, matches и решения хранятся в единой структурированной базе.</p>
             </div>
           </div>
           
           <div class="solution-card">
             <div class="solution-card__icon">🧠</div>
             <div>
-              <h3 class="solution-card__title">LLM matching</h3>
-              <p class="solution-card__text">Сопоставление кандидата и вакансии с числовым score и причинами.</p>
+              <h3 class="solution-card__title">AI-извлечение данных</h3>
+              <p class="solution-card__text">GPT-4o-mini извлекает ФИО, город, опыт, навыки, зарплатные ожидания и контакты в единый JSON по JSON Schema.</p>
             </div>
           </div>
           
           <div class="solution-card">
-            <div class="solution-card__icon">✅</div>
+            <div class="solution-card__icon">🎯</div>
             <div>
-              <h3 class="solution-card__title">Рекомендация HR</h3>
-              <p class="solution-card__text">Система предлагает решение: пригласить, отклонить, уточнить.</p>
+              <h3 class="solution-card__title">LLM matching по 4 критериям</h3>
+              <p class="solution-card__text">Score 0–100: роль 30, навыки 35, опыт 20, условия 15; порог match ≥ 60 с прозрачной причиной.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">🔊</div>
+            <div>
+              <h3 class="solution-card__title">Мультимедийный ответ</h3>
+              <p class="solution-card__text">Текст + TTS + инфографика: кандидат получает результат в удобном формате.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">👤</div>
+            <div>
+              <h3 class="solution-card__title">HR остаётся на решениях</h3>
+              <p class="solution-card__text">Система готовит кандидатов; интервью, soft skills и сложные случаи остаются за человеком.</p>
             </div>
           </div>
           
@@ -1391,49 +1442,49 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Как это работает</p>
-          <h2 class="section__title">Как кандидат превращается в карточку</h2>
-          <p class="section__lead">От резюме в Telegram до match score и решения HR с записью в PostgreSQL.</p>
+          <h2 class="section__title">Как резюме превращается в карточку кандидата</h2>
+          <p class="section__lead">От мультимодального входа в Telegram до match score и решения HR с записью в PostgreSQL.</p>
         </div>
 
         <svg class="pipeline-diagram pipeline-diagram--five" viewBox="0 0 1120 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы HR Assistant: от входа к результату">
   <defs>
-    <marker id="arrow-5n-38746" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-5n-15475" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
   <g transform="translate(30, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Кандидат</text>
-    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Резюме</text>
-    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">в Telegram</text>
+    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Текст / голос</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">PDF / фото</text>
   </g>
-  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-38746)" />
+  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-15475)" />
   <g transform="translate(250, 105)">
+    <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
+    <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Intake</text>
+    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Нормализация</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">входа</text>
+  </g>
+  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-15475)" />
+  <g transform="translate(470, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Извлечение</text>
-    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Данные</text>
-    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">навыки, опыт</text>
+    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">GPT-4o-mini</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">JSON Schema</text>
   </g>
-  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-38746)" />
-  <g transform="translate(470, 105)">
+  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-15475)" />
+  <g transform="translate(690, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">PostgreSQL</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">SOT</text>
-    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">кандидаты и вакансии</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">профили и вакансии</text>
   </g>
-  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-38746)" />
-  <g transform="translate(690, 105)">
-    <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
-    <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">LLM matching</text>
-    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Кандидат</text>
-    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">↔ вакансия</text>
-  </g>
-  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-38746)" />
+  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-15475)" />
   <g transform="translate(910, 105)">
-    <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
-    <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">HR</text>
-    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Match score</text>
-    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">и решение</text>
+    <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
+    <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Matching</text>
+    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">4 критерия</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">score 0–100</text>
   </g>
 </svg>
 
@@ -1441,20 +1492,20 @@
           
           <div class="pipeline-card">
             <div class="pipeline-card__number">01</div>
-            <h3 class="pipeline-card__title">Приём и извлечение</h3>
-            <p class="pipeline-card__text">Бот получает резюме, извлекает ключевые данные и сохраняет их в PostgreSQL.</p>
+            <h3 class="pipeline-card__title">Мультимодальный приём</h3>
+            <p class="pipeline-card__text">Бот принимает резюме в любом формате, нормализует вход и готовит данные к извлечению.</p>
           </div>
           
           <div class="pipeline-card">
             <div class="pipeline-card__number">02</div>
-            <h3 class="pipeline-card__title">Matching</h3>
-            <p class="pipeline-card__text">LLM сопоставляет кандидата с открытыми вакансиями и вычисляет score.</p>
+            <h3 class="pipeline-card__title">AI-извлечение и SOT</h3>
+            <p class="pipeline-card__text">GPT-4o-mini извлекает структурированный профиль; все данные сохраняются в PostgreSQL как единый источник правды.</p>
           </div>
           
           <div class="pipeline-card">
             <div class="pipeline-card__number">03</div>
-            <h3 class="pipeline-card__title">Решение HR</h3>
-            <p class="pipeline-card__text">Рекрутер получает карточку с обоснованием и принимает решение в один клик.</p>
+            <h3 class="pipeline-card__title">Matching и решение HR</h3>
+            <p class="pipeline-card__text">LLM сравнивает кандидата с вакансиями по 4 критериям; HR получает карточку и принимает решение в один клик.</p>
           </div>
           
         </div>
@@ -1467,15 +1518,15 @@
         <div class="section__header">
           <p class="eyebrow">Интерфейсы</p>
           <h2 class="section__title">Telegram для кандидата и консоль для HR</h2>
-          <p class="section__lead">Кандидат общается в Telegram; HR видит карточку с match score и причинами решения.</p>
+          <p class="section__lead">Кандидат общается в привычном мессенджере; HR видит карточку с match score, разбивкой по критериям и причинами решения.</p>
         </div>
 
         
         <div class="demo-block">
           <div class="demo-block__header">
             <div class="demo-block__label">Сценарий 1</div>
-            <h3 class="demo-block__title">Кандидат отправляет резюме</h3>
-            <p class="demo-block__text">Telegram-чат: кандидат присылает резюме, бот подтверждает получение и показывает статус обработки.</p>
+            <h3 class="demo-block__title">Кандидат отправляет резюме в Telegram</h3>
+            <p class="demo-block__text">Кандидат пишет текст, присылает PDF/фото или записывает голосовое. Бот подтверждает получение и запускает обработку: текст — < 30 сек, голос/PDF — < 60 сек, фото — < 90 сек.</p>
           </div>
           
           <svg class="ui-illustration" viewBox="0 0 980 540" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: кандидат отправляет резюме в Telegram и получает match score">
@@ -1508,7 +1559,7 @@
           <div class="demo-block__header">
             <div class="demo-block__label">Сценарий 2</div>
             <h3 class="demo-block__title">Карточка кандидата с match score</h3>
-            <p class="demo-block__text">Консоль рекрутера: match score 92/100, решение «Пригласить» и причины на основе опыта и стека.</p>
+            <p class="demo-block__text">Рекрутер видит score 92/100, разбивку по роли, навыкам, опыту и условиям, а также решение «Пригласить» с обоснованием. HR остаётся на интервью и сложных случаях.</p>
           </div>
           
           <svg class="ui-illustration" viewBox="0 0 980 620" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: карточка кандидата с match score и решением">
@@ -1558,7 +1609,7 @@
     <section class="section">
       <div class="container">
         <div class="quote">
-          <p class="quote__text">HR Assistant убирает рутину первичного скрининга, оставляя HR пространство для человеческого решения.</p>
+          <p class="quote__text">HR Assistant устраняет узкое место в найме: первичная обработка резюме проходит за секунды, компания быстрее закрывает вакансии и не теряет сильных кандидатов, а HR занимается решениями, где нужен человек.</p>
         </div>
       </div>
     </section>
@@ -1568,13 +1619,13 @@
       <div class="container final__inner">
         <div>
           <p class="eyebrow">Следующий шаг</p>
-          <h2 class="final__title">Расскажите о вашем HR-процессе</h2>
-          <p class="final__lead">Мы оценим, как HR Assistant ускорит первичный скрининг и сделает matching кандидатов прозрачным.</p>
+          <h2 class="final__title">Расскажите о вашем потоке откликов</h2>
+          <p class="final__lead">Мы оценим, как HR Assistant ускорит первичный отбор, сделает matching прозрачным и поможет закрывать вакансии быстрее — без линейного роста штата.</p>
           <div class="final__actions">
             <a href="/contacts.html" class="btn btn-primary" target="_blank" rel="noopener">Обсудить проект</a>
             <a href="https://t.me/PEm05_HR_assistant_bot" class="btn btn-ghost" target="_blank" rel="noopener">Открыть в Telegram</a>
             <a href="https://github.com/AlexLvGulyaev/HR-Assistant" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a>
-            
+            <a href="/cases/hr-assistant-lora.html" class="btn btn-ghost" target="_blank" rel="noopener">Storytelling</a>
           </div>
         </div>
         <div class="final__links">
