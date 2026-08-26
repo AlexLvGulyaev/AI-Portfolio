@@ -358,6 +358,12 @@ def hr_scenario_1_svg() -> str:
     return "\n".join(svg)
 
 
+def hr_scenario_image_pair_svg(src_dark: str, src_light: str, alt: str) -> str:
+    """Side-by-side images wrapped in a demo-frame-like SVG shell (legacy fallback)."""
+    # Not used when registry type is image_pair; kept for compatibility.
+    return ""
+
+
 def ada_scenario_1_svg() -> str:
     """Scenario 1: AI Data Chat — pie chart fills the full illustration area."""
     w, h = 980, 540
@@ -1148,7 +1154,7 @@ def hr_scenario_2_svg() -> str:
         '  </defs>',
         f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="8" class="ui-window" />',
         f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{hdr}" class="ui-header" clip-path="url(#hra-admin-clip)" />',
-        f'  <text x="{margin + pad}" y="{margin + 32}" class="ui-main-title" style="font-size:15px;">ДЕТАЛИЗАЦИЯ ОБРАБОТКИ РЕЗЮМЕ</text>',
+        f'  <text x="{margin + pad}" y="{margin + 32}" class="ui-main-title" style="font-size:15px;">ДЕТАЛИЗАЦИЯ ОБРАБОТКИ РЕЗЮМЕ*</text>',
         f'  <rect x="{w - margin - 94}" y="{margin + 14}" width="80" height="20" rx="4" class="ui-status-published" />',
         f'  <text x="{w - margin - 54}" y="{margin + 28}" text-anchor="middle" class="ui-status-text" style="font-size:10px;">MATCH</text>',
         f'  <rect x="{margin + 10}" y="{margin + hdr}" width="{w - margin * 2 - 20}" height="{h - margin * 2 - hdr}" fill="var(--bg)" clip-path="url(#hra-admin-clip)" />',
@@ -1171,7 +1177,7 @@ def hr_scenario_2_svg() -> str:
         f'  <text x="{left_x + 120}" y="{y + 72}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">6 лет</text>',
         f'  <text x="{left_x + 10}" y="{y + 88}" class="ui-sidebar-text" style="font-size:11px;">Город</text>',
         f'  <text x="{left_x + 120}" y="{y + 88}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Москва</text>',
-        f'  <text x="{left_x + 10}" y="{y + 104}" class="ui-sidebar-text" style="font-size:11px;">Зарплатные ожидания</text>',
+        f'  <text x="{left_x + 10}" y="{y + 104}" class="ui-sidebar-text" style="font-size:11px;">З/П ожидания</text>',
         f'  <text x="{left_x + 120}" y="{y + 104}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">180 000 ₽</text>',
         f'  <text x="{left_x + 10}" y="{y + 120}" class="ui-sidebar-text" style="font-size:11px;">Канал</text>',
         f'  <text x="{left_x + 120}" y="{y + 120}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Telegram · текст</text>',
@@ -1219,7 +1225,6 @@ def hr_scenario_2_svg() -> str:
         f'  <text x="{right_x + 10}" y="{y + 62}" class="ui-msg-text-bot" style="font-size:11px;">• роль: 30/30 · навыки: 35/35 · опыт: 20/20 · условия: 15/15</text>',
         f'  <text x="{right_x + 10}" y="{y + 82}" class="ui-msg-text-bot" style="font-size:11px;">Кандидат полностью соответствует должности: роль, навыки,</text>',
         f'  <text x="{right_x + 10}" y="{y + 100}" class="ui-msg-text-bot" style="font-size:11px;">опыт и зарплатные ожидания в пределах диапазона.</text>',
-        f'  <text x="{right_x + 10}" y="{y + 118}" class="ui-sidebar-text" style="font-size:10px;">Кнопки: Откликнуться · Другая вакансия · Отправить другое резюме</text>',
     ])
 
     y += ur_h + gap
@@ -1235,12 +1240,13 @@ def hr_scenario_2_svg() -> str:
         f'  <text x="{left_x + 10}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px;">11:05:24</text>',
         f'  <circle cx="{left_x + 80}" cy="{y + 60}" r="5" class="ui-status-published"/>',
         f'  <text x="{left_x + 95}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Извлечение карточки · GPT-4o-mini · JSON Schema</text>',
-        f'  <text x="{left_x + 320}" y="{y + 44}" class="ui-sidebar-text" style="font-size:11px;">11:05:27</text>',
-        f'  <circle cx="{left_x + 390}" cy="{y + 40}" r="5" class="ui-status-published"/>',
-        f'  <text x="{left_x + 405}" y="{y + 44}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Matching · 4 критерия · score 0–100</text>',
-        f'  <text x="{left_x + 320}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px;">11:05:40</text>',
-        f'  <circle cx="{left_x + 390}" cy="{y + 60}" r="5" class="ui-status-published"/>',
-        f'  <text x="{left_x + 405}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Отправлен match card в Telegram · SOT сохранён</text>',
+        f'  <text x="{left_x + 520}" y="{y + 44}" class="ui-sidebar-text" style="font-size:11px;">11:05:27</text>',
+        f'  <circle cx="{left_x + 590}" cy="{y + 40}" r="5" class="ui-status-published"/>',
+        f'  <text x="{left_x + 605}" y="{y + 44}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Matching · 4 критерия · score 0–100</text>',
+        f'  <text x="{left_x + 520}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px;">11:05:40</text>',
+        f'  <circle cx="{left_x + 590}" cy="{y + 60}" r="5" class="ui-status-published"/>',
+        f'  <text x="{left_x + 605}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Отправлен match card в Telegram · SOT сохранён</text>',
+        f'  <text x="{left_x + 10}" y="{y + 86}" class="ui-sidebar-text" style="font-size:10px; fill:var(--text-secondary);">* — планируется к реализации; данные уже сохраняются в PostgreSQL.</text>',
     ])
 
     svg.append('</svg>')
@@ -2260,6 +2266,23 @@ TEMPLATE = r'''<!doctype html>
       display: block;
     }
 
+    .demo-frame--side-by-side {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+      align-items: start;
+    }
+
+    .demo-frame--side-by-side img {
+      max-height: 520px;
+    }
+
+    @media (max-width: 768px) {
+      .demo-frame--side-by-side {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .demo-frame__hint {
       position: absolute;
       bottom: var(--space-md);
@@ -2967,7 +2990,13 @@ TEMPLATE = r'''<!doctype html>
             <h3 class="demo-block__title">{{ scenario.title }}</h3>
             <p class="demo-block__text">{{ scenario.text }}</p>
           </div>
-          {% if scenario.type == 'image' %}
+          {% if scenario.type == 'image_pair' %}
+          <div class="demo-frame demo-frame--side-by-side">
+            <img class="preview-dark" src="{{ scenario.src_dark }}" alt="{{ scenario.alt }}">
+            <img class="preview-light" src="{{ scenario.src_light }}" alt="{{ scenario.alt }}">
+            <div class="demo-frame__hint">Кликните для полного размера</div>
+          </div>
+          {% elif scenario.type == 'image' %}
           <div class="demo-frame">
             <img src="{{ scenario.src }}" alt="{{ scenario.alt }}">
             <div class="demo-frame__hint">Кликните для полного размера</div>
@@ -3136,14 +3165,21 @@ def build_project(project: dict) -> dict:
         }
         stype = sc.get("type", "image")
         src = sc.get("src", "")
+        image_dark = sc.get("image_dark", "")
+        image_light = sc.get("image_light", "")
         if stype == "image":
-            src_path = rel_to_root(src)
-            if src_path.exists():
-                entry["type"] = "image"
-                entry["src"] = copy_to_assets(src_path, case_dir, f"scenario-{i}")
+            if image_dark or image_light:
+                entry["type"] = "image_pair"
+                entry["src_dark"] = image_dark
+                entry["src_light"] = image_light
             else:
-                entry["type"] = "image"
-                entry["src"] = src  # keep as-is, may be broken
+                src_path = rel_to_root(src)
+                if src_path.exists():
+                    entry["type"] = "image"
+                    entry["src"] = copy_to_assets(src_path, case_dir, f"scenario-{i}")
+                else:
+                    entry["type"] = "image"
+                    entry["src"] = src  # keep as-is, may be broken
         elif stype == "svg":
             src_path = rel_to_root(src)
             if src_path.exists():
