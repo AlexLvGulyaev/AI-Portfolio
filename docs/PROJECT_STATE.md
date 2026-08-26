@@ -1,401 +1,190 @@
-# PROJECT_STATE.md
+# PROJECT_STATE.md — AI Portfolio
 
-**Проект:** ai-portfolio
-**Дата создания:** 2026-07-12
-**Последнее обновление:** 2026-07-19
-**Статус:** Завершён базовый продукт в объёме уроков Prompt Engineering. Реализована административная консоль v1. Параметры LLM-провайдеров перенесены в БД и управляются через Dashboard. Execution Tracing для панели «Логи» реализовано. Проект находится под управлением Git, репозиторий инициализирован.
-
----
-
-## Project Summary
-
-Персональный сайт AI-инженера с интегрированным AI-ассистентом. Платформа для демонстрации компетенций и привлечения заказчиков AI-автоматизации.
-
-**Фактически реализовано:**
-- Пользовательский интерфейс (4 страницы + 7 страниц кейсов)
-- Backend на FastAPI с PostgreSQL
-- AI-ассистент (POST /chat) с памятью диалога, RAG на ChromaDB и кешированием ответов
-- Мультипровайдерная архитектура AI-провайдеров (OpenAI + GigaChat fallback)
-- **База данных как единый Source of Truth для параметров LLM-провайдеров** (model, temperature, max_tokens, base_url, is_enabled, is_active, is_fallback)
-- **Управление параметрами LLM-провайдеров через Dashboard административной консоли** (редактирование, выбор active/fallback, тест соединения)
-- Логирование взаимодействий в PostgreSQL
-- Docker-контейнеризация frontend и backend
-- Продакшн-деплой на VPS: https://ai.alex-n8n.site
-- Административная консоль v1 (Dashboard, Content / Knowledge Base, Logs / Conversations)
-- Управление ProjectCard в PostgreSQL как единственным SOT карточек проектов
-- Ручная синхронизация Knowledge Base → ChromaDB через `/admin/knowledge-base/sync` (фоновая, с `job_id`)
-- **GitHub Sync для Knowledge Base**: 7 репозиториев APL, 192 документа, 5400 чанков; `knowledge_base/knowledge.json` больше не используется
-- **ChromaDB в production-режиме HTTP**: отдельный сервис `ai-portfolio-chroma` через `chromadb.HttpClient`
+**Проект:** ai-portfolio  
+**Дата создания:** 2026-07-12  
+**Последнее обновление:** 2026-08-25  
+**Статус:** Главная страница обновлена до пилотной dual-theme версии с 13 карточками (12 проектов + Prompt Review placeholder). Production URL `https://ai.alex-n8n.site/` отдаёт новую страницу. `SPEC.md` v2.1, `TZ.md` v1.4 и `IMPLEMENTATION_PLAN.md` v3.2 актуализированы под расширенный состав портфеля. Каталог, отдельные страницы кейсов, AI-ассистент на новом корпусе и presale-аналитика ещё не завершены.
 
 ---
 
-## Current Status
+## 1. Project Summary
 
-**Статус:** Проект завершён в объёме уроков Prompt Engineering.
+AI Portfolio — персональный публичный сайт AI-инженера с интегрированным AI-ассистентом. Платформа объединяет 12 реализованных AI-решений в единую витрину и сокращает путь потенциального заказчика до релевантного кейса, доказательств реализации и обращения к исполнителю.
 
-**Достижения:**
-- Пользовательский интерфейс реализован (4 страницы + 7 страниц кейсов)
-- Backend на FastAPI реализован и функционирует
-- PostgreSQL используется как основная СУБД
-- AI-ассистент отвечает на вопросы о кейсах и услугах по данным из GitHub
-- Сайт развёрнут на VPS по адресу https://ai.alex-n8n.site
-- SSL сертификат получен (Let's Encrypt)
-- Docker-конфигурация приведена к единому Source of Truth (`docker-compose.yml`) и управляется через Docker Compose v2
-- Административная консоль v1 реализована и развёрнута: три рабочих пространства (Dashboard, Content / Knowledge Base, Logs / Conversations)
-- Управление карточками проектов вынесено в PostgreSQL; public frontend получает карточки через read-only API
-- Параметры LLM-провайдеров вынесены в PostgreSQL и редактируются через Dashboard админки; API-ключи остаются в `.env`
-- Аудит входа в административную консоль и посещений публичного сайта реализован: endpoints `POST /admin/login` и `POST /track-visit`, записи `admin_login` / `site_visit` в `operational_logs`, просмотр во вкладке «Аудит» панели «Логи»
-- Архитектурное упрощение логирования chat pipeline: `chat_request` больше не дублируется в `operational_logs`; `execution_sessions` является единым SOT; добавлены `visitor_id`, `client_ip`, `user_agent` в `ExecutionSession`; публичный frontend передаёт `visitor_id` в `POST /chat`
-- Переработана страница «Диалоги» в стиле Assistant Flow Memory Console: двухпанельный layout, фильтры, список сессий с runtime context, detail panel с парными turns, execution timeline и JSON snapshot. Панель диалога занимает основное пространство экрана; таблица диалога содержит колонки cache hit и response time на уровне turn; execution timeline по умолчанию свёрнут.
-- Доводка страницы «Логи»: правая макропанель Execution-сессии разделена на «Параметры сессии» и «Параметры исполнения», убраны лишние строки статуса (время МСК, TEXT OK / RAG OK), унифицированы отступы между заголовками панелей и параметрами.
-- GitHub Sync для Knowledge Base реализован и развёрнут в production: 7 источников, 192 документа, 5400 чанков, AI отвечает по актуальным данным из GitHub.
+**Утверждённый состав публичной витрины:** 13 управляемых карточек — 12 завершённых проектов + карточка-анонс **Prompt Review** на позиции 13.
 
-**Текущий этап:** Базовый продукт, административная консоль, operational console «Логи» и operational console «Диалоги» в стиле Assistant Flow завершены. Frontend использует `/admin/execution-sessions` и `/admin/execution-sessions/{id}` для отображения execution-сессий chat pipeline с visitor-реквизитами, а `/admin/conversations` и `/admin/conversations/{id}` для диалоговых сессий. Backfill'нутые сессии помечены флагом `is_backfilled`. Аудит входа в админку и посещений сайта реализован и доступен для просмотра во вкладке «Аудит». Ожидается Deployment Validation по решению владельца продукта перед финальной публикацией.
+**Ключевые параметры:**
+
+| Параметр | Значение |
+|----------|----------|
+| Frontend | Vanilla HTML/CSS/JS (`src/`) |
+| Backend | FastAPI + PostgreSQL + ChromaDB HTTP (`backend/`) |
+| Admin Console | React + TypeScript + Vite (`admin/`) |
+| LLM | OpenAI active + GigaChat fallback |
+| Embeddings | OpenAI `text-embedding-3-small` |
+| Vector store | ChromaDB HTTP server (`ai-portfolio-chroma`) |
+| Auth | Bearer token (`ADMIN_API_TOKEN`) |
+| Public URL | `https://ai.alex-n8n.site` |
 
 ---
 
-## Market Validation
+## 2. Current Status
 
-_Не определено на данном этапе._
+**Стадия:** Подготовка к production-ready release согласно `docs/TZ.md` v1.4 (утверждено) и `docs/IMPLEMENTATION_PLAN.md` v3.2 (утверждено). Целевой период: 19.08.2026 — 04.09.2026.
 
----
+**Фактически реализовано (P1 + часть P2):**
+- **Новая главная страница** (`src/index.html`): пилотная dual-theme версия с 13 карточками (12 проектов + Prompt Review placeholder), динамической загрузкой через `/project-cards`, переключателем темы и чат-виджетом.
+- **Логика featured/archive:** первые три карточки по `display_order` отображаются как флагманы, позиции 4–12 — в архивной секции, позиция 13 — Prompt Review placeholder.
+- **Deprecation `show_on_homepage`:** поле сохранено для обратной совместимости Admin Console, но публичный frontend использует только `is_visible` + `display_order`.
+- Backend на FastAPI с PostgreSQL.
+- `ProjectCard` в PostgreSQL — SOT карточек портфолио и главной; нумерация зафиксирована под новую главную.
+- Admin Console v1 с пятью разделами (Dashboard, Content/KB, Logs, Conversations, Audit).
+- GitHub Sync для Knowledge Base: 7 источников, 192 документа, ~5400 чанков.
+- ChromaDB в production-режиме HTTP.
+- Execution tracing и operational logs.
+- Аудит входа в админку и посещений сайта.
+- Production deploy на VPS.
+- Актуализированы `SPEC.md` v2.1, `TZ.md` v1.4 и `IMPLEMENTATION_PLAN.md` v3.2 под 13 управляемыми карточками и новую логику главной страницы.
 
-## Owner Decisions (SOT)
+**Что ещё не реализовано (оставшиеся P2–P6):**
+- Публичный каталог (`/portfolio.html`) — требует актуализации под 12 страниц проектов.
+- 12 индивидуальных HTML-страниц проектов (`/cases/<project>.html`) — часть ссылок ведёт на существующие страницы, но витрина не полностью завершена.
+- AI-ассистент `POST /chat` работает, но не настроен на обновлённый корпус всех 12 проектов; eval и latency-критерии не проверены.
+- Presale-события и базовая presale-аналитика в Admin Console не добавлены.
+- Deployment Validation AI Portfolio не пройдена.
 
-> Решения владельца продукта, принятые и не подлежащие изменению без веских оснований.
-
-### Продукт
-
-**Главный продукт первой версии — персональный сайт AI-инженера.**
-
-AI-ассистент, RAG, Telegram и другие компоненты рассматриваются исключительно как функции сайта, а не самостоятельные продукты.
-
-### Целевая аудитория
-
-**Основная:** Потенциальные заказчики AI-автоматизации малого и среднего бизнеса.
-
-**Дополнительная:**
-- Работодатели
-- Коллеги
-- Преподаватели и проверяющие
-
-### Портфолио
-
-На сайте представлены зрелые кейсы APL:
-
-1. Assistant Flow
-2. Review Flow
-3. Lead Qualification
-4. HR Assistant
-5. Prompt Review
-6. Telegram AI Gateway
-7. Competitor Monitor AI
-8. HR Assistant — LoRA Fine-Tuning
-
-С возможностью последующего расширения.
-
-### Информация об услугах
-
-**Не публиковать прайс-лист.**
-
-Показывать:
-- Решаемые задачи
-- Используемые технологии
-- Получаемую бизнес-ценность
-- Реализованные проекты
-
-Стоимость обсуждается индивидуально.
-
-### Основной призыв к действию
-
-Использовать формат:
-- «Обсудить проект»
-- или «Связаться со мной»
-
-Не использовать маркетинговые формулировки вроде «Оставьте заявку».
-
-### Telegram
-
-Telegram является одним из каналов связи и поддерживается проектом.
-
-Однако сайт остаётся основной точкой входа.
-
-### Эксплуатация
-
-Проект ориентирован на постоянную работу на существующем VPS.
-
-Поддержку осуществляет владелец проекта.
-
-### AI-провайдер
-
-**Фактически реализована мультипровайдерная архитектура:**
-- OpenAI — основной провайдер
-- GigaChat — fallback-провайдер
-- Mock-провайдер для тестирования
-
-**Параметры провайдеров (model_name, temperature, max_tokens, base_url, is_enabled, is_active, is_fallback) хранятся в PostgreSQL и управляются через административную консоль.** API-ключи остаются в переменных окружения и не хранятся в БД.
-
-Архитектура допускает замену и добавление провайдеров через таблицу `ai_provider_settings`.
-
-### База знаний
-
-База знаний является частью личного бренда и поддерживается владельцем проекта.
-
-### Визуальный стиль
-
-Использовать существующие материалы из `attachments/branding/` как основу визуальной идентичности проекта.
-
-Не копировать учебные материалы преподавателя.
-
-### Стиль сайта
-
-Современный инженерный минимализм.
-
-Не использовать шаблонный «AI-футуризм» и перегруженные лендинги.
-
-### Архитектура представления проектов
-
-**Каждый кейс AI Portfolio обязан иметь собственный Narrative Blueprint.**
-
-Narrative Blueprint является артефактом уровня кейса. Он определяет индивидуальную драматургию проекта. Narrative Blueprint не является шаблоном.
-
-**Presentation Patterns являются переиспользуемой библиотекой уровня APL.**
-
-Presentation Patterns содержат проверенные способы представления информации. Presentation Patterns не определяют Narrative конкретного проекта.
-
-**Порядок разработки:**
-
-При разработке нового кейса сначала разрабатывается Narrative Blueprint. После этого Narrative реализуется посредством выбора и применения Presentation Patterns.
-
-**Lead Qualification является первым проектом, полностью реализованным по данной архитектуре.**
-
-Narrative Blueprint Lead Qualification считается эталонной реализацией артефакта уровня кейса. Все последующие кейсы также обязаны иметь собственный Narrative Blueprint.
+**Что запланировано в текущей итерации (19.08–04.09.2026):**
+- Разовая финализация 12 портфельных проектов + placeholder Prompt Review.
+- Расширение GitHub Sync на все 12 проектов + собственный корпус AI Portfolio.
+- Обновление публичного frontend: каталог, 12 страниц проектов, услуги, контакты.
+- Настройка AI-ассистента на новый корпус (eval ≥90% / <5 сек).
+- Добавление presale-событий и базовой presale-аналитики в Admin Console.
+- Production release на VPS к 04.09.2026.
 
 ---
 
-## Commercial Assessment
+## 3. Market Validation
 
-_Не определено на данном этапе._
-
----
-
-## Административная консоль
-
-**Административная консоль v1 реализована и развёрнута.**
-
-Первоначально консоль планировалась как следующий этап развития продукта, но в рамках текущей итерации она была реализована и интегрирована в production-контур. Реализация охватывает три согласованных рабочих пространства.
-
-Deployment Validation будет проведён по решению владельца проекта перед финальной публикацией.
-
-### Реализованная функциональность v1
-
-Первая версия административной консоли содержит **пять разделов навигации**, сгруппированных по функциям:
-
-| Раздел | Назначение | Границы |
-|--------|------------|---------|
-| **Системные настройки (Dashboard)** | Единая сводная картина состояния AI Portfolio, включая управление параметрами LLM-провайдеров и выбор active/fallback | Мониторинг + управление LLM-провайдерами. Не управляет остальным содержимым |
-| **Контент / База знаний** | Управление карточками проектов, источниками KB, запуск синхронизации | Не редактирует Narrative Blueprint и Presentation Patterns; не является визуальным конструктором страниц |
-| **Логи** | Operational console в стиле Assistant Flow: журнал execution-сессий chat pipeline с preview запроса, visitor_id, client_ip, user_agent, summary grid, цепочкой этапов, вопросом/ответом в двух колонках, timeline pipeline с дельтами и JSON snapshot. Frontend использует `/admin/execution-sessions` и `/admin/execution-sessions/{id}`. Backfill'нутые сессии (из миграции 008) помечены флагом `is_backfilled` и отображаются с меткой "приблизительный". Вкладка «Аудит» показывает только системные operational logs (`admin_login`, `site_visit`, `provider_switch`) через `/admin/logs` | — |
-| **Аудит** | Вход в административную консоль логируется через `POST /admin/login` (`event_type='admin_login'`). Посещения публичного сайта логируются через `POST /track-visit` (`event_type='site_visit'`). `chat_request` больше не дублируется здесь — он покрывается execution-сессиями. Данные обезличены: фиксируются только `visitor_id` / IP / user_agent | — |
-| **Диалоги** | Operational console в стиле Assistant Flow Memory Console: двухпанельный layout, фильтры по времени/режиму/активности/поиску, список сессий с runtime context, detail panel с парными turns, execution timeline и JSON snapshot | — |
-
-### Технологический стек v1
-
-| Компонент | Технология | Решение |
-|-----------|------------|---------|
-| Frontend | React + TypeScript + Vite | Отдельный SPA в каталоге `admin/`, `base: '/admin/'` |
-| Backend | FastAPI | Единое приложение с префиксом `/admin` |
-| Аутентификация | Bearer token | Единый `ADMIN_API_TOKEN` из переменных окружения |
-| Routing | React Router | `BrowserRouter basename="/admin"` |
+AI Portfolio создан как публичная витрина компетенций. Конкретные заказы и сделки на данном этапе не зафиксированы; после запуска устанавливается baseline конверсии посетителей в обращения.
 
 ---
 
-## Управляемые карточки проектов (ProjectCard)
+## 4. Commercial Assessment
 
-**ProjectCard в PostgreSQL является единственным Source of Truth карточек проектов.**
-
-### Правила
-
-| Правило | Смысл |
-|---------|-------|
-| **ProjectCard в PostgreSQL — единственный SOT карточек проектов** | Канонические данные карточек (заголовки, описания, категории, видимость, порядок отображения в портфолио и на главной странице) хранятся исключительно в PostgreSQL |
-| **Публичный frontend не является SOT** | Public сайт отображает карточки, но не определяет их содержание |
-| **Статический HTML не хранит канонические данные карточек** | HTML-страницы портфолио не являются источником правды для карточек в каталоге |
-| **Public frontend получает карточки через read-only API backend** | Vanilla frontend загружает список карточек с backend при открытии страницы. Каталог портфолио и главная страница используют один endpoint, но разные поля сортировки |
-| **Административная консоль — единственный интерфейс управления** | Создание, редактирование и удаление карточек выполняются только через `/admin/knowledge-base/project-cards` |
-| **Изменения отображаются автоматически** | После сохранения карточки в админке public сайт отображает актуальные данные без ручного редактирования HTML |
-| **`display_order` управляет порядком в каталоге портфолио** | Поле `display_order` определяет порядок всех видимых карточек на странице `portfolio.html` |
-| **`show_on_homepage` управляет отображением на главной** | Поле `show_on_homepage` принимает значения `0..4`. `0` — не отображать на главной; `1..4` — порядок отображения на `index.html` слева направо |
-
-### Границы
-
-- Правило относится **только к карточкам проектов и их отображению в публичной части сайта**.
-- **Public frontend остаётся на Vanilla HTML/CSS/JavaScript.**
-- **Страницы отдельных кейсов остаются статическими HTML-страницами.** Они содержат Narrative Blueprint и не управляются через карточки.
-- **Каталог портфолио и главная страница отображают карточки из одного read-only API, но используют разные поля сортировки:** `display_order` для портфолио, `show_on_homepage` для главной.
-- ProjectCard не заменяет и не редактирует Narrative Blueprint и Presentation Patterns.
+| Фактор | Оценка |
+|--------|--------|
+| Потенциал | Высокий — витрина закрывает типичный pain-point поиска исполнителя |
+| Востребованность | Средне-высокая — заказчики AI-автоматизации оценивают портфолио |
+| Риски | Низкая конверсия без чёткого позиционирования; зависимость от актуальности кейсов |
 
 ---
 
-## Архитектура Knowledge Base
+## 5. Key Technology Areas
 
-### Источники данных
-
-AI Portfolio использует три уровня источников данных с чётким разделением ролей.
-
-| Источник | Роль | Source of Truth |
-|----------|------|-----------------|
-| **GitHub** | Проектная документация | ✅ Да. Основной источник знаний для AI-ассистента |
-| **PostgreSQL** | Управляемые данные сайта, эксплуатационные данные, журналы, диалоги, параметры LLM-провайдеров | ✅ Да |
-| **ChromaDB** | Векторный поисковый индекс | ❌ Нет. Может быть полностью перестроена из актуальных источников |
-
-### Правила первой версии административной консоли
-
-- GitHub остаётся Source of Truth для проектной документации.
-- **GitHub Sync реализован:** `POST /admin/knowledge-base/sync` загружает `README.md` и `docs/**/*.md` из включённых источников `source_type=github_repo`, сохраняет в `knowledge_documents`, конвертирует markdown → plain text и индексирует в ChromaDB.
-- `knowledge_base/knowledge.json` больше не используется как источник.
-- Административная консоль управляет перечнем подключённых источников и инициирует их синхронизацию вручную.
-- Автоматическая синхронизация по webhook **не входит в первую версию**.
-- PostgreSQL не является основным хранилищем проектной документации.
-- ChromaDB остаётся только производным индексом и может быть полностью перестроена из актуальных источников.
-- **ChromaDB deployment:** production использует отдельный HTTP-сервис `ai-portfolio-chroma` (`chromadb/chroma:0.5.23`) для thread-safe concurrent доступа.
+| Область | Компетенция | Статус |
+|---------|-------------|--------|
+| FastAPI + PostgreSQL | Backend | ✅ |
+| ChromaDB HTTP | Vector store | ✅ |
+| OpenAI / GigaChat | Multi-provider LLM | ✅ |
+| GitHub Sync | KB ingestion | ✅ |
+| ProjectCard API | SOT карточек | ✅ |
+| React Admin Console | Management UI | ✅ |
+| Deployment on VPS | Production hosting | ✅ |
+| Presale analytics | Conversion funnel | ⏳ Не реализовано |
 
 ---
 
-## Narrative Blueprint и Presentation Patterns
+## 6. Decision
 
-### Разделение ролей
+**Принято:** довести AI Portfolio до production-ready состояния в период 19.08.2026 — 04.09.2026 в соответствии с `docs/TZ.md` v1.4 (утверждено) и `docs/IMPLEMENTATION_PLAN.md` v3.2 (утверждено).
 
-| Артефакт | Отвечает за |
-|----------|------------|
-| **Narrative Blueprint** | Что рассказывает страница проекта, порядок раскрытия материала, драматургию проекта |
-| **Presentation Patterns** | Как эта информация отображается пользователю |
+**Утверждённые решения:**
+- Итоговый проект курса — AI Portfolio.
+- Целевой период реализации: 19.08.2026 — 04.09.2026.
+- Целевая дата production-ready release: 04.09.2026.
+- Финальный публичный состав AI Portfolio — **13 управляемых карточек**: 12 завершённых проектов + Prompt Review placeholder на позиции 13.
+- AI Portfolio является итоговым метапроектом/витриной и не входит в состав этих 12 проектов.
+- Prompt Review — карточка-анонс; полноценная страница, demo и GitHub-ссылки появятся после финализации материалов.
+- Разовая финализация 12 проектов + подготовка материалов Prompt Review входит в единый `docs/IMPLEMENTATION_PLAN.md` v3.2.
+- `docs/PORTFOLIO_CORPUS_AUDIT.md` v1.2 является baseline существующего технического долга.
+- `docs/PEf05_RATING.md` v2.3 утверждён как внутренний аналитический артефакт (два рейтинга: 13 кандидатов и 12 проектов внутри портфеля).
+- Шкала БЗ для внутреннего рейтинга: KB+RAG = 15, retrieval без RAG = 10, отсутствие = 0.
+- Отсрочка Deployment Validation утверждена для: Telegram Intake Bot, Telegram Onboarding Bot, Review Flow, AI Portfolio.
+- На старте реализации DEFER CANDIDATE отсутствуют. Полный scope выполняется по IMPLEMENTATION_PLAN до 04.09.2026.
+- Production release выполняется на существующем VPS и домене `ai.alex-n8n.site`.
 
-### Границы административной консоли
-
-- Административная консоль **не редактирует Narrative Blueprint**.
-- Административная консоль **не редактирует библиотеку Presentation Patterns**.
-- Административная консоль работает только с управляемым контентом внутри уже утверждённой структуры.
-
-### Порядок разработки кейсов
-
-При разработке нового кейса сначала разрабатывается Narrative Blueprint. После этого Narrative реализуется посредством выбора и применения Presentation Patterns.
-
----
-
-## Key Technology Areas
-
-### Подтверждённые технологии
-
-| Область | Решение |
-|---------|---------|
-| **AI-провайдер** | OpenAI (основной), GigaChat (fallback) |
-| **Backend Framework** | FastAPI |
-| **База данных** | PostgreSQL |
-| **RAG-движок** | ChromaDB |
-| **Embeddings** | OpenAI text-embedding-3-small |
-| **LLM Provider** | OpenAI GPT-4.1-mini |
-| **Хостинг** | Существующий VPS |
-| **Поддержка** | Владелец проекта |
-
-### Требующие определения
-
-| Область | Статус |
-|---------|--------|
-| **Frontend** | ✅ Vanilla HTML/CSS/JS (инженерный минимализм) |
-| **Admin Console** | ✅ Архитектура определена и реализована (Stage 4 завершён) |
-
-### Backend (AI Assistant)
-
-| Компонент | Технология | Решение |
-|-----------|------------|---------|
-| **Web Framework** | FastAPI | Адаптировано из PEcf11, Review Flow |
-| **RAG Engine** | ChromaDB HTTP server (`ai-portfolio-chroma`) | Адаптировано из PEcf09; HTTP mode для thread-safe production |
-| **Embeddings** | OpenAI text-embedding-3-small | Адаптировано из PEcf09, PEcf11 |
-| **LLM Provider** | OpenAI GPT-4.1-mini | Адаптировано из Review Flow |
-| **Memory** | PostgreSQL | Адаптировано из Assistant Flow |
-| **Knowledge Base v1** | GitHub + PostgreSQL + ChromaDB | GitHub — SOT проектной документации; PostgreSQL — кеш `knowledge_documents`; ChromaDB — производный индекс |
-| **Logging** | PostgreSQL | Адаптировано из PEcf09, Assistant Flow, Review Flow |
-| **Cache** | JSON-файл | Адаптировано из PEcf09 |
-| **LLM Provider Settings** | PostgreSQL (`ai_provider_settings`) | Source of Truth для параметров провайдеров; API keys только в `.env` |
+**Ожидающие решения владельца:**
+- При фактической угрозе дедлайна 04.09.2026 — отдельное решение по DEFER CANDIDATE или другому сокращению scope.
+- Что делать с кнопкой «Скачать портфолио» на главной странице (сейчас заглушка).
 
 ---
 
-## Decision
+## 7. Next Steps
 
-**Принято:** Персональный сайт AI-инженера с AI-ассистентом как функцией сайта.
-
-**Основные решения:**
-- Сайт — главная точка входа
-- Telegram — вспомогательный канал связи
-- OpenAI — основной AI-провайдер
-- GigaChat — fallback AI-провайдер
-- PostgreSQL — основная СУБД, включая Source of Truth для параметров LLM-провайдеров
-- VPS — платформа для эксплуатации
-- Владелец — ответственный за поддержку и базу знаний
-
----
-
-## Next Steps
-
-1. ~~Аудит входных материалов~~ — ✅ Выполнено
-2. ~~Получение решений владельца~~ — ✅ Выполнено
-3. ~~Создание PROJECT_STATE.md~~ — ✅ Выполнено
-4. ~~Аудит branding-материалов~~ — ✅ Выполнено
-5. ~~Создание SPEC.md~~ — ✅ Выполнено
-6. ~~Решение открытых вопросов~~ — ✅ Выполнено
-7. ~~Создание IMPLEMENTATION_PLAN.md~~ — ✅ Выполнено
-8. ~~Согласование плана с владельцем~~ — ✅ Выполнено
-9. ~~Этап 0: Подготовка~~ — ✅ Выполнено
-10. ~~Этап 1: Пользовательский интерфейс~~ — ✅ Выполнено
-11. ~~Этап 2: Деплой пользовательского интерфейса~~ — ✅ Выполнено
-12. ~~Этап 3: Серверный компонент~~ — ✅ Выполнено
-13. ~~Этап 4: Интеграция~~ — ✅ Выполнено
-14. ~~Этап 5: Публикация в Git~~ — ✅ Выполнено. Проект находится под управлением Git.
-15. **Актуализация Source of Truth административной консоли** — ✅ Выполнено
-16. **Административная консоль (Stage 4)** — ✅ Реализована и развёрнута: Dashboard, Content / Knowledge Base, Logs / Conversations
-17. **Управление параметрами LLM-провайдеров через админку** — ✅ Реализовано (2026-07-18). БД — единый SOT для model, temperature, max_tokens, base_url, enabled, active, fallback.
-18. **Execution Tracing для панели «Логи»** — ✅ Реализовано (2026-07-18). Таблицы `execution_sessions`/`execution_steps`, миграции 007/008/009 (+ флаг `is_backfilled`), сервис `ExecutionTracingService`, endpoints `/admin/execution-sessions`. Operational console «Логи» в стиле Assistant Flow использует `/admin/execution-sessions` и `/admin/execution-sessions/{id}`. `PAGE_SIZE=7`, query preview для backfill'нутых сессий, компактная метка "приблизительный" для backfill'нутых сессий. Прошёл production smoke-test.
-19. **Аудит входа в админку и посещений сайта** — ✅ Реализовано (2026-07-19). Endpoints `POST /admin/login` и `POST /track-visit`, записи `admin_login` / `site_visit` в `operational_logs`, миграция 010 (индекс `event_type` + `status`), вкладка «Аудит» в `LogsPage.tsx`, интеграция трекинга в публичный frontend. `npm run build` и `python -m py_compile` проходят.
-20. **Архитектурное упрощение логирования chat pipeline** — ✅ Реализовано (2026-07-19). `chat_request` больше не дублируется в `operational_logs`; `execution_sessions` — единый SOT для chat pipeline. Добавлены `visitor_id`, `client_ip`, `user_agent` в `ExecutionSession` (миграция 011). Публичный frontend передаёт `visitor_id` в `POST /chat`. Вкладка «Execution-сессии» отображает visitor-реквизиты; вкладка «Аудит» содержит только системные события (`admin_login`, `site_visit`, `provider_switch`).
-21. **Переработка страницы «Диалоги» в стиле Assistant Flow Memory Console** — ✅ Реализовано (2026-07-19). Backend: расширены `GET /admin/conversations` и `GET /admin/conversations/{id}` в `LogsConversationsService` (фильтры, runtime context, turns, executions, budget). Frontend: полностью заменён `ConversationsPage.tsx` на двухпанельный operational layout. `npm run build` и `python -m py_compile` проходят; остаётся production deploy и smoke-test.
-22. **GitHub Sync для Knowledge Base** — ✅ Реализовано и развёрнуто в production (2026-07-19). 7 источников, 192 документа, 5400 чанков. AI-ассистент отвечает по актуальным данным из GitHub. ChromaDB переведена на HTTP-сервис `ai-portfolio-chroma`.
-23. **Deployment Validation** — ⏳ Будет проведён по решению владельца проекта перед финальной публикацией. Необходимо учесть новый сервис `ai-portfolio-chroma`.
+1. ✅ Утвердить ТЗ v1.4 (`docs/TZ.md`).
+2. ✅ Утвердить IMPLEMENTATION_PLAN v3.2.
+3. ✅ Утвердить PROJECT_STATE.
+4. ✅ Актуализировать `SPEC.md` v2.1, `TZ.md` v1.4 и `IMPLEMENTATION_PLAN.md` v3.2 под 13 карточек и новую логику главной страницы.
+5. ✅ Провести разовую финализацию 12 проектов (P0 плана) — завершена интеграция в главную страницу.
+6. ✅ Актуализировать `ProjectCard` под 12 проектов + Prompt Review placeholder.
+7. ⏳ Расширить GitHub Sync и перестроить ChromaDB.
+8. ⏳ Обновить публичный frontend — главная страница развёрнута; каталог и страницы кейсов в работе.
+9. ⏳ Настроить AI-ассистент на новый корпус.
+10. ⏳ Добавить presale-аналитику в Admin Console.
+11. ⏳ Пройти тестирование и production release к 04.09.2026.
+12. ⏳ (отложено) Deployment Validation AI Portfolio.
+13. ⏳ (отложено) Deployment Validation Telegram Intake Bot, Telegram Onboarding Bot, Review Flow.
 
 ---
 
-## Status History
+## 8. Dependencies
 
-| Дата | Статус | Примечание |
-|------|--------|----------|
-| 2026-07-12 | Input Materials Audit | Аудит и нормализация входных материалов |
-| 2026-07-12 | SOT Received | Получены решения владельца продукта |
-| 2026-07-12 | SPEC Phase | Начало подготовки продуктовой спецификации |
-| 2026-07-12 | PROJECT_STATE Created | Зафиксированы решения SOT |
-| 2026-07-12 | SPEC Created | Создана продуктовая спецификация |
-| 2026-07-12 | All Questions Resolved | Все открытые вопросы закрыты решениями владельца |
-| 2026-07-12 | IMPLEMENTATION_PLAN Created | Создан план реализации |
-| 2026-07-12 | Ready for Implementation | Готов к реализации |
-| 2026-07-13 | UI Implementation Complete | Пользовательский интерфейс реализован |
-| 2026-07-13 | Deployed to Production | Сайт развёрнут на VPS по адресу https://ai.alex-n8n.site |
-| 2026-07-13 | Stage 1 Complete | Этап 1 завершён |
-| 2026-07-13 | Architecture Defined | Зафиксирована архитектура представления проектов: Narrative Blueprint (уровень кейса) + Presentation Patterns (уровень APL) |
-| 2026-07-14 | Backend Architecture Defined | Архитектурная инвентаризация завершена. Приняты решения: FastAPI (PEcf11), ChromaDB (PEcf09), OpenAI GPT-4.1-mini, PostgreSQL для MVP. |
-| 2026-07-14 | Admin Console Architecture Defined | Архитектурное решение: admin как отдельный React-модуль внутри AI Portfolio по маршруту /admin/. |
-| 2026-07-14 | Backend & Chat Complete | Backend, RAG, кеширование, чат-ассистент и интеграция с frontend завершены. Сайт работает с AI-ассистентом. |
-| 2026-07-15 | Engineering Preparation Complete | Актуализированы PROJECT_STATE.md, IMPLEMENTATION_PLAN.md, README.md. Docker-конфигурация приведена к единому виду. Репозиторий инициализирован. |
-| 2026-07-15 | Admin Console Concept SOT | В Source of Truth зафиксированы границы первой версии административной консоли, архитектура Knowledge Base и роль Narrative Blueprint / Presentation Patterns. |
-| 2026-07-15 | Admin Console Architecture Finalized | Утверждена и зафиксирована окончательная техническая архитектура первой версии административной консоли в `docs/ADMIN_CONSOLE_ARCHITECTURE.md`. |
-| 2026-07-15 | Admin Console Implementation Plan Fixed | Технический план реализации административной консоли зафиксирован в `docs/IMPLEMENTATION_PLAN.md`. |
-| 2026-07-15 | ProjectCard SOT Defined | В Source of Truth зафиксировано, что `ProjectCard` в PostgreSQL является единственным Source of Truth карточек проектов; public frontend получает карточки через read-only API. |
-| 2026-07-15 | Admin Console Stage 4 Complete | Реализованы три рабочих пространства административной консоли: Dashboard, Content / Knowledge Base, Logs / Conversations. Production smoke-test пройден без регрессий. |
-| 2026-07-18 | LLM Provider Settings SOT | Параметры LLM-провайдеров перенесены в PostgreSQL (`ai_provider_settings`) и управляются через Dashboard административной консоли. API-ключи остаются в `.env`. |
-| 2026-07-18 | ProjectCards Operational Panel | Страница управления карточками проектов превращена в операционную панель (двухпанельный layout, toolbar в шапке страницы, макропанели, чанки ChromaDB). Добавлен endpoint `/admin/knowledge-base/project-cards/{id}/chunks` и миграция 006 с `created_at`/`updated_at`. `ADMIN_CONSOLE_ARCHITECTURE.md` и `IMPLEMENTATION_PLAN.md` актуализированы. |
-| 2026-07-18 | Execution Tracing Implemented | Реализовано и развёрнуто execution tracing для панели «Логи»: модели `ExecutionSession`/`ExecutionStep`, миграции 007, 008 и 009 (backfill 38 сессий / 328 шагов + флаг `is_backfilled`), сервис `ExecutionTracingService`, интеграция в `ChatOrchestrator`, endpoints `/admin/execution-sessions`. Operational console «Логи» в стиле Assistant Flow использует `/admin/execution-sessions` и `/admin/execution-sessions/{id}`. Query preview для backfill'нутых сессий; компактная метка "приблизительный" для backfill'нутых сессий. `PAGE_SIZE=7`. Прошёл production smoke-test: chat запросы создают execution-сессии с 11 шагами; cache hit корректно отмечает skipped шаги. |
-| 2026-07-19 | Audit Logging Implemented | Реализован аудит входа в административную консоль и посещений публичного сайта: endpoints `POST /admin/login` и `POST /track-visit`, записи `admin_login` / `site_visit` в `operational_logs`, миграция 010 (индекс `event_type` + `status`), вкладка «Аудит» в `LogsPage.tsx`, интеграция трекинга в публичный frontend. `npm run build` и `python -m py_compile` проходят. |
-| 2026-07-19 | Chat Logging Simplified | Архитектурное упрощение логирования chat pipeline: `chat_request` больше не дублируется в `operational_logs`; `execution_sessions` — единый SOT. Добавлены `visitor_id`, `client_ip`, `user_agent` в `ExecutionSession` (миграция 011). Публичный frontend передаёт `visitor_id` в `POST /chat`. Вкладка «Execution-сессии» отображает visitor-реквизиты; вкладка «Аудит» содержит только системные события (`admin_login`, `site_visit`, `provider_switch`). |
-| 2026-07-19 | Conversations Page Redesign | Переработана страница «Диалоги» в стиле Assistant Flow Memory Console: двухпанельный layout, фильтры по времени/режиму/активности/поиску, список сессий с runtime context, detail panel с парными turns, execution timeline и JSON snapshot. Backend: расширены `GET /admin/conversations` и `GET /admin/conversations/{id}`. Frontend: полностью заменён `ConversationsPage.tsx`. `npm run build` и `python -m py_compile` проходят. |
-| 2026-07-19 | Conversations UI Finalization | Доводка UI страницы «Диалоги»: убрана лишняя строка статуса над макропанелями; панель диалога занимает основное пространство правой панели; заголовок сводки изменён на «Сводка диалоговой сессии»; панель «Runtime memory context» переименована в «Параметры исполнения»; cache hit и response time отображаются в таблице диалога как колонки на уровне turn; execution timeline по умолчанию свёрнут; исправлен backend-баг чтения cache_hit из execution_metadata. `npm run build` и `python -m py_compile` проходят. |
-| 2026-07-19 | GitHub Sync Planned | Запланирован Этап 11.11 «GitHub Sync для Knowledge Base»: замена `knowledge.json` на автозагрузку документации из репозиториев APL на GitHub. |
-| 2026-07-19 | Logs UI Finalization | Доводка UI страницы «Логи»: правая макропанель Execution-сессии разделена на «Параметры сессии» и «Параметры исполнения»; убраны лишние строки статуса (время МСК, TEXT OK / RAG OK); унифицированы отступы между заголовками панелей и параметрами. |
-| 2026-07-19 | GitHub Sync Implemented | Реализован и развёрнут GitHub Sync для Knowledge Base: 7 источников, 192 документа, 5400 чанков. ChromaDB переведена на HTTP-сервис `ai-portfolio-chroma` для thread-safe concurrent доступа. |
+| Зависимость | Описание | Влияние |
+|-------------|----------|---------|
+| VPS + домен | Production hosting | Блокирует публичный доступ |
+| PostgreSQL | ProjectCard, logs, sessions | Блокирует backend |
+| ChromaDB HTTP | Векторный поиск | Блокирует AI-ассистента |
+| OpenAI API | Основной LLM | Блокирует AI-ассистента |
+| GigaChat API | Fallback LLM | Деградация при недоступности OpenAI |
+| GitHub API | Синхронизация KB | Блокирует актуализацию знаний |
+| Согласование SOT | Утверждение плана и scope | Блокирует старт массовой реализации |
+
+---
+
+## 9. Risks
+
+| Риск | Вероятность | Влияние | Митигация |
+|------|-------------|---------|-----------|
+| Не успеть к 04.09.2026 | Средняя | Высокое | Перепланирование, параллелизация, анализ критического пути; возможное сокращение scope — только через отдельное решение владельца |
+| Финализация 12 проектов + Prompt Review затягивается | Средняя | Высокое | Перепланирование зависимостей и параллельных потоков; при фактической угрозе дедлайну — формирование DEFER CANDIDATE на решение владельца |
+| ChromaDB reindex медленный | Средняя | Среднее | Инкрементальная синхронизация; ночной запуск |
+| LLM eval <90% | Средняя | Высокое | Докрутка промпта/ретривала |
+| Устаревшие ссылки | Высокая | Среднее | Автопроверка, placeholder-страницы |
+| Расхождение документации и реализации | Средняя | Среднее | Регулярная синхронизация SPEC/TZ/IMPLEMENTATION_PLAN при изменении scope |
+
+---
+
+## 10. Status History
+
+| Дата | Статус | Комментарий |
+|------|--------|-------------|
+| 2026-07-12 | Создан проект | Первый PROJECT_STATE, SPEC, IMPLEMENTATION_PLAN |
+| 2026-07-13 | UI реализован | 4 страницы + страницы кейсов |
+| 2026-07-14 | Backend v1 | FastAPI + PostgreSQL + chat endpoint |
+| 2026-07-15 | Admin Console v1 | Dashboard, Content/KB, Logs |
+| 2026-07-19 | GitHub Sync | 7 источников, 192 документа, ~5400 чанков |
+| 2026-08-18 | Финальное планирование | TZ v1.2, IMPLEMENTATION_PLAN v3.1, PEf05_RATING v2.3, PORTFOLIO_CORPUS_AUDIT v1.2 утверждены; релиз 04.09.2026 (status quo ante) |
+| 2026-08-25 | Новая главная страница + расширение до 13 карточек | Развёрнута пилотная dual-theme главная с 13 карточками; нумерация ProjectCard зафиксирована; чат-виджет и темы работают; production URL `https://ai.alex-n8n.site/`; `SPEC.md` v2.1, `TZ.md` v1.4 и `IMPLEMENTATION_PLAN.md` v3.2 актуализированы под 13 карточек и логику featured/archive; каталог, страницы кейсов, AI-ассистент и presale-аналитика ещё не завершены |
+
+---
+
+## 11. Связанные документы
+
+- [`README.md`](../README.md) — главная страница проекта.
+- [`docs/SPEC.md`](SPEC.md) — продуктовая спецификация v2.1 (as-built baseline).
+- [`docs/TZ.md`](TZ.md) — техническое задание v1.4 (утверждено).
+- [`docs/IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) — технический план v3.2 (утверждено).
+- [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) — архитектура.
+- [`docs/DEPLOYMENT_GUIDE.md`](DEPLOYMENT_GUIDE.md) — развёртывание.
+- [`docs/PEf05_RATING.md`](PEf05_RATING.md) — рейтинг 13 кандидатов + 12 проектов в портфеле (v2.3, утверждено как внутренний аналитический артефакт).
+- [`docs/PORTFOLIO_CORPUS_AUDIT.md`](PORTFOLIO_CORPUS_AUDIT.md) — аудит корпуса и технического долга (v1.2, утверждено как baseline).
