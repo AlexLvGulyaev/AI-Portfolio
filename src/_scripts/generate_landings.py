@@ -1232,7 +1232,7 @@ def hr_scenario_2_svg() -> str:
         f'  <rect x="{left_x + 10}" y="{y + 32}" width="{col_w - 20}" height="82" rx="4" class="ui-input" />',
         f'  <text x="{left_x + 18}" y="{y + 50}" class="ui-msg-text-bot" style="font-size:11px;">Анна Морозова, Москва. Ищу позицию системного аналитика.</text>',
         f'  <text x="{left_x + 18}" y="{y + 68}" class="ui-msg-text-bot" style="font-size:11px;">Опыт: 6 лет · BPMN, UML, SQL, REST API, Jira, Confluence.</text>',
-        f'  <text x="{left_x + 18}" y="{y + 86}" class="ui-msg-text-bot" style="font-size:11px;">Зарплатные ожидания: 180000 рублей.</text>',
+        f'  <text x="{left_x + 18}" y="{y + 86}" class="ui-msg-text-bot" style="font-size:11px;">З/П ожидания: 180000 рублей.</text>',
         f'  <text x="{left_x + 18}" y="{y + 104}" class="ui-msg-text-bot" style="font-size:11px;">Email: anna.morozova.hrtest2026@example.com</text>',
     ])
 
@@ -1244,7 +1244,7 @@ def hr_scenario_2_svg() -> str:
         f'  <text x="{right_x + 10}" y="{y + 42}" class="ui-table-header-text" style="font-size:12px;">💼 Системный аналитик · 100/100</text>',
         f'  <text x="{right_x + 10}" y="{y + 62}" class="ui-msg-text-bot" style="font-size:11px;">• роль: 30/30 · навыки: 35/35 · опыт: 20/20 · условия: 15/15</text>',
         f'  <text x="{right_x + 10}" y="{y + 82}" class="ui-msg-text-bot" style="font-size:11px;">Кандидат полностью соответствует должности: роль, навыки,</text>',
-        f'  <text x="{right_x + 10}" y="{y + 100}" class="ui-msg-text-bot" style="font-size:11px;">опыт и зарплатные ожидания в пределах диапазона.</text>',
+        f'  <text x="{right_x + 10}" y="{y + 100}" class="ui-msg-text-bot" style="font-size:11px;">опыт и З/П ожидания в пределах диапазона.</text>',
     ])
 
     y += ur_h + gap
