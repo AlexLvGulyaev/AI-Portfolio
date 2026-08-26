@@ -1807,7 +1807,22 @@ TEMPLATE = r'''<!doctype html>
       font-size: 1.5rem;
     }
 
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .problem-grid > *:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      justify-self: center;
+      max-width: 50%;
+      width: 100%;
+    }
+
     .problem-card {
+      display: flex;
+      gap: var(--space-md);
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -1815,11 +1830,23 @@ TEMPLATE = r'''<!doctype html>
       box-shadow: var(--shadow-sm);
     }
 
+    .problem-card__icon {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      border-radius: var(--radius);
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+    }
+
     .problem-card__title {
       font-family: var(--font-display);
       font-size: 1.1rem;
       font-weight: 600;
-      margin: 0 0 var(--space-sm);
+      margin: 0 0 var(--space-xs);
     }
 
     .problem-card__text {
@@ -2644,11 +2671,14 @@ TEMPLATE = r'''<!doctype html>
           <p class="section__lead">{{ problem_lead }}</p>
         </div>
 
-        <div class="ba-grid" style="grid-template-columns: repeat({{ problem_cards|length }}, 1fr);">
+        <div class="problem-grid">
           {% for card in problem_cards %}
           <div class="problem-card">
-            <h3 class="problem-card__title">{{ card.title }}</h3>
-            <p class="problem-card__text">{{ card.text }}</p>
+            <div class="problem-card__icon">{{ card.icon }}</div>
+            <div>
+              <h3 class="problem-card__title">{{ card.title }}</h3>
+              <p class="problem-card__text">{{ card.text }}</p>
+            </div>
           </div>
           {% endfor %}
         </div>

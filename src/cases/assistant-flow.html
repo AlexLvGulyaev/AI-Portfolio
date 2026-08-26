@@ -398,7 +398,22 @@
       font-size: 1.5rem;
     }
 
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .problem-grid > *:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      justify-self: center;
+      max-width: 50%;
+      width: 100%;
+    }
+
     .problem-card {
+      display: flex;
+      gap: var(--space-md);
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -406,11 +421,23 @@
       box-shadow: var(--shadow-sm);
     }
 
+    .problem-card__icon {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      border-radius: var(--radius);
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+    }
+
     .problem-card__title {
       font-family: var(--font-display);
       font-size: 1.1rem;
       font-weight: 600;
-      margin: 0 0 var(--space-sm);
+      margin: 0 0 var(--space-xs);
     }
 
     .problem-card__text {
@@ -1278,16 +1305,22 @@
           <p class="section__lead">Вопросы приходят в разных форматах, а ответы часто не подкреплены актуальными источниками.</p>
         </div>
 
-        <div class="ba-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="problem-grid">
           
           <div class="problem-card">
-            <h3 class="problem-card__title">Мультимодальные входы</h3>
-            <p class="problem-card__text">Голос, скриншоты и документы требуют ручной транскрибации и обработки.</p>
+            <div class="problem-card__icon">📎</div>
+            <div>
+              <h3 class="problem-card__title">Мультимодальные входы</h3>
+              <p class="problem-card__text">Голос, скриншоты и документы требуют ручной транскрибации и обработки.</p>
+            </div>
           </div>
           
           <div class="problem-card">
-            <h3 class="problem-card__title">Отсутствие цитат</h3>
-            <p class="problem-card__text">Ответы даются «из головы», без ссылок на документы или базу знаний.</p>
+            <div class="problem-card__icon">📖</div>
+            <div>
+              <h3 class="problem-card__title">Отсутствие цитат</h3>
+              <p class="problem-card__text">Ответы даются «из головы», без ссылок на документы или базу знаний.</p>
+            </div>
           </div>
           
         </div>
@@ -1352,7 +1385,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--five" viewBox="0 0 1120 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Assistant Flow: от входа к результату">
   <defs>
-    <marker id="arrow-5n-1675" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-5n-5965" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1362,28 +1395,28 @@
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Текст / голос</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">фото / файл</text>
   </g>
-  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-1675)" />
+  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-5965)" />
   <g transform="translate(250, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Маршрутизация</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Тип входных</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">данных</text>
   </g>
-  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-1675)" />
+  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-5965)" />
   <g transform="translate(470, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">RAG / OCR</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">База знаний</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">и документы</text>
   </g>
-  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-1675)" />
+  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-5965)" />
   <g transform="translate(690, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">LLM</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Ответ</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">с источниками</text>
   </g>
-  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-1675)" />
+  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-5965)" />
   <g transform="translate(910, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Консоль</text>
