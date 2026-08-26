@@ -620,16 +620,39 @@ def ada_scenario_2_svg() -> str:
 
 
 def rar_scenario_1_svg() -> str:
-    """Scenario 1: public review site — form on the left, review thread with AI Support reply on the right."""
-    w, h = 980, 540
+    """Scenario 1: public review site — form on the left, review thread with AI Support replies on the right."""
+    w, h = 980, 620
     margin = 14
     hdr = 54
     inner_h = h - margin * 2 - hdr
-    form_w = 280
+    form_w = 250
     thread_x = margin + form_w + 16
     thread_w = w - margin * 2 - form_w - 16
+
+    # Card geometry
+    card_x = thread_x + 12
+    card_w = thread_w - 24
+    reply_x = thread_x + 36
+    reply_w = thread_w - 60
+    badge_h = 18
+    status_w = 72
+    tone_w = 78
+    gap = 10
+
+    # Right-aligned badge pair inside a card of given width
+    def badge_pair(cx, cw, cy):
+        right = cx + cw - 12
+        tone_x = right - tone_w
+        status_x = tone_x - 8 - status_w
+        return (
+            f'  <rect x="{status_x}" y="{cy}" width="{status_w}" height="{badge_h}" rx="3" class="ui-status-published" />',
+            f'  <text x="{status_x + status_w // 2}" y="{cy + 14}" text-anchor="middle" class="ui-status-text" style="font-size:10px;">обработан</text>',
+            f'  <rect x="{tone_x}" y="{cy}" width="{tone_w}" height="{badge_h}" rx="3" class="ui-input" />',
+            f'  <text x="{tone_x + tone_w // 2}" y="{cy + 14}" text-anchor="middle" class="ui-input-text" style="font-size:10px;">нейтральный</text>',
+        )
+
     svg = [
-        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Сайт отзывов Review Auto Responder: форма слева, тред с AI-ответом справа">',
+        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Сайт отзывов Review Auto Responder: форма слева, тред с AI-ответами справа">',
         '  <defs>',
         f'    <clipPath id="rar-site-clip">',
         f'      <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="6" />',
@@ -652,34 +675,61 @@ def rar_scenario_1_svg() -> str:
         f'  <text x="{margin + 28}" y="{margin + hdr + 258}" class="ui-sidebar-text" style="font-size:11px;">Демо: осталось 5 из 5</text>',
         # thread panel (right)
         f'  <rect x="{thread_x}" y="{margin + hdr}" width="{thread_w}" height="{inner_h}" class="ui-sidebar" clip-path="url(#rar-site-clip)" />',
-        # review card
-        f'  <rect x="{thread_x + 12}" y="{margin + hdr + 16}" width="{thread_w - 24}" height="120" rx="6" class="ui-window" />',
-        f'  <text x="{thread_x + 28}" y="{margin + hdr + 40}" class="ui-sidebar-title" style="font-size:13px;">Аноним · 14.08.2026, 04:14</text>',
-        f'  <rect x="{thread_x + 190}" y="{margin + hdr + 28}" width="72" height="18" rx="3" class="ui-status-published" />',
-        f'  <text x="{thread_x + 226}" y="{margin + hdr + 42}" text-anchor="middle" class="ui-status-text" style="font-size:10px;">обработан</text>',
-        f'  <rect x="{thread_x + 270}" y="{margin + hdr + 28}" width="70" height="18" rx="3" class="ui-input" />',
-        f'  <text x="{thread_x + 305}" y="{margin + hdr + 42}" text-anchor="middle" class="ui-input-text" style="font-size:10px;">нейтральный</text>',
-        f'  <text x="{thread_x + 28}" y="{margin + hdr + 70}" class="ui-msg-text-bot" style="font-size:13px;">Прислали посылку с повреждённой</text>',
-        f'  <text x="{thread_x + 28}" y="{margin + hdr + 90}" class="ui-msg-text-bot" style="font-size:13px;">упаковкой! Срочно нужна замена!!!</text>',
-        # AI Support reply (nested)
-        f'  <rect x="{thread_x + 36}" y="{margin + hdr + 104}" width="{thread_w - 60}" height="92" rx="6" class="ui-msg-bot" />',
-        f'  <text x="{thread_x + 52}" y="{margin + hdr + 128}" class="ui-sidebar-title" style="font-size:13px;">AI Support · 04:14:38</text>',
-        f'  <rect x="{thread_x + 200}" y="{margin + hdr + 116}" width="72" height="18" rx="3" class="ui-status-published" />',
-        f'  <text x="{thread_x + 236}" y="{margin + hdr + 130}" text-anchor="middle" class="ui-status-text" style="font-size:10px;">обработан</text>',
-        f'  <rect x="{thread_x + 280}" y="{margin + hdr + 116}" width="70" height="18" rx="3" class="ui-input" />',
-        f'  <text x="{thread_x + 315}" y="{margin + hdr + 130}" text-anchor="middle" class="ui-input-text" style="font-size:10px;">нейтральный</text>',
-        f'  <text x="{thread_x + 52}" y="{margin + hdr + 158}" class="ui-msg-text-bot" style="font-size:13px;">Нам очень жаль. Мы немедленно</text>',
-        f'  <text x="{thread_x + 52}" y="{margin + hdr + 178}" class="ui-msg-text-bot" style="font-size:13px;">отправим замену и ускорим доставку.</text>',
-        # second review preview
-        f'  <rect x="{thread_x + 12}" y="{margin + hdr + 214}" width="{thread_w - 24}" height="74" rx="6" class="ui-window" />',
-        f'  <text x="{thread_x + 28}" y="{margin + hdr + 238}" class="ui-sidebar-title" style="font-size:13px;">Александр · 04:13:41</text>',
-        f'  <rect x="{thread_x + 190}" y="{margin + hdr + 226}" width="72" height="18" rx="3" class="ui-status-published" />',
-        f'  <text x="{thread_x + 226}" y="{margin + hdr + 240}" text-anchor="middle" class="ui-status-text" style="font-size:10px;">обработан</text>',
-        f'  <rect x="{thread_x + 270}" y="{margin + hdr + 226}" width="70" height="18" rx="3" class="ui-input" />',
-        f'  <text x="{thread_x + 305}" y="{margin + hdr + 240}" text-anchor="middle" class="ui-input-text" style="font-size:10px;">нейтральный</text>',
-        f'  <text x="{thread_x + 28}" y="{margin + hdr + 270}" class="ui-msg-text-bot" style="font-size:13px;">Курьер был груб, посылку бросил у дверей.</text>',
-        '</svg>',
     ]
+
+    # Card 1: review by Аноним
+    c1_y = margin + hdr + 16
+    c1_h = 74
+    svg.extend([
+        f'  <rect x="{card_x}" y="{c1_y}" width="{card_w}" height="{c1_h}" rx="6" class="ui-window" />',
+        f'  <text x="{card_x + 16}" y="{c1_y + 24}" class="ui-sidebar-title" style="font-size:13px;">Аноним · 14.08.2026, 04:14:35</text>',
+    ])
+    svg.extend(badge_pair(card_x, card_w, c1_y + 10))
+    svg.append(
+        f'  <text x="{card_x + 16}" y="{c1_y + 54}" class="ui-msg-text-bot" style="font-size:12px;">Прислали посылку с повреждённой упаковкой! Срочно нужна замена!!!</text>'
+    )
+
+    # Card 2: AI Support reply to Аноним
+    c2_y = c1_y + c1_h + gap
+    c2_h = 110
+    svg.extend([
+        f'  <rect x="{reply_x}" y="{c2_y}" width="{reply_w}" height="{c2_h}" rx="6" class="ui-msg-bot" />',
+        f'  <text x="{reply_x + 16}" y="{c2_y + 24}" class="ui-sidebar-title" style="font-size:13px;">AI Support · 14.08.2026, 04:14:38</text>',
+    ])
+    svg.extend(badge_pair(reply_x, reply_w, c2_y + 10))
+    svg.extend([
+        f'  <text x="{reply_x + 16}" y="{c2_y + 58}" class="ui-msg-text-bot" style="font-size:12px;">Нам очень жаль, что так произошло. Мы немедленно отправим вам замену.</text>',
+        f'  <text x="{reply_x + 16}" y="{c2_y + 78}" class="ui-msg-text-bot" style="font-size:12px;">Пожалуйста, сообщите нам номер вашего заказа для быстрой обработки запроса.</text>',
+    ])
+
+    # Card 3: review by Александр
+    c3_y = c2_y + c2_h + gap
+    c3_h = 90
+    svg.extend([
+        f'  <rect x="{card_x}" y="{c3_y}" width="{card_w}" height="{c3_h}" rx="6" class="ui-window" />',
+        f'  <text x="{card_x + 16}" y="{c3_y + 24}" class="ui-sidebar-title" style="font-size:13px;">Александр · 14.08.2026, 04:13:41</text>',
+    ])
+    svg.extend(badge_pair(card_x, card_w, c3_y + 10))
+    svg.extend([
+        f'  <text x="{card_x + 16}" y="{c3_y + 54}" class="ui-msg-text-bot" style="font-size:12px;">Курьер вашей компании был крайне груб, бросил посылку возле дверей, на замечания</text>',
+        f'  <text x="{card_x + 16}" y="{c3_y + 74}" class="ui-msg-text-bot" style="font-size:12px;">отреагировал резко. Прошу принять меры!!!</text>',
+    ])
+
+    # Card 4: AI Support reply to Александр
+    c4_y = c3_y + c3_h + gap
+    c4_h = 110
+    svg.extend([
+        f'  <rect x="{reply_x}" y="{c4_y}" width="{reply_w}" height="{c4_h}" rx="6" class="ui-msg-bot" />',
+        f'  <text x="{reply_x + 16}" y="{c4_y + 24}" class="ui-sidebar-title" style="font-size:13px;">AI Support · 14.08.2026, 04:13:47</text>',
+    ])
+    svg.extend(badge_pair(reply_x, reply_w, c4_y + 10))
+    svg.extend([
+        f'  <text x="{reply_x + 16}" y="{c4_y + 58}" class="ui-msg-text-bot" style="font-size:12px;">Нам очень жаль, что вы столкнулись с таким отношением.</text>',
+        f'  <text x="{reply_x + 16}" y="{c4_y + 78}" class="ui-msg-text-bot" style="font-size:12px;">Мы обязательно разберёмся в ситуации и примем соответствующие меры. Пожалуйста,</text>',
+        f'  <text x="{reply_x + 16}" y="{c4_y + 98}" class="ui-msg-text-bot" style="font-size:12px;">сообщите нам детали вашего заказа для оперативного решения вопроса.</text>',
+    ])
+
+    svg.append('</svg>')
     return "\n".join(svg)
 
 
