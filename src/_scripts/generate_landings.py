@@ -734,20 +734,91 @@ def rar_scenario_1_svg() -> str:
 
 
 def rar_scenario_2_svg() -> str:
-    """Scenario 2: Telegram notification to operator about a new review."""
-    w, h = 980, 540
-    return telegram_chat_svg(
-        "PEcb09",
-        [
-            {"text": "Новый отзыв", "user": False},
-            {"text": "ID: 54 · Имя: Александр · Тон: нейтральный", "user": False},
-            {"text": "Курьер вашей компании был крайне груб, бросил посылку возле дверей...", "user": False},
-            {"text": "Просьба принять меры!!!", "user": False},
-        ],
-        "Review Auto Responder: Telegram-уведомление оператору о новом отзыве",
-        width=w,
-        height=h,
-    )
+    """Scenario 2: /admin execution detail panel for the auto-responded review."""
+    w, h = 980, 640
+    margin = 20
+    hdr = 52
+    inner_h = h - margin * 2 - hdr
+    pad = 18
+    gap = 16
+
+    svg = [
+        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Review Auto Responder: админка детализации выполнения запроса">',
+        '  <defs>',
+        f'    <clipPath id="rar-admin-clip">',
+        f'      <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="8" />',
+        '    </clipPath>',
+        '  </defs>',
+        # window + header
+        f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="8" class="ui-window" />',
+        f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{hdr}" class="ui-header" clip-path="url(#rar-admin-clip)" />',
+        f'  <text x="{margin + pad}" y="{margin + 34}" class="ui-main-title" style="font-size:16px;">ДЕТАЛИЗАЦИЯ ЗАПРОСА</text>',
+        # success badge
+        f'  <rect x="{w - margin - 100}" y="{margin + 16}" width="86" height="22" rx="4" class="ui-status-published" />',
+        f'  <text x="{w - margin - 57}" y="{margin + 31}" text-anchor="middle" class="ui-status-text" style="font-size:10px;">УСПЕШНО</text>',
+        # content background
+        f'  <rect x="{margin + 12}" y="{margin + hdr}" width="{w - margin * 2 - 24}" height="{inner_h}" fill="var(--bg)" clip-path="url(#rar-admin-clip)" />',
+    ]
+
+    y = margin + hdr + pad
+    col_w = (w - margin * 2 - 24 - gap - pad * 2) // 2
+    left_x = margin + pad + 12
+    right_x = left_x + col_w + gap
+
+    # --- Request params ---
+    rp_h = 112
+    svg.extend([
+        f'  <rect x="{left_x}" y="{y}" width="{col_w}" height="{rp_h}" rx="6" class="ui-window" />',
+        f'  <text x="{left_x + 12}" y="{y + 22}" class="ui-table-header-text">ПАРАМЕТРЫ ЗАПРОСА</text>',
+        f'  <text x="{left_x + 12}" y="{y + 46}" class="ui-sidebar-text" style="font-size:12px;">Код отзыва</text>',
+        f'  <text x="{left_x + 110}" y="{y + 46}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">#56</text>',
+        f'  <text x="{left_x + 12}" y="{y + 64}" class="ui-sidebar-text" style="font-size:12px;">Имя пользователя</text>',
+        f'  <text x="{left_x + 130}" y="{y + 64}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">—</text>',
+        f'  <text x="{left_x + 12}" y="{y + 82}" class="ui-sidebar-text" style="font-size:12px;">Тон</text>',
+        f'  <rect x="{left_x + 130}" y="{y + 70}" width="86" height="16" rx="3" class="ui-input" />',
+        f'  <text x="{left_x + 173}" y="{y + 82}" text-anchor="middle" class="ui-input-text" style="font-size:10px;">нейтральный</text>',
+        f'  <text x="{left_x + 12}" y="{y + 100}" class="ui-sidebar-text" style="font-size:12px;">Маршрут</text>',
+        f'  <text x="{left_x + 130}" y="{y + 100}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">review_processing</text>',
+    ])
+
+    # --- Execution params ---
+    ep_h = 112
+    svg.extend([
+        f'  <rect x="{right_x}" y="{y}" width="{col_w}" height="{ep_h}" rx="6" class="ui-window" />',
+        f'  <text x="{right_x + 12}" y="{y + 22}" class="ui-table-header-text">ПАРАМЕТРЫ ИСПОЛНЕНИЯ</text>',
+        f'  <text x="{right_x + 12}" y="{y + 46}" class="ui-sidebar-text" style="font-size:12px;">Провайдер</text>',
+        f'  <text x="{right_x + 120}" y="{y + 46}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">gigachat</text>',
+        f'  <text x="{right_x + 12}" y="{y + 64}" class="ui-sidebar-text" style="font-size:12px;">Модель</text>',
+        f'  <text x="{right_x + 120}" y="{y + 64}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">GigaChat-Max</text>',
+        f'  <text x="{right_x + 12}" y="{y + 82}" class="ui-sidebar-text" style="font-size:12px;">Длительность</text>',
+        f'  <text x="{right_x + 120}" y="{y + 82}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">1437 мс</text>',
+        f'  <text x="{right_x + 12}" y="{y + 100}" class="ui-sidebar-text" style="font-size:12px;">Токены</text>',
+        f'  <text x="{right_x + 120}" y="{y + 100}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">212</text>',
+    ])
+
+    y += rp_h + gap
+
+    # --- User request ---
+    ur_h = 112
+    svg.extend([
+        f'  <rect x="{left_x}" y="{y}" width="{col_w}" height="{ur_h}" rx="6" class="ui-window" />',
+        f'  <text x="{left_x + 12}" y="{y + 22}" class="ui-table-header-text">ЗАПРОС ПОЛЬЗОВАТЕЛЯ</text>',
+        f'  <text x="{left_x + 12}" y="{y + 48}" class="ui-msg-text-bot" style="font-size:12px;">Прислали посылку с повреждённой упаковкой!</text>',
+        f'  <text x="{left_x + 12}" y="{y + 70}" class="ui-msg-text-bot" style="font-size:12px;">Срочно нужна замена!!!</text>',
+    ])
+
+    # --- System response ---
+    sr_h = 112
+    svg.extend([
+        f'  <rect x="{right_x}" y="{y}" width="{col_w}" height="{sr_h}" rx="6" class="ui-window" />',
+        f'  <text x="{right_x + 12}" y="{y + 22}" class="ui-table-header-text">ОТВЕТ СИСТЕМЫ</text>',
+        f'  <text x="{right_x + 12}" y="{y + 48}" class="ui-msg-text-bot" style="font-size:12px;">Нам очень жаль, что так произошло.</text>',
+        f'  <text x="{right_x + 12}" y="{y + 70}" class="ui-msg-text-bot" style="font-size:12px;">Мы немедленно отправим вам замену.</text>',
+        f'  <text x="{right_x + 12}" y="{y + 92}" class="ui-msg-text-bot" style="font-size:12px;">Сообщите номер вашего заказа для быстрой обработки.</text>',
+    ])
+
+    svg.append('</svg>')
+    return "\n".join(svg)
 
 
 def hr_scenario_2_svg() -> str:
