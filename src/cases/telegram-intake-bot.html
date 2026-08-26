@@ -706,6 +706,23 @@
       display: block;
     }
 
+    .demo-frame--side-by-side {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+      align-items: start;
+    }
+
+    .demo-frame--side-by-side img {
+      max-height: 520px;
+    }
+
+    @media (max-width: 768px) {
+      .demo-frame--side-by-side {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .demo-frame__hint {
       position: absolute;
       bottom: var(--space-md);
@@ -1466,7 +1483,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--two-row" viewBox="0 0 822 314" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Telegram Intake Bot: от входа к результату">
   <defs>
-    <marker id="arrow-tr-6079" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-tr-11324" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1476,14 +1493,14 @@
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Сообщение</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">в Telegram</text>
   </g>
-  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-6079)" />
+  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-11324)" />
   <g transform="translate(306, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">ScenarioRouter</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Выбор</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">сценария</text>
   </g>
-  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-6079)" />
+  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-11324)" />
   <g transform="translate(572, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Извлечение</text>
@@ -1492,21 +1509,21 @@
   </g>
   <path d="M 677.0 122 L 677.0 157.0" class="arrow" />
   <path d="M 677.0 157.0 L 145.0 157.0" class="arrow" />
-  <path d="M 145.0 157.0 L 145.0 192" class="arrow" marker-end="url(#arrow-tr-6079)" />
+  <path d="M 145.0 157.0 L 145.0 192" class="arrow" marker-end="url(#arrow-tr-11324)" />
   <g transform="translate(40, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Guard layer</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Валидация</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">полей</text>
   </g>
-  <path d="M 250 239.0 L 306 239.0" class="arrow" marker-end="url(#arrow-tr-6079)" />
+  <path d="M 250 239.0 L 306 239.0" class="arrow" marker-end="url(#arrow-tr-11324)" />
   <g transform="translate(306, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">PostgreSQL</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Сессии</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">и заявки</text>
   </g>
-  <path d="M 516 239.0 L 572 239.0" class="arrow" marker-end="url(#arrow-tr-6079)" />
+  <path d="M 516 239.0 L 572 239.0" class="arrow" marker-end="url(#arrow-tr-11324)" />
   <g transform="translate(572, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Операторы</text>
