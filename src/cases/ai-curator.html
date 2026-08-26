@@ -401,7 +401,22 @@
     }
 
     /* Problem */
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .problem-grid > *:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      justify-self: center;
+      max-width: 50%;
+      width: 100%;
+    }
+
     .problem-card {
+      display: flex;
+      gap: var(--space-md);
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -409,11 +424,23 @@
       box-shadow: var(--shadow-sm);
     }
 
+    .problem-card__icon {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      border-radius: var(--radius);
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+    }
+
     .problem-card__title {
       font-family: var(--font-display);
       font-size: 1.1rem;
       font-weight: 600;
-      margin: 0 0 var(--space-sm);
+      margin: 0 0 var(--space-xs);
     }
 
     .problem-card__text {
@@ -427,6 +454,13 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: var(--space-lg);
+    }
+
+    .solution-grid > *:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      justify-self: center;
+      max-width: 50%;
+      width: 100%;
     }
 
     .solution-card {
@@ -1352,18 +1386,27 @@
           <p class="section__lead">В образовательных платформах большая часть обращений студентов — типовая: дедлайны, задания, темы, материалы. Но актуальная информация живёт в разных системах, а преподаватель становится единственным маршрутизатором.</p>
         </div>
 
-        <div class="ba-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="problem-grid">
           <div class="problem-card">
-            <h3 class="problem-card__title">Повторяющиеся вопросы</h3>
-            <p class="problem-card__text">«Когда дедлайн?», «Где лекция?», «Объясни тему?» — преподаватель отвечает многократно в разных каналах.</p>
+            <div class="problem-card__icon">🔄</div>
+            <div>
+              <h3 class="problem-card__title">Повторяющиеся вопросы</h3>
+              <p class="problem-card__text">«Когда дедлайн?», «Где лекция?», «Объясни тему?» — преподаватель отвечает многократно в разных каналах.</p>
+            </div>
           </div>
           <div class="problem-card">
-            <h3 class="problem-card__title">Разрозненные источники</h3>
-            <p class="problem-card__text">Дедлайны в LMS, методички на диске, FAQ в головах сотрудников. Студент не знает, где искать.</p>
+            <div class="problem-card__icon">🗂️</div>
+            <div>
+              <h3 class="problem-card__title">Разрозненные источники</h3>
+              <p class="problem-card__text">Дедлайны в LMS, методички на диске, FAQ в головах сотрудников. Студент не знает, где искать.</p>
+            </div>
           </div>
           <div class="problem-card">
-            <h3 class="problem-card__title">Нет обратной связи методисту</h3>
-            <p class="problem-card__text">Команда не видит, какие темы вызывают вопросы и каких материалов не хватает.</p>
+            <div class="problem-card__icon">📉</div>
+            <div>
+              <h3 class="problem-card__title">Нет обратной связи методисту</h3>
+              <p class="problem-card__text">Команда не видит, какие темы вызывают вопросы и каких материалов не хватает.</p>
+            </div>
           </div>
         </div>
       </div>
