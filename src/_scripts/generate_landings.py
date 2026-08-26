@@ -843,7 +843,7 @@ def mab_scenario_1_svg() -> str:
     bubble_w = w - margin * 2
 
     svg = [
-        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Meeting Audit Bot: аудит звонка в Telegram">',
+        f'<svg class="ui-illustration ui-illustration--phone" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Meeting Audit Bot: аудит звонка в Telegram">',
         f'  <rect x="0" y="0" width="{w}" height="{h}" rx="0" fill="#e5f2e5"/>',
         # header bar
         f'  <rect x="0" y="0" width="{w}" height="{header_h}" fill="#2f7763"/>',
@@ -1771,6 +1771,11 @@ TEMPLATE = r'''<!doctype html>
       height: auto;
       max-width: 100%;
       display: block;
+    }
+
+    .ui-illustration--phone {
+      max-width: 320px;
+      margin: 0 auto;
     }
 
     .ui-illustration text {
