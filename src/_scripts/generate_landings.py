@@ -51,10 +51,12 @@ def copy_to_assets(src: Path, dest_dir: Path, dest_name: str) -> str:
 # ---------------------------------------------------------------------------
 
 def pipeline_svg(nodes, aria_label, title_line="") -> str:
-    """Build a horizontal or two-row pipeline SVG. Auto-wraps to two rows when > 4 nodes."""
+    """Build a horizontal or two-row pipeline SVG. Auto-wraps to two rows when > 5 nodes."""
     n = len(nodes)
     if n <= 4:
         return _pipeline_single_row_svg(nodes, aria_label)
+    if n == 5:
+        return _pipeline_five_node_svg(nodes, aria_label)
     return _pipeline_two_row_svg(nodes, aria_label)
 
 
@@ -87,6 +89,45 @@ def _pipeline_single_row_svg(nodes, aria_label) -> str:
         svg.append(f'    <text x="{node_w/2}" y="{ty}" text-anchor="middle" class="title-text">{escape_text(title)}</text>')
         for j, line in enumerate(lines[:2]):
             svg.append(f'    <text x="{node_w/2}" y="{ty + 20 + j*16}" text-anchor="middle" class="body-text">{escape_text(line)}</text>')
+        svg.append('  </g>')
+        if i < n - 1:
+            x1 = x + node_w
+            x2 = x + node_w + gap
+            cy = y + node_h / 2
+            svg.append(f'  <path d="M {x1} {cy} L {x2} {cy}" class="arrow" marker-end="url(#{marker_id})" />')
+    svg.append('</svg>')
+    return "\n".join(svg)
+
+
+def _pipeline_five_node_svg(nodes, aria_label) -> str:
+    """Single-row pipeline tuned for exactly five nodes: AIC-style scale."""
+    n = len(nodes)
+    margin_x, margin_y = 30, 0
+    node_w, node_h = 180, 90
+    gap = 40
+    width = margin_x * 2 + node_w * n + gap * (n - 1)
+    height = 300
+    marker_id = f"arrow-5n-{abs(hash(aria_label)) % 100000}"
+    svg = [
+        f'<svg class="pipeline-diagram pipeline-diagram--five" viewBox="0 0 {width} {height}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="{escape_attr(aria_label)}">',
+        "  <defs>",
+        f'    <marker id="{marker_id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">',
+        '      <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />',
+        '    </marker>',
+        '  </defs>',
+    ]
+    y = (height - node_h) // 2
+    for i, node in enumerate(nodes):
+        x = margin_x + i * (node_w + gap)
+        rect_cls = "node-accent" if node.get("accent") else "node-rect"
+        svg.append(f'  <g transform="translate({x}, {y})">')
+        svg.append(f'    <rect x="0" y="0" width="{node_w}" height="{node_h}" rx="4" class="{rect_cls}" />')
+        title = node.get("title", "")
+        lines = node.get("lines", [])
+        ty = 26
+        svg.append(f'    <text x="{node_w/2}" y="{ty}" text-anchor="middle" class="title-text title-text--large">{escape_text(title)}</text>')
+        for j, line in enumerate(lines[:2]):
+            svg.append(f'    <text x="{node_w/2}" y="{ty + 24 + j*18}" text-anchor="middle" class="body-text body-text--large">{escape_text(line)}</text>')
         svg.append('  </g>')
         if i < n - 1:
             x1 = x + node_w
