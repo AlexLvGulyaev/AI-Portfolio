@@ -641,6 +641,11 @@
       display: block;
     }
 
+    .ui-illustration--phone {
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
     .ui-illustration text {
       font-family: var(--font-body);
     }
@@ -1386,7 +1391,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--two-row" viewBox="0 0 822 314" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Meeting Audit Bot: от входа к результату">
   <defs>
-    <marker id="arrow-tr-92298" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-tr-55903" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1396,14 +1401,14 @@
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Аудио / видео</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">переговора</text>
   </g>
-  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-92298)" />
+  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-55903)" />
   <g transform="translate(306, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Download</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Скачивание</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">и обработка</text>
   </g>
-  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-92298)" />
+  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-55903)" />
   <g transform="translate(572, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">AssemblyAI</text>
@@ -1412,21 +1417,21 @@
   </g>
   <path d="M 677.0 122 L 677.0 157.0" class="arrow" />
   <path d="M 677.0 157.0 L 145.0 157.0" class="arrow" />
-  <path d="M 145.0 157.0 L 145.0 192" class="arrow" marker-end="url(#arrow-tr-92298)" />
+  <path d="M 145.0 157.0 L 145.0 192" class="arrow" marker-end="url(#arrow-tr-55903)" />
   <g transform="translate(40, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">LLM-аудит</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Сценарий</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">и структура</text>
   </g>
-  <path d="M 250 239.0 L 306 239.0" class="arrow" marker-end="url(#arrow-tr-92298)" />
+  <path d="M 250 239.0 L 306 239.0" class="arrow" marker-end="url(#arrow-tr-55903)" />
   <g transform="translate(306, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Отчёт</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Структурированный</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">результат</text>
   </g>
-  <path d="M 516 239.0 L 572 239.0" class="arrow" marker-end="url(#arrow-tr-92298)" />
+  <path d="M 516 239.0 L 572 239.0" class="arrow" marker-end="url(#arrow-tr-55903)" />
   <g transform="translate(572, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Telegram + /admin</text>
@@ -1476,7 +1481,7 @@
             <p class="demo-block__text">Менеджер отправляет аудиозапись звонка — через 10–18 секунд бот возвращает Markdown-аудит: оценка 87,5%, восемь проверенных критериев и конкретная рекомендация по следующему шагу.</p>
           </div>
           
-          <svg class="ui-illustration" viewBox="0 0 364 504" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Meeting Audit Bot: аудит звонка в Telegram">
+          <svg class="ui-illustration ui-illustration--phone" viewBox="0 0 364 504" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Meeting Audit Bot: аудит звонка в Telegram">
   <rect x="0" y="0" width="364" height="504" rx="0" fill="#e5f2e5"/>
   <rect x="0" y="0" width="364" height="40" fill="#2f7763"/>
   <circle cx="25" cy="20" r="11" fill="#a8d5ba"/>
