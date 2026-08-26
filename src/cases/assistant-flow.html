@@ -1,195 +1,1501 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Assistant Flow — AI-ассистент для автоматизации обработки входящих заявок клиентов.">
-  <title>Assistant Flow — AI Portfolio</title>
-  <!-- Fonts -->
+  <meta name="description" content="Assistant Flow принимает текст, голос, изображения и документы, маршрутизирует запросы через RAG, OCR или LLM, и всегда ссылается на источники.">
+  <meta property="og:title" content="Assistant Flow — Telegram-ассистент с RAG и источниками">
+  <meta property="og:description" content="Assistant Flow принимает текст, голос, изображения и документы, маршрутизирует запросы через RAG, OCR или LLM, и всегда ссылается на источники.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ai.alex-n8n.site/cases/assistant-flow.html">
+  <meta property="og:image" content="/assets/screenshots/AF_portfolio_light.png">
+  <meta property="og:locale" content="ru_RU">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Assistant Flow — Telegram-ассистент с RAG и источниками">
+  <meta name="twitter:description" content="Assistant Flow принимает текст, голос, изображения и документы, маршрутизирует запросы через RAG, OCR или LLM, и всегда ссылается на источники.">
+  <meta name="twitter:image" content="/assets/screenshots/AF_portfolio_light.png">
+  <link rel="canonical" href="https://ai.alex-n8n.site/cases/assistant-flow.html">
+  <title>Assistant Flow — Telegram-ассистент с RAG и источниками</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600<link rel="stylesheet" href="../css/styles.css">display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <script>
+    (function() {
+      const saved = localStorage.getItem('aip-theme-teal');
+      if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+      else if (saved === 'light') document.documentElement.dataset.theme = 'light';
+    })();
+  </script>
+  <style>
+    :root {
+      --bg: #E3EAF2;
+      --surface: #FFFFFF;
+      --surface-elevated: #D8E0EA;
+      --border: #C7D0DB;
+      --text-primary: #1A1A1C;
+      --text-secondary: #5A5A62;
+      --text-muted: #7D7D85;
+      --accent: #0D9488;
+      --accent-hover: #0F766E;
+      --accent-soft: rgba(13, 148, 136, 0.12);
+      --focus: #14B8A6;
+      --shadow-sm: 0 1px 2px rgba(13, 59, 55, 0.04);
+      --shadow-md: 0 8px 24px rgba(13, 59, 55, 0.10);
+      --shadow-lg: 0 18px 48px rgba(13, 59, 55, 0.14);
+      --radius: 2px;
+      --space-xs: 0.5rem;
+      --space-sm: 0.75rem;
+      --space-md: 1.25rem;
+      --space-lg: 2rem;
+      --space-xl: 3rem;
+      --space-2xl: 5rem;
+      --space-3xl: 7rem;
+      --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+      --font-body: "Inter", system-ui, sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0a0a0f;
+        --surface: #111118;
+        --surface-elevated: #18181f;
+        --border: rgba(255, 255, 255, 0.10);
+        --text-primary: #f5f5f7;
+        --text-secondary: #a1a1aa;
+        --text-muted: #71717a;
+        --accent: #14b8a6;
+        --accent-hover: #2dd4bf;
+        --accent-soft: rgba(20, 184, 166, 0.15);
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface-elevated: #18181f;
+      --border: rgba(255, 255, 255, 0.10);
+      --text-primary: #f5f5f7;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --accent: #14b8a6;
+      --accent-hover: #2dd4bf;
+      --accent-soft: rgba(20, 184, 166, 0.15);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); }
+    a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+
+    .container {
+      width: min(1140px, 92vw);
+      margin-inline: auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .site-header__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .logo__mark { color: var(--accent); font-size: 1.3rem; line-height: 1; }
+
+    .nav {
+      display: flex;
+      gap: var(--space-md);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .nav a { color: var(--text-secondary); }
+    .nav a:hover { color: var(--text-primary); }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.2rem;
+      height: 2.2rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+    }
+
+    .theme-toggle:hover { color: var(--text-primary); border-color: var(--text-muted); }
+    .theme-toggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin: 0 0 var(--space-md);
+    }
+
+    .section {
+      padding: var(--space-3xl) 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section:last-of-type { border-bottom: none; }
+
+    .section__header {
+      max-width: 720px;
+      margin-bottom: var(--space-xl);
+    }
+
+    .section__title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+      font-weight: 600;
+      line-height: 1.15;
+      margin: 0 0 var(--space-md);
+    }
+
+    .section__lead {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      margin: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: 0.7rem 1.2rem;
+      border-radius: var(--radius);
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #FFFFFF;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #FFFFFF; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border-color: var(--border);
+    }
+
+    .btn-ghost:hover { color: var(--text-primary); border-color: var(--text-muted); }
+
+    .hero {
+      padding: var(--space-xl) 0 var(--space-2xl);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero__inner {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+    }
+
+    .hero__body {
+      text-align: center;
+      max-width: 640px;
+      margin-inline: auto;
+    }
+
+    .hero__eyebrow { margin-bottom: var(--space-sm); }
+
+    .hero__title {
+      font-family: var(--font-display);
+      font-size: clamp(1.9rem, 3.8vw, 2.8rem);
+      line-height: 1.08;
+      font-weight: 600;
+      margin: 0 0 var(--space-sm);
+    }
+
+    .hero__lead {
+      font-size: clamp(1rem, 1.3vw, 1.1rem);
+      color: var(--text-secondary);
+      margin: 0 0 var(--space-md);
+      max-width: 600px;
+      margin-inline: auto;
+    }
+
+    .hero__actions { display: flex; gap: var(--space-sm); flex-wrap: wrap; justify-content: center; margin-bottom: 0; }
+
+    .hero__media {
+      position: relative;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      max-width: 900px;
+      margin-inline: auto;
+      width: 100%;
+    }
+
+    .hero__media::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 55%);
+      pointer-events: none;
+    }
+
+    .hero__screenshot {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      object-position: top left;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: block;
+    }
+
+    .preview-dark { display: block; }
+    .preview-light { display: none; }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .preview-dark { display: none; }
+      :root:not([data-theme="light"]) .preview-light { display: block; }
+    }
+
+    :root[data-theme="dark"] .preview-dark { display: none; }
+    :root[data-theme="dark"] .preview-light { display: block; }
+
+    .summary {
+      padding: 0 0 var(--space-3xl);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .summary__grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+    }
+
+    .summary__item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .summary__label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: var(--space-xs);
+    }
+
+    .summary__value {
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+
+    .summary__value a { font-size: 0.9rem; }
+
+    .ba-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
+    }
+
+    .ba-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .ba-card--accent {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+      background: linear-gradient(135deg, var(--surface) 0%, color-mix(in srgb, var(--accent-soft) 40%, var(--surface)) 100%);
+    }
+
+    .ba-card__title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 0 0 var(--space-md);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .ba-card__list {
+      margin: 0;
+      padding-left: var(--space-md);
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .ba-card__list li { margin-bottom: var(--space-sm); }
+
+    .ba-arrow {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 1.5rem;
+    }
+
+    .problem-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .problem-card__title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 var(--space-sm);
+    }
+
+    .problem-card__text {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .solution-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .solution-card {
+      display: flex;
+      gap: var(--space-md);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .solution-card__icon {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      border-radius: var(--radius);
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+    }
+
+    .solution-card__title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 var(--space-xs);
+    }
+
+    .solution-card__text {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .pipeline-diagram {
+      width: 100%;
+      height: auto;
+      max-width: 100%;
+    }
+
+    .pipeline-diagram text {
+      font-family: var(--font-body);
+      fill: var(--text-primary);
+    }
+
+    .pipeline-diagram .node-rect {
+      fill: var(--surface);
+      stroke: var(--border);
+      stroke-width: 1.5;
+    }
+
+    .pipeline-diagram .node-accent {
+      fill: var(--accent-soft);
+      stroke: var(--accent);
+      stroke-width: 1.5;
+    }
+
+    .pipeline-diagram .arrow {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .pipeline-diagram .arrow-head {
+      fill: var(--accent);
+    }
+
+    .pipeline-diagram .title-text {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .pipeline-diagram .title-text--large {
+      font-size: 17px;
+    }
+
+    .pipeline-diagram .body-text {
+      font-size: 13px;
+      fill: var(--text-secondary);
+    }
+
+    .pipeline-diagram .body-text--large {
+      font-size: 15px;
+    }
+
+    .pipeline-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-lg);
+      margin-top: var(--space-xl);
+    }
+
+    .pipeline-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pipeline-card__number {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      margin-bottom: var(--space-xs);
+    }
+
+    .pipeline-card__title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 var(--space-xs);
+    }
+
+    .pipeline-card__text {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .demo-block {
+      margin-bottom: var(--space-2xl);
+    }
+
+    .demo-block:last-child {
+      margin-bottom: 0;
+    }
+
+    .demo-block__header {
+      margin-bottom: var(--space-md);
+      max-width: 720px;
+    }
+
+    .demo-block__label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: var(--space-sm);
+    }
+
+    .demo-block__title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 0 0 var(--space-xs);
+    }
+
+    .demo-block__text {
+      color: var(--text-secondary);
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .demo-frame {
+      position: relative;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-md);
+      cursor: zoom-in;
+      transition: box-shadow 180ms ease, border-color 180ms ease;
+      overflow: hidden;
+    }
+
+    .demo-frame:hover {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+      box-shadow: var(--shadow-lg);
+    }
+
+    .demo-frame img {
+      width: 100%;
+      height: auto;
+      max-height: 560px;
+      object-fit: contain;
+      object-position: top left;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: block;
+    }
+
+    .demo-frame__hint {
+      position: absolute;
+      bottom: var(--space-md);
+      right: var(--space-md);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.35rem 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .demo-frame:hover .demo-frame__hint {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .ui-illustration {
+      width: 100%;
+      height: auto;
+      max-width: 100%;
+      display: block;
+    }
+
+    .ui-illustration text {
+      font-family: var(--font-body);
+    }
+
+    .ui-illustration .ui-window {
+      fill: var(--surface);
+      stroke: var(--border);
+      stroke-width: 1.5;
+    }
+
+    .ui-illustration .ui-header {
+      fill: var(--surface-elevated);
+      stroke: var(--border);
+      stroke-width: 1.5;
+    }
+
+    .ui-illustration .ui-title {
+      font-size: 15px;
+      font-weight: 600;
+      fill: var(--text-primary);
+    }
+
+    .ui-illustration .ui-subtitle {
+      font-size: 11px;
+      fill: var(--text-muted);
+    }
+
+    .ui-illustration .ui-avatar {
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-sidebar {
+      fill: var(--surface-elevated);
+      stroke: var(--border);
+      stroke-width: 1.5;
+    }
+
+    .ui-illustration .ui-sidebar-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      fill: var(--text-primary);
+    }
+
+    .ui-illustration .ui-sidebar-item {
+      fill: transparent;
+    }
+
+    .ui-illustration .ui-sidebar-item-active {
+      fill: var(--accent-soft);
+      stroke: var(--accent);
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-sidebar-text {
+      font-size: 13px;
+      fill: var(--text-secondary);
+    }
+
+    .ui-illustration .ui-sidebar-text-active {
+      font-size: 13px;
+      font-weight: 500;
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-main-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      fill: var(--text-primary);
+    }
+
+    .ui-illustration .ui-msg-user {
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-msg-bot {
+      fill: var(--surface-elevated);
+      stroke: var(--border);
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-msg-text-user {
+      font-size: 14px;
+      fill: #ffffff;
+    }
+
+    .ui-illustration .ui-msg-text-bot {
+      font-size: 14px;
+      fill: var(--text-primary);
+    }
+
+    .ui-illustration .ui-source-card {
+      fill: var(--surface);
+      stroke: var(--accent);
+      stroke-width: 1.5;
+    }
+
+    .ui-illustration .ui-source-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-input {
+      fill: var(--surface-elevated);
+      stroke: var(--border);
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-input-text {
+      font-size: 13px;
+      fill: var(--text-muted);
+    }
+
+    .ui-illustration .ui-btn-primary {
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-btn-text {
+      font-size: 12px;
+      font-weight: 500;
+      fill: #ffffff;
+    }
+
+    .ui-illustration .ui-status-published {
+      fill: rgba(34, 197, 94, 0.15);
+      stroke: #22c55e;
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-status-text {
+      font-size: 12px;
+      font-weight: 500;
+      fill: #22c55e;
+    }
+
+    .ui-illustration .ui-toggle {
+      fill: var(--surface-elevated);
+      stroke: var(--border);
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-toggle-active {
+      fill: var(--accent-soft);
+      stroke: var(--accent);
+      stroke-width: 1.5;
+    }
+
+    .ui-illustration .ui-toggle-text {
+      font-size: 11px;
+      font-weight: 500;
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-toggle-text-inactive {
+      font-size: 11px;
+      fill: var(--text-muted);
+    }
+
+    .ui-illustration .ui-source-stripe {
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-source-title {
+      font-size: 13px;
+      font-weight: 600;
+      fill: var(--text-primary);
+    }
+
+    .ui-illustration .ui-send {
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-send-arrow {
+      stroke: #ffffff;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .ui-illustration .ui-msg-text-bot-muted {
+      font-size: 12px;
+      fill: var(--text-secondary);
+    }
+
+    .ui-illustration .ui-table-header-text {
+      font-size: 11px;
+      font-weight: 600;
+      fill: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .quote {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .quote__text {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      line-height: 1.35;
+      margin: 0 0 var(--space-md);
+      color: var(--text-primary);
+    }
+
+    .quote__author {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
+    .quote__author strong { color: var(--text-primary); }
+
+    .final {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .final__inner {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: var(--space-xl);
+      align-items: center;
+    }
+
+    .final__title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+      font-weight: 600;
+      margin: 0 0 var(--space-md);
+      line-height: 1.15;
+    }
+
+    .final__lead {
+      color: var(--text-secondary);
+      margin: 0 0 var(--space-lg);
+      max-width: 520px;
+    }
+
+    .final__actions { display: flex; gap: var(--space-sm); flex-wrap: wrap; margin-bottom: var(--space-lg); }
+
+    .final__links {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+    }
+
+    .final__links a { display: inline-flex; align-items: center; gap: 0.4rem; }
+
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: var(--space-lg) 0;
+    }
+
+    .site-footer__inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+
+    .chat-launcher {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: transform 150ms ease, box-shadow 150ms ease;
+      z-index: 1000;
+      color: #fff;
+      font-size: 1.4rem;
+    }
+
+    .chat-launcher:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .chat-widget {
+      position: fixed;
+      bottom: 92px;
+      right: 24px;
+      width: 380px;
+      max-width: calc(100vw - 32px);
+      height: 560px;
+      max-height: calc(100vh - 120px);
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      z-index: 1001;
+    }
+
+    .chat-header {
+      padding: var(--space-md) var(--space-lg);
+      background: var(--surface-elevated);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-primary);
+    }
+
+    .chat-header-left { display: flex; gap: var(--space-sm); align-items: center; }
+    .chat-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .chat-title { font-size: 0.9375rem; font-weight: 600; }
+    .chat-subtitle { font-size: 0.75rem; color: var(--text-muted); }
+    .chat-close {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 20px;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 150ms ease;
+      padding: var(--space-xs);
+    }
+
+    .chat-close:hover { opacity: 1; }
+    .chat-messages {
+      flex: 1;
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      overflow-y: auto;
+      background: var(--bg);
+    }
+
+    .chat-message {
+      max-width: 85%;
+      border-radius: var(--radius);
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.875rem;
+      line-height: 1.5;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+
+    .chat-message.user {
+      margin-left: auto;
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .chat-message.bot {
+      margin-right: auto;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+
+    .chat-message--error {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: #ef4444;
+      color: var(--text-primary);
+    }
+
+    .chat-message__text { margin-bottom: 0; }
+    .chat-message__meta {
+      margin-top: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .chat-message__meta-label { font-size: 0.6875rem; color: var(--text-muted); margin-right: var(--space-xs); }
+    .chat-message__meta-value { font-size: 0.75rem; color: var(--text-secondary); }
+    .chat-message__sources,
+    .chat-message__provider,
+    .chat-message__time { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+    .chat-message__cache {
+      display: inline-block;
+      font-size: 0.625rem;
+      padding: 2px var(--space-sm);
+      background: rgba(34, 197, 94, 0.12);
+      color: #22c55e;
+      border-radius: var(--radius);
+      border: 1px solid #22c55e;
+    }
+
+    .typing-indicator { display: inline-flex; gap: 3px; padding: var(--space-xs) 0; }
+    .typing-indicator .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--text-muted);
+      animation: typing 1s infinite ease-in-out;
+    }
+
+    .typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing {
+      0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+      40% { opacity: 1; transform: translateY(-2px); }
+    }
+
+    .chat-footer {
+      padding: var(--space-sm) var(--space-md);
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      gap: var(--space-sm);
+      align-items: center;
+    }
+
+    .chat-input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 150ms ease;
+    }
+
+    .chat-input:focus { border-color: var(--accent); }
+    .chat-input::placeholder { color: var(--text-muted); }
+    .chat-send {
+      border-radius: 999px;
+      border: none;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      transition: opacity 150ms ease;
+    }
+
+    .chat-send:hover:not(:disabled) { opacity: 0.9; }
+    .chat-send:disabled { opacity: 0.5; cursor: default; }
+    .chat-send span { font-size: 1rem; }
+
+    @media (max-width: 900px) {
+      .final__inner { grid-template-columns: 1fr; }
+      .summary__grid,
+      .solution-grid,
+      .ba-grid { grid-template-columns: 1fr; }
+      .ba-arrow { display: none; }
+      .pipeline-cards { grid-template-columns: 1fr; }
+      .section { padding: var(--space-2xl) 0; }
+      .chat-widget { right: 16px; bottom: 84px; }
+      .chat-launcher { right: 16px; bottom: 16px; }
+    }
+  </style>
+  
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
-    <div class="header__content">
-      <a href="../index.html" class="header__logo">
-        <span class="logo__icon">◇</span>
-        <span>AI Portfolio</span>
-      </a>
-      <nav class="nav">
-        <a href="../index.html" class="nav__link">Главная</a>
-        <a href="../portfolio.html" class="nav__link nav__link--active">Проекты</a>
-        <a href="../services.html" class="nav__link">Услуги</a>
-        <a href="../contacts.html" class="nav__link">Контакты</a>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="/" class="logo"><span class="logo__mark">◇</span> AI Portfolio</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="/">Главная</a>
+        <a href="/portfolio.html">Проекты</a>
+        <a href="/services.html">Услуги</a>
+        <a href="/contacts.html">Контакты</a>
       </nav>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">🌙</button>
     </div>
   </header>
 
-  <!-- Main -->
-  <main class="main">
-    <div class="page">
-      <article class="case-detail">
-        <div class="container">
-          <!-- Back Link -->
-          <a href="../portfolio.html" class="case-detail__back">← Все проекты</a>
-
-          <!-- Header -->
-          <header class="case-detail__header">
-            <div class="case-detail__title-section">
-              <h1 class="case-detail__title">Assistant Flow</h1>
-              <div class="case-detail__tags">
-                <span class="tag">n8n</span>
-                <span class="tag">OpenAI</span>
-                <span class="tag">Telegram</span>
-                <span class="tag">CRM</span>
-              </div>
-            </div>
-            <div class="case-detail__actions">
-              <a href="#" class="btn btn-secondary">GitHub</a>
-              <a href="#" class="btn btn-primary">Demo</a>
-            </div>
-          </header>
-
-          <!-- Content with Tabs -->
-          <div class="tabs" style="min-height: 300px;">
-            <div class="tabs__nav">
-              <button class="tabs__tab tabs__tab--active" data-tab="task">Задача</button>
-              <button class="tabs__tab" data-tab="solution">Решение</button>
-              <button class="tabs__tab" data-tab="result">Результат</button>
-              <button class="tabs__tab" data-tab="tech">Технологии</button>
-            </div>
-
-            <div class="tabs__content">
-              <!-- Task Tab -->
-              <div class="tabs__panel tabs__panel--active" data-panel="task">
-                <div class="case-detail__section">
-                  <p style="color: var(--text-secondary); line-height: 1.7;">
-                    Компания обрабатывала большое количество входящих заявок от клиентов через различные каналы: сайт, Telegram, телефон.
-                  </p>
-                  <p style="color: var(--text-secondary); line-height: 1.7; margin-top: var(--spacing-md);">
-                    <strong style="color: var(--text-primary);">Основные проблемы:</strong>
-                  </p>
-                  <ul style="color: var(--text-secondary); margin-top: var(--spacing-sm); padding-left: var(--spacing-lg);">
-                    <li style="margin-bottom: var(--spacing-sm);">Задержки в обработке заявок</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Ошибки в маршрутизации</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Неравномерная нагрузка на сотрудников</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Отсутствие единой системы учёта</li>
-                  </ul>
-                </div>
-              </div>
-
-              <!-- Solution Tab -->
-              <div class="tabs__panel" data-panel="solution">
-                <div class="case-detail__section">
-                  <p style="color: var(--text-secondary); line-height: 1.7;">
-                    Разработан AI-ассистент на базе n8n с интеграцией OpenAI и Telegram.
-                  </p>
-                  <p style="color: var(--text-secondary); line-height: 1.7; margin-top: var(--spacing-md);">
-                    <strong style="color: var(--text-primary);">Возможности системы:</strong>
-                  </p>
-                  <ul style="color: var(--text-secondary); margin-top: var(--spacing-sm); padding-left: var(--spacing-lg);">
-                    <li style="margin-bottom: var(--spacing-sm);">Приём заявок из нескольких каналов</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Классификация обращений по категориям</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Определение приоритета и ответственного</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Автоответы на типовые вопросы</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Интеграция с CRM</li>
-                    <li style="margin-bottom: var(--spacing-sm);">Уведомления ответственным</li>
-                  </ul>
-                </div>
-              </div>
-
-              <!-- Result Tab -->
-              <div class="tabs__panel" data-panel="result">
-                <div class="case-detail__stats">
-                  <div class="case-detail__stat">
-                    <div class="case-detail__stat-value">80%</div>
-                    <div class="case-detail__stat-label">Сокращение времени обработки</div>
-                  </div>
-                  <div class="case-detail__stat">
-                    <div class="case-detail__stat-value">90%</div>
-                    <div class="case-detail__stat-label">Снижение ошибок маршрутизации</div>
-                  </div>
-                  <div class="case-detail__stat">
-                    <div class="case-detail__stat-value">1 мин</div>
-                    <div class="case-detail__stat-label">Время ответа на типовые вопросы</div>
-                  </div>
-                  <div class="case-detail__stat">
-                    <div class="case-detail__stat-value">60%</div>
-                    <div class="case-detail__stat-label">Снижение нагрузки на первую линию</div>
-                  </div>
-                </div>
-                <p style="color: var(--text-secondary); line-height: 1.7; margin-top: var(--spacing-lg);">
-                  Внедрение системы обеспечило прозрачность процессов в CRM и позволило масштабировать обработку заявок без пропорционального увеличения штата.
-                </p>
-              </div>
-
-              <!-- Tech Tab -->
-              <div class="tabs__panel" data-panel="tech">
-                <div class="case-detail__tech">
-                  <div class="case-detail__tech-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                    </svg>
-                    n8n — оркестрация бизнес-процессов
-                  </div>
-                  <div class="case-detail__tech-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
-                    OpenAI API — классификация и генерация
-                  </div>
-                  <div class="case-detail__tech-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 5L2.5 12L21 19L17 12L21 5Z"/>
-                    </svg>
-                    Telegram Bot API — приём и уведомления
-                  </div>
-                  <div class="case-detail__tech-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7z"/>
-                    </svg>
-                    PostgreSQL — хранение данных
-                  </div>
-                  <div class="case-detail__tech-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M4 4h16v16H4z"/>
-                    </svg>
-                    CRM Integration — интеграция
-                  </div>
-                </div>
-              </div>
-            </div>
+  <main>
+    <!-- 1. Hero -->
+    <section class="hero">
+      <div class="container hero__inner">
+        <div class="hero__body">
+          <p class="eyebrow hero__eyebrow">Telegram-ассистент с RAG и источниками</p>
+          <h1 class="hero__title">Отвечайте клиентам и сотрудникам в Telegram с точными источниками</h1>
+          <p class="hero__lead">Assistant Flow принимает текст, голос, изображения и документы, маршрутизирует запросы через RAG, OCR или LLM, и всегда ссылается на источники.</p>
+          <div class="hero__actions">
+            <a href="https://t.me/PEn06_Career_Consultant_bot" class="btn btn-primary" target="_blank" rel="noopener">Открыть в Telegram</a>
+            <a href="https://github.com/AlexLvGulyaev/assistant-flow" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a>
+            <a href="/contacts.html" class="btn btn-ghost" target="_blank" rel="noopener">Обсудить проект</a>
+            
           </div>
         </div>
-      </article>
-    </div>
+        <div class="hero__media">
+          <img class="hero__screenshot preview-dark" src="/assets/screenshots/AF_portfolio_dark.png" alt="Telegram-интерфейс Assistant Flow: RAG-ответ с источниками" loading="eager">
+          <img class="hero__screenshot preview-light" src="/assets/screenshots/AF_portfolio_light.png" alt="Telegram-интерфейс Assistant Flow: RAG-ответ с источниками" loading="eager">
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Case summary -->
+    <section class="summary">
+      <div class="container">
+        <div class="summary__grid">
+          
+          <div class="summary__item">
+            <div class="summary__label">Кейс</div>
+            <div class="summary__value"><strong>Assistant Flow</strong></div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Для кого</div>
+            <div class="summary__value">Команды и клиентские чаты, которым нужен AI-ассистент в Telegram</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Статус</div>
+            <div class="summary__value">Production-ready, RAG + OCR + LLM</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Стек</div>
+            <div class="summary__value">Python, Telegram Bot API, RAG, OCR, LLM</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Telegram</div>
+            <div class="summary__value"><a href='https://t.me/PEn06_Career_Consultant_bot' target='_blank' rel='noopener'>@PEn06_Career_Consultant_bot</a></div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">GitHub</div>
+            <div class="summary__value"><a href='https://github.com/AlexLvGulyaev/assistant-flow' target='_blank' rel='noopener'>AlexLvGulyaev/assistant-flow</a></div>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Before / After -->
+    <section class="section" id="results">
+      <div class="container">
+        <div class="section__header">
+          <p class="eyebrow">Результат</p>
+          <h2 class="section__title">Универсальный Telegram-ассистент</h2>
+          <p class="section__lead">Один бот закрывает вопросы по базе знаний, документам и мультимодальным входным данным.</p>
+        </div>
+
+        <div class="ba-grid">
+          <div class="ba-card">
+            <h3 class="ba-card__title"><span>❌</span> До</h3>
+            <ul class="ba-card__list">
+              
+              <li>Вопросы клиентов/сотрудников разбиваются между Telegram, email и базой знаний</li>
+              
+              <li>Голос, скриншоты и документы обрабатываются вручную</li>
+              
+              <li>Непонятно, на чём основан ответ</li>
+              
+            </ul>
+          </div>
+          <div class="ba-arrow">→</div>
+          <div class="ba-card ba-card--accent">
+            <h3 class="ba-card__title"><span>✅</span> После</h3>
+            <ul class="ba-card__list">
+              
+              <li>Пользователь пишет в Telegram в любом формате — бот сам выбирает обработчик</li>
+              
+              <li>RAG/OCR/LLM находят ответ и показывают источник</li>
+              
+              <li>Администратор видит диалоги, метрики и управляет знаниями в консоли</li>
+              
+            </ul>
+          </div>
+        </div>
+
+        
+        <div class="summary__grid" style="grid-template-columns: repeat(3, 1fr);">
+          
+          <div class="summary__item">
+            <div class="summary__label">Канал</div>
+            <div class="summary__value"><strong>Telegram</strong> естественный интерфейс</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Форматы</div>
+            <div class="summary__value"><strong>4+</strong> текст / голос / фото / файл</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Источники</div>
+            <div class="summary__value"><strong>всегда</strong> цитаты и ссылки</div>
+          </div>
+          
+        </div>
+        
+      </div>
+    </section>
+
+    <!-- 4. Problem -->
+    <section class="section" id="problem">
+      <div class="container">
+        <div class="section__header">
+          <p class="eyebrow">Проблема</p>
+          <h2 class="section__title">Мессенджер превращается в хаос знаний</h2>
+          <p class="section__lead">Вопросы приходят в разных форматах, а ответы часто не подкреплены актуальными источниками.</p>
+        </div>
+
+        <div class="ba-grid" style="grid-template-columns: repeat(2, 1fr);">
+          
+          <div class="problem-card">
+            <h3 class="problem-card__title">Мультимодальные входы</h3>
+            <p class="problem-card__text">Голос, скриншоты и документы требуют ручной транскрибации и обработки.</p>
+          </div>
+          
+          <div class="problem-card">
+            <h3 class="problem-card__title">Отсутствие цитат</h3>
+            <p class="problem-card__text">Ответы даются «из головы», без ссылок на документы или базу знаний.</p>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Solution -->
+    <section class="section" id="solution">
+      <div class="container">
+        <div class="section__header">
+          <p class="eyebrow">Решение</p>
+          <h2 class="section__title">RAG-ассистент с маршрутизацией и источниками</h2>
+          <p class="section__lead">Assistant Flow определяет тип входных данных, выбирает обработчик и возвращает ответ с цитатами.</p>
+        </div>
+
+        <div class="solution-grid">
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">🤖</div>
+            <div>
+              <h3 class="solution-card__title">Маршрутизация</h3>
+              <p class="solution-card__text">Бот понимает формат входа и направляет запрос в RAG, OCR, текст или голосовой модуль.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">📚</div>
+            <div>
+              <h3 class="solution-card__title">RAG с цитатами</h3>
+              <p class="solution-card__text">Ответ строится на фрагментах базы знаний с указанием источников.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">🖼️</div>
+            <div>
+              <h3 class="solution-card__title">OCR и изображения</h3>
+              <p class="solution-card__text">Скриншоты и документы превращаются в текст и участвуют в диалоге.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">📊</div>
+            <div>
+              <h3 class="solution-card__title">Операционная консоль</h3>
+              <p class="solution-card__text">Администратор видит диалоги, нагрузку и качество ответов.</p>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. How it works -->
+    <section class="section" id="how-it-works">
+      <div class="container">
+        <div class="section__header">
+          <p class="eyebrow">Как это работает</p>
+          <h2 class="section__title">Как обрабатывается запрос в Telegram</h2>
+          <p class="section__lead">От входящего сообщения до ответа с источниками и записи в консоли.</p>
+        </div>
+
+        <svg class="pipeline-diagram pipeline-diagram--single" viewBox="0 0 1138 180" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Assistant Flow: от входа к результату">
+  <defs>
+    <marker id="arrow-sr-59769" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
+    </marker>
+  </defs>
+  <g transform="translate(24, 50)">
+    <rect x="0" y="0" width="170" height="80" rx="4" class="node-rect" />
+    <text x="85.0" y="24" text-anchor="middle" class="title-text">Telegram</text>
+    <text x="85.0" y="44" text-anchor="middle" class="body-text">Текст / голос</text>
+    <text x="85.0" y="60" text-anchor="middle" class="body-text">фото / файл</text>
+  </g>
+  <path d="M 194 90.0 L 254 90.0" class="arrow" marker-end="url(#arrow-sr-59769)" />
+  <g transform="translate(254, 50)">
+    <rect x="0" y="0" width="170" height="80" rx="4" class="node-accent" />
+    <text x="85.0" y="24" text-anchor="middle" class="title-text">Маршрутизация</text>
+    <text x="85.0" y="44" text-anchor="middle" class="body-text">Тип входных</text>
+    <text x="85.0" y="60" text-anchor="middle" class="body-text">данных</text>
+  </g>
+  <path d="M 424 90.0 L 484 90.0" class="arrow" marker-end="url(#arrow-sr-59769)" />
+  <g transform="translate(484, 50)">
+    <rect x="0" y="0" width="170" height="80" rx="4" class="node-rect" />
+    <text x="85.0" y="24" text-anchor="middle" class="title-text">RAG / OCR</text>
+    <text x="85.0" y="44" text-anchor="middle" class="body-text">База знаний</text>
+    <text x="85.0" y="60" text-anchor="middle" class="body-text">и документы</text>
+  </g>
+  <path d="M 654 90.0 L 714 90.0" class="arrow" marker-end="url(#arrow-sr-59769)" />
+  <g transform="translate(714, 50)">
+    <rect x="0" y="0" width="170" height="80" rx="4" class="node-accent" />
+    <text x="85.0" y="24" text-anchor="middle" class="title-text">LLM</text>
+    <text x="85.0" y="44" text-anchor="middle" class="body-text">Ответ</text>
+    <text x="85.0" y="60" text-anchor="middle" class="body-text">с источниками</text>
+  </g>
+  <path d="M 884 90.0 L 944 90.0" class="arrow" marker-end="url(#arrow-sr-59769)" />
+  <g transform="translate(944, 50)">
+    <rect x="0" y="0" width="170" height="80" rx="4" class="node-rect" />
+    <text x="85.0" y="24" text-anchor="middle" class="title-text">Консоль</text>
+    <text x="85.0" y="44" text-anchor="middle" class="body-text">Логи</text>
+    <text x="85.0" y="60" text-anchor="middle" class="body-text">и аналитика</text>
+  </g>
+</svg>
+
+        <div class="pipeline-cards">
+          
+          <div class="pipeline-card">
+            <div class="pipeline-card__number">01</div>
+            <h3 class="pipeline-card__title">Маршрутизация</h3>
+            <p class="pipeline-card__text">Бот определяет формат входных данных и выбирает RAG, OCR, текстовый или голосовой обработчик.</p>
+          </div>
+          
+          <div class="pipeline-card">
+            <div class="pipeline-card__number">02</div>
+            <h3 class="pipeline-card__title">RAG / OCR</h3>
+            <p class="pipeline-card__text">Из базы знаний и документов извлекаются релевантные фрагменты с цитатами.</p>
+          </div>
+          
+          <div class="pipeline-card">
+            <div class="pipeline-card__number">03</div>
+            <h3 class="pipeline-card__title">Ответ и observability</h3>
+            <p class="pipeline-card__text">LLM формирует ответ с источниками, консоль сохраняет диалог и метрики.</p>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. UX -->
+    <section class="section" id="ux">
+      <div class="container">
+        <div class="section__header">
+          <p class="eyebrow">Интерфейсы</p>
+          <h2 class="section__title">Telegram-диалог и консоль администратора</h2>
+          <p class="section__lead">Пользователь общается в привычном Telegram; администратор смотрит обзорную панель.</p>
+        </div>
+
+        
+        <div class="demo-block">
+          <div class="demo-block__header">
+            <div class="demo-block__label">Сценарий 1</div>
+            <h3 class="demo-block__title">RAG-ответ в Telegram</h3>
+            <p class="demo-block__text">Пользователь спрашивает про ООО НоваТех и получает структурированный ответ с источниками из базы знаний.</p>
+          </div>
+          
+          <div class="demo-frame">
+            <img src="/assets/cases/assistant-flow/scenario-1.png" alt="Telegram-чат Assistant Flow с RAG-ответом">
+            <div class="demo-frame__hint">Кликните для полного размера</div>
+          </div>
+          
+        </div>
+        
+        <div class="demo-block">
+          <div class="demo-block__header">
+            <div class="demo-block__label">Сценарий 2</div>
+            <h3 class="demo-block__title">Обзор админки</h3>
+            <p class="demo-block__text">Администратор видит список диалогов, статистику и настройки интеграций в одной панели.</p>
+          </div>
+          
+          <div class="demo-frame">
+            <img src="/assets/cases/assistant-flow/scenario-2.png" alt="Обзорная панель администратора Assistant Flow">
+            <div class="demo-frame__hint">Кликните для полного размера</div>
+          </div>
+          
+        </div>
+        
+      </div>
+    </section>
+
+    <!-- 8. Quote -->
+    <section class="section">
+      <div class="container">
+        <div class="quote">
+          <p class="quote__text">Assistant Flow превращает Telegram из хаоса сообщений в управляемый канал знаний с проверяемыми ответами.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. Final CTA -->
+    <section class="section final">
+      <div class="container final__inner">
+        <div>
+          <p class="eyebrow">Следующий шаг</p>
+          <h2 class="final__title">Расскажите о вашем Telegram-канале знаний</h2>
+          <p class="final__lead">Мы оценим, как Assistant Flow может закрыть типовые вопросы вашей команды или клиентов с проверяемыми источниками.</p>
+          <div class="final__actions">
+            <a href="/contacts.html" class="btn btn-primary" target="_blank" rel="noopener">Обсудить проект</a>
+            <a href="https://t.me/PEn06_Career_Consultant_bot" class="btn btn-ghost" target="_blank" rel="noopener">Открыть в Telegram</a>
+            <a href="https://github.com/AlexLvGulyaev/assistant-flow" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a>
+            
+          </div>
+        </div>
+        <div class="final__links">
+          <span><strong>Александр Гуляаев</strong>, AI Automation Portfolio Lab</span>
+          <a href="https://t.me/AlexLvGulyaev" target="_blank" rel="noopener">Telegram: @AlexLvGulyaev</a>
+          <a href="mailto:sbs.gulyaev.al@gmail.com">sbs.gulyaev.al@gmail.com</a>
+          
+        </div>
+      </div>
+    </section>
   </main>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer__content">
-      <p class="footer__copyright">© 2026 AI Automation Portfolio Lab</p>
-      <nav class="footer__links">
-        <a href="../portfolio.html" class="footer__link">Проекты</a>
-        <a href="../services.html" class="footer__link">Услуги</a>
-        <a href="../contacts.html" class="footer__link">Контакты</a>
-      </nav>
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <span>© 2026 AI Automation Portfolio Lab</span>
+      <span>Telegram-ассистент с RAG и источниками</span>
     </div>
   </footer>
 
-  <script src="../js/main.js"></script>
-  <script src="../js/api-client.js"></script>
-  <script src="../js/chat-widget.js"></script>
-
-  <!-- Chat Launcher Button -->
   <button class="chat-launcher" id="chat-launcher" aria-label="Открыть AI-ассистента">
     <span>💬</span>
   </button>
 
-  <!-- Chat Widget -->
   <div class="chat-widget" id="chat-widget">
     <div class="chat-header">
       <div class="chat-header-left">
@@ -203,16 +1509,46 @@
     </div>
     <div class="chat-messages" id="chat-messages"></div>
     <div class="chat-footer">
-      <input
-        id="chat-input"
-        class="chat-input"
-        placeholder="Напишите вопрос..."
-        type="text"
-      />
-      <button id="chat-send" class="chat-send">
-        <span>➤</span>
-      </button>
+      <input id="chat-input" class="chat-input" placeholder="Напишите вопрос..." type="text">
+      <button id="chat-send" class="chat-send"><span>➤</span></button>
     </div>
   </div>
+
+  <script src="../js/api-client.js"></script>
+  <script src="../js/chat-widget.js"></script>
+  
+  <script>
+    (function() {
+      const btn = document.getElementById('theme-toggle');
+      const root = document.documentElement;
+
+      function isDark() {
+        return root.dataset.theme === 'dark' || (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      }
+
+      function updateIcon() {
+        btn.textContent = isDark() ? '☀️' : '🌙';
+        btn.setAttribute('aria-label', isDark() ? 'Переключить на светлую тему' : 'Переключить на тёмную тему');
+      }
+
+      btn.addEventListener('click', function() {
+        if (isDark()) {
+          root.dataset.theme = 'light';
+          localStorage.setItem('aip-theme-teal', 'light');
+        } else {
+          root.dataset.theme = 'dark';
+          localStorage.setItem('aip-theme-teal', 'dark');
+        }
+        updateIcon();
+      });
+
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+        if (!localStorage.getItem('aip-theme-teal')) updateIcon();
+      });
+
+      updateIcon();
+    })();
+  </script>
+  
 </body>
 </html>

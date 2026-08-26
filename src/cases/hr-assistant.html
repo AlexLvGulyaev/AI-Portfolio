@@ -1,2026 +1,1560 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="HR Assistant — AI-ассистент для первичной обработки резюме. Сокращает время отклика с 10–15 минут до менее 1 минуты.">
-  <title>HR Assistant — AI Portfolio</title>
-  <!-- Fonts -->
+  <meta name="description" content="HR Assistant принимает резюме в Telegram, извлекает данные, сохраняет в PostgreSQL как SOT и сопоставляет кандидата с вакансиями через LLM.">
+  <meta property="og:title" content="HR Assistant — AI-помощник рекрутера в Telegram">
+  <meta property="og:description" content="HR Assistant принимает резюме в Telegram, извлекает данные, сохраняет в PostgreSQL как SOT и сопоставляет кандидата с вакансиями через LLM.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ai.alex-n8n.site/cases/hr-assistant.html">
+  <meta property="og:image" content="/assets/screenshots/HRA_portfolio_light.png">
+  <meta property="og:locale" content="ru_RU">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="HR Assistant — AI-помощник рекрутера в Telegram">
+  <meta name="twitter:description" content="HR Assistant принимает резюме в Telegram, извлекает данные, сохраняет в PostgreSQL как SOT и сопоставляет кандидата с вакансиями через LLM.">
+  <meta name="twitter:image" content="/assets/screenshots/HRA_portfolio_light.png">
+  <link rel="canonical" href="https://ai.alex-n8n.site/cases/hr-assistant.html">
+  <title>HR Assistant — AI-помощник рекрутера в Telegram</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <script>
+    (function() {
+      const saved = localStorage.getItem('aip-theme-teal');
+      if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+      else if (saved === 'light') document.documentElement.dataset.theme = 'light';
+    })();
+  </script>
   <style>
-    /* HR Assistant — AI Portfolio Case Page */
-
     :root {
-      --hra-accent: #14b8a6;
-      --hra-accent-soft: rgba(20, 184, 166, 0.15);
-      --hra-success: #22c55e;
-      --hra-hot: #ef4444;
-      --hra-warm: #f59e0b;
-      --hra-cold: #60a5fa;
+      --bg: #E3EAF2;
+      --surface: #FFFFFF;
+      --surface-elevated: #D8E0EA;
+      --border: #C7D0DB;
+      --text-primary: #1A1A1C;
+      --text-secondary: #5A5A62;
+      --text-muted: #7D7D85;
+      --accent: #0D9488;
+      --accent-hover: #0F766E;
+      --accent-soft: rgba(13, 148, 136, 0.12);
+      --focus: #14B8A6;
+      --shadow-sm: 0 1px 2px rgba(13, 59, 55, 0.04);
+      --shadow-md: 0 8px 24px rgba(13, 59, 55, 0.10);
+      --shadow-lg: 0 18px 48px rgba(13, 59, 55, 0.14);
+      --radius: 2px;
+      --space-xs: 0.5rem;
+      --space-sm: 0.75rem;
+      --space-md: 1.25rem;
+      --space-lg: 2rem;
+      --space-xl: 3rem;
+      --space-2xl: 5rem;
+      --space-3xl: 7rem;
+      --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+      --font-body: "Inter", system-ui, sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
     }
 
-    /* Scene tabs */
-    .scene-tabs {
-      background: var(--bg-primary);
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0a0a0f;
+        --surface: #111118;
+        --surface-elevated: #18181f;
+        --border: rgba(255, 255, 255, 0.10);
+        --text-primary: #f5f5f7;
+        --text-secondary: #a1a1aa;
+        --text-muted: #71717a;
+        --accent: #14b8a6;
+        --accent-hover: #2dd4bf;
+        --accent-soft: rgba(20, 184, 166, 0.15);
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface-elevated: #18181f;
+      --border: rgba(255, 255, 255, 0.10);
+      --text-primary: #f5f5f7;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --accent: #14b8a6;
+      --accent-hover: #2dd4bf;
+      --accent-soft: rgba(20, 184, 166, 0.15);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); }
+    a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+
+    .container {
+      width: min(1140px, 92vw);
+      margin-inline: auto;
+    }
+
+    .site-header {
       position: sticky;
-      top: 60px;
-      z-index: 10;
+      top: 0;
+      z-index: 50;
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
     }
 
-    .scene-tabs__inner {
+    .site-header__inner {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 var(--space-lg);
+      height: 64px;
     }
 
-    .scene-tabs__nav {
-      display: flex;
-      gap: 0;
-      overflow-x: auto;
-      scrollbar-width: none;
-      border-bottom: 1px solid var(--border-subtle);
-      padding-bottom: 0;
-    }
-
-    .scene-tabs__nav::-webkit-scrollbar { display: none; }
-
-    .scene-tabs__tab {
-      padding: var(--space-md) var(--space-lg);
-      background: none;
-      border: none;
-      border-bottom: 2px solid transparent;
-      font-size: 0.9375rem;
-      font-weight: 500;
-      color: var(--text-tertiary);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all var(--transition-fast);
-    }
-
-    .scene-tabs__tab:hover { color: var(--text-secondary); }
-
-    .scene-tabs__tab--active {
-      color: var(--hra-accent);
-      border-bottom-color: var(--hra-accent);
-    }
-
-    .scene-tabs__actions {
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-      flex-shrink: 0;
-      padding-left: var(--space-lg);
-    }
-
-    .scene-tabs__back {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-xs);
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 0.875rem;
-      transition: color var(--transition-fast);
-    }
-
-    .scene-tabs__back:hover { color: var(--text-primary); }
-
-    .scene-tabs__back svg { width: 16px; height: 16px; }
-
-    .scene-tabs__btn {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-xs);
-      padding: var(--space-sm) var(--space-lg);
-      font-size: 0.875rem;
-      font-weight: 500;
-      border-radius: var(--radius-md);
-      text-decoration: none;
-      transition: all var(--transition-fast);
-    }
-
-    .scene-tabs__btn--primary {
-      background: var(--hra-accent);
-      color: var(--bg-primary);
-    }
-
-    .scene-tabs__btn--primary:hover { background: var(--accent-secondary); }
-
-    .scene-tabs__btn--ghost {
-      background: var(--bg-secondary);
-      color: var(--text-secondary);
-      border: 1px solid var(--border-default);
-    }
-
-    .scene-tabs__btn--ghost:hover {
-      background: var(--bg-tertiary);
+    .logo {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.1rem;
       color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
     }
 
-    /* Fixed footer for viewport-aware scenes */
-    .footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 90;
-    }
+    .logo__mark { color: var(--accent); font-size: 1.3rem; line-height: 1; }
 
-    .main {
-      padding-bottom: 68px;
-    }
-
-    /* Scene content */
-    .scene-content { padding: 0; }
-
-    .scene-panel { display: none; }
-
-    .scene-panel--active {
+    .nav {
       display: flex;
-      flex-direction: column;
+      gap: var(--space-md);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .nav a { color: var(--text-secondary); }
+    .nav a:hover { color: var(--text-primary); }
+
+    .theme-toggle {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: calc(100vh - 64px - 52px - 68px);
-      padding: var(--space-lg) 0;
-      animation: fadeIn 0.3s ease;
+      width: 2.2rem;
+      height: 2.2rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
+    .theme-toggle:hover { color: var(--text-primary); border-color: var(--text-muted); }
+    .theme-toggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
-    .scene-section {
-      width: 96vw;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0;
-    }
-
-    /* Common intro */
-    .scene-intro {
-      text-align: center;
-      margin-bottom: var(--space-sm);
-    }
-
-    .scene-intro__eyebrow {
-      font-size: 0.75rem;
-      font-weight: 600;
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 0.12em;
-      color: var(--hra-accent);
-      margin-bottom: var(--space-sm);
+      color: var(--accent);
+      margin: 0 0 var(--space-md);
     }
 
-    .scene-intro__title {
-      font-size: clamp(1.75rem, 3.5vw, 2.5rem);
-      font-weight: 800;
-      line-height: 1.1;
-      margin-bottom: var(--space-sm);
-      color: var(--text-primary);
+    .section {
+      padding: var(--space-3xl) 0;
+      border-bottom: 1px solid var(--border);
     }
 
-    .scene-intro__title-accent { color: var(--hra-accent); }
+    .section:last-of-type { border-bottom: none; }
 
-    .scene-intro__desc {
-      font-size: 1.125rem;
-      color: var(--text-secondary);
-      line-height: 1.45;
-      max-width: 760px;
-      margin: 0 auto;
-    }
-
-    .scene-stack {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      width: 100%;
-      max-width: 1300px;
-      margin: 0 auto;
-      gap: var(--space-md);
-    }
-
-    .scene-stack .scene-intro {
-      margin-bottom: 0;
-    }
-
-    .scene-split {
-      display: grid;
-      grid-template-columns: 1fr 1.35fr;
-      gap: var(--space-xl);
-      align-items: center;
-      width: 100%;
-    }
-
-    .scene-text-col {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      min-width: 0;
-    }
-
-    .scene-viz-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-width: 0;
-      width: 100%;
-    }
-
-    .scene-intro--left {
-      text-align: left;
-      align-items: flex-start;
-      margin-bottom: var(--space-sm);
-    }
-
-    .scene-intro--left .scene-intro__desc {
-      margin: 0;
-      max-width: none;
-    }
-
-    /* Metric cards */
-    .metric-row {
-      display: flex;
-      gap: var(--space-md);
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: var(--space-sm);
-    }
-
-    .metric-card {
-      padding: var(--space-md) var(--space-lg);
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      text-align: center;
-      min-width: 140px;
-      border-top: 3px solid var(--hra-accent);
-    }
-
-    .metric-card--hot { border-top-color: var(--hra-hot); }
-    .metric-card--success { border-top-color: var(--hra-success); }
-    .metric-card--warm { border-top-color: var(--hra-warm); }
-
-    .metric-card__value {
-      font-family: var(--font-display);
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--hra-accent);
-      margin-bottom: var(--space-xs);
-      letter-spacing: -0.02em;
-    }
-
-    .metric-card--hot .metric-card__value { color: var(--hra-hot); }
-    .metric-card--success .metric-card__value { color: var(--hra-success); }
-    .metric-card--warm .metric-card__value { color: var(--hra-warm); }
-
-    .metric-card__label {
-      font-size: 0.9375rem;
-      color: var(--text-secondary);
-      line-height: 1.35;
-    }
-
-    /* Problem chain */
-    .problem-chain {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-md);
-      flex-wrap: wrap;
-      width: 100%;
-    }
-
-    .chain-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--space-sm);
-      padding: var(--space-xl);
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      text-align: center;
-      min-width: 200px;
-      flex: 1;
-      max-width: 240px;
-    }
-
-    .chain-card__icon {
-      width: 56px;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--radius-md);
-      background: var(--bg-tertiary);
-      color: var(--text-secondary);
-      margin-bottom: var(--space-xs);
-    }
-
-    .chain-card__icon svg { width: 28px; height: 28px; }
-
-.chain-card--teal { border-top: 3px solid var(--hra-accent); }
-    .chain-card--warm { border-top: 3px solid var(--hra-warm); }
-    .chain-card--hot { border-top: 3px solid var(--hra-hot); }
-    .chain-card--cold { border-top: 3px solid var(--hra-cold); }
-
-    .chain-card--teal .chain-card__icon { background: rgba(20, 184, 166, 0.1); color: var(--hra-accent); }
-    .chain-card--warm .chain-card__icon { background: rgba(245, 158, 11, 0.1); color: var(--hra-warm); }
-    .chain-card--hot .chain-card__icon { background: rgba(239, 68, 68, 0.1); color: var(--hra-hot); }
-    .chain-card--cold .chain-card__icon { background: rgba(96, 165, 250, 0.1); color: var(--hra-cold); }
-
-    .chain-card__title {
-      font-size: 1.0625rem;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .chain-card__desc {
-      font-size: 0.9375rem;
-      color: var(--text-secondary);
-      line-height: 1.4;
-    }
-
-    .chain-arrow {
-      color: var(--text-tertiary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .chain-arrow svg { width: 28px; height: 28px; }
-
-
-    /* Section note */
-    .section-note {
-      margin: 0 auto;
-      padding: var(--space-md) var(--space-2xl);
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-left: 4px solid var(--hra-accent);
-      border-right: 4px solid var(--hra-accent);
-      border-radius: var(--radius-lg);
-      font-size: 1.0625rem;
-      color: var(--text-primary);
-      line-height: 1.5;
-      text-align: center;
-      max-width: 1100px;
-    }
-
-    .section-note strong { color: var(--hra-accent); }
-
-    /* Compact lists */
-    .compact-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-sm);
-      margin-top: var(--space-md);
-      text-align: left;
-    }
-
-    .compact-list li {
-      position: relative;
-      padding-left: var(--space-md);
-      font-size: 1rem;
-      color: var(--text-secondary);
-      line-height: 1.55;
-    }
-
-    .compact-list li::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0.55em;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--hra-accent);
-    }
-
-    .compact-list strong { color: var(--text-primary); font-weight: 600; }
-
-    /* Viz panel */
-    .viz-panel {
-      width: 100%;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      padding: var(--space-lg);
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .viz-panel__caption {
-      font-size: 0.75rem;
-      color: var(--text-tertiary);
-      margin-top: var(--space-md);
-      text-align: center;
-      line-height: 1.45;
-    }
-
-    /* Scale table */
-    .scale-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9375rem;
-    }
-
-    .scale-table th,
-    .scale-table td {
-      padding: var(--space-md) var(--space-lg);
-      text-align: left;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .scale-table th {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-tertiary);
-      background: var(--bg-tertiary);
-    }
-
-    .scale-table tr:last-child td { border-bottom: none; }
-
-    .scale-table td { color: var(--text-secondary); }
-
-    .scale-table strong { color: var(--text-primary); font-weight: 600; }
-
-    /* Pipeline */
-    .pipeline-container {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      padding: var(--space-xl);
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .pipeline-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-tertiary);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+    .section__header {
+      max-width: 720px;
       margin-bottom: var(--space-xl);
-      text-align: center;
     }
 
-    .pipeline-flow {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-md);
-      flex-wrap: wrap;
+    .section__title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+      font-weight: 600;
+      line-height: 1.15;
+      margin: 0 0 var(--space-md);
     }
 
-    .pipeline-node {
-      display: flex;
-      flex-direction: column;
+    .section__lead {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      margin: 0;
+    }
+
+    .btn {
+      display: inline-flex;
       align-items: center;
       gap: var(--space-xs);
+      padding: 0.7rem 1.2rem;
+      border-radius: var(--radius);
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+      cursor: pointer;
+      border: 1px solid transparent;
     }
 
-    .pipeline-node__icon {
-      width: 60px;
-      height: 60px;
+    .btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #FFFFFF;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #FFFFFF; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border-color: var(--border);
+    }
+
+    .btn-ghost:hover { color: var(--text-primary); border-color: var(--text-muted); }
+
+    .hero {
+      padding: var(--space-xl) 0 var(--space-2xl);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero__inner {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--radius-lg);
-      border: 2px solid;
-      transition: all var(--transition-normal);
-      flex-shrink: 0;
+      flex-direction: column;
+      gap: var(--space-lg);
     }
 
-    .pipeline-node__icon svg {
-      width: 28px;
-      height: 28px;
+    .hero__body {
+      text-align: center;
+      max-width: 640px;
+      margin-inline: auto;
+    }
+
+    .hero__eyebrow { margin-bottom: var(--space-sm); }
+
+    .hero__title {
+      font-family: var(--font-display);
+      font-size: clamp(1.9rem, 3.8vw, 2.8rem);
+      line-height: 1.08;
+      font-weight: 600;
+      margin: 0 0 var(--space-sm);
+    }
+
+    .hero__lead {
+      font-size: clamp(1rem, 1.3vw, 1.1rem);
+      color: var(--text-secondary);
+      margin: 0 0 var(--space-md);
+      max-width: 600px;
+      margin-inline: auto;
+    }
+
+    .hero__actions { display: flex; gap: var(--space-sm); flex-wrap: wrap; justify-content: center; margin-bottom: 0; }
+
+    .hero__media {
+      position: relative;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      max-width: 900px;
+      margin-inline: auto;
+      width: 100%;
+    }
+
+    .hero__media::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 55%);
+      pointer-events: none;
+    }
+
+    .hero__screenshot {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      object-position: top left;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       display: block;
     }
 
-    .pipeline-node__label {
-      font-size: 0.875rem;
-      font-weight: 700;
-      color: var(--text-primary);
+    .preview-dark { display: block; }
+    .preview-light { display: none; }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .preview-dark { display: none; }
+      :root:not([data-theme="light"]) .preview-light { display: block; }
     }
 
-    .pipeline-node__desc {
-      font-size: 0.75rem;
-      color: var(--text-tertiary);
-      text-align: center;
-      max-width: 110px;
+    :root[data-theme="dark"] .preview-dark { display: none; }
+    :root[data-theme="dark"] .preview-light { display: block; }
+
+    .summary {
+      padding: 0 0 var(--space-3xl);
+      border-bottom: 1px solid var(--border);
     }
 
-    .pipeline-arrow svg {
-      width: 32px;
-      height: 16px;
-      color: var(--text-tertiary);
-    }
-
-    .pipeline-node--teal .pipeline-node__icon { background: rgba(20, 184, 166, 0.1); border-color: #14B8A6; color: #14B8A6; }
-    .pipeline-node--green .pipeline-node__icon { background: rgba(34, 197, 94, 0.1); border-color: #22C55E; color: #22C55E; }
-    .pipeline-node--warm .pipeline-node__icon { background: rgba(245, 158, 11, 0.1); border-color: #F59E0B; color: #F59E0B; }
-    .pipeline-node--cold .pipeline-node__icon { background: rgba(96, 165, 250, 0.1); border-color: #60A5FA; color: #60A5FA; }
-    .pipeline-node--muted .pipeline-node__icon { background: var(--bg-tertiary); border-color: var(--border-strong); color: var(--text-tertiary); }
-    .pipeline-node--hot .pipeline-node__icon { background: rgba(239, 68, 68, 0.1); border-color: #EF4444; color: #EF4444; }
-    .pipeline-node--purple .pipeline-node__icon { background: rgba(168, 85, 247, 0.1); border-color: #A855F7; color: #A855F7; }
-    .pipeline-node--white .pipeline-node__icon { background: var(--bg-tertiary); border-color: var(--text-secondary); color: var(--text-secondary); }
-
-    /* Scorecard */
-    .scorecard {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      padding: var(--space-xl);
-      width: 100%;
-      max-width: 640px;
-    }
-
-    .scorecard__row {
-      display: flex;
-      align-items: center;
-      gap: var(--space-md);
-      margin-bottom: var(--space-md);
-    }
-
-    .scorecard__label {
-      width: 140px;
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-      flex-shrink: 0;
-    }
-
-    .scorecard__bar {
-      flex: 1;
-      height: 32px;
-      background: var(--bg-tertiary);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .scorecard__fill {
-      height: 100%;
-      background: var(--hra-accent);
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding-right: var(--space-sm);
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--bg-primary);
-    }
-
-    .scorecard__total {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: var(--space-md);
-      border-top: 1px solid var(--border-subtle);
-      margin-top: var(--space-md);
-    }
-
-    .scorecard__total-label {
-      font-size: 1.125rem;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .scorecard__total-value {
-      font-family: var(--font-display);
-      font-size: 1.75rem;
-      font-weight: 800;
-      color: var(--hra-success);
-    }
-
-    .scorecard__caption {
-      font-size: 0.75rem;
-      color: var(--text-tertiary);
-      margin-top: var(--space-sm);
-      text-align: center;
-    }
-
-    /* Format cards */
-    .format-grid {
+    .summary__grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: var(--space-md);
-      width: 100%;
-      max-width: 1100px;
-      margin: 0 auto;
     }
 
-    .format-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--space-sm);
-      padding: var(--space-lg);
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      text-align: center;
-      border-top: 3px solid var(--hra-accent);
-      transition: all var(--transition-normal);
+    .summary__item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-sm);
     }
 
-    .format-card:hover {
-      border-color: var(--border-default);
-      transform: translateY(-2px);
-    }
-
-    .format-card__icon {
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--radius-md);
-      background: var(--bg-tertiary);
-      color: var(--hra-accent);
-    }
-
-    .format-card__icon svg { width: 24px; height: 24px; }
-
-    .format-card__title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .format-card__time {
-      font-family: var(--font-display);
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: var(--hra-accent);
-    }
-
-    .format-card__desc {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-      line-height: 1.4;
-    }
-
-    /* Responsibility grid */
-    .responsibility-grid {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: var(--space-lg);
-      align-items: stretch;
-      width: 100%;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .responsibility-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      padding: var(--space-xl);
-      display: flex;
-      flex-direction: column;
-      border-top: 4px solid;
-    }
-
-    .responsibility-card--ai { border-top-color: var(--hra-accent); }
-    .responsibility-card--hr { border-top-color: var(--hra-success); }
-
-    .responsibility-card__title {
-      font-size: 1.125rem;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: var(--space-md);
-      color: var(--text-primary);
-    }
-
-    .responsibility-card__list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-xs);
-      flex: 1;
-    }
-
-    .responsibility-card__list li {
-      display: flex;
-      align-items: flex-start;
-      gap: var(--space-xs);
-      font-size: 0.9375rem;
-      color: var(--text-secondary);
-      line-height: 1.45;
-    }
-
-    .responsibility-card__list li svg {
-      width: 18px;
-      height: 18px;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    .responsibility-card--ai .responsibility-card__list li svg { color: var(--hra-accent); }
-    .responsibility-card--hr .responsibility-card__list li svg { color: var(--hra-success); }
-
-    .responsibility-vs {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-tertiary);
-      font-size: 0.75rem;
-      font-weight: 700;
-    }
-
-    .responsibility-vs svg {
-      width: 24px;
-      height: 24px;
-      color: var(--hra-accent);
-    }
-
-    /* Before/after */
-    .before-after {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--space-lg);
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .before-after__card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      padding: var(--space-xl);
-      text-align: left;
-    }
-
-    .before-after__card--before { border-left: 4px solid var(--hra-hot); }
-    .before-after__card--after { border-left: 4px solid var(--hra-success); }
-
-    .before-after__badge {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-xs);
-      font-size: 0.8125rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: var(--space-md);
-      white-space: nowrap;
-    }
-
-    .before-after__card--before .before-after__badge { color: var(--hra-hot); }
-    .before-after__card--after .before-after__badge { color: var(--hra-success); }
-
-    .before-after__title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: var(--space-md);
-    }
-
-    .before-after__list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-xs);
-    }
-
-    .before-after__list li {
-      display: flex;
-      align-items: flex-start;
-      gap: var(--space-sm);
-      font-size: 1rem;
-      color: var(--text-secondary);
-      line-height: 1.45;
-    }
-
-    .before-after__list li svg {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-
-    .before-after__card--before .before-after__list li svg { color: var(--hra-hot); }
-    .before-after__card--after .before-after__list li svg { color: var(--hra-success); }
-
-    /* Economics */
-    .economics-grid {
-      display: grid;
-      grid-template-columns: 0.8fr 1.6fr;
-      gap: var(--space-xl);
-      align-items: start;
-      width: 100%;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .economics-comparison {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: var(--space-lg);
-      align-items: center;
-      margin-bottom: var(--space-md);
-    }
-
-    .economics-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      padding: var(--space-xl) var(--space-2xl);
-      text-align: center;
-      min-width: 300px;
-      flex: 1;
-    }
-
-    .economics-card--manual { border-color: var(--border-strong); }
-    .economics-card--auto {
-      border-color: var(--hra-accent);
-      background: rgba(20, 184, 166, 0.05);
-    }
-
-    .economics-card__label {
-      font-size: 0.6875rem;
-      font-weight: 700;
+    .summary__label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: var(--text-tertiary);
+      color: var(--text-muted);
       margin-bottom: var(--space-xs);
     }
 
-    .economics-card__title {
-      font-size: 1.0625rem;
-      font-weight: 700;
+    .summary__value {
+      font-size: 0.95rem;
       color: var(--text-primary);
-      margin-bottom: var(--space-xs);
-    }
-
-    .economics-card__value {
-      font-family: var(--font-display);
-      font-size: 2.25rem;
-      font-weight: 800;
-      color: var(--text-primary);
-      margin-bottom: var(--space-xs);
-      white-space: nowrap;
-      letter-spacing: -0.02em;
-    }
-
-    .economics-card--auto .economics-card__value { color: var(--hra-accent); }
-
-    .economics-card__desc {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
       line-height: 1.4;
     }
 
-    .economics-vs {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-tertiary);
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      gap: var(--space-xs);
-    }
+    .summary__value a { font-size: 0.9rem; }
 
-    .economics-vs svg {
-      width: 28px;
-      height: 28px;
-      color: var(--hra-accent);
-    }
-
-    /* TCO table */
-    .tco-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9375rem;
-    }
-
-    .tco-table th,
-    .tco-table td {
-      padding: var(--space-md) var(--space-lg);
-      text-align: left;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .tco-table th {
-      font-size: 0.6875rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-tertiary);
-      background: var(--bg-tertiary);
-    }
-
-    .tco-table tr:last-child td { border-bottom: none; }
-
-    .tco-table td { color: var(--text-secondary); }
-
-    .tco-table strong { color: var(--text-primary); font-weight: 600; }
-
-    /* Info list */
-    .info-list {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      padding: var(--space-xl);
-      text-align: center;
-    }
-
-    .info-list ul {
-      list-style: none;
-      padding-left: 0;
-      display: block;
-      text-align: left;
-    }
-
-    .info-list li {
-      position: relative;
-      padding-left: var(--space-lg);
-      margin-bottom: var(--space-sm);
-      color: var(--text-secondary);
-      line-height: 1.6;
-      font-size: 1rem;
-      text-align: left;
-    }
-
-    .info-list li::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0.55em;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--hra-accent);
-    }
-
-    .info-list strong { color: var(--text-primary); font-weight: 600; }
-
-    /* Conclusion */
-    .conclusion-grid {
+    .ba-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1fr 1fr;
       gap: var(--space-lg);
-      width: 100%;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .conclusion-card {
-      padding: var(--space-xl);
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      border-top: 4px solid;
-      text-align: center;
-    }
-
-    .conclusion-card--time { border-top-color: var(--hra-accent); }
-    .conclusion-card--format { border-top-color: var(--hra-success); }
-    .conclusion-card--score { border-top-color: var(--hra-warm); }
-
-    .conclusion-card__icon {
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--radius-md);
-      margin: 0 auto var(--space-md);
-      background: var(--bg-tertiary);
-      color: var(--text-secondary);
-    }
-
-    .conclusion-card--time .conclusion-card__icon { color: var(--hra-accent); }
-    .conclusion-card--format .conclusion-card__icon { color: var(--hra-success); }
-    .conclusion-card--score .conclusion-card__icon { color: var(--hra-warm); }
-
-    .conclusion-card__icon svg { width: 24px; height: 24px; }
-
-    .conclusion-card__value {
-      font-family: var(--font-display);
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--text-primary);
-      margin-bottom: var(--space-xs);
-    }
-
-    .conclusion-card--time .conclusion-card__value { color: var(--hra-accent); }
-    .conclusion-card--format .conclusion-card__value { color: var(--hra-success); }
-    .conclusion-card--score .conclusion-card__value { color: var(--hra-warm); }
-
-    .conclusion-card__label {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: var(--space-xs);
-    }
-
-    .conclusion-card__desc {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-      line-height: 1.4;
-    }
-
-    /* CTA section */
-    .cta-section {
-      text-align: center;
-      max-width: 700px;
-      margin: 0 auto;
-    }
-
-    .cta-section__text {
-      font-size: 1.125rem;
-      color: var(--text-secondary);
-      line-height: 1.55;
       margin-bottom: var(--space-xl);
     }
 
-    .cta-section__buttons {
-      display: flex;
-      gap: var(--space-md);
-      justify-content: center;
-      flex-wrap: wrap;
+    .ba-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
     }
 
-    .cta-section__btn {
-      display: inline-flex;
+    .ba-card--accent {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+      background: linear-gradient(135deg, var(--surface) 0%, color-mix(in srgb, var(--accent-soft) 40%, var(--surface)) 100%);
+    }
+
+    .ba-card__title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 0 0 var(--space-md);
+      display: flex;
       align-items: center;
       gap: var(--space-sm);
-      padding: var(--space-md) var(--space-xl);
+    }
+
+    .ba-card__list {
+      margin: 0;
+      padding-left: var(--space-md);
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .ba-card__list li { margin-bottom: var(--space-sm); }
+
+    .ba-arrow {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 1.5rem;
+    }
+
+    .problem-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .problem-card__title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 var(--space-sm);
+    }
+
+    .problem-card__text {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .solution-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .solution-card {
+      display: flex;
+      gap: var(--space-md);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .solution-card__icon {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      border-radius: var(--radius);
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+    }
+
+    .solution-card__title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 var(--space-xs);
+    }
+
+    .solution-card__text {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .pipeline-diagram {
+      width: 100%;
+      height: auto;
+      max-width: 100%;
+    }
+
+    .pipeline-diagram text {
+      font-family: var(--font-body);
+      fill: var(--text-primary);
+    }
+
+    .pipeline-diagram .node-rect {
+      fill: var(--surface);
+      stroke: var(--border);
+      stroke-width: 1.5;
+    }
+
+    .pipeline-diagram .node-accent {
+      fill: var(--accent-soft);
+      stroke: var(--accent);
+      stroke-width: 1.5;
+    }
+
+    .pipeline-diagram .arrow {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .pipeline-diagram .arrow-head {
+      fill: var(--accent);
+    }
+
+    .pipeline-diagram .title-text {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .pipeline-diagram .title-text--large {
+      font-size: 17px;
+    }
+
+    .pipeline-diagram .body-text {
+      font-size: 13px;
+      fill: var(--text-secondary);
+    }
+
+    .pipeline-diagram .body-text--large {
+      font-size: 15px;
+    }
+
+    .pipeline-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-lg);
+      margin-top: var(--space-xl);
+    }
+
+    .pipeline-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pipeline-card__number {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      margin-bottom: var(--space-xs);
+    }
+
+    .pipeline-card__title {
+      font-family: var(--font-display);
       font-size: 1rem;
-      font-weight: 500;
-      border-radius: var(--radius-lg);
-      text-decoration: none;
-      transition: all var(--transition-fast);
+      font-weight: 600;
+      margin: 0 0 var(--space-xs);
     }
 
-    .cta-section__btn--primary {
-      background: var(--hra-accent);
-      color: var(--bg-primary);
+    .pipeline-card__text {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin: 0;
     }
 
-    .cta-section__btn--primary:hover {
-      background: var(--accent-secondary);
-      transform: translateY(-1px);
+    .demo-block {
+      margin-bottom: var(--space-2xl);
     }
 
-    .cta-section__btn--ghost {
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      border: 1px solid var(--border-default);
+    .demo-block:last-child {
+      margin-bottom: 0;
     }
 
-    .cta-section__btn--ghost:hover {
-      background: var(--bg-tertiary);
-      border-color: var(--border-strong);
-    }
-
-    /* Metric row left aligned */
-    .metric-row--left {
-      justify-content: flex-start;
+    .demo-block__header {
       margin-bottom: var(--space-md);
+      max-width: 720px;
     }
 
-    .metric-row--left .metric-card {
-      min-width: 140px;
+    .demo-block__label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: var(--space-sm);
+    }
+
+    .demo-block__title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 0 0 var(--space-xs);
+    }
+
+    .demo-block__text {
+      color: var(--text-secondary);
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .demo-frame {
+      position: relative;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-md);
+      cursor: zoom-in;
+      transition: box-shadow 180ms ease, border-color 180ms ease;
+      overflow: hidden;
+    }
+
+    .demo-frame:hover {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+      box-shadow: var(--shadow-lg);
+    }
+
+    .demo-frame img {
+      width: 100%;
+      height: auto;
+      max-height: 560px;
+      object-fit: contain;
+      object-position: top left;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: block;
+    }
+
+    .demo-frame__hint {
+      position: absolute;
+      bottom: var(--space-md);
+      right: var(--space-md);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.35rem 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .demo-frame:hover .demo-frame__hint {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .ui-illustration {
+      width: 100%;
+      height: auto;
+      max-width: 100%;
+      display: block;
+    }
+
+    .ui-illustration text {
+      font-family: var(--font-body);
+    }
+
+    .ui-illustration .ui-window {
+      fill: var(--surface);
+      stroke: var(--border);
+      stroke-width: 1.5;
+    }
+
+    .ui-illustration .ui-header {
+      fill: var(--surface-elevated);
+      stroke: var(--border);
+      stroke-width: 1.5;
+    }
+
+    .ui-illustration .ui-title {
+      font-size: 15px;
+      font-weight: 600;
+      fill: var(--text-primary);
+    }
+
+    .ui-illustration .ui-subtitle {
+      font-size: 11px;
+      fill: var(--text-muted);
+    }
+
+    .ui-illustration .ui-avatar {
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-sidebar {
+      fill: var(--surface-elevated);
+      stroke: var(--border);
+      stroke-width: 1.5;
+    }
+
+    .ui-illustration .ui-sidebar-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      fill: var(--text-primary);
+    }
+
+    .ui-illustration .ui-sidebar-item {
+      fill: transparent;
+    }
+
+    .ui-illustration .ui-sidebar-item-active {
+      fill: var(--accent-soft);
+      stroke: var(--accent);
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-sidebar-text {
+      font-size: 13px;
+      fill: var(--text-secondary);
+    }
+
+    .ui-illustration .ui-sidebar-text-active {
+      font-size: 13px;
+      font-weight: 500;
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-main-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      fill: var(--text-primary);
+    }
+
+    .ui-illustration .ui-msg-user {
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-msg-bot {
+      fill: var(--surface-elevated);
+      stroke: var(--border);
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-msg-text-user {
+      font-size: 14px;
+      fill: #ffffff;
+    }
+
+    .ui-illustration .ui-msg-text-bot {
+      font-size: 14px;
+      fill: var(--text-primary);
+    }
+
+    .ui-illustration .ui-source-card {
+      fill: var(--surface);
+      stroke: var(--accent);
+      stroke-width: 1.5;
+    }
+
+    .ui-illustration .ui-source-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-input {
+      fill: var(--surface-elevated);
+      stroke: var(--border);
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-input-text {
+      font-size: 13px;
+      fill: var(--text-muted);
+    }
+
+    .ui-illustration .ui-btn-primary {
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-btn-text {
+      font-size: 12px;
+      font-weight: 500;
+      fill: #ffffff;
+    }
+
+    .ui-illustration .ui-status-published {
+      fill: rgba(34, 197, 94, 0.15);
+      stroke: #22c55e;
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-status-text {
+      font-size: 12px;
+      font-weight: 500;
+      fill: #22c55e;
+    }
+
+    .ui-illustration .ui-toggle {
+      fill: var(--surface-elevated);
+      stroke: var(--border);
+      stroke-width: 1;
+    }
+
+    .ui-illustration .ui-toggle-active {
+      fill: var(--accent-soft);
+      stroke: var(--accent);
+      stroke-width: 1.5;
+    }
+
+    .ui-illustration .ui-toggle-text {
+      font-size: 11px;
+      font-weight: 500;
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-toggle-text-inactive {
+      font-size: 11px;
+      fill: var(--text-muted);
+    }
+
+    .ui-illustration .ui-source-stripe {
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-source-title {
+      font-size: 13px;
+      font-weight: 600;
+      fill: var(--text-primary);
+    }
+
+    .ui-illustration .ui-send {
+      fill: var(--accent);
+    }
+
+    .ui-illustration .ui-send-arrow {
+      stroke: #ffffff;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .ui-illustration .ui-msg-text-bot-muted {
+      font-size: 12px;
+      fill: var(--text-secondary);
+    }
+
+    .ui-illustration .ui-table-header-text {
+      font-size: 11px;
+      font-weight: 600;
+      fill: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .quote {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .quote__text {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      line-height: 1.35;
+      margin: 0 0 var(--space-md);
+      color: var(--text-primary);
+    }
+
+    .quote__author {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
+    .quote__author strong { color: var(--text-primary); }
+
+    .final {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .final__inner {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: var(--space-xl);
+      align-items: center;
+    }
+
+    .final__title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+      font-weight: 600;
+      margin: 0 0 var(--space-md);
+      line-height: 1.15;
+    }
+
+    .final__lead {
+      color: var(--text-secondary);
+      margin: 0 0 var(--space-lg);
+      max-width: 520px;
+    }
+
+    .final__actions { display: flex; gap: var(--space-sm); flex-wrap: wrap; margin-bottom: var(--space-lg); }
+
+    .final__links {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+    }
+
+    .final__links a { display: inline-flex; align-items: center; gap: 0.4rem; }
+
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: var(--space-lg) 0;
+    }
+
+    .site-footer__inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+
+    .chat-launcher {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: transform 150ms ease, box-shadow 150ms ease;
+      z-index: 1000;
+      color: #fff;
+      font-size: 1.4rem;
+    }
+
+    .chat-launcher:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .chat-widget {
+      position: fixed;
+      bottom: 92px;
+      right: 24px;
+      width: 380px;
+      max-width: calc(100vw - 32px);
+      height: 560px;
+      max-height: calc(100vh - 120px);
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      z-index: 1001;
+    }
+
+    .chat-header {
+      padding: var(--space-md) var(--space-lg);
+      background: var(--surface-elevated);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-primary);
+    }
+
+    .chat-header-left { display: flex; gap: var(--space-sm); align-items: center; }
+    .chat-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .chat-title { font-size: 0.9375rem; font-weight: 600; }
+    .chat-subtitle { font-size: 0.75rem; color: var(--text-muted); }
+    .chat-close {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 20px;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 150ms ease;
+      padding: var(--space-xs);
+    }
+
+    .chat-close:hover { opacity: 1; }
+    .chat-messages {
+      flex: 1;
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      overflow-y: auto;
+      background: var(--bg);
+    }
+
+    .chat-message {
+      max-width: 85%;
+      border-radius: var(--radius);
       padding: var(--space-sm) var(--space-md);
+      font-size: 0.875rem;
+      line-height: 1.5;
+      word-wrap: break-word;
+      white-space: pre-wrap;
     }
 
-    .metric-row--left .metric-card__value {
-      font-size: 1.75rem;
+    .chat-message.user {
+      margin-left: auto;
+      background: var(--accent);
+      color: #fff;
     }
 
-    /* Responsive */
-    @media (max-width: 1024px) {
-      .scene-section { width: 95vw; }
-      .scene-split { grid-template-columns: 1fr; gap: var(--space-lg); }
-      .economics-grid { grid-template-columns: 1fr; }
-      .format-grid { grid-template-columns: repeat(2, 1fr); }
-      .problem-chain { flex-wrap: wrap; }
-      .chain-arrow { transform: rotate(90deg); }
-      .responsibility-grid { grid-template-columns: 1fr; }
-      .responsibility-vs { flex-direction: row; padding: var(--space-sm) 0; }
-      .economics-comparison { grid-template-columns: 1fr; }
-      .economics-vs { flex-direction: row; padding: var(--space-sm) 0; }
-      .conclusion-grid { grid-template-columns: repeat(2, 1fr); }
-      .before-after { grid-template-columns: 1fr; }
-      .delay-chain { flex-direction: column; }
-      .chain-card--large { min-width: auto; max-width: none; width: 100%; }
+    .chat-message.bot {
+      margin-right: auto;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
     }
 
-    @media (max-width: 768px) {
-      .scene-tabs__inner {
-        flex-direction: column;
-        gap: var(--space-sm);
-        padding: var(--space-sm) var(--space-md);
-      }
-      .scene-tabs__nav {
-        width: 100%;
-        order: 2;
-      }
-      .scene-tabs__actions {
-        width: 100%;
-        justify-content: flex-start;
-        padding-left: 0;
-        order: 1;
-        flex-wrap: wrap;
-        gap: var(--space-xs);
-      }
-      .scene-tabs__tab {
-        padding: var(--space-sm) var(--space-md);
-        font-size: 0.875rem;
-      }
-      .scene-tabs__btn {
-        flex: 1;
-        justify-content: center;
-        min-width: 80px;
-      }
-      .scene-panel--active { min-height: auto; padding: var(--space-xl) 0; }
-      .scene-section { width: 100%; padding: 0 var(--space-md); }
-      .scene-split { grid-template-columns: 1fr; gap: var(--space-xl); }
-      .scene-intro--left { text-align: center; align-items: center; }
-      .scene-intro--left .scene-intro__desc { margin: 0 auto; max-width: 600px; }
-      .metric-row--left { justify-content: center; }
-      .metric-card { width: 100%; }
-      .metric-row { flex-direction: column; align-items: center; }
-      .format-grid { grid-template-columns: 1fr; }
-      .conclusion-grid { grid-template-columns: 1fr; }
-      .pipeline-flow { flex-direction: column; gap: var(--space-md); }
-      .pipeline-arrow { transform: rotate(90deg); }
-      .problem-chain { flex-direction: column; align-items: stretch; }
-      .chain-card { max-width: none; }
-      .chain-arrow { transform: rotate(90deg); }
-      .scale-table { font-size: 0.8125rem; }
-      .scale-table th,
-      .scale-table td { padding: var(--space-sm); }
-      .info-list { padding: var(--space-lg); }
-      .info-list ul { display: block; }
-      .scorecard { padding: var(--space-md); }
-      .scorecard__label { width: 90px; font-size: 0.75rem; }
-      .scorecard__total-value { font-size: 1.25rem; }
+    .chat-message--error {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: #ef4444;
+      color: var(--text-primary);
+    }
+
+    .chat-message__text { margin-bottom: 0; }
+    .chat-message__meta {
+      margin-top: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .chat-message__meta-label { font-size: 0.6875rem; color: var(--text-muted); margin-right: var(--space-xs); }
+    .chat-message__meta-value { font-size: 0.75rem; color: var(--text-secondary); }
+    .chat-message__sources,
+    .chat-message__provider,
+    .chat-message__time { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+    .chat-message__cache {
+      display: inline-block;
+      font-size: 0.625rem;
+      padding: 2px var(--space-sm);
+      background: rgba(34, 197, 94, 0.12);
+      color: #22c55e;
+      border-radius: var(--radius);
+      border: 1px solid #22c55e;
+    }
+
+    .typing-indicator { display: inline-flex; gap: 3px; padding: var(--space-xs) 0; }
+    .typing-indicator .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--text-muted);
+      animation: typing 1s infinite ease-in-out;
+    }
+
+    .typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing {
+      0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+      40% { opacity: 1; transform: translateY(-2px); }
+    }
+
+    .chat-footer {
+      padding: var(--space-sm) var(--space-md);
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      gap: var(--space-sm);
+      align-items: center;
+    }
+
+    .chat-input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 150ms ease;
+    }
+
+    .chat-input:focus { border-color: var(--accent); }
+    .chat-input::placeholder { color: var(--text-muted); }
+    .chat-send {
+      border-radius: 999px;
+      border: none;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      transition: opacity 150ms ease;
+    }
+
+    .chat-send:hover:not(:disabled) { opacity: 0.9; }
+    .chat-send:disabled { opacity: 0.5; cursor: default; }
+    .chat-send span { font-size: 1rem; }
+
+    @media (max-width: 900px) {
+      .final__inner { grid-template-columns: 1fr; }
+      .summary__grid,
+      .solution-grid,
+      .ba-grid { grid-template-columns: 1fr; }
+      .ba-arrow { display: none; }
+      .pipeline-cards { grid-template-columns: 1fr; }
+      .section { padding: var(--space-2xl) 0; }
+      .chat-widget { right: 16px; bottom: 84px; }
+      .chat-launcher { right: 16px; bottom: 16px; }
     }
   </style>
+  
 </head>
 <body>
-  <header class="header">
-    <div class="header__content">
-      <a href="../index.html" class="header__logo">
-        <span class="logo__icon">◇</span>
-        <span>AI Portfolio</span>
-      </a>
-      <nav class="nav">
-        <a href="../index.html" class="nav__link">Главная</a>
-        <a href="../portfolio.html" class="nav__link nav__link--active">Проекты</a>
-        <a href="../services.html" class="nav__link">Услуги</a>
-        <a href="../contacts.html" class="nav__link">Контакты</a>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="/" class="logo"><span class="logo__mark">◇</span> AI Portfolio</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="/">Главная</a>
+        <a href="/portfolio.html">Проекты</a>
+        <a href="/services.html">Услуги</a>
+        <a href="/contacts.html">Контакты</a>
       </nav>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">🌙</button>
     </div>
   </header>
 
-  <main class="main">
-    <div class="page">
-
-      <!-- Scene tabs -->
-      <nav class="scene-tabs">
-        <div class="scene-tabs__inner">
-          <div class="scene-tabs__nav">
-            <button class="scene-tabs__tab scene-tabs__tab--active" data-tab="problem">Проблема</button>
-            <button class="scene-tabs__tab" data-tab="delay">Задержка</button>
-            <button class="scene-tabs__tab" data-tab="scale">Масштаб</button>
-            <button class="scene-tabs__tab" data-tab="budget">Бюджет</button>
-            <button class="scene-tabs__tab" data-tab="solution">Решение</button>
-            <button class="scene-tabs__tab" data-tab="score">Score</button>
-            <button class="scene-tabs__tab" data-tab="input">Ввод</button>
-            <button class="scene-tabs__tab" data-tab="hr">HR</button>
-            <button class="scene-tabs__tab" data-tab="result">Результат</button>
-            <button class="scene-tabs__tab" data-tab="price">Цена</button>
-            <button class="scene-tabs__tab" data-tab="limits">Границы</button>
-            <button class="scene-tabs__tab" data-tab="final">Итог</button>
-          </div>
-          <div class="scene-tabs__actions">
-            <a href="../portfolio.html" class="scene-tabs__back">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-              Все проекты
-            </a>
-            <a href="#" class="scene-tabs__btn scene-tabs__btn--ghost">GitHub</a>
-            <a href="#" class="scene-tabs__btn scene-tabs__btn--primary">Demo</a>
+  <main>
+    <!-- 1. Hero -->
+    <section class="hero">
+      <div class="container hero__inner">
+        <div class="hero__body">
+          <p class="eyebrow hero__eyebrow">AI-помощник рекрутера в Telegram</p>
+          <h1 class="hero__title">Кандидаты в Telegram, match score и решение — без ручной обработки резюме</h1>
+          <p class="hero__lead">HR Assistant принимает резюме в Telegram, извлекает данные, сохраняет в PostgreSQL как SOT и сопоставляет кандидата с вакансиями через LLM.</p>
+          <div class="hero__actions">
+            <a href="https://t.me/PEm05_HR_assistant_bot" class="btn btn-primary" target="_blank" rel="noopener">Открыть в Telegram</a>
+            <a href="https://github.com/AlexLvGulyaev/HR-Assistant" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a>
+            <a href="/contacts.html" class="btn btn-ghost" target="_blank" rel="noopener">Обсудить проект</a>
+            
           </div>
         </div>
-      </nav>
-
-      <!-- Scene content -->
-      <div class="scene-content">
-
-        <!-- Scene 1: Problem -->
-        <div class="scene-panel scene-panel--active" data-panel="problem">
-          <div class="scene-section">
-            <div class="scene-stack">
-              <div class="scene-intro">
-                <div class="scene-intro__eyebrow">Узкое место в найме</div>
-                <h1 class="scene-intro__title">Первичный отбор <span class="scene-intro__title-accent">тормозит весь процесс найма</span></h1>
-                <p class="scene-intro__desc">Большой поток откликов → очередь на обработку → кандидаты уходят к конкурентам → вакансии закрываются позже.</p>
-              </div>
-
-              <div class="metric-row">
-                <div class="metric-card metric-card--hot">
-                  <div class="metric-card__value">10–15 мин</div>
-                  <div class="metric-card__label">ручная обработка<br>одного резюме</div>
-                </div>
-                <div class="metric-card">
-                  <div class="metric-card__value">&lt;1 мин</div>
-                  <div class="metric-card__label">автоматическая<br>обработка</div>
-                </div>
-                <div class="metric-card metric-card--success">
-                  <div class="metric-card__value">4 формата</div>
-                  <div class="metric-card__label">текст, голос, PDF,<br>фото резюме</div>
-                </div>
-              </div>
-
-              <div class="problem-chain">
-                <div class="chain-card chain-card--teal">
-                  <div class="chain-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                  </div>
-                  <div class="chain-card__title">Поток откликов</div>
-                  <div class="chain-card__desc">Резюме приходят в разных форматах ежедневно</div>
-                </div>
-                <div class="chain-arrow">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                </div>
-                <div class="chain-card chain-card--warm">
-                  <div class="chain-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                  </div>
-                  <div class="chain-card__title">Очередь HR</div>
-                  <div class="chain-card__desc">10–15 минут на каждое резюме не масштабируются</div>
-                </div>
-                <div class="chain-arrow">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                </div>
-                <div class="chain-card chain-card--hot">
-                  <div class="chain-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6M15 18l6-6M3 6l6 6"/></svg>
-                  </div>
-                  <div class="chain-card__title">Кандидаты уходят</div>
-                  <div class="chain-card__desc">Сильные кандидаты принимают другие офферы</div>
-                </div>
-                <div class="chain-arrow">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                </div>
-                <div class="chain-card chain-card--cold">
-                  <div class="chain-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/></svg>
-                  </div>
-                  <div class="chain-card__title">Вакансии позже</div>
-                  <div class="chain-card__desc">time-to-hire растёт, бизнес теряет деньги</div>
-                </div>
-              </div>
-
-              <div class="section-note">
-                Проблема не в HR, а в <strong>бизнес-процессе найма</strong>: первичный отбор стал бутылочным горлышком.
-              </div>
-            </div>
-          </div>
+        <div class="hero__media">
+          <img class="hero__screenshot preview-dark" src="/assets/screenshots/HRA_portfolio_dark.png" alt="Telegram-интерфейс HR Assistant: кандидат отправляет резюме" loading="eager">
+          <img class="hero__screenshot preview-light" src="/assets/screenshots/HRA_portfolio_light.png" alt="Telegram-интерфейс HR Assistant: кандидат отправляет резюме" loading="eager">
         </div>
-
-        <!-- Scene 2: Delay -->
-        <div class="scene-panel" data-panel="delay">
-          <div class="scene-section">
-            <div class="scene-split">
-              <div class="scene-text-col">
-                <div class="scene-intro scene-intro--left">
-                  <div class="scene-intro__eyebrow">Стоимость задержки</div>
-                  <h2 class="scene-intro__title">Каждый день молчания — <span class="scene-intro__title-accent">это деньги и конкуренты</span></h2>
-                  <p class="scene-intro__desc">Задержка на первичном этапе увеличивает time-to-hire и риск отказа кандидата. Время обработки напрямую влияет на стоимость закрытия вакансии.</p>
-                </div>
-
-                <div class="metric-row metric-row--left">
-                  <div class="metric-card metric-card--hot">
-                    <div class="metric-card__value">10–15 мин</div>
-                    <div class="metric-card__label">время HR на одно<br>резюме вручную</div>
-                  </div>
-                  <div class="metric-card">
-                    <div class="metric-card__value">&lt;1 мин</div>
-                    <div class="metric-card__label">время автоматической<br>обработки</div>
-                  </div>
-                </div>
-
-                <ul class="compact-list">
-                  <li><strong>time-to-hire × ставка HR</strong> — прямые затраты на ручную обработку.</li>
-                  <li><strong>Риск потери кандидата</strong> — каждый день молчания повышает вероятность отказа.</li>
-                  <li><strong>Cost of vacancy</strong> — незакрытая вакансия стоит компании больше, чем часы HR.</li>
-                </ul>
-              </div>
-
-              <div class="scene-viz-col">
-                <div class="viz-panel">
-                  <div class="problem-chain">
-                    <div class="chain-card chain-card--teal">
-                      <div class="chain-card__icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                      </div>
-                      <div class="chain-card__title">Задержка</div>
-                      <div class="chain-card__desc">Резюме ждёт в очереди часами или днями</div>
-                    </div>
-                    <div class="chain-arrow">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                    </div>
-                    <div class="chain-card chain-card--warm">
-                      <div class="chain-card__icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/></svg>
-                      </div>
-                      <div class="chain-card__title">Рост time-to-hire</div>
-                      <div class="chain-card__desc">Первичный отбор занимает львиную долю цикла найма</div>
-                    </div>
-                    <div class="chain-arrow">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                    </div>
-                    <div class="chain-card chain-card--hot">
-                      <div class="chain-card__icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
-                      </div>
-                      <div class="chain-card__title">Скрытые потери</div>
-                      <div class="chain-card__desc">Потерянные кандидаты + незакрытая вакансия = убыток</div>
-                    </div>
-                  </div>
-                  <div class="viz-panel__caption">Сценарная модель: расчёт точной стоимости требует ставки HR и cost of vacancy компании.</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Scene 3: Scale -->
-        <div class="scene-panel" data-panel="scale">
-          <div class="scene-section">
-            <div class="scene-stack">
-              <div class="scene-intro">
-                <div class="scene-intro__eyebrow">Масштаб потока</div>
-                <h2 class="scene-intro__title">Ручная обработка <span class="scene-intro__title-accent">не масштабируется</span></h2>
-                <p class="scene-intro__desc">При росте потока компания выбирает между наймом новых рекрутеров и автоматизацией рутины.</p>
-              </div>
-
-              <div class="viz-panel" style="max-width: 1000px;">
-                <table class="scale-table">
-                  <thead>
-                    <tr>
-                      <th>Откликов / месяц</th>
-                      <th>Часы HR вручную</th>
-                      <th>Путь: новые рекрутеры</th>
-                      <th>Путь: автоматизация</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><strong>1 000</strong></td>
-                      <td>~250 ч/мес</td>
-                      <td>Найм + адаптация</td>
-                      <td>TCO ~$56/мес</td>
-                    </tr>
-                    <tr>
-                      <td><strong>5 000</strong></td>
-                      <td>~1 250 ч/мес</td>
-                      <td>Линейный рост штата</td>
-                      <td>TCO ~$130/мес</td>
-                    </tr>
-                    <tr>
-                      <td><strong>10 000</strong></td>
-                      <td>~2 500 ч/мес</td>
-                      <td>Пропорциональный рост затрат</td>
-                      <td>TCO ~$260/мес</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="section-note">
-                <strong>Два пути при росте:</strong> нанимать рекрутеров или автоматизировать первичный отбор. HR Assistant — второй путь.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Scene 4: Budget -->
-        <div class="scene-panel" data-panel="budget">
-          <div class="scene-section">
-            <div class="scene-stack">
-              <div class="scene-intro">
-                <div class="scene-intro__eyebrow">Куда уходит бюджет найма</div>
-                <h2 class="scene-intro__title">Деньги утекают на рутину <span class="scene-intro__title-accent">вместо решений</span></h2>
-                <p class="scene-intro__desc">Чтение, извлечение данных, заполнение CRM, первичный matching и ответ кандидату — повторяющаяся работа, не требующая HR-экспертизы.</p>
-              </div>
-
-              <div class="pipeline-container">
-                <div class="pipeline-title">Первичный отбор как набор рутинных операций</div>
-                <div class="pipeline-flow">
-                  <div class="pipeline-node pipeline-node--cold">
-                    <div class="pipeline-node__icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
-                    </div>
-                    <div class="pipeline-node__label">Резюме</div>
-                    <div class="pipeline-node__desc">Входящее</div>
-                  </div>
-                  <div class="pipeline-arrow">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                  </div>
-                  <div class="pipeline-node pipeline-node--teal">
-                    <div class="pipeline-node__icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-                    </div>
-                    <div class="pipeline-node__label">Чтение</div>
-                    <div class="pipeline-node__desc">Рутина</div>
-                  </div>
-                  <div class="pipeline-arrow">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                  </div>
-                  <div class="pipeline-node pipeline-node--green">
-                    <div class="pipeline-node__icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
-                    </div>
-                    <div class="pipeline-node__label">Извлечение</div>
-                    <div class="pipeline-node__desc">Рутина</div>
-                  </div>
-                  <div class="pipeline-arrow">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                  </div>
-                  <div class="pipeline-node pipeline-node--warm">
-                    <div class="pipeline-node__icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7z"/></svg>
-                    </div>
-                    <div class="pipeline-node__label">CRM</div>
-                    <div class="pipeline-node__desc">Рутина</div>
-                  </div>
-                  <div class="pipeline-arrow">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                  </div>
-                  <div class="pipeline-node pipeline-node--hot">
-                    <div class="pipeline-node__icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M12 17V5M6 17v-4"/></svg>
-                    </div>
-                    <div class="pipeline-node__label">Matching</div>
-                    <div class="pipeline-node__desc">Рутина</div>
-                  </div>
-                  <div class="pipeline-arrow">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                  </div>
-                  <div class="pipeline-node pipeline-node--purple">
-                    <div class="pipeline-node__icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-                    </div>
-                    <div class="pipeline-node__label">Ответ</div>
-                    <div class="pipeline-node__desc">Рутина</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="section-note">
-                Каждый из этих этапов — это время, которое HR не тратит на <strong>интервью и закрытие вакансий</strong>.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Scene 5: Solution -->
-        <div class="scene-panel" data-panel="solution">
-          <div class="scene-section">
-            <div class="scene-stack">
-              <div class="scene-intro">
-                <div class="scene-intro__eyebrow">Что передаётся системе</div>
-                <h2 class="scene-intro__title">Рутина первичного отбора <span class="scene-intro__title-accent">уходит AI-ассистенту</span></h2>
-                <p class="scene-intro__desc">Intake, extraction, matching и базовый ответ автоматизируются без потери контроля. HR получает готовый профиль.</p>
-              </div>
-
-              <div class="pipeline-container">
-                <div class="pipeline-title">Бизнес-пайплайн HR Assistant</div>
-                <div class="pipeline-flow">
-                  <div class="pipeline-node pipeline-node--white">
-                    <div class="pipeline-node__icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-                    </div>
-                    <div class="pipeline-node__label">Кандидат</div>
-                    <div class="pipeline-node__desc">4 формата</div>
-                  </div>
-                  <div class="pipeline-arrow">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                  </div>
-                  <div class="pipeline-node pipeline-node--teal">
-                    <div class="pipeline-node__icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
-                    </div>
-                    <div class="pipeline-node__label">Intake</div>
-                    <div class="pipeline-node__desc">Приём + OCR/STT</div>
-                  </div>
-                  <div class="pipeline-arrow">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                  </div>
-                  <div class="pipeline-node pipeline-node--green">
-                    <div class="pipeline-node__icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
-                    </div>
-                    <div class="pipeline-node__label">Extraction</div>
-                    <div class="pipeline-node__desc">ФИО, навыки, опыт</div>
-                  </div>
-                  <div class="pipeline-arrow">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                  </div>
-                  <div class="pipeline-node pipeline-node--warm">
-                    <div class="pipeline-node__icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M12 17V5M6 17v-4"/></svg>
-                    </div>
-                    <div class="pipeline-node__label">Matching</div>
-                    <div class="pipeline-node__desc">Score 0–100</div>
-                  </div>
-                  <div class="pipeline-arrow">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                  </div>
-                  <div class="pipeline-node pipeline-node--green">
-                    <div class="pipeline-node__icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
-                    </div>
-                    <div class="pipeline-node__label">Готовый профиль</div>
-                    <div class="pipeline-node__desc">Для HR</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="section-note">
-                Система не решает, кого нанимать. Она <strong>готовит кандидатов</strong> для HR-решений.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Scene 6: Score -->
-        <div class="scene-panel" data-panel="score">
-          <div class="scene-section">
-            <div class="scene-split">
-              <div class="scene-text-col">
-                <div class="scene-intro scene-intro--left">
-                  <div class="scene-intro__eyebrow">Стандартизированная оценка</div>
-                  <h2 class="scene-intro__title">Score 0–100 <span class="scene-intro__title-accent">по 4 критериям</span> для всех кандидатов</h2>
-                  <p class="scene-intro__desc">Субъективная оценка заменяется прозрачным scorecard. Меньше спорных решений, быстрее движение к интервью.</p>
-                </div>
-
-                <div class="metric-row metric-row--left">
-                  <div class="metric-card">
-                    <div class="metric-card__value">4</div>
-                    <div class="metric-card__label">критерия<br>оценки</div>
-                  </div>
-                  <div class="metric-card">
-                    <div class="metric-card__value">0–100</div>
-                    <div class="metric-card__label">итоговый<br>score</div>
-                  </div>
-                  <div class="metric-card metric-card--success">
-                    <div class="metric-card__value">≥60</div>
-                    <div class="metric-card__label">порог<br>match</div>
-                  </div>
-                </div>
-
-                <ul class="compact-list">
-                  <li><strong>Должность / роль</strong> — соответствие желаемой позиции (0–30 баллов).</li>
-                  <li><strong>Навыки</strong> — пересечение с требованиями вакансии (0–35 баллов).</li>
-                  <li><strong>Опыт</strong> — соответствие лет опыта (0–20 баллов).</li>
-                  <li><strong>Город / формат / зарплата</strong> — условия (0–15 баллов).</li>
-                </ul>
-              </div>
-
-              <div class="scene-viz-col">
-                <div class="scorecard">
-                  <div class="scorecard__row">
-                    <div class="scorecard__label">Должность / роль</div>
-                    <div class="scorecard__bar">
-                      <div class="scorecard__fill" style="width: 100%">30 / 30</div>
-                    </div>
-                  </div>
-                  <div class="scorecard__row">
-                    <div class="scorecard__label">Навыки</div>
-                    <div class="scorecard__bar">
-                      <div class="scorecard__fill" style="width: 86%">30 / 35</div>
-                    </div>
-                  </div>
-                  <div class="scorecard__row">
-                    <div class="scorecard__label">Опыт</div>
-                    <div class="scorecard__bar">
-                      <div class="scorecard__fill" style="width: 85%">17 / 20</div>
-                    </div>
-                  </div>
-                  <div class="scorecard__row">
-                    <div class="scorecard__label">Условия</div>
-                    <div class="scorecard__bar">
-                      <div class="scorecard__fill" style="width: 80%">12 / 15</div>
-                    </div>
-                  </div>
-                  <div class="scorecard__total">
-                    <div class="scorecard__total-label">Итого</div>
-                    <div class="scorecard__total-value">89 / 100 — match</div>
-                  </div>
-                  <div class="scorecard__caption">Пример scorecard: каждый кандидат оценивается по одной и той же шкале.</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Scene 7: Input -->
-        <div class="scene-panel" data-panel="input">
-          <div class="scene-section">
-            <div class="scene-stack">
-              <div class="scene-intro">
-                <div class="scene-intro__eyebrow">Меньше барьеров для кандидатов</div>
-                <h2 class="scene-intro__title">Кандидаты откликаются <span class="scene-intro__title-accent">так, как удобно</span></h2>
-                <p class="scene-intro__desc">Текст, голос, PDF, фото — кандидат не конвертирует резюме, а просто отправляет. Больше откликов на входе — шире воронка.</p>
-              </div>
-
-              <div class="format-grid">
-                <div class="format-card">
-                  <div class="format-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                  </div>
-                  <div class="format-card__title">Текст</div>
-                  <div class="format-card__time">&lt;30 сек</div>
-                  <div class="format-card__desc">обычное сообщение</div>
-                </div>
-                <div class="format-card">
-                  <div class="format-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4"/></svg>
-                  </div>
-                  <div class="format-card__title">Голос</div>
-                  <div class="format-card__time">&lt;60 сек</div>
-                  <div class="format-card__desc">STT-транскрибация</div>
-                </div>
-                <div class="format-card">
-                  <div class="format-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
-                  </div>
-                  <div class="format-card__title">PDF / DOCX</div>
-                  <div class="format-card__time">&lt;60 сек</div>
-                  <div class="format-card__desc">извлечение текста</div>
-                </div>
-                <div class="format-card">
-                  <div class="format-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                  </div>
-                  <div class="format-card__title">Фото</div>
-                  <div class="format-card__time">&lt;90 сек</div>
-                  <div class="format-card__desc">OCR-распознавание</div>
-                </div>
-              </div>
-
-              <div class="section-note">
-                Мультимодальный ввод снимает барьеры: кандидаты не отваливаются из-за неудобного формата.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Scene 8: HR -->
-        <div class="scene-panel" data-panel="hr">
-          <div class="scene-section">
-            <div class="scene-stack">
-              <div class="scene-intro">
-                <div class="scene-intro__eyebrow">Зона ответственности</div>
-                <h2 class="scene-intro__title">Система готовит кандидатов, <span class="scene-intro__title-accent">HR принимает решения</span></h2>
-                <p class="scene-intro__desc">Интервью, soft skills, сложные случаи и проверка данных остаются за человеком. Система не заменяет HR, а освобождает для высокодоходной работы.</p>
-              </div>
-
-              <div class="responsibility-grid">
-                <div class="responsibility-card responsibility-card--ai">
-                  <div class="responsibility-card__title">AI-ассистент</div>
-                  <ul class="responsibility-card__list">
-                    <li>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                      Приём резюме в любом формате
-                    </li>
-                    <li>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                      Извлечение структурированных данных
-                    </li>
-                    <li>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                      Первичный matching по критериям
-                    </li>
-                    <li>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                      Быстрый базовый ответ кандидату
-                    </li>
-                  </ul>
-                </div>
-                <div class="responsibility-vs">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                </div>
-                <div class="responsibility-card responsibility-card--hr">
-                  <div class="responsibility-card__title">HR-специалист</div>
-                  <ul class="responsibility-card__list">
-                    <li>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                      Интервью и личное общение
-                    </li>
-                    <li>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                      Оценка soft skills и cultural fit
-                    </li>
-                    <li>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                      Сложные и пограничные случаи
-                    </li>
-                    <li>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                      Проверка данных, требующих суждения
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div class="section-note">
-                AI не решает, кого нанимать. Он <strong>убирает рутину</strong>, чтобы HR занимался тем, где нужен человек.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Scene 9: Result -->
-        <div class="scene-panel" data-panel="result">
-          <div class="scene-section">
-            <div class="scene-stack">
-              <div class="scene-intro">
-                <div class="scene-intro__eyebrow">Главный результат</div>
-                <h2 class="scene-intro__title">Вакансии <span class="scene-intro__title-accent">закрываются быстрее</span></h2>
-                <p class="scene-intro__desc">Первичная обработка резюме падает с 10–15 минут до менее 1 минуты. Узкое место исчезает — найм ускоряется.</p>
-              </div>
-
-              <div class="metric-row">
-                <div class="metric-card metric-card--hot">
-                  <div class="metric-card__value">10–15×</div>
-                  <div class="metric-card__label">рост скорости<br>обработки</div>
-                </div>
-                <div class="metric-card metric-card--success">
-                  <div class="metric-card__value">80–90%</div>
-                  <div class="metric-card__label">экономия времени<br>на первичный отбор</div>
-                </div>
-                <div class="metric-card">
-                  <div class="metric-card__value">&lt;1 мин</div>
-                  <div class="metric-card__label">на готовый<br>профиль</div>
-                </div>
-              </div>
-
-              <div class="before-after">
-                <div class="before-after__card before-after__card--before">
-                  <div class="before-after__badge">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                    До автоматизации
-                  </div>
-                  <div class="before-after__title">Ручная обработка</div>
-                  <ul class="before-after__list">
-                    <li>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                      10–15 минут на резюме
-                    </li>
-                    <li>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                      Очередь из необработанных откликов
-                    </li>
-                    <li>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6M15 18l6-6M3 6l6 6"/></svg>
-                      Кандидаты уходят к конкурентам
-                    </li>
-                  </ul>
-                </div>
-                <div class="before-after__card before-after__card--after">
-                  <div class="before-after__badge">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                    С HR Assistant
-                  </div>
-                  <div class="before-after__title">Автоматический отбор</div>
-                  <ul class="before-after__list">
-                    <li>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                      &lt;1 минута на резюме
-                    </li>
-                    <li>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
-                      Готовый профиль с score
-                    </li>
-                    <li>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-                      Быстрее к интервью и закрытию
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div class="section-note">
-                <strong>Главный вывод:</strong> первичный отбор перестаёт быть бутылочным горлышком. Вакансии закрываются быстрее.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Scene 10: Price -->
-        <div class="scene-panel" data-panel="price">
-          <div class="scene-section">
-            <div class="economics-grid">
-              <div class="scene-text-col">
-                <div class="scene-intro scene-intro--left">
-                  <div class="scene-intro__eyebrow">Сценарная экономика</div>
-                  <h2 class="scene-intro__title">Модель затрат <span class="scene-intro__title-accent">под ваш поток</span></h2>
-                  <p class="scene-intro__desc">Стоимость автоматической обработки на порядок ниже стоимости часа HR. Точная экономия зависит от ставки HR и объёма откликов.</p>
-                </div>
-
-                <ul class="compact-list">
-                  <li><strong>LLM-only обработка:</strong> ~$0.003–0.006 за резюме.</li>
-                  <li><strong>Базовый мультимодальный сценарий:</strong> $0.03–0.06 за кандидата.</li>
-                  <li><strong>TCO:</strong> $56 / $130 / $260 в месяц для 1K / 5K / 10K резюме.</li>
-                  <li><strong>Строгий ROI</strong> требует данных заказчика: ставка HR, объём откликов, cost of vacancy.</li>
-                </ul>
-              </div>
-
-              <div class="scene-viz-col">
-                <div class="economics-comparison">
-                  <div class="economics-card economics-card--manual">
-                    <div class="economics-card__label">Ручной час HR</div>
-                    <div class="economics-card__title">Ставка × время</div>
-                    <div class="economics-card__value">$?</div>
-                    <div class="economics-card__desc">зависит от ставки<br>и объёма</div>
-                  </div>
-                  <div class="economics-vs">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M14 5l7 7-7 7"/></svg>
-                    VS
-                  </div>
-                  <div class="economics-card economics-card--auto">
-                    <div class="economics-card__label">Автоматизация</div>
-                    <div class="economics-card__title">Cost per candidate</div>
-                    <div class="economics-card__value">$0.003–0.06</div>
-                    <div class="economics-card__desc">LLT + базовый<br>мультимодальный сценарий</div>
-                  </div>
-                </div>
-
-                <div class="viz-panel" style="padding: 0; overflow: hidden;">
-                  <table class="tco-table">
-                    <thead>
-                      <tr>
-                        <th>Масштаб</th>
-                        <th>Резюме/мес</th>
-                        <th>API</th>
-                        <th>Infrastructure</th>
-                        <th>TCO</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><strong>Small</strong></td>
-                        <td>1 000</td>
-                        <td>~$6</td>
-                        <td>~$50</td>
-                        <td><strong>~$56</strong></td>
-                      </tr>
-                      <tr>
-                        <td><strong>Medium</strong></td>
-                        <td>5 000</td>
-                        <td>~$30</td>
-                        <td>~$100</td>
-                        <td><strong>~$130</strong></td>
-                      </tr>
-                      <tr>
-                        <td><strong>Large</strong></td>
-                        <td>10 000</td>
-                        <td>~$60</td>
-                        <td>~$200</td>
-                        <td><strong>~$260</strong></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <div class="section-note" style="margin-top: var(--space-md);">
-                  Цифры — <strong>расчётные оценки</strong> на основе GPT-4o-mini и self-hosted инфраструктуры.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Scene 11: Limits -->
-        <div class="scene-panel" data-panel="limits">
-          <div class="scene-section">
-            <div class="scene-stack">
-              <div class="scene-intro">
-                <div class="scene-intro__eyebrow">Честные границы</div>
-                <h2 class="scene-intro__title">Где решение работает, <span class="scene-intro__title-accent">а где нет</span></h2>
-                <p class="scene-intro__desc">Честные оговорки повышают доверие к экономическим заявлениям и помогают принять взвешенное решение.</p>
-              </div>
-
-              <div class="info-list">
-                <ul>
-                  <li><strong>Не оценивает soft skills и cultural fit.</strong> Это остаётся за HR и интервью.</li>
-                  <li><strong>Не извлекает детальный опыт, образование, языки, сертификаты.</strong> Только базовые поля профиля.</li>
-                  <li><strong>Работает с русским языком.</strong> Другие языки требуют доработки.</li>
-                  <li><strong>Время &lt;1 минуты — целевая метрика.</strong> Фактическая production-статистика ещё не накоплена.</li>
-                  <li><strong>Стоимость $0.003–0.06 — расчётная оценка.</strong> Не включает интеграцию, поддержку и дообучение.</li>
-                </ul>
-              </div>
-
-              <div class="section-note">
-                Решение работает на <strong>первичном отборе</strong>. Сложные случаи остаются за HR.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Scene 12: Final -->
-        <div class="scene-panel" data-panel="final">
-          <div class="scene-section">
-            <div class="scene-stack">
-              <div class="scene-intro">
-                <div class="scene-intro__eyebrow">Итоговое предложение</div>
-                <h2 class="scene-intro__title">HR Assistant устраняет <span class="scene-intro__title-accent">узкое место в найме</span></h2>
-                <p class="scene-intro__desc">Готовый к следующему этапу кандидат за секунды вместо часов или дней. Компания быстрее закрывает вакансии и не теряет сильных кандидатов из-за очереди.</p>
-              </div>
-
-              <div class="conclusion-grid">
-                <div class="conclusion-card conclusion-card--time">
-                  <div class="conclusion-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                  </div>
-                  <div class="conclusion-card__value">&lt;1 мин</div>
-                  <div class="conclusion-card__label">первичная обработка</div>
-                  <div class="conclusion-card__desc">вместо 10–15 минут вручную</div>
-                </div>
-                <div class="conclusion-card conclusion-card--format">
-                  <div class="conclusion-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                  </div>
-                  <div class="conclusion-card__value">4 формата</div>
-                  <div class="conclusion-card__label">входных резюме</div>
-                  <div class="conclusion-card__desc">текст, голос, PDF, фото</div>
-                </div>
-                <div class="conclusion-card conclusion-card--score">
-                  <div class="conclusion-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M12 17V5M6 17v-4"/></svg>
-                  </div>
-                  <div class="conclusion-card__value">0–100</div>
-                  <div class="conclusion-card__label">прозрачный score</div>
-                  <div class="conclusion-card__desc">по 4 критериям, порог match ≥60</div>
-                </div>
-              </div>
-
-              <div class="cta-section">
-                <p class="cta-section__text">Если вакансии закрываются медленно, а поток откликов растёт быстрее HR-отдела — обсудим, как HR Assistant ускорит ваш найм.</p>
-                <div class="cta-section__buttons">
-                  <a href="#" class="cta-section__btn cta-section__btn--primary">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>
-                    Посмотреть демо
-                  </a>
-                  <a href="../contacts.html" class="cta-section__btn cta-section__btn--ghost">Обсудить проект</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
-    </div>
+    </section>
+
+    <!-- 2. Case summary -->
+    <section class="summary">
+      <div class="container">
+        <div class="summary__grid">
+          
+          <div class="summary__item">
+            <div class="summary__label">Кейс</div>
+            <div class="summary__value"><strong>HR Assistant</strong></div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Для кого</div>
+            <div class="summary__value">Рекрутеры и HR-команды, принимающие резюме из Telegram</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Статус</div>
+            <div class="summary__value">Production-ready, PostgreSQL SOT, LLM matching</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Стек</div>
+            <div class="summary__value">Python, PostgreSQL, Telegram Bot API, LLM</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Telegram</div>
+            <div class="summary__value"><a href='https://t.me/PEm05_HR_assistant_bot' target='_blank' rel='noopener'>@PEm05_HR_assistant_bot</a></div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Storytelling</div>
+            <div class="summary__value"><a href='/cases/hr-assistant-lora.html'>HR Assistant — LoRA</a></div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">GitHub</div>
+            <div class="summary__value"><a href='https://github.com/AlexLvGulyaev/HR-Assistant' target='_blank' rel='noopener'>AlexLvGulyaev/HR-Assistant</a></div>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Before / After -->
+    <section class="section" id="results">
+      <div class="container">
+        <div class="section__header">
+          <p class="eyebrow">Результат</p>
+          <h2 class="section__title">Рекрутинг с первичным скринингом от AI</h2>
+          <p class="section__lead">HR получает структурированную карточку кандидата с match score и обоснованием решения.</p>
+        </div>
+
+        <div class="ba-grid">
+          <div class="ba-card">
+            <h3 class="ba-card__title"><span>❌</span> До</h3>
+            <ul class="ba-card__list">
+              
+              <li>Резюме приходят в разных форматах и каналах</li>
+              
+              <li>HR вручную переносит данные в таблицы или ATS</li>
+              
+              <li>Сопоставление с вакансиями занимает время и зависит от субъективной оценки</li>
+              
+            </ul>
+          </div>
+          <div class="ba-arrow">→</div>
+          <div class="ba-card ba-card--accent">
+            <h3 class="ba-card__title"><span>✅</span> После</h3>
+            <ul class="ba-card__list">
+              
+              <li>Кандидат отправляет резюме в Telegram — бот подтверждает получение</li>
+              
+              <li>AI извлекает навыки, опыт и ожидания, сохраняя всё в PostgreSQL</li>
+              
+              <li>Система возвращает match score и рекомендацию по собеседованию</li>
+              
+            </ul>
+          </div>
+        </div>
+
+        
+        <div class="summary__grid" style="grid-template-columns: repeat(3, 1fr);">
+          
+          <div class="summary__item">
+            <div class="summary__label">Канал</div>
+            <div class="summary__value"><strong>Telegram</strong> естественный для кандидатов</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">SOT</div>
+            <div class="summary__value"><strong>PostgreSQL</strong> единый источник правды</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Matching</div>
+            <div class="summary__value"><strong>LLM</strong> с обоснованием</div>
+          </div>
+          
+        </div>
+        
+      </div>
+    </section>
+
+    <!-- 4. Problem -->
+    <section class="section" id="problem">
+      <div class="container">
+        <div class="section__header">
+          <p class="eyebrow">Проблема</p>
+          <h2 class="section__title">Первичный скрининг отнимает у HR большую часть времени</h2>
+          <p class="section__lead">Резюме много, форматы разные, а ручная оценка соответствия вакансии не масштабируется.</p>
+        </div>
+
+        <div class="ba-grid" style="grid-template-columns: repeat(2, 1fr);">
+          
+          <div class="problem-card">
+            <h3 class="problem-card__title">Ручной ввод</h3>
+            <p class="problem-card__text">Контакты, навыки и опыт копируются из резюме вручную, с ошибками и задержками.</p>
+          </div>
+          
+          <div class="problem-card">
+            <h3 class="problem-card__title">Субъективный matching</h3>
+            <p class="problem-card__text">HR решает «подходит или нет» без формализованного score и причин.</p>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Solution -->
+    <section class="section" id="solution">
+      <div class="container">
+        <div class="section__header">
+          <p class="eyebrow">Решение</p>
+          <h2 class="section__title">Telegram-бот с LLM-matching и PostgreSQL SOT</h2>
+          <p class="section__lead">HR Assistant превращает резюме в структурированную карточку с match score и обоснованием.</p>
+        </div>
+
+        <div class="solution-grid">
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">📤</div>
+            <div>
+              <h3 class="solution-card__title">Приём в Telegram</h3>
+              <p class="solution-card__text">Кандидат отправляет резюме или ссылку в привычном мессенджере.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">🗄️</div>
+            <div>
+              <h3 class="solution-card__title">PostgreSQL SOT</h3>
+              <p class="solution-card__text">Все данные, вакансии и решения хранятся в единой базе.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">🧠</div>
+            <div>
+              <h3 class="solution-card__title">LLM matching</h3>
+              <p class="solution-card__text">Сопоставление кандидата и вакансии с числовым score и причинами.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">✅</div>
+            <div>
+              <h3 class="solution-card__title">Рекомендация HR</h3>
+              <p class="solution-card__text">Система предлагает решение: пригласить, отклонить, уточнить.</p>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. How it works -->
+    <section class="section" id="how-it-works">
+      <div class="container">
+        <div class="section__header">
+          <p class="eyebrow">Как это работает</p>
+          <h2 class="section__title">Как кандидат превращается в карточку</h2>
+          <p class="section__lead">От резюме в Telegram до match score и решения HR с записью в PostgreSQL.</p>
+        </div>
+
+        <svg class="pipeline-diagram pipeline-diagram--single" viewBox="0 0 1138 180" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы HR Assistant: от входа к результату">
+  <defs>
+    <marker id="arrow-sr-31238" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
+    </marker>
+  </defs>
+  <g transform="translate(24, 50)">
+    <rect x="0" y="0" width="170" height="80" rx="4" class="node-rect" />
+    <text x="85.0" y="24" text-anchor="middle" class="title-text">Кандидат</text>
+    <text x="85.0" y="44" text-anchor="middle" class="body-text">Резюме</text>
+    <text x="85.0" y="60" text-anchor="middle" class="body-text">в Telegram</text>
+  </g>
+  <path d="M 194 90.0 L 254 90.0" class="arrow" marker-end="url(#arrow-sr-31238)" />
+  <g transform="translate(254, 50)">
+    <rect x="0" y="0" width="170" height="80" rx="4" class="node-accent" />
+    <text x="85.0" y="24" text-anchor="middle" class="title-text">Извлечение</text>
+    <text x="85.0" y="44" text-anchor="middle" class="body-text">Данные</text>
+    <text x="85.0" y="60" text-anchor="middle" class="body-text">навыки, опыт</text>
+  </g>
+  <path d="M 424 90.0 L 484 90.0" class="arrow" marker-end="url(#arrow-sr-31238)" />
+  <g transform="translate(484, 50)">
+    <rect x="0" y="0" width="170" height="80" rx="4" class="node-rect" />
+    <text x="85.0" y="24" text-anchor="middle" class="title-text">PostgreSQL</text>
+    <text x="85.0" y="44" text-anchor="middle" class="body-text">SOT</text>
+    <text x="85.0" y="60" text-anchor="middle" class="body-text">кандидаты и вакансии</text>
+  </g>
+  <path d="M 654 90.0 L 714 90.0" class="arrow" marker-end="url(#arrow-sr-31238)" />
+  <g transform="translate(714, 50)">
+    <rect x="0" y="0" width="170" height="80" rx="4" class="node-accent" />
+    <text x="85.0" y="24" text-anchor="middle" class="title-text">LLM matching</text>
+    <text x="85.0" y="44" text-anchor="middle" class="body-text">Кандидат</text>
+    <text x="85.0" y="60" text-anchor="middle" class="body-text">↔ вакансия</text>
+  </g>
+  <path d="M 884 90.0 L 944 90.0" class="arrow" marker-end="url(#arrow-sr-31238)" />
+  <g transform="translate(944, 50)">
+    <rect x="0" y="0" width="170" height="80" rx="4" class="node-rect" />
+    <text x="85.0" y="24" text-anchor="middle" class="title-text">HR</text>
+    <text x="85.0" y="44" text-anchor="middle" class="body-text">Match score</text>
+    <text x="85.0" y="60" text-anchor="middle" class="body-text">и решение</text>
+  </g>
+</svg>
+
+        <div class="pipeline-cards">
+          
+          <div class="pipeline-card">
+            <div class="pipeline-card__number">01</div>
+            <h3 class="pipeline-card__title">Приём и извлечение</h3>
+            <p class="pipeline-card__text">Бот получает резюме, извлекает ключевые данные и сохраняет их в PostgreSQL.</p>
+          </div>
+          
+          <div class="pipeline-card">
+            <div class="pipeline-card__number">02</div>
+            <h3 class="pipeline-card__title">Matching</h3>
+            <p class="pipeline-card__text">LLM сопоставляет кандидата с открытыми вакансиями и вычисляет score.</p>
+          </div>
+          
+          <div class="pipeline-card">
+            <div class="pipeline-card__number">03</div>
+            <h3 class="pipeline-card__title">Решение HR</h3>
+            <p class="pipeline-card__text">Рекрутер получает карточку с обоснованием и принимает решение в один клик.</p>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. UX -->
+    <section class="section" id="ux">
+      <div class="container">
+        <div class="section__header">
+          <p class="eyebrow">Интерфейсы</p>
+          <h2 class="section__title">Telegram для кандидата и консоль для HR</h2>
+          <p class="section__lead">Кандидат общается в Telegram; HR видит карточку с match score и причинами решения.</p>
+        </div>
+
+        
+        <div class="demo-block">
+          <div class="demo-block__header">
+            <div class="demo-block__label">Сценарий 1</div>
+            <h3 class="demo-block__title">Кандидат отправляет резюме</h3>
+            <p class="demo-block__text">Telegram-чат: кандидат присылает резюме, бот подтверждает получение и показывает статус обработки.</p>
+          </div>
+          
+          <svg class="ui-illustration" viewBox="0 0 980 540" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: кандидат отправляет резюме в Telegram и получает match score">
+  <defs>
+    <clipPath id="tg-window-clip">
+      <rect x="20" y="10" width="940" height="520" rx="8" />
+    </clipPath>
+  </defs>
+  <rect x="20" y="10" width="940" height="520" rx="8" class="ui-window" />
+  <rect x="20" y="10" width="940" height="62" class="ui-header" clip-path="url(#tg-window-clip)" />
+  <circle cx="48" cy="41" r="12" class="ui-avatar" />
+  <text x="72" y="38" class="ui-title">HR Assistant</text>
+  <circle cx="180" cy="41" r="4" fill="#22c55e" />
+  <text x="192" y="45" class="ui-subtitle" style="font-size:12px;">Бот онлайн</text>
+  <rect x="40" y="100" width="420" height="46" rx="8" class="ui-msg-bot" />
+  <text x="56" y="124" text-anchor="start" class="ui-msg-text-bot" style="font-size:14px;fill:var(--text-primary);">Здравствуйте! Отправьте резюме или ссылку на вакансию.</text>
+  <rect x="520" y="162" width="420" height="46" rx="8" class="ui-msg-user" />
+  <text x="920" y="186" text-anchor="end" class="ui-msg-text-user" style="font-size:14px;fill:#ffffff;">Отправляю резюме: Иванов Иван, ML Engineer</text>
+  <rect x="40" y="224" width="420" height="60" rx="8" class="ui-msg-bot" />
+  <text x="56" y="248" text-anchor="start" class="ui-msg-text-bot" style="font-size:14px;fill:var(--text-primary);">Резюме получено. Анализируем опыт и соответствие</text>
+  <text x="56" y="266" text-anchor="start" class="ui-msg-text-bot" style="font-size:14px;fill:var(--text-primary);">открытым позициям...</text>
+  <rect x="40" y="300" width="420" height="60" rx="8" class="ui-msg-bot" />
+  <text x="56" y="324" text-anchor="start" class="ui-msg-text-bot" style="font-size:14px;fill:var(--text-primary);">Match score: 92/100 · Рекомендуем пригласить на</text>
+  <text x="56" y="342" text-anchor="start" class="ui-msg-text-bot" style="font-size:14px;fill:var(--text-primary);">собеседование</text>
+</svg>
+          
+        </div>
+        
+        <div class="demo-block">
+          <div class="demo-block__header">
+            <div class="demo-block__label">Сценарий 2</div>
+            <h3 class="demo-block__title">Карточка кандидата с match score</h3>
+            <p class="demo-block__text">Консоль рекрутера: match score 92/100, решение «Пригласить» и причины на основе опыта и стека.</p>
+          </div>
+          
+          <svg class="ui-illustration" viewBox="0 0 980 620" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: карточка кандидата с match score и решением">
+  <defs>
+    <clipPath id="hr-window-clip">
+      <rect x="20" y="10" width="940" height="600" rx="8" />
+    </clipPath>
+  </defs>
+  <rect x="20" y="10" width="940" height="600" rx="8" class="ui-window" />
+  <rect x="20" y="10" width="940" height="58" class="ui-header" clip-path="url(#hr-window-clip)" />
+  <text x="40" y="42" class="ui-title">HR Assistant · Консоль рекрутера</text>
+  <text x="700" y="42" class="ui-subtitle">PostgreSQL SOT · LLM matching</text>
+  <rect x="20" y="68" width="210" height="552" class="ui-sidebar" clip-path="url(#hr-window-clip)" />
+  <text x="40" y="100" class="ui-sidebar-title">Кандидаты</text>
+  <rect x="40" y="120" width="170" height="32" rx="4" class="ui-sidebar-item-active" />
+  <text x="56" y="141" class="ui-sidebar-text-active">Иванов Иван</text>
+  <rect x="40" y="162" width="170" height="32" rx="4" class="ui-sidebar-item" />
+  <text x="56" y="183" class="ui-sidebar-text">Петрова Мария</text>
+  <rect x="260" y="90" width="680" height="510" rx="6" class="ui-window" />
+  <text x="286" y="130" class="ui-main-title">Иванов Иван — ML Engineer</text>
+  <text x="286" y="156" class="ui-subtitle">Вакансия: Senior ML Engineer · Team AI</text>
+  <rect x="286" y="190" width="180" height="80" rx="6" class="ui-source-card" />
+  <text x="306" y="220" class="ui-source-label">MATCH SCORE</text>
+  <text x="306" y="256" class="ui-main-title">92/100</text>
+  <rect x="490" y="190" width="180" height="80" rx="6" class="ui-status-published" />
+  <text x="510" y="220" class="ui-source-label">РЕШЕНИЕ</text>
+  <text x="510" y="256" class="ui-status-text">Пригласить</text>
+  <text x="286" y="310" class="ui-sidebar-title">Причины решения</text>
+  <rect x="286" y="330" width="618" height="36" rx="4" class="ui-input" />
+  <text x="302" y="354" class="ui-input-text" style="fill:var(--text-primary);">✓ Опыт Python / ML 5+ лет</text>
+  <rect x="286" y="374" width="618" height="36" rx="4" class="ui-input" />
+  <text x="302" y="398" class="ui-input-text" style="fill:var(--text-primary);">✓ Проекты с LLM и RAG</text>
+  <rect x="286" y="418" width="618" height="36" rx="4" class="ui-input" />
+  <text x="302" y="442" class="ui-input-text" style="fill:var(--text-primary);">✓ Совпадение по стеку команды</text>
+  <rect x="286" y="540" width="180" height="40" rx="4" class="ui-btn-primary" />
+  <text x="376" y="565" text-anchor="middle" class="ui-btn-text">Назначить интервью</text>
+  <rect x="490" y="540" width="180" height="40" rx="4" class="ui-toggle" />
+  <text x="580" y="565" text-anchor="middle" class="ui-sidebar-text">Отклонить</text>
+</svg>
+          
+        </div>
+        
+      </div>
+    </section>
+
+    <!-- 8. Quote -->
+    <section class="section">
+      <div class="container">
+        <div class="quote">
+          <p class="quote__text">HR Assistant убирает рутину первичного скрининга, оставляя HR пространство для человеческого решения.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. Final CTA -->
+    <section class="section final">
+      <div class="container final__inner">
+        <div>
+          <p class="eyebrow">Следующий шаг</p>
+          <h2 class="final__title">Расскажите о вашем HR-процессе</h2>
+          <p class="final__lead">Мы оценим, как HR Assistant ускорит первичный скрининг и сделает matching кандидатов прозрачным.</p>
+          <div class="final__actions">
+            <a href="/contacts.html" class="btn btn-primary" target="_blank" rel="noopener">Обсудить проект</a>
+            <a href="https://t.me/PEm05_HR_assistant_bot" class="btn btn-ghost" target="_blank" rel="noopener">Открыть в Telegram</a>
+            <a href="https://github.com/AlexLvGulyaev/HR-Assistant" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a>
+            
+          </div>
+        </div>
+        <div class="final__links">
+          <span><strong>Александр Гуляаев</strong>, AI Automation Portfolio Lab</span>
+          <a href="https://t.me/AlexLvGulyaev" target="_blank" rel="noopener">Telegram: @AlexLvGulyaev</a>
+          <a href="mailto:sbs.gulyaev.al@gmail.com">sbs.gulyaev.al@gmail.com</a>
+          
+          <a href="/cases/hr-assistant-lora.html" >LoRA storytelling</a>
+          
+        </div>
+      </div>
+    </section>
   </main>
 
-  <footer class="footer">
-    <div class="footer__content">
-      <p class="footer__copyright">© 2026 AI Automation Portfolio Lab</p>
-      <nav class="footer__links">
-        <a href="../portfolio.html" class="footer__link">Проекты</a>
-        <a href="../services.html" class="footer__link">Услуги</a>
-        <a href="../contacts.html" class="footer__link">Контакты</a>
-      </nav>
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <span>© 2026 AI Automation Portfolio Lab</span>
+      <span>AI-помощник рекрутера в Telegram</span>
     </div>
   </footer>
 
-  <script src="../js/main.js"></script>
-  <script src="../js/api-client.js"></script>
-  <script src="../js/chat-widget.js"></script>
-
-  <!-- Chat Launcher Button -->
   <button class="chat-launcher" id="chat-launcher" aria-label="Открыть AI-ассистента">
     <span>💬</span>
   </button>
 
-  <!-- Chat Widget -->
   <div class="chat-widget" id="chat-widget">
     <div class="chat-header">
       <div class="chat-header-left">
@@ -2034,37 +1568,46 @@
     </div>
     <div class="chat-messages" id="chat-messages"></div>
     <div class="chat-footer">
-      <input
-        id="chat-input"
-        class="chat-input"
-        placeholder="Напишите вопрос..."
-        type="text"
-      />
-      <button id="chat-send" class="chat-send">
-        <span>➤</span>
-      </button>
+      <input id="chat-input" class="chat-input" placeholder="Напишите вопрос..." type="text">
+      <button id="chat-send" class="chat-send"><span>➤</span></button>
     </div>
   </div>
 
+  <script src="../js/api-client.js"></script>
+  <script src="../js/chat-widget.js"></script>
+  
   <script>
-    // Scene tabs navigation
     (function() {
-      const tabs = document.querySelectorAll('.scene-tabs__tab');
-      const panels = document.querySelectorAll('.scene-panel');
+      const btn = document.getElementById('theme-toggle');
+      const root = document.documentElement;
 
-      tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          const target = tab.dataset.tab;
+      function isDark() {
+        return root.dataset.theme === 'dark' || (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      }
 
-          tabs.forEach(t => t.classList.remove('scene-tabs__tab--active'));
-          tab.classList.add('scene-tabs__tab--active');
+      function updateIcon() {
+        btn.textContent = isDark() ? '☀️' : '🌙';
+        btn.setAttribute('aria-label', isDark() ? 'Переключить на светлую тему' : 'Переключить на тёмную тему');
+      }
 
-          panels.forEach(p => {
-            p.classList.toggle('scene-panel--active', p.dataset.panel === target);
-          });
-        });
+      btn.addEventListener('click', function() {
+        if (isDark()) {
+          root.dataset.theme = 'light';
+          localStorage.setItem('aip-theme-teal', 'light');
+        } else {
+          root.dataset.theme = 'dark';
+          localStorage.setItem('aip-theme-teal', 'dark');
+        }
+        updateIcon();
       });
+
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+        if (!localStorage.getItem('aip-theme-teal')) updateIcon();
+      });
+
+      updateIcon();
     })();
   </script>
+  
 </body>
 </html>

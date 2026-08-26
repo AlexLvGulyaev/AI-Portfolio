@@ -1,0 +1,3296 @@
+{
+  "projects": [
+    {
+      "id": "ai-curator",
+      "name": "AI Curator",
+      "domain": "AI-ассистент для образовательных платформ",
+      "title": "AI Curator — AI-ассистент для образовательных платформ",
+      "og_title": "AI Curator — AI-ассистент для образовательных платформ",
+      "eyebrow": "AI-ассистент для образовательных платформ",
+      "hero_title": "Снизьте нагрузку на преподавателей в 5 раз и дайте студентам мгновенные ответы 24/7",
+      "hero_lead": "AI Curator берёт дедлайны и задания из LMS, учебные материалы — из управляемой Базы знаний, и всегда указывает источник.",
+      "hero_cta_primary": {
+        "text": "Live demo",
+        "href": "https://curator.alex-n8n.site",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_secondary": {
+        "text": "Admin Console",
+        "href": "https://curator-admin.alex-n8n.site",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_tertiary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/ai-curator",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_quaternary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_screenshot_dark": "assets/screenshots/AIC_portfolio_dark.png",
+      "hero_screenshot_light": "assets/screenshots/AIC_portfolio_light.png",
+      "hero_screenshot_alt": "Веб-интерфейс AI Curator: диалог студента с AI-ассистентом и карточками источников",
+      "summary_items": [
+        {
+          "label": "Кейс",
+          "value": "<strong>AI Curator</strong>"
+        },
+        {
+          "label": "Для кого",
+          "value": "Онлайн-школы, корпоративные учебные центры, LMS-провайдеры"
+        },
+        {
+          "label": "Статус",
+          "value": "Развёрнут · live demo · admin console"
+        },
+        {
+          "label": "Стек",
+          "value": "FastAPI, React, PostgreSQL, ChromaDB, OpenAI, Moodle"
+        },
+        {
+          "label": "Проверка",
+          "value": "109 pytest, 26 E2E-проверок Phase 1"
+        },
+        {
+          "label": "Live demo",
+          "value_html": "<a href='https://curator.alex-n8n.site' target='_blank' rel='noopener'>curator.alex-n8n.site</a>"
+        },
+        {
+          "label": "Admin Console",
+          "value_html": "<a href='https://curator-admin.alex-n8n.site' target='_blank' rel='noopener'>curator-admin.alex-n8n.site</a>"
+        },
+        {
+          "label": "GitHub",
+          "value_html": "<a href='https://github.com/AlexLvGulyaev/ai-curator' target='_blank' rel='noopener'>AlexLvGulyaev/ai-curator</a>"
+        }
+      ],
+      "results_title": "Что меняется для студентов и преподавателей",
+      "results_lead": "Студент получает ответ за секунды вместо часов ожидания, а преподаватель видит аналитику пробелов и нагрузки.",
+      "before": [
+        "Преподаватель отвечает на однотипные вопросы многократно",
+        "Дедлайны и материалы разрознены между LMS, мессенджерами и email",
+        "Сложно понять, какие темы вызывают вопросы и где не хватает контента"
+      ],
+      "after": [
+        "Студент задаёт вопрос в едином веб-интерфейсе и получает ответ за секунды",
+        "AI берёт факты из LMS и Базы знаний, всегда сопровождая ответ источником",
+        "Аналитика показывает частоту тем, нагрузку на поддержку и пробелы в материалах"
+      ],
+      "metrics": [
+        {
+          "label": "Скорость ответа",
+          "value": "< 5 сек",
+          "suffix": "для типовых вопросов"
+        },
+        {
+          "label": "Снижение нагрузки",
+          "value": "до 5×",
+          "suffix": "на преподавателей"
+        },
+        {
+          "label": "Доступность",
+          "value": "24/7",
+          "suffix": "без участия человека"
+        },
+        {
+          "label": "Точность",
+          "value": "источники",
+          "suffix": "проверяемы по LMS и БЗ"
+        }
+      ],
+      "problem_title": "Почему преподаватели тонут в рутинных вопросах",
+      "problem_lead": "Студенты постоянно спрашивают об одном и том же, а актуальная информация живёт в разных системах.",
+      "problem_cards": [
+        {
+          "title": "Многократные ответы",
+          "text": "Один и тот же вопрос о дедлайне, задании или лекции приходит десяткам студентов."
+        },
+        {
+          "title": "Разрозненные источники",
+          "text": "Расписание в LMS, методички на диске, FAQ в чате — студент не знает, куда идти."
+        }
+      ],
+      "solution_title": "Единый AI-ассистент с двумя независимыми источниками",
+      "solution_lead": "AI Curator не заменяет преподавателя, а забирает рутину и даёт студенту персонализированный ответ с источниками.",
+      "solution_cards": [
+        {
+          "icon": "🎓",
+          "title": "Наставнический диалог",
+          "text": "AI общается в поддерживающем стиле и помогает разобраться, а не просто выдаёт факт."
+        },
+        {
+          "icon": "📅",
+          "title": "Организационные ответы",
+          "text": "Дедлайны, задания, прогресс берутся из LMS в реальном времени."
+        },
+        {
+          "icon": "📚",
+          "title": "Учебные ответы",
+          "text": "Система находит релевантные материалы в Базе знаний и адаптирует сложность под студента."
+        },
+        {
+          "icon": "🔗",
+          "title": "Ссылки на источники",
+          "text": "Каждый содержательный ответ сопровождается кликабельными карточками источников."
+        }
+      ],
+      "pipeline_title": "Как устроен AI Curator",
+      "pipeline_lead": "Единый backend объединяет LMS, Базу знаний и LLM, чтобы отвечать точно и ссылаться на источники.",
+      "pipeline_svg_nodes": [
+        {
+          "title": "Студент",
+          "lines": [
+            "Веб-интерфейс",
+            "вопрос 24/7"
+          ]
+        },
+        {
+          "title": "Backend Core",
+          "lines": [
+            "Классификация",
+            "Prompt Builder"
+          ],
+          "accent": true
+        },
+        {
+          "title": "LMS Adapter",
+          "lines": [
+            "Дедлайны, задания",
+            "прогресс"
+          ]
+        },
+        {
+          "title": "LangChain RAG",
+          "lines": [
+            "База знаний",
+            "Chroma + LLM"
+          ]
+        },
+        {
+          "title": "Answer Validator",
+          "lines": [
+            "Проверка",
+            "источников"
+          ]
+        },
+        {
+          "title": "Ответ",
+          "lines": [
+            "Текст + ссылки",
+            "на источники"
+          ],
+          "accent": true
+        }
+      ],
+      "pipeline_steps": [
+        {
+          "number": "01",
+          "title": "Классификация запроса",
+          "text": "Backend определяет, организационный вопрос или учебный, и выбирает источники."
+        },
+        {
+          "number": "02",
+          "title": "Контекст из LMS и БЗ",
+          "text": "Адаптеры собирают релевантные факты: дедлайны, задания, материалы."
+        },
+        {
+          "number": "03",
+          "title": "LLM-ответ с источниками",
+          "text": "LangChain генерирует ответ, Validator проверяет его обоснованность."
+        }
+      ],
+      "ux_title": "Интерфейсы",
+      "ux_main_title": "Как это выглядит для студента и администратора",
+      "ux_lead": "Два интерфейса: веб-чат для студента и консоль администратора для управления знаниями, настройками и аналитикой.",
+      "scenario_1": {
+        "label": "Сценарий 1",
+        "title": "Студент задаёт организационный вопрос",
+        "text": "«Когда дедлайн по заданию PE07?» — AI Curator возвращает точную дату из LMS и ссылку на задание.",
+        "type": "image",
+        "src": "../../ai-curator/docs/screenshots/AIC_web_chat_basic.png",
+        "alt": "Веб-чат AI Curator: студент спрашивает о дедлайне"
+      },
+      "scenario_2": {
+        "label": "Сценарий 2",
+        "title": "Администратор управляет Базой знаний",
+        "text": "Консоль администратора позволяет загружать материалы, настраивать AI и смотреть операционные логи.",
+        "type": "image",
+        "src": "../../ai-curator/docs/screenshots/AIC_admin_dashboard.png",
+        "alt": "Консоль администратора AI Curator: управление знаниями и логами"
+      },
+      "quote": "AI Curator не заменяет преподавателя. Он забирает рутину, чтобы преподаватель занимался тем, что действительно важно.",
+      "final_title": "Расскажите о вашей образовательной платформе",
+      "final_lead": "Мы оценим, как AI Curator снизит нагрузку на преподавателей и ускорит ответы студентам.",
+      "final_cta_primary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_secondary": {
+        "text": "Live demo",
+        "href": "https://curator.alex-n8n.site",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_tertiary": {
+        "text": "Admin Console",
+        "href": "https://curator-admin.alex-n8n.site",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_quaternary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/ai-curator",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_links": [
+        {
+          "text": "Документация: BUSINESS_VALUE.md",
+          "href": "https://github.com/AlexLvGulyaev/ai-curator/blob/main/docs/BUSINESS_VALUE.md",
+          "target_blank": true
+        }
+      ],
+      "footer_positioning": "AI-ассистент для образовательных платформ"
+    },
+    {
+      "id": "ai-data-assistant",
+      "name": "Data Assistant",
+      "domain": "Анализ файлов через чат с AI",
+      "title": "Data Assistant — анализ файлов через чат с AI",
+      "og_title": "Data Assistant — анализ файлов через чат с AI",
+      "eyebrow": "Анализ файлов через чат с AI",
+      "hero_title": "Загрузите файл — получите анализ, графики и DOCX-отчёт в чате с AI",
+      "hero_lead": "Data Assistant принимает CSV, Excel, JSON и изображения. Модель планирует действие (анализ, график, отчёт, сводка), приложение исполняет его локально — без SQL, Python и произвольного кода. Self-hosted, с любыми OpenAI-совместимыми провайдерами.",
+      "hero_cta_primary": {
+        "text": "Live demo",
+        "href": "https://data-assistant.alex-n8n.site",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_secondary": {
+        "text": "Admin Console",
+        "href": "https://data-assistant.alex-n8n.site/admin",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_tertiary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/AI-Data-Assistant",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_quaternary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_screenshot_dark": "assets/screenshots/ADA_portfolio_dark.png",
+      "hero_screenshot_light": "assets/screenshots/ADA_portfolio_light.png",
+      "hero_screenshot_alt": "Интерфейс Data Assistant: чат с загруженным файлом, круговой диаграммой и карточкой артефакта",
+      "summary_items": [
+        {
+          "label": "Кейс",
+          "value": "<strong>Data Assistant</strong>"
+        },
+        {
+          "label": "Для кого",
+          "value": "Аналитики, менеджеры, консультанты и sales-команды с CSV-выгрузками"
+        },
+        {
+          "label": "Статус",
+          "value": "Production-ready, Deployment Validation 18/18 PASS"
+        },
+        {
+          "label": "Стек",
+          "value": "FastAPI, Jinja2 + HTMX, matplotlib, python-docx, OpenAI-совместимый API"
+        },
+        {
+          "label": "Live demo",
+          "value_html": "<a href='https://data-assistant.alex-n8n.site/' target='_blank' rel='noopener'>data-assistant.alex-n8n.site</a>"
+        },
+        {
+          "label": "Admin Console",
+          "value_html": "<a href='https://data-assistant.alex-n8n.site/admin' target='_blank' rel='noopener'>data-assistant.alex-n8n.site/admin</a>"
+        },
+        {
+          "label": "GitHub",
+          "value_html": "<a href='https://github.com/AlexLvGulyaev/AI-Data-Assistant' target='_blank' rel='noopener'>AlexLvGulyaev/AI-Data-Assistant</a>"
+        }
+      ],
+      "results_title": "Анализ данных без Excel-формул и Python",
+      "results_lead": "Пользователь задаёт вопрос на естественном языке; система возвращает метрики, графики и отчёты, которые можно скачать.",
+      "before": [
+        "CSV-выгрузка требует Excel-экспертизы, формул и сводных таблиц",
+        "ChatGPT Code Interpreter недоступен или неприемлем для корпоративных данных",
+        "Каждый разовый анализ строится с нуля — долго и не переиспользуется"
+      ],
+      "after": [
+        "Пользователь загружает файл и пишет запрос на русском языке",
+        "Модель выбирает действие из реестра; приложение строит артефакт локально",
+        "PNG-графики, DOCX-отчёты и Markdown-сводки остаются в чате для скачивания"
+      ],
+      "metrics": [
+        {
+          "label": "Графики",
+          "value": "4 типа",
+          "suffix": "histogram / bar / line / pie"
+        },
+        {
+          "label": "Отчёты",
+          "value": "DOCX + Markdown",
+          "suffix": "скачиваются из чата"
+        },
+        {
+          "label": "Провайдеры",
+          "value": "4 пресета",
+          "suffix": "OpenAI / GigaChat / YandexGPT / Свой"
+        },
+        {
+          "label": "Конфиг",
+          "value": "/admin",
+          "suffix": "без пересборки и рестарта"
+        }
+      ],
+      "problem_title": "Данные есть, а быстрого self-hosted ассистента нет",
+      "problem_lead": "Менеджеры не могут быстро получить инсайты из файлов без Excel-экспертизы, а интеграторы каждый раз собирают похожий data-ассистент с нуля.",
+      "problem_cards": [
+        {
+          "title": "Excel — барьер",
+          "text": "CSV-выгрузки требуют формул и сводных таблиц; результат зависит от навыка и отнимает время."
+        },
+        {
+          "title": "Публичные LLM-сервисы не подходят",
+          "text": "Корпоративные данные нельзя грузить в облако; российским командам нужны YandexGPT / GigaChat."
+        },
+        {
+          "title": "Внедрение data-ассистента — с нуля",
+          "text": "Нет готового фундамента: каждый раз собирают LLM-интеграцию, графики, отчёты и админку заново."
+        }
+      ],
+      "solution_title": "Self-hosted AI-чат для файлов с мультипровайдером и runtime-конфигом",
+      "solution_lead": "Модель планирует, приложение исполняет локально. Готовая база для внутренних data-ассистентов — с провайдером на выбор и управлением без пересборки.",
+      "solution_cards": [
+        {
+          "icon": "📤",
+          "title": "Загрузка файлов",
+          "text": "CSV, Excel, JSON и изображения — прямо в браузере."
+        },
+        {
+          "icon": "📊",
+          "title": "4 типа графиков + DOCX",
+          "text": "Histogram, bar, line, pie в PNG; отчёты DOCX с метриками и графиками."
+        },
+        {
+          "icon": "🤖",
+          "title": "Мультипровайдерность",
+          "text": "Пресеты OpenAI, GigaChat, YandexGPT и «Свой»; смена в админке без рестарта."
+        },
+        {
+          "icon": "🎛️",
+          "title": "Runtime /admin",
+          "text": "Промпт, модель, провайдер и лимиты — без пересборки и рестарта контейнера."
+        },
+        {
+          "icon": "🗂️",
+          "title": "Реестры действий",
+          "text": "Модель выбирает только из разрешённых действий и графиков — предсказуемый результат."
+        },
+        {
+          "icon": "🔒",
+          "title": "Self-hosted",
+          "text": "Данные остаются в контуре заказчика, не уходят в публичный сервис."
+        }
+      ],
+      "pipeline_title": "Как файл превращается в артефакт",
+      "pipeline_lead": "От загрузки до локального исполнения: модель планирует, реестры валидируют, приложение строит результат.",
+      "pipeline_svg_nodes": [
+        {
+          "title": "Загрузка",
+          "lines": [
+            "CSV / Excel / JSON / фото"
+          ]
+        },
+        {
+          "title": "ChatService",
+          "lines": [
+            "Сессия",
+            "контекст файла"
+          ],
+          "accent": true
+        },
+        {
+          "title": "AIService",
+          "lines": [
+            "План действий",
+            "по реестрам"
+          ]
+        },
+        {
+          "title": "LLM",
+          "lines": [
+            "json_schema strict",
+            "или fallback"
+          ],
+          "accent": true
+        },
+        {
+          "title": "Analysis",
+          "lines": [
+            "Метрики",
+            "и инсайты"
+          ]
+        },
+        {
+          "title": "Chart / Report",
+          "lines": [
+            "PNG / DOCX",
+            "matplotlib + docx"
+          ]
+        },
+        {
+          "title": "Артефакты",
+          "lines": [
+            "В чате",
+            "для скачивания"
+          ],
+          "accent": true
+        }
+      ],
+      "pipeline_steps": [
+        {
+          "number": "01",
+          "title": "Загрузка и контекст",
+          "text": "Файл сохраняется в storage/, ChatService собирает preview, summary и признаки колонок."
+        },
+        {
+          "number": "02",
+          "title": "План и контракт",
+          "text": "AIService формирует промпт с доступными действиями из реестров; LLM возвращает строгий JSON или free-text для fallback-парсера."
+        },
+        {
+          "number": "03",
+          "title": "Локальное исполнение",
+          "text": "Analysis/Chart/Report Service строят метрики, графики и DOCX-отчёт — только разрешённые действия из ACTION_TYPES/CHART_TYPES."
+        }
+      ],
+      "ux_title": "Интерфейсы",
+      "ux_main_title": "Пользовательский чат и операторская /admin",
+      "ux_lead": "Пользователь получает анализ в чате; оператор управляет провайдером, моделью и промптом в runtime-консоли.",
+      "scenario_1": {
+        "label": "Сценарий 1",
+        "title": "Круговая диаграмма в чате",
+        "text": "Пользователь загружает sales.csv и просит «круговую по выручке по категориям» — в чате появляется pie-график с карточкой артефакта для скачивания.",
+        "type": "stylized",
+        "alt": "Data Assistant: чат с загруженным файлом, круговой диаграммой и карточкой DOCX-артефакта"
+      },
+      "scenario_2": {
+        "label": "Сценарий 2",
+        "title": "Смена провайдера в /admin",
+        "text": "Оператор выбирает пресет GigaChat в консоли — endpoint, модель и structured_output заполняются автоматически, следующий запрос пойдёт в новый провайдер без рестарта.",
+        "type": "stylized",
+        "alt": "Консоль /admin Data Assistant: пресеты провайдеров OpenAI / GigaChat / YandexGPT / Свой"
+      },
+      "quote": "Data Assistant не строит дашборды 24/7 и не привязывает к одному LLM-провайдеру. Он закрывает разовые задачи «загрузил файл — получил ответ» локально и под контролем оператора.",
+      "final_title": "Нужен self-hosted ассистент для файлов вашей компании?",
+      "final_lead": "Обсудим, как Data Assistant может работать с вашими выгрузками и вашими LLM-провайдерами.",
+      "final_cta_primary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_secondary": {
+        "text": "Live demo",
+        "href": "https://data-assistant.alex-n8n.site",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_tertiary": {
+        "text": "Admin Console",
+        "href": "https://data-assistant.alex-n8n.site/admin",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_quaternary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/AI-Data-Assistant",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_links": [
+        {
+          "text": "Admin Console: data-assistant.alex-n8n.site/admin",
+          "href": "https://data-assistant.alex-n8n.site/admin",
+          "target_blank": true
+        },
+        {
+          "text": "Документация: BUSINESS_VALUE.md",
+          "href": "https://github.com/AlexLvGulyaev/AI-Data-Assistant/blob/main/docs/BUSINESS_VALUE.md",
+          "target_blank": true
+        }
+      ],
+      "footer_positioning": "Анализ файлов через чат с AI"
+    },
+    {
+      "id": "review-flow",
+      "name": "Review Flow",
+      "domain": "Обработка клиентских обращений с оператором в контуре",
+      "title": "Review Flow — управление обращениями с человеком в контуре",
+      "og_title": "Review Flow — управление обращениями с человеком в контуре",
+      "eyebrow": "Обработка обращений с оператором в контуре",
+      "hero_title": "Снижайте нагрузку на поддержку и сохраняйте контроль над ответами",
+      "hero_lead": "Review Flow объединяет Retrieval, оценку уверенности и адаптацию ответа под контролем оператора: AI готовит черновик, оператор проверяет и публикует, администратор развивает базу знаний.",
+      "hero_cta_primary": {
+        "text": "Live demo",
+        "href": "https://review-flow.alex-n8n.site",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_secondary": {
+        "text": "Admin Console",
+        "href": "https://review-flow-admin.alex-n8n.site/company",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_tertiary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/Review-Flow",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_quaternary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_screenshot_dark": "assets/screenshots/RF_portfolio_dark.png",
+      "hero_screenshot_light": "assets/screenshots/RF_portfolio_light.png",
+      "hero_screenshot_alt": "Интерфейс Review Flow: форма обращения и статус обработки",
+      "summary_items": [
+        {
+          "label": "Кейс",
+          "value": "<strong>Review Flow</strong>"
+        },
+        {
+          "label": "Для кого",
+          "value": "Службы поддержки с повторяющимися обращениями"
+        },
+        {
+          "label": "Статус",
+          "value": "Публичный demo, HITL, KB learning"
+        },
+        {
+          "label": "Стек",
+          "value": "FastAPI, PostgreSQL, React, Vite"
+        },
+        {
+          "label": "Live demo",
+          "value_html": "<a href='https://review-flow.alex-n8n.site' target='_blank' rel='noopener'>review-flow.alex-n8n.site</a>"
+        },
+        {
+          "label": "Admin Console",
+          "value_html": "<a href='https://review-flow-admin.alex-n8n.site/company' target='_blank' rel='noopener'>review-flow-admin.alex-n8n.site</a>"
+        },
+        {
+          "label": "GitHub",
+          "value_html": "<a href='https://github.com/AlexLvGulyaev/Review-Flow' target='_blank' rel='noopener'>AlexLvGulyaev/Review-Flow</a>"
+        }
+      ],
+      "results_title": "Контролируемая автоматизация обращений",
+      "results_lead": "AI сокращает время ответа, а оператор сохраняет контроль над тональностью и фактами.",
+      "before": [
+        "Ответы на обращения задерживаются или не пишутся вовсе",
+        "Разные операторы отвечают по-разному, тон и факты расходятся",
+        "Новые повторяющиеся кейсы не становятся знаниями"
+      ],
+      "after": [
+        "AI предлагает адаптированный черновик на основе политики и похожих случаев",
+        "Оператор проверяет, редактирует и публикует ответ вручную",
+        "Эскалации оператора превращаются в новые типовые ситуации под контролем администратора"
+      ],
+      "metrics": [
+        {
+          "label": "Скорость",
+          "value": "в 3-5×",
+          "suffix": "быстрее обработка"
+        },
+        {
+          "label": "Контроль",
+          "value": "HITL",
+          "suffix": "перед публикацией"
+        },
+        {
+          "label": "Качество",
+          "value": "KB learning",
+          "suffix": "через кандидатов"
+        }
+      ],
+      "problem_title": "Обращения требуют скорости, но нельзя терять контроль",
+      "problem_lead": "Полностью ручная поддержка не масштабируется, а полностью автоматический LLM несёт риски качества, аудита и делегирования решений.",
+      "problem_cards": [
+        {
+          "title": "Ручная обработка не масштабируется",
+          "text": "Растут издержки, качество зависит от конкретных операторов, а время ответа увеличивается вместе с потоком."
+        },
+        {
+          "title": "Автоматический LLM — риск",
+          "text": "Решения плохо контролируются, аудируются и воспроизводятся; модель не может формально нести ответственность за бизнес-решение."
+        },
+        {
+          "title": "Нет единой базы знаний",
+          "text": "Каждый оператор отвечает по-своему, тон и факты расходятся — клиент получает разный опыт."
+        },
+        {
+          "title": "Повторяющиеся кейсы не становятся знаниями",
+          "text": "Команда решает одни и те же проблемы снова и снова вручную, вместо того чтобы накапливать типовые ситуации."
+        }
+      ],
+      "solution_title": "Гибридный цикл: AI готовит, человек решает, система учится",
+      "solution_lead": "Controlled Hybrid: Response Case — Source of Truth бизнес-решения, LLM только адаптирует текст, оператор и администратор сохраняют контроль.",
+      "solution_cards": [
+        {
+          "icon": "📋",
+          "title": "Response Case",
+          "text": "Типовая ситуация хранит утверждённую политику, основу ответа и атрибуты случая — Source of Truth для решения."
+        },
+        {
+          "icon": "🔍",
+          "title": "Retrieval",
+          "text": "Система находит наиболее подходящую типовую ситуацию по примерам обращений."
+        },
+        {
+          "icon": "🎚️",
+          "title": "Confidence score",
+          "text": "Рассчитывается на основе retrieval и подсказывает оператору, на что обратить внимание."
+        },
+        {
+          "icon": "✍️",
+          "title": "LLM-адаптация в рамках policy",
+          "text": "Модель не выбирает типовую ситуацию и не принимает бизнес-решение — только адаптирует текст ответа."
+        },
+        {
+          "icon": "👤",
+          "title": "HITL",
+          "text": "Оператор подтверждает, редактирует или эскалирует черновик перед публикацией."
+        },
+        {
+          "icon": "🧠",
+          "title": "KB learning",
+          "text": "Администратор превращает кандидатов из операционного контура в новые типовые ситуации и retrieval-примеры."
+        }
+      ],
+      "pipeline_title": "Как работает Review Flow",
+      "pipeline_lead": "От входящего обращения до публикации ответа и расширения базы знаний — с контролем на каждом шаге.",
+      "pipeline_svg_nodes": [
+        {
+          "title": "Обращение",
+          "lines": [
+            "Клиентский портал",
+            "ввод текста"
+          ]
+        },
+        {
+          "title": "Retrieval",
+          "lines": [
+            "Похожие обращения",
+            "и политики"
+          ]
+        },
+        {
+          "title": "Confidence",
+          "lines": [
+            "Оценка",
+            "уверенности"
+          ],
+          "accent": true
+        },
+        {
+          "title": "LLM",
+          "lines": [
+            "Адаптация",
+            "в рамках политики"
+          ]
+        },
+        {
+          "title": "Оператор",
+          "lines": [
+            "HITL",
+            "проверка"
+          ],
+          "accent": true
+        },
+        {
+          "title": "Публикация",
+          "lines": [
+            "Ответ",
+            "клиенту"
+          ]
+        },
+        {
+          "title": "БЗ",
+          "lines": [
+            "Кандидаты",
+            "в новые ТС"
+          ]
+        }
+      ],
+      "pipeline_steps": [
+        {
+          "number": "01",
+          "title": "Retrieval и confidence",
+          "text": "Система находит похожие случаи и оценивает уверенность, чтобы оператор понял, на что обратить внимание."
+        },
+        {
+          "number": "02",
+          "title": "Адаптация и HITL",
+          "text": "LLM готовит черновик в рамках политики; оператор проверяет, редактирует и публикует ответ."
+        },
+        {
+          "number": "03",
+          "title": "Обучение",
+          "text": "Оператор эскалирует непокрытые кейсы; администратор превращает их в новые типовые ситуации."
+        }
+      ],
+      "ux_title": "Интерфейсы",
+      "ux_main_title": "Два лица системы: клиент и оператор",
+      "ux_lead": "Клиент оставляет обращение и видит статус; оператор проверяет или редактирует AI-черновик.",
+      "scenario_1": {
+        "label": "Сценарий 1",
+        "title": "Клиент оставляет обращение",
+        "text": "Форма с оценкой и текстом, после отправки появляется номер NL-… и этап обработки.",
+        "type": "stylized",
+        "alt": "Клиентский портал Review Flow: проверка статуса обращения и опубликованный ответ"
+      },
+      "scenario_2": {
+        "label": "Сценарий 2",
+        "title": "Оператор проверяет AI-черновик",
+        "text": "Консоль оператора: предложенная типовая ситуация, уровень confidence, черновик ответа и кнопки подтвердить/эскалировать/опубликовать.",
+        "type": "stylized",
+        "alt": "Консоль оператора Review Flow после подтверждения типовой ситуации"
+      },
+      "quote": "Review Flow ускоряет работу с обращениями, но не отдаёт AI полный контроль: оператор остаётся финальным арбитром.",
+      "final_title": "Расскажите о вашем потоке обращений",
+      "final_lead": "Мы оценим, как Review Flow сократит время ответа при сохранении контроля оператора.",
+      "final_cta_primary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_secondary": {
+        "text": "Live demo",
+        "href": "https://review-flow.alex-n8n.site",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_tertiary": {
+        "text": "Admin Console",
+        "href": "https://review-flow-admin.alex-n8n.site/company",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_quaternary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/Review-Flow",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_links": [],
+      "footer_positioning": "Обработка клиентских обращений с оператором в контуре"
+    },
+    {
+      "id": "review-auto-responder",
+      "name": "Review Auto Responder",
+      "domain": "Автоматические ответы на отзывы из Telegram",
+      "title": "Review Auto Responder — автоответы на отзывы",
+      "og_title": "Review Auto Responder — автоответы на отзывы",
+      "eyebrow": "Автоматические ответы на отзывы из Telegram",
+      "hero_title": "Уберите рутину из работы с отзывами: автономный конвейер 24/7",
+      "hero_lead": "Review Auto Responder собирает новые отзывы с сайта, определяет тональность словарём маркеров, генерирует ответ через active/fallback LLM-цепочку и уведомляет оператора в Telegram. Оператор вмешивается только там, где нужен личный контакт.",
+      "hero_cta_primary": {
+        "text": "Live demo",
+        "href": "https://review-auto-responder.alex-n8n.site",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_secondary": {
+        "text": "Admin Console",
+        "href": "https://review-auto-responder.alex-n8n.site/admin/login",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_tertiary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/review-auto-responder",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_quaternary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_screenshot_dark": "assets/screenshots/RAR_portfolio_dark.png",
+      "hero_screenshot_light": "assets/screenshots/RAR_portfolio_light.png",
+      "hero_screenshot_alt": "Сайт отзывов Review Auto Responder с AI-ответом в треде",
+      "summary_items": [
+        {
+          "label": "Кейс",
+          "value": "<strong>Review Auto Responder</strong>"
+        },
+        {
+          "label": "Для кого",
+          "value": "Бренды и сервисы с публичными площадками отзывов"
+        },
+        {
+          "label": "Статус",
+          "value": "Production-ready, active/fallback LLM chain"
+        },
+        {
+          "label": "Стек",
+          "value": "FastAPI, PostgreSQL, LangChain, OpenAI, Telegram"
+        },
+        {
+          "label": "Live demo",
+          "value_html": "<a href='https://review-auto-responder.alex-n8n.site' target='_blank' rel='noopener'>review-auto-responder.alex-n8n.site</a>"
+        },
+        {
+          "label": "Admin Console",
+          "value_html": "<a href='https://review-auto-responder.alex-n8n.site/admin/login' target='_blank' rel='noopener'>review-auto-responder.alex-n8n.site/admin/login</a>"
+        },
+        {
+          "label": "GitHub",
+          "value_html": "<a href='https://github.com/AlexLvGulyaev/review-auto-responder' target='_blank' rel='noopener'>AlexLvGulyaev/review-auto-responder</a>"
+        }
+      ],
+      "results_title": "Рутина ушла, оператор остался в контуре",
+      "results_lead": "Каждый отзыв получает автономную реакцию за секунды–минуты, а оператор видит всё в Telegram и /admin — и подключается лично только там, где AI не справляется.",
+      "before": [
+        "Отзывы появляются, но реакция задерживается на часы или дни",
+        "Оператор вручную следит за площадкой, копирует текст и пишет ответ",
+        "Один шаблон ответа на позитив, нейтрал и негатив",
+        "Нет единого журнала: кто, когда и почему отвечал"
+      ],
+      "after": [
+        "Poller автономно обнаруживает новый отзыв и классифицирует тональность",
+        "Active/fallback LLM-цепочка генерирует релевантный ответ и публикует его в тред",
+        "Оператор мгновенно узнаёт о негативе в Telegram",
+        "Execution-трейсы и аудит в /admin дают полную прозрачность"
+      ],
+      "metrics": [
+        {
+          "label": "Реакция",
+          "value": "секунды–минуты",
+          "suffix": "вместо часов–дней"
+        },
+        {
+          "label": "Классификация",
+          "value": "0 токенов",
+          "suffix": "словарь маркеров"
+        },
+        {
+          "label": "Покрытие",
+          "value": "24/7",
+          "suffix": "включая fallback"
+        }
+      ],
+      "problem_title": "Отзывы требуют постоянного ручного внимания",
+      "problem_lead": "Без автоматизации ответы задерживаются, площадки не покрываются вне рабочих часов, а ручная обработка не масштабируется.",
+      "problem_cards": [
+        {
+          "title": "Ручной мониторинг",
+          "text": "Оператор должен сам заметить отзыв, скопировать текст и написать ответ."
+        },
+        {
+          "title": "Нет 24/7",
+          "text": "Ночью и в выходные отзывы висят без реакции — клиент уходит раньше, чем его заметят."
+        },
+        {
+          "title": "Шаблонные ответы",
+          "text": "Позитив и нейтрал получают нерелевантные „извинения“, негатив — формальный шаблон вместо эмпатии."
+        },
+        {
+          "title": "Нет аудита",
+          "text": "Сложно понять, кто и когда отвечал, и почему именно такой текст."
+        }
+      ],
+      "solution_title": "Автономный автоответчик с операторским контуром",
+      "solution_lead": "AI обрабатывает отзыв самостоятельно, а оператор получает уведомление и полную трассу — и вмешивается только в сложные случаи.",
+      "solution_cards": [
+        {
+          "icon": "🕵️",
+          "title": "Poller",
+          "text": "Автономно обнаруживает новые отзывы и запускает обработку."
+        },
+        {
+          "icon": "🎭",
+          "title": "Классификатор без LLM",
+          "text": "Тональность определяется словарём маркеров — 0 токенов и предсказуемый результат."
+        },
+        {
+          "icon": "✍️",
+          "title": "Active/fallback LLM",
+          "text": "Основная модель генерирует ответ; резервная или словарные шаблоны подстраховывают при сбоях."
+        },
+        {
+          "icon": "📣",
+          "title": "Telegram-уведомления",
+          "text": "Оператор видит каждый отзыв с тоном и текстом и подключается к сложным случаям."
+        },
+        {
+          "icon": "📋",
+          "title": "Аудит в /admin",
+          "text": "Execution-трейсы, логи и журнал действий — полная прозрачность работы системы."
+        }
+      ],
+      "pipeline_title": "Как обрабатывается отзыв",
+      "pipeline_lead": "От публикации отзыва до AI-ответа в треде и уведомления оператора.",
+      "pipeline_svg_nodes": [
+        {
+          "title": "Сайт отзывов",
+          "lines": [
+            "Новый",
+            "отзыв"
+          ]
+        },
+        {
+          "title": "Poller",
+          "lines": [
+            "Обнаружение",
+            "и чтение"
+          ]
+        },
+        {
+          "title": "Классификатор",
+          "lines": [
+            "Тональность",
+            "и приоритет"
+          ],
+          "accent": true
+        },
+        {
+          "title": "LLM-цепочка",
+          "lines": [
+            "Active /",
+            "fallback"
+          ],
+          "accent": true
+        },
+        {
+          "title": "Ответ в тред",
+          "lines": [
+            "Публикация",
+            "на сайте"
+          ]
+        },
+        {
+          "title": "Telegram",
+          "lines": [
+            "Уведомление",
+            "оператору"
+          ]
+        },
+        {
+          "title": "/admin",
+          "lines": [
+            "Аудит",
+            "и логи"
+          ]
+        }
+      ],
+      "pipeline_steps": [
+        {
+          "number": "01",
+          "title": "Обнаружение и классификация",
+          "text": "Poller находит отзыв, классификатор определяет тональность и приоритет."
+        },
+        {
+          "number": "02",
+          "title": "Генерация ответа",
+          "text": "Active/fallback LLM-цепочка создаёт релевантный ответ и публикует его в тред."
+        },
+        {
+          "number": "03",
+          "title": "Уведомление и аудит",
+          "text": "Оператор получает Telegram-уведомление; /admin сохраняет полный журнал."
+        }
+      ],
+      "ux_title": "Интерфейсы",
+      "ux_main_title": "Сайт отзывов и операторское уведомление",
+      "ux_lead": "Публичный тред с AI-ответом и Telegram-уведомление, которое получает оператор.",
+      "scenario_1": {
+        "label": "Сценарий 1",
+        "title": "AI-ответ в треде отзыва",
+        "text": "Клиент оставляет отзыв, система публикует ветку с AI-ответом, который виден всем посетителям.",
+        "type": "stylized"
+      },
+      "scenario_2": {
+        "label": "Сценарий 2",
+        "title": "Telegram-уведомление оператору",
+        "text": "Оператор видит краткое уведомление об отзыве, тональность и ссылку на /admin для аудита.",
+        "type": "stylized"
+      },
+      "quote": "Review Auto Responder не заменяет оператора, но убирает рутину: автономная реакция 24/7, а человек подключается только там, где нужен личный контакт.",
+      "final_title": "Расскажите о вашем потоке входящих задач",
+      "final_lead": "Мы оценим, как паттерн „сбор → классификация → AI-ответ → уведомление“ уберёт рутину и ускорит реакцию в вашем сценарии.",
+      "final_cta_primary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_secondary": {
+        "text": "Live demo",
+        "href": "https://review-auto-responder.alex-n8n.site",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_tertiary": {
+        "text": "Admin Console",
+        "href": "https://review-auto-responder.alex-n8n.site/admin/login",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_quaternary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/review-auto-responder",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_links": [],
+      "footer_positioning": "Автоматические ответы на отзывы"
+    },
+    {
+      "id": "assistant-flow",
+      "name": "Assistant Flow",
+      "domain": "Telegram-ассистент с RAG и источниками",
+      "title": "Assistant Flow — Telegram-ассистент с RAG и источниками",
+      "og_title": "Assistant Flow — Telegram-ассистент с RAG и источниками",
+      "eyebrow": "Telegram-ассистент с RAG и источниками",
+      "hero_title": "Отвечайте клиентам и сотрудникам в Telegram с точными источниками",
+      "hero_lead": "Assistant Flow принимает текст, голос, изображения и документы, маршрутизирует запросы через RAG, OCR или LLM, и всегда ссылается на источники.",
+      "hero_cta_primary": {
+        "text": "Открыть в Telegram",
+        "href": "https://t.me/PEn06_Career_Consultant_bot",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_secondary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/assistant-flow",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_tertiary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_screenshot_dark": "assets/screenshots/AF_portfolio_dark.png",
+      "hero_screenshot_light": "assets/screenshots/AF_portfolio_light.png",
+      "hero_screenshot_alt": "Telegram-интерфейс Assistant Flow: RAG-ответ с источниками",
+      "summary_items": [
+        {
+          "label": "Кейс",
+          "value": "<strong>Assistant Flow</strong>"
+        },
+        {
+          "label": "Для кого",
+          "value": "Команды и клиентские чаты, которым нужен AI-ассистент в Telegram"
+        },
+        {
+          "label": "Статус",
+          "value": "Production-ready, RAG + OCR + LLM"
+        },
+        {
+          "label": "Стек",
+          "value": "Python, Telegram Bot API, RAG, OCR, LLM"
+        },
+        {
+          "label": "Telegram",
+          "value_html": "<a href='https://t.me/PEn06_Career_Consultant_bot' target='_blank' rel='noopener'>@PEn06_Career_Consultant_bot</a>"
+        },
+        {
+          "label": "GitHub",
+          "value_html": "<a href='https://github.com/AlexLvGulyaev/assistant-flow' target='_blank' rel='noopener'>AlexLvGulyaev/assistant-flow</a>"
+        }
+      ],
+      "results_title": "Универсальный Telegram-ассистент",
+      "results_lead": "Один бот закрывает вопросы по базе знаний, документам и мультимодальным входным данным.",
+      "before": [
+        "Вопросы клиентов/сотрудников разбиваются между Telegram, email и базой знаний",
+        "Голос, скриншоты и документы обрабатываются вручную",
+        "Непонятно, на чём основан ответ"
+      ],
+      "after": [
+        "Пользователь пишет в Telegram в любом формате — бот сам выбирает обработчик",
+        "RAG/OCR/LLM находят ответ и показывают источник",
+        "Администратор видит диалоги, метрики и управляет знаниями в консоли"
+      ],
+      "metrics": [
+        {
+          "label": "Канал",
+          "value": "Telegram",
+          "suffix": "естественный интерфейс"
+        },
+        {
+          "label": "Форматы",
+          "value": "4+",
+          "suffix": "текст / голос / фото / файл"
+        },
+        {
+          "label": "Источники",
+          "value": "всегда",
+          "suffix": "цитаты и ссылки"
+        }
+      ],
+      "problem_title": "Мессенджер превращается в хаос знаний",
+      "problem_lead": "Вопросы приходят в разных форматах, а ответы часто не подкреплены актуальными источниками.",
+      "problem_cards": [
+        {
+          "title": "Мультимодальные входы",
+          "text": "Голос, скриншоты и документы требуют ручной транскрибации и обработки."
+        },
+        {
+          "title": "Отсутствие цитат",
+          "text": "Ответы даются «из головы», без ссылок на документы или базу знаний."
+        }
+      ],
+      "solution_title": "RAG-ассистент с маршрутизацией и источниками",
+      "solution_lead": "Assistant Flow определяет тип входных данных, выбирает обработчик и возвращает ответ с цитатами.",
+      "solution_cards": [
+        {
+          "icon": "🤖",
+          "title": "Маршрутизация",
+          "text": "Бот понимает формат входа и направляет запрос в RAG, OCR, текст или голосовой модуль."
+        },
+        {
+          "icon": "📚",
+          "title": "RAG с цитатами",
+          "text": "Ответ строится на фрагментах базы знаний с указанием источников."
+        },
+        {
+          "icon": "🖼️",
+          "title": "OCR и изображения",
+          "text": "Скриншоты и документы превращаются в текст и участвуют в диалоге."
+        },
+        {
+          "icon": "📊",
+          "title": "Операционная консоль",
+          "text": "Администратор видит диалоги, нагрузку и качество ответов."
+        }
+      ],
+      "pipeline_title": "Как обрабатывается запрос в Telegram",
+      "pipeline_lead": "От входящего сообщения до ответа с источниками и записи в консоли.",
+      "pipeline_svg_nodes": [
+        {
+          "title": "Telegram",
+          "lines": [
+            "Текст / голос",
+            "фото / файл"
+          ]
+        },
+        {
+          "title": "Маршрутизация",
+          "lines": [
+            "Тип входных",
+            "данных"
+          ],
+          "accent": true
+        },
+        {
+          "title": "RAG / OCR",
+          "lines": [
+            "База знаний",
+            "и документы"
+          ]
+        },
+        {
+          "title": "LLM",
+          "lines": [
+            "Ответ",
+            "с источниками"
+          ],
+          "accent": true
+        },
+        {
+          "title": "Консоль",
+          "lines": [
+            "Логи",
+            "и аналитика"
+          ]
+        }
+      ],
+      "pipeline_steps": [
+        {
+          "number": "01",
+          "title": "Маршрутизация",
+          "text": "Бот определяет формат входных данных и выбирает RAG, OCR, текстовый или голосовой обработчик."
+        },
+        {
+          "number": "02",
+          "title": "RAG / OCR",
+          "text": "Из базы знаний и документов извлекаются релевантные фрагменты с цитатами."
+        },
+        {
+          "number": "03",
+          "title": "Ответ и observability",
+          "text": "LLM формирует ответ с источниками, консоль сохраняет диалог и метрики."
+        }
+      ],
+      "ux_title": "Интерфейсы",
+      "ux_main_title": "Telegram-диалог и консоль администратора",
+      "ux_lead": "Пользователь общается в привычном Telegram; администратор смотрит обзорную панель.",
+      "scenario_1": {
+        "label": "Сценарий 1",
+        "title": "RAG-ответ в Telegram",
+        "text": "Пользователь спрашивает про ООО НоваТех и получает структурированный ответ с источниками из базы знаний.",
+        "type": "image",
+        "src": "../../assistant-flow/docs/screenshots/rag-tg.png",
+        "alt": "Telegram-чат Assistant Flow с RAG-ответом"
+      },
+      "scenario_2": {
+        "label": "Сценарий 2",
+        "title": "Обзор админки",
+        "text": "Администратор видит список диалогов, статистику и настройки интеграций в одной панели.",
+        "type": "image",
+        "src": "../../assistant-flow/docs/screenshots/overview-adm.png",
+        "alt": "Обзорная панель администратора Assistant Flow"
+      },
+      "quote": "Assistant Flow превращает Telegram из хаоса сообщений в управляемый канал знаний с проверяемыми ответами.",
+      "final_title": "Расскажите о вашем Telegram-канале знаний",
+      "final_lead": "Мы оценим, как Assistant Flow может закрыть типовые вопросы вашей команды или клиентов с проверяемыми источниками.",
+      "final_cta_primary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_secondary": {
+        "text": "Открыть в Telegram",
+        "href": "https://t.me/PEn06_Career_Consultant_bot",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_tertiary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/assistant-flow",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_links": [],
+      "footer_positioning": "Telegram-ассистент с RAG и источниками"
+    },
+    {
+      "id": "meeting-audit-bot",
+      "name": "Meeting Audit Bot",
+      "domain": "Аудит встреч и звонков через Telegram",
+      "title": "Meeting Audit Bot — аудит встреч и звонков",
+      "og_title": "Meeting Audit Bot — аудит встреч и звонков",
+      "eyebrow": "Аудит встреч и звонков через Telegram",
+      "hero_title": "Аудируйте переговоры и встречи в Telegram за минуты",
+      "hero_lead": "Meeting Audit Bot принимает аудио/видео, транскрибирует через AssemblyAI с диаризацией, прогоняет LLM-аудит по сценарию и возвращает структурированный отчёт.",
+      "hero_cta_primary": {
+        "text": "Открыть в Telegram",
+        "href": "https://t.me/PEcb10_bot",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_secondary": {
+        "text": "Admin Console",
+        "href": "https://meeting-audit-bot.alex-n8n.site/admin/login",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_tertiary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/meeting-audit-bot",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_quaternary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_screenshot_dark": "assets/screenshots/mab_portfolio_dark.png",
+      "hero_screenshot_light": "assets/screenshots/mab_portfolio_light.png",
+      "hero_screenshot_alt": "Telegram-интерфейс Meeting Audit Bot с аудитом звонка",
+      "summary_items": [
+        {
+          "label": "Кейс",
+          "value": "<strong>Meeting Audit Bot</strong>"
+        },
+        {
+          "label": "Для кого",
+          "value": "Sales-менеджеры, руководители, команды с записью переговоров"
+        },
+        {
+          "label": "Статус",
+          "value": "Production-ready, AssemblyAI + LLM-аудит"
+        },
+        {
+          "label": "Стек",
+          "value": "FastAPI, PostgreSQL, AssemblyAI, LangChain, OpenAI"
+        },
+        {
+          "label": "Telegram",
+          "value_html": "<a href='https://t.me/PEcb10_bot' target='_blank' rel='noopener'>@PEcb10_bot</a>"
+        },
+        {
+          "label": "Admin Console",
+          "value_html": "<a href='https://meeting-audit-bot.alex-n8n.site/admin/login' target='_blank' rel='noopener'>meeting-audit-bot.alex-n8n.site/admin/login</a>"
+        },
+        {
+          "label": "GitHub",
+          "value_html": "<a href='https://github.com/AlexLvGulyaev/meeting-audit-bot' target='_blank' rel='noopener'>AlexLvGulyaev/meeting-audit-bot</a>"
+        }
+      ],
+      "results_title": "Контроль качества переговоров без ручной расшифровки",
+      "results_lead": "Менеджер присылает запись встречи и получает отчёт по скриптам, рискам и действиям.",
+      "before": [
+        "Записи встреч копятся, но никто их не разбирает",
+        "Расшифровка и аудит по чек-листу занимают часы",
+        "Нет единой истории и метрик по командам"
+      ],
+      "after": [
+        "Пользователь пересылает аудио/видео в Telegram",
+        "AssemblyAI строит транскрипцию с разделением спикеров",
+        "LLM проверяет сценарий, риски и next steps, возвращая структурированный отчёт"
+      ],
+      "metrics": [
+        {
+          "label": "Транскрибация",
+          "value": "AssemblyAI",
+          "suffix": "+ диаризация"
+        },
+        {
+          "label": "Отчёт",
+          "value": "минуты",
+          "suffix": "на встречу любой длины"
+        },
+        {
+          "label": "Админка",
+          "value": "dashboard",
+          "suffix": "+ execution traces"
+        }
+      ],
+      "problem_title": "Записи встреч не превращаются в действия",
+      "problem_lead": "Без системного аудита ценная информация из переговоров теряется, а качество продаж не контролируется.",
+      "problem_cards": [
+        {
+          "title": "Ручной труд",
+          "text": "Расшифровка и проверка по чек-листу отнимают у менеджера часы."
+        },
+        {
+          "title": "Потеря обратной связи",
+          "text": "Нет централизованной истории, по которой можно обучать команду."
+        }
+      ],
+      "solution_title": "Автоматический аудит звонков и встреч",
+      "solution_lead": "Telegram-бот + AssemblyAI + LLM превращают запись в структурированный отчёт.",
+      "solution_cards": [
+        {
+          "icon": "🎙️",
+          "title": "Telegram-бот",
+          "text": "Принимает аудио и видео прямо в мессенджере."
+        },
+        {
+          "icon": "📝",
+          "title": "AssemblyAI STT",
+          "text": "Транскрибирует с диаризацией: кто, когда и что сказал."
+        },
+        {
+          "icon": "🧠",
+          "title": "LLM-аудит",
+          "text": "Проверяет сценарий, скрипты, риски, next steps и compliance."
+        },
+        {
+          "icon": "📊",
+          "title": "Admin dashboard",
+          "text": "Визуализация executions, логов и аналитики по командам."
+        }
+      ],
+      "pipeline_title": "Как аудируется встреча",
+      "pipeline_lead": "От записи в Telegram до структурированного отчёта и операционной консоли.",
+      "pipeline_svg_nodes": [
+        {
+          "title": "Telegram",
+          "lines": [
+            "Аудио / видео",
+            "переговора"
+          ]
+        },
+        {
+          "title": "Download",
+          "lines": [
+            "Скачивание",
+            "и обработка"
+          ]
+        },
+        {
+          "title": "AssemblyAI",
+          "lines": [
+            "STT +",
+            "диаризация"
+          ],
+          "accent": true
+        },
+        {
+          "title": "LLM-аудит",
+          "lines": [
+            "Сценарий",
+            "и структура"
+          ],
+          "accent": true
+        },
+        {
+          "title": "Отчёт",
+          "lines": [
+            "Структурированный",
+            "результат"
+          ]
+        },
+        {
+          "title": "Telegram + Admin",
+          "lines": [
+            "Ответ",
+            "и dashboard"
+          ]
+        }
+      ],
+      "pipeline_steps": [
+        {
+          "number": "01",
+          "title": "Загрузка и транскрибация",
+          "text": "Бот скачивает запись, AssemblyAI превращает речь в текст с разделением спикеров."
+        },
+        {
+          "number": "02",
+          "title": "LLM-аудит по сценарию",
+          "text": "LLM проверяет скрипты, риски, договорённости и формирует отчёт."
+        },
+        {
+          "number": "03",
+          "title": "Доставка и observability",
+          "text": "Отчёт возвращается в Telegram, а admin dashboard сохраняет execution traces."
+        }
+      ],
+      "ux_title": "Интерфейсы",
+      "ux_main_title": "Telegram-аудит и операционная консоль",
+      "ux_lead": "Пользователь получает отчёт в Telegram; руководитель смотрит dashboard и список executions.",
+      "scenario_1": {
+        "label": "Сценарий 1",
+        "title": "Аудит sales-call в Telegram",
+        "text": "Пользователь пересылает аудио звонка, бот возвращает структурированный аудит по скрипту и рискам.",
+        "type": "image",
+        "src": "../../meeting-audit-bot/docs/screenshots/tg-audio-sales-call-audit.png",
+        "alt": "Telegram: аудит sales-call"
+      },
+      "scenario_2": {
+        "label": "Сценарий 2",
+        "title": "Обзорная панель администратора",
+        "text": "Админка показывает ключевые метрики, статусы аудитов и переход к деталям execution.",
+        "type": "image",
+        "src": "../../meeting-audit-bot/docs/screenshots/admin-dashboard.png",
+        "alt": "Dashboard Meeting Audit Bot"
+      },
+      "quote": "Meeting Audit Bot превращает каждую запись встречи в обучающий материал и контрольную точку для продаж.",
+      "final_title": "Расскажите о ваших переговорах",
+      "final_lead": "Мы оценим, как Meeting Audit Bot уберёт ручную расшифровку и даст контроль качества звонков и встреч.",
+      "final_cta_primary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_secondary": {
+        "text": "Открыть в Telegram",
+        "href": "https://t.me/PEcb10_bot",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_tertiary": {
+        "text": "Admin Console",
+        "href": "https://meeting-audit-bot.alex-n8n.site/admin/login",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_quaternary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/meeting-audit-bot",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_links": [],
+      "footer_positioning": "Аудит встреч и звонков через Telegram"
+    },
+    {
+      "id": "n8n-lead-qualification",
+      "name": "Lead Qualification",
+      "domain": "Квалификация лидов через n8n",
+      "title": "Lead Qualification — квалификация лидов через n8n",
+      "og_title": "Lead Qualification — квалификация лидов через n8n",
+      "eyebrow": "Квалификация лидов через n8n",
+      "hero_title": "Превращайте заявки в квалифицированные сделки автоматически",
+      "hero_lead": "Lead Qualification собирает заявки с сайта и Telegram, проводит LLM-квалификацию, обогащает данные и передаёт горячие лиды в CRM и чат менеджеров.",
+      "hero_cta_primary": {
+        "text": "Live demo",
+        "href": "https://lead-qual.alex-n8n.site/",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_secondary": {
+        "text": "Admin Console",
+        "href": "https://lead-qual-admin.alex-n8n.site/",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_tertiary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/lead-qualification",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_quaternary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_screenshot_dark": "assets/screenshots/LQ_portfolio_dark.png",
+      "hero_screenshot_light": "assets/screenshots/LQ_portfolio_light.png",
+      "hero_screenshot_alt": "Интерфейс Lead Qualification: веб-форма и dashboard",
+      "summary_items": [
+        {
+          "label": "Кейс",
+          "value": "<strong>Lead Qualification</strong>"
+        },
+        {
+          "label": "Для кого",
+          "value": "Отделы продаж и маркетинга, собирающие заявки из нескольких каналов"
+        },
+        {
+          "label": "Статус",
+          "value": "Production-ready, n8n + LLM квалификация"
+        },
+        {
+          "label": "Стек",
+          "value": "n8n, FastAPI, PostgreSQL, LLM, Telegram Bot API"
+        },
+        {
+          "label": "Client UI",
+          "value_html": "<a href='https://lead-qual.alex-n8n.site/' target='_blank' rel='noopener'>lead-qual.alex-n8n.site</a>"
+        },
+        {
+          "label": "Demo Landing",
+          "value_html": "<a href='https://lead-qual-demo.alex-n8n.site' target='_blank' rel='noopener'>lead-qual-demo.alex-n8n.site</a>"
+        },
+        {
+          "label": "Admin Console",
+          "value_html": "<a href='https://lead-qual-admin.alex-n8n.site/' target='_blank' rel='noopener'>lead-qual-admin.alex-n8n.site</a>"
+        },
+        {
+          "label": "Telegram",
+          "value_html": "<a href='https://t.me/OptimusLeadQualificationBot' target='_blank' rel='noopener'>@OptimusLeadQualificationBot</a>"
+        },
+        {
+          "label": "GitHub",
+          "value_html": "<a href='https://github.com/AlexLvGulyaev/lead-qualification' target='_blank' rel='noopener'>AlexLvGulyaev/lead-qualification</a>"
+        }
+      ],
+      "results_title": "Лиды доходят до менеджера уже оцененными",
+      "results_lead": "Вместо сырых контактов менеджер получает квалифицированную заявку с приоритетом и контекстом.",
+      "before": [
+        "Заявки приходят из разных каналов в разном формате",
+        "Менеджер тратит время на ручную квалификацию",
+        "Горячие лиды теряются среди холодных"
+      ],
+      "after": [
+        "Заявка собирается через web-форму или Telegram",
+        "n8n + LLM оценивают потребность, бюджет и срочность",
+        "Горячий лид уходит в CRM и уведомление в чат операторов"
+      ],
+      "metrics": [
+        {
+          "label": "Скорость",
+          "value": "минуты",
+          "suffix": "от заявки до оценки"
+        },
+        {
+          "label": "Качество",
+          "value": "LLM",
+          "suffix": "структурированная квалификация"
+        },
+        {
+          "label": "Покрытие",
+          "value": "web + tg",
+          "suffix": "единый воронка"
+        }
+      ],
+      "problem_title": "Лиды приходят хаотично и непроквалифицированными",
+      "problem_lead": "Без автоматизации менеджер тратит время на сортировку, а горячие заявки могут остыть.",
+      "problem_cards": [
+        {
+          "title": "Разрозненные каналы",
+          "text": "Сайд, Telegram, реклама — заявки собираются вручную."
+        },
+        {
+          "title": "Ручная оценка",
+          "text": "Менеджер решает, горячий ли лид, по интуиции, а не по формальным критериям."
+        }
+      ],
+      "solution_title": "Автоматическая квалификация и маршрутизация лидов",
+      "solution_lead": "n8n-воркфлоу собирает, оценивает и направляет заявки в CRM и операторский чат.",
+      "solution_cards": [
+        {
+          "icon": "🌐",
+          "title": "Web-форма",
+          "text": "Универсальная форма на сайте с валидацией и успешным статусом."
+        },
+        {
+          "icon": "🤖",
+          "title": "Telegram-бот",
+          "text": "Альтернативный канал сбора заявок для мобильных пользователей."
+        },
+        {
+          "icon": "🧠",
+          "title": "LLM-квалификация",
+          "text": "Оценка потребности, срочности и бюджета по заданным критериям."
+        },
+        {
+          "icon": "📥",
+          "title": "CRM + чат",
+          "text": "Горячие лиды попадают в CRM и операторский чат сразу."
+        }
+      ],
+      "pipeline_title": "Как лиды проходят квалификацию",
+      "pipeline_lead": "От заявки на сайте или в Telegram до оценки и передачи в CRM.",
+      "pipeline_svg_nodes": [
+        {
+          "title": "Вход",
+          "lines": [
+            "Web-форма",
+            "Telegram"
+          ]
+        },
+        {
+          "title": "n8n",
+          "lines": [
+            "Оркестратор",
+            "воркфлоу"
+          ],
+          "accent": true
+        },
+        {
+          "title": "LLM",
+          "lines": [
+            "Квалификация",
+            "приоритет"
+          ]
+        },
+        {
+          "title": "Обогащение",
+          "lines": [
+            "Данные",
+            "и теги"
+          ]
+        },
+        {
+          "title": "CRM / чат",
+          "lines": [
+            "Сделка",
+            "уведомление"
+          ],
+          "accent": true
+        }
+      ],
+      "pipeline_steps": [
+        {
+          "number": "01",
+          "title": "Сбор заявки",
+          "text": "Пользователь заполняет web-форму или общается с Telegram-ботом."
+        },
+        {
+          "number": "02",
+          "title": "Квалификация",
+          "text": "n8n запускает LLM-оценку по заданным критериям и присваивает приоритет."
+        },
+        {
+          "number": "03",
+          "title": "Передача",
+          "text": "Горячий лид уходит в CRM, менеджер получает уведомление в чат."
+        }
+      ],
+      "ux_title": "Интерфейсы",
+      "ux_main_title": "Веб-форма и операторский dashboard",
+      "ux_lead": "Пользователь оставляет заявку; менеджер видит очередь лидов и их статусы.",
+      "scenario_1": {
+        "label": "Сценарий 1",
+        "title": "Заявка через веб-форму",
+        "text": "Пользователь заполняет форму на сайте, получает подтверждение и оценку лида.",
+        "type": "image",
+        "src": "../../n8n-lead-qualification/docs/screenshots/website-form-success.png",
+        "alt": "Веб-форма Lead Qualification после успешной отправки"
+      },
+      "scenario_2": {
+        "label": "Сценарий 2",
+        "title": "Очередь лидов в dashboard",
+        "text": "Менеджер видит квалифицированных лидов, их приоритеты и источники в единой панели.",
+        "type": "image",
+        "src": "../../n8n-lead-qualification/docs/screenshots/dashboard-overview.png",
+        "alt": "Dashboard Lead Qualification с очередью лидов"
+      },
+      "quote": "Lead Qualification экономит время менеджеров: к моменту первого контакта лид уже оценен и приоритизирован.",
+      "final_title": "Расскажите о вашем потоке заявок",
+      "final_lead": "Мы оценим, как Lead Qualification автоматизирует квалификацию лидов из ваших каналов.",
+      "final_cta_primary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_secondary": {
+        "text": "Live demo",
+        "href": "https://lead-qual.alex-n8n.site/",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_tertiary": {
+        "text": "Admin Console",
+        "href": "https://lead-qual-admin.alex-n8n.site/",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_quaternary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/lead-qualification",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_links": [],
+      "footer_positioning": "Квалификация лидов через n8n"
+    },
+    {
+      "id": "hr-assistant",
+      "name": "HR Assistant",
+      "domain": "AI-помощник рекрутера в Telegram",
+      "title": "HR Assistant — AI-помощник рекрутера в Telegram",
+      "og_title": "HR Assistant — AI-помощник рекрутера в Telegram",
+      "eyebrow": "AI-помощник рекрутера в Telegram",
+      "hero_title": "Кандидаты в Telegram, match score и решение — без ручной обработки резюме",
+      "hero_lead": "HR Assistant принимает резюме в Telegram, извлекает данные, сохраняет в PostgreSQL как SOT и сопоставляет кандидата с вакансиями через LLM.",
+      "hero_cta_primary": {
+        "text": "Открыть в Telegram",
+        "href": "https://t.me/PEm05_HR_assistant_bot",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_secondary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/HR-Assistant",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_tertiary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_screenshot_dark": "assets/screenshots/HRA_portfolio_dark.png",
+      "hero_screenshot_light": "assets/screenshots/HRA_portfolio_light.png",
+      "hero_screenshot_alt": "Telegram-интерфейс HR Assistant: кандидат отправляет резюме",
+      "summary_items": [
+        {
+          "label": "Кейс",
+          "value": "<strong>HR Assistant</strong>"
+        },
+        {
+          "label": "Для кого",
+          "value": "Рекрутеры и HR-команды, принимающие резюме из Telegram"
+        },
+        {
+          "label": "Статус",
+          "value": "Production-ready, PostgreSQL SOT, LLM matching"
+        },
+        {
+          "label": "Стек",
+          "value": "Python, PostgreSQL, Telegram Bot API, LLM"
+        },
+        {
+          "label": "Telegram",
+          "value_html": "<a href='https://t.me/PEm05_HR_assistant_bot' target='_blank' rel='noopener'>@PEm05_HR_assistant_bot</a>"
+        },
+        {
+          "label": "Storytelling",
+          "value_html": "<a href='/cases/hr-assistant-lora.html'>HR Assistant — LoRA</a>"
+        },
+        {
+          "label": "GitHub",
+          "value_html": "<a href='https://github.com/AlexLvGulyaev/HR-Assistant' target='_blank' rel='noopener'>AlexLvGulyaev/HR-Assistant</a>"
+        }
+      ],
+      "results_title": "Рекрутинг с первичным скринингом от AI",
+      "results_lead": "HR получает структурированную карточку кандидата с match score и обоснованием решения.",
+      "before": [
+        "Резюме приходят в разных форматах и каналах",
+        "HR вручную переносит данные в таблицы или ATS",
+        "Сопоставление с вакансиями занимает время и зависит от субъективной оценки"
+      ],
+      "after": [
+        "Кандидат отправляет резюме в Telegram — бот подтверждает получение",
+        "AI извлекает навыки, опыт и ожидания, сохраняя всё в PostgreSQL",
+        "Система возвращает match score и рекомендацию по собеседованию"
+      ],
+      "metrics": [
+        {
+          "label": "Канал",
+          "value": "Telegram",
+          "suffix": "естественный для кандидатов"
+        },
+        {
+          "label": "SOT",
+          "value": "PostgreSQL",
+          "suffix": "единый источник правды"
+        },
+        {
+          "label": "Matching",
+          "value": "LLM",
+          "suffix": "с обоснованием"
+        }
+      ],
+      "problem_title": "Первичный скрининг отнимает у HR большую часть времени",
+      "problem_lead": "Резюме много, форматы разные, а ручная оценка соответствия вакансии не масштабируется.",
+      "problem_cards": [
+        {
+          "title": "Ручной ввод",
+          "text": "Контакты, навыки и опыт копируются из резюме вручную, с ошибками и задержками."
+        },
+        {
+          "title": "Субъективный matching",
+          "text": "HR решает «подходит или нет» без формализованного score и причин."
+        }
+      ],
+      "solution_title": "Telegram-бот с LLM-matching и PostgreSQL SOT",
+      "solution_lead": "HR Assistant превращает резюме в структурированную карточку с match score и обоснованием.",
+      "solution_cards": [
+        {
+          "icon": "📤",
+          "title": "Приём в Telegram",
+          "text": "Кандидат отправляет резюме или ссылку в привычном мессенджере."
+        },
+        {
+          "icon": "🗄️",
+          "title": "PostgreSQL SOT",
+          "text": "Все данные, вакансии и решения хранятся в единой базе."
+        },
+        {
+          "icon": "🧠",
+          "title": "LLM matching",
+          "text": "Сопоставление кандидата и вакансии с числовым score и причинами."
+        },
+        {
+          "icon": "✅",
+          "title": "Рекомендация HR",
+          "text": "Система предлагает решение: пригласить, отклонить, уточнить."
+        }
+      ],
+      "pipeline_title": "Как кандидат превращается в карточку",
+      "pipeline_lead": "От резюме в Telegram до match score и решения HR с записью в PostgreSQL.",
+      "pipeline_svg_nodes": [
+        {
+          "title": "Кандидат",
+          "lines": [
+            "Резюме",
+            "в Telegram"
+          ]
+        },
+        {
+          "title": "Извлечение",
+          "lines": [
+            "Данные",
+            "навыки, опыт"
+          ],
+          "accent": true
+        },
+        {
+          "title": "PostgreSQL",
+          "lines": [
+            "SOT",
+            "кандидаты и вакансии"
+          ]
+        },
+        {
+          "title": "LLM matching",
+          "lines": [
+            "Кандидат",
+            "↔ вакансия"
+          ],
+          "accent": true
+        },
+        {
+          "title": "HR",
+          "lines": [
+            "Match score",
+            "и решение"
+          ]
+        }
+      ],
+      "pipeline_steps": [
+        {
+          "number": "01",
+          "title": "Приём и извлечение",
+          "text": "Бот получает резюме, извлекает ключевые данные и сохраняет их в PostgreSQL."
+        },
+        {
+          "number": "02",
+          "title": "Matching",
+          "text": "LLM сопоставляет кандидата с открытыми вакансиями и вычисляет score."
+        },
+        {
+          "number": "03",
+          "title": "Решение HR",
+          "text": "Рекрутер получает карточку с обоснованием и принимает решение в один клик."
+        }
+      ],
+      "ux_title": "Интерфейсы",
+      "ux_main_title": "Telegram для кандидата и консоль для HR",
+      "ux_lead": "Кандидат общается в Telegram; HR видит карточку с match score и причинами решения.",
+      "scenario_1": {
+        "label": "Сценарий 1",
+        "title": "Кандидат отправляет резюме",
+        "text": "Telegram-чат: кандидат присылает резюме, бот подтверждает получение и показывает статус обработки.",
+        "type": "stylized"
+      },
+      "scenario_2": {
+        "label": "Сценарий 2",
+        "title": "Карточка кандидата с match score",
+        "text": "Консоль рекрутера: match score 92/100, решение «Пригласить» и причины на основе опыта и стека.",
+        "type": "stylized"
+      },
+      "quote": "HR Assistant убирает рутину первичного скрининга, оставляя HR пространство для человеческого решения.",
+      "final_title": "Расскажите о вашем HR-процессе",
+      "final_lead": "Мы оценим, как HR Assistant ускорит первичный скрининг и сделает matching кандидатов прозрачным.",
+      "final_cta_primary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_secondary": {
+        "text": "Открыть в Telegram",
+        "href": "https://t.me/PEm05_HR_assistant_bot",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_tertiary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/HR-Assistant",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_links": [
+        {
+          "text": "LoRA storytelling",
+          "href": "/cases/hr-assistant-lora.html"
+        }
+      ],
+      "footer_positioning": "AI-помощник рекрутера в Telegram"
+    },
+    {
+      "id": "hr-assistant-lora",
+      "name": "HR Assistant — LoRA",
+      "domain": "История дообучения LLM для HR-задач",
+      "title": "HR Assistant — LoRA · история дообучения модели",
+      "og_title": "HR Assistant — LoRA · история дообучения модели",
+      "eyebrow": "История дообучения LLM для HR-задач",
+      "hero_title": "Как LoRA-дообучение подняло точность HR-решений",
+      "hero_lead": "Storytelling-лендинг о том, как малая модель Qwen с LoRA адаптировалась под задачи рекрутинга и сравнилась с GPT-4 по качеству решений.",
+      "hero_cta_primary": {
+        "text": "Storytelling",
+        "href": "https://hra-lora.alex-n8n.site",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_secondary": {
+        "text": "Parent GitHub",
+        "href": "https://github.com/AlexLvGulyaev/HR-Assistant",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_tertiary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_screenshot_dark": "assets/screenshots/HRA-Lora_portfolio_dark.png",
+      "hero_screenshot_light": "assets/screenshots/HRA-Lora_portfolio_light.png",
+      "hero_screenshot_alt": "Storytelling-лендинг HR Assistant LoRA",
+      "summary_items": [
+        {
+          "label": "Кейс",
+          "value": "<strong>HR Assistant — LoRA</strong>"
+        },
+        {
+          "label": "Тип",
+          "value": "Storytelling / R&D кейс"
+        },
+        {
+          "label": "Модель",
+          "value": "Qwen + LoRA"
+        },
+        {
+          "label": "Задача",
+          "value": "Matching кандидат ↔ вакансия"
+        },
+        {
+          "label": "Статус",
+          "value": "Визуальная история готова"
+        },
+        {
+          "label": "Storytelling",
+          "value_html": "<a href='https://hra-lora.alex-n8n.site' target='_blank' rel='noopener'>hra-lora.alex-n8n.site</a>"
+        },
+        {
+          "label": "Parent GitHub",
+          "value_html": "<a href='https://github.com/AlexLvGulyaev/HR-Assistant' target='_blank' rel='noopener'>AlexLvGulyaev/HR-Assistant</a>"
+        }
+      ],
+      "results_title": "Малая адаптированная модель против большого GPT",
+      "results_lead": "LoRA позволила обучить компактную модель на HR-решающих задачах и добиться сопоставимой точности.",
+      "before": [
+        "LLM-решения для HR требуют дорогих вызовов крупных моделей",
+        "Нет датасета и метрик, специфичных для рекрутинговых решений",
+        "Сложно объяснить заказчику, почему стоит доверять AI-оценке"
+      ],
+      "after": [
+        "Собран размеченный датасет HR-решений для дообучения",
+        "LoRA-адаптация Qwen показала рост точности на целевых сценариях",
+        "Результаты оформлены в публичную визуальную историю"
+      ],
+      "metrics": [
+        {
+          "label": "Модель",
+          "value": "Qwen",
+          "suffix": "+ LoRA"
+        },
+        {
+          "label": "Задача",
+          "value": "HR matching",
+          "suffix": "binary / multi-class"
+        },
+        {
+          "label": "Baseline",
+          "value": "→ fine-tuned",
+          "suffix": "значимый прирост"
+        }
+      ],
+      "problem_title": "Как сделать HR-AI дешевле и понятнее",
+      "problem_lead": "Крупные модели хорошо рассуждают, но их сложно и дорого встроить в production, а объяснить результат бизнесу непросто.",
+      "problem_cards": [
+        {
+          "title": "Стоимость",
+          "text": "Вызовы GPT-4 для каждого резюме быстро становятся дорогими при масштабе."
+        },
+        {
+          "title": "Объяснимость",
+          "text": "Бизнесу нужны не score из чёрного ящика, а прозрачные метрики и сравнения."
+        }
+      ],
+      "solution_title": "LoRA-дообучение малой модели под HR-решения",
+      "solution_lead": "Собственный датасет, адаптация Qwen и визуальная история, которая показывает эволюцию точности.",
+      "solution_cards": [
+        {
+          "icon": "📊",
+          "title": "Датасет HR-решений",
+          "text": "Разметка кандидатов, вакансий и эталонных решений для обучения."
+        },
+        {
+          "icon": "⚙️",
+          "title": "LoRA fine-tuning",
+          "text": "Эффективная адаптация Qwen под специфику рекрутинговых задач."
+        },
+        {
+          "icon": "📈",
+          "title": "Эволюция точности",
+          "text": "Графики роста качества от baseline до fine-tuned модели."
+        },
+        {
+          "icon": "🆚",
+          "title": "Сравнение с GPT",
+          "text": "Визуальное сопоставление малой модели и большого LLM по метрикам."
+        }
+      ],
+      "pipeline_title": "Эволюция точности модели",
+      "pipeline_lead": "От baseline до адаптированной модели: данные, обучение, оценка, сравнение.",
+      "pipeline_svg_nodes": [
+        {
+          "title": "Baseline",
+          "lines": [
+            "Zero-shot",
+            "LLM"
+          ]
+        },
+        {
+          "title": "Датасет",
+          "lines": [
+            "Разметка",
+            "HR-решений"
+          ],
+          "accent": true
+        },
+        {
+          "title": "LoRA",
+          "lines": [
+            "Fine-tuning",
+            "Qwen"
+          ]
+        },
+        {
+          "title": "Оценка",
+          "lines": [
+            "Метрики",
+            "HR-задач"
+          ],
+          "accent": true
+        },
+        {
+          "title": "Сравнение",
+          "lines": [
+            "LoRA vs",
+            "GPT-4"
+          ]
+        }
+      ],
+      "pipeline_steps": [
+        {
+          "number": "01",
+          "title": "Baseline",
+          "text": "Измеряем качество zero-shot LLM на HR-решениях."
+        },
+        {
+          "number": "02",
+          "title": "Датасет и LoRA",
+          "text": "Собираем размеченные примеры и дообучаем Qwen адаптером."
+        },
+        {
+          "number": "03",
+          "title": "Оценка и сравнение",
+          "text": "Считаем метрики и сравниваем fine-tuned модель с крупным LLM."
+        }
+      ],
+      "ux_title": "Визуальная история",
+      "ux_main_title": "Графики эволюции и сравнения моделей",
+      "ux_lead": "Storytelling-лендинг использует SVG-графики для показа роста точности и сравнения с GPT.",
+      "scenario_1": {
+        "label": "График 1",
+        "title": "Эволюция точности решений",
+        "text": "Как менялась точность модели от baseline к fine-tuned варианту на HR-датасете.",
+        "type": "svg",
+        "src": "../../hr-assistant/finetuning/landing/assets/visuals/G-004-decision-accuracy-evolution.svg",
+        "alt": "График эволюции точности HR-решений"
+      },
+      "scenario_2": {
+        "label": "График 2",
+        "title": "LoRA Qwen против GPT",
+        "text": "Сравнение адаптированной малой модели и большого LLM по ключевым метрикам.",
+        "type": "svg",
+        "src": "../../hr-assistant/finetuning/landing/assets/visuals/G-027-qwen-lora-vs-gpt.svg",
+        "alt": "Сравнение Qwen LoRA и GPT"
+      },
+      "quote": "LoRA показала, что малая адаптированная модель может быть конкурентоспособной на узкой задаче — и намного дешевле в production.",
+      "final_title": "Расскажите о вашей задаче с LLM",
+      "final_lead": "Мы оценим, как LoRA-дообучение может сделать вашу модель дешевле и понятнее на узкой задаче.",
+      "final_cta_primary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_secondary": {
+        "text": "Storytelling",
+        "href": "https://hra-lora.alex-n8n.site",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_tertiary": {
+        "text": "Parent GitHub",
+        "href": "https://github.com/AlexLvGulyaev/HR-Assistant",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_links": [
+        {
+          "text": "Parent case: HR Assistant",
+          "href": "/cases/hr-assistant.html"
+        }
+      ],
+      "footer_positioning": "История дообучения LLM для HR-задач"
+    },
+    {
+      "id": "telegram-intake-bot",
+      "name": "Telegram Intake Bot",
+      "domain": "Структурированный сбор заявок в Telegram",
+      "title": "Telegram Intake Bot — структурированный сбор заявок",
+      "og_title": "Telegram Intake Bot — структурированный сбор заявок",
+      "eyebrow": "Структурированный сбор заявок в Telegram",
+      "hero_title": "Собирайте заявки в Telegram в правильной форме",
+      "hero_lead": "Telegram Intake Bot ведёт пользователя по сценарию, извлекает данные через LLM + JSON Schema, проходит guard layer и сохраняет сессии в PostgreSQL.",
+      "hero_cta_primary": {
+        "text": "Открыть в Telegram",
+        "href": "https://t.me/PEcb06_bot",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_secondary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/telegram-intake-bot",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_tertiary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_screenshot_dark": "assets/screenshots/TIB_portfolio_dark.png",
+      "hero_screenshot_light": "assets/screenshots/TIB_portfolio_light.png",
+      "hero_screenshot_alt": "Telegram-интерфейс Intake Bot: диалог с пользователем",
+      "summary_items": [
+        {
+          "label": "Кейс",
+          "value": "<strong>Telegram Intake Bot</strong>"
+        },
+        {
+          "label": "Для кого",
+          "value": "Команды поддержки и sales, принимающие заявки в Telegram"
+        },
+        {
+          "label": "Статус",
+          "value": "Production-ready, PostgreSQL + ScenarioRouter"
+        },
+        {
+          "label": "Стек",
+          "value": "Python, PostgreSQL, Telegram Bot API, LLM"
+        },
+        {
+          "label": "Telegram",
+          "value_html": "<a href='https://t.me/PEcb06_bot' target='_blank' rel='noopener'>@PEcb06_bot</a>"
+        },
+        {
+          "label": "GitHub",
+          "value_html": "<a href='https://github.com/AlexLvGulyaev/telegram-intake-bot' target='_blank' rel='noopener'>AlexLvGulyaev/telegram-intake-bot</a>"
+        }
+      ],
+      "results_title": "Заявки приходят уже структурированными",
+      "results_lead": "Вместо неформальных сообщений оператор получает готовую заявку с полями, тегами и историей диалога.",
+      "before": [
+        "Пользователь пишет в Telegram свободным текстом без нужных деталей",
+        "Оператор вручную уточняет данные и переносит их в CRM/таблицу",
+        "Сценарии меняются в коде, а не в конфигурации"
+      ],
+      "after": [
+        "Бот задаёт вопросы по выбранному сценарию (техподдержка, sales и др.)",
+        "LLM + JSON Schema извлекают структурированные поля и проверяют их guard layer",
+        "Готовая заявка сохраняется в PostgreSQL и уходит в чат операторов"
+      ],
+      "metrics": [
+        {
+          "label": "Канал",
+          "value": "Telegram",
+          "suffix": "привычный интерфейс"
+        },
+        {
+          "label": "Роутинг",
+          "value": "ScenarioRouter",
+          "suffix": "гибкие сценарии"
+        },
+        {
+          "label": "Данные",
+          "value": "структурированные",
+          "suffix": "JSON Schema"
+        }
+      ],
+      "problem_title": "Сообщения в Telegram не превращаются в заявки",
+      "problem_lead": "Свободный диалог требует ручной обработки, а сценарии сложно менять без разработчика.",
+      "problem_cards": [
+        {
+          "title": "Неполные данные",
+          "text": "Пользователь забывает указать важные поля, и оператор тратит время на уточнения."
+        },
+        {
+          "title": "Жёсткие сценарии",
+          "text": "Каждое изменение сценария требует правки кода и деплоя."
+        }
+      ],
+      "solution_title": "Гибкий intake с роутингом и валидацией",
+      "solution_lead": "ScenarioRouter ведёт диалог, LLM извлекает данные, guard layer проверяет корректность, PostgreSQL хранит сессии.",
+      "solution_cards": [
+        {
+          "icon": "🧭",
+          "title": "ScenarioRouter",
+          "text": "Конфигурируемые сценарии без изменения кода."
+        },
+        {
+          "icon": "📝",
+          "title": "LLM + JSON Schema",
+          "text": "Извлечение структурированных полей из свободного текста."
+        },
+        {
+          "icon": "🛡️",
+          "title": "Guard layer",
+          "text": "Проверка обязательных полей, форматов и допустимых значений."
+        },
+        {
+          "icon": "🗄️",
+          "title": "PostgreSQL сессии",
+          "text": "История диалога и заявок в едином хранилище."
+        }
+      ],
+      "pipeline_title": "Как собирается заявка",
+      "pipeline_lead": "От сообщения пользователя до структурированной заявки в чате операторов.",
+      "pipeline_svg_nodes": [
+        {
+          "title": "Пользователь",
+          "lines": [
+            "Сообщение",
+            "в Telegram"
+          ]
+        },
+        {
+          "title": "ScenarioRouter",
+          "lines": [
+            "Выбор",
+            "сценария"
+          ],
+          "accent": true
+        },
+        {
+          "title": "Извлечение",
+          "lines": [
+            "LLM +",
+            "JSON Schema"
+          ]
+        },
+        {
+          "title": "Guard layer",
+          "lines": [
+            "Валидация",
+            "полей"
+          ],
+          "accent": true
+        },
+        {
+          "title": "PostgreSQL",
+          "lines": [
+            "Сессии",
+            "и заявки"
+          ]
+        },
+        {
+          "title": "Операторы",
+          "lines": [
+            "Готовая",
+            "заявка"
+          ]
+        }
+      ],
+      "pipeline_steps": [
+        {
+          "number": "01",
+          "title": "Маршрутизация",
+          "text": "ScenarioRouter определяет сценарий по интенту пользователя."
+        },
+        {
+          "number": "02",
+          "title": "Извлечение и валидация",
+          "text": "LLM извлекает поля по JSON Schema, guard layer проверяет их корректность."
+        },
+        {
+          "number": "03",
+          "title": "Сохранение и передача",
+          "text": "Сессия и заявка сохраняются в PostgreSQL и уходят в чат операторов."
+        }
+      ],
+      "ux_title": "Интерфейсы",
+      "ux_main_title": "Диалог в Telegram",
+      "ux_lead": "Два типовых сценария: техническая поддержка и sales-заявка.",
+      "scenario_1": {
+        "label": "Сценарий 1",
+        "title": "Диалог техподдержки",
+        "text": "Бот уточняет тип проблемы, собирает контекст и формирует заявку для поддержки.",
+        "type": "image",
+        "src": "../../telegram-intake-bot/docs/screenshots/TIB_ui_support_dialog.png",
+        "alt": "Telegram: диалог техподдержки с Intake Bot"
+      },
+      "scenario_2": {
+        "label": "Сценарий 2",
+        "title": "Sales-диалог",
+        "text": "Пользователь описывает потребность, бот собирает данные и готовит lead для отдела продаж.",
+        "type": "image",
+        "src": "../../telegram-intake-bot/docs/screenshots/TIB_ui_sales_dialog.png",
+        "alt": "Telegram: sales-диалог с Intake Bot"
+      },
+      "quote": "Telegram Intake Bot превращает хаотичные сообщения в структурированные заявки, которые оператор может взять в работу сразу.",
+      "final_title": "Расскажите о вашем intake-процессе",
+      "final_lead": "Мы оценим, как Telegram Intake Bot превратит свободные сообщения в структурированные заявки.",
+      "final_cta_primary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_secondary": {
+        "text": "Открыть в Telegram",
+        "href": "https://t.me/PEcb06_bot",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_tertiary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/telegram-intake-bot",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_links": [],
+      "footer_positioning": "Структурированный сбор заявок в Telegram"
+    },
+    {
+      "id": "telegram-onboarding-bot",
+      "name": "Telegram Onboarding Bot",
+      "domain": "Адаптивный онбординг в Telegram",
+      "title": "Telegram Onboarding Bot — адаптивный онбординг",
+      "og_title": "Telegram Onboarding Bot — адаптивный онбординг",
+      "eyebrow": "Адаптивный онбординг в Telegram",
+      "hero_title": "Адаптируйте онбординг сотрудников под каждую роль",
+      "hero_lead": "Telegram Onboarding Bot загружает темы через /import_topic, задаёт адаптивные вопросы, валидирует ответы через OpenAI и сохраняет прогресс в PostgreSQL.",
+      "hero_cta_primary": {
+        "text": "Открыть в Telegram",
+        "href": "https://t.me/PEcb07_bot",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_secondary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/telegram-onboarding-bot",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_tertiary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_screenshot_dark": "assets/screenshots/TOB_portfolio_dark.png",
+      "hero_screenshot_light": "assets/screenshots/TOB_portfolio_light.png",
+      "hero_screenshot_alt": "Telegram-интерфейс Onboarding Bot: прохождение темы",
+      "summary_items": [
+        {
+          "label": "Кейс",
+          "value": "<strong>Telegram Onboarding Bot</strong>"
+        },
+        {
+          "label": "Для кого",
+          "value": "HR и команды, адаптирующие онбординг сотрудников"
+        },
+        {
+          "label": "Статус",
+          "value": "Production-ready, /import_topic, OpenAI-валидация"
+        },
+        {
+          "label": "Стек",
+          "value": "Python, PostgreSQL, Telegram Bot API, OpenAI"
+        },
+        {
+          "label": "Telegram",
+          "value_html": "<a href='https://t.me/PEcb07_bot' target='_blank' rel='noopener'>@PEcb07_bot</a>"
+        },
+        {
+          "label": "GitHub",
+          "value_html": "<a href='https://github.com/AlexLvGulyaev/telegram-onboarding-bot' target='_blank' rel='noopener'>AlexLvGulyaev/telegram-onboarding-bot</a>"
+        }
+      ],
+      "results_title": "Онбординг, который подстраивается под ответы",
+      "results_lead": "Вместо статичного чек-листа бот задаёт вопросы, проверяет понимание и ведёт сотрудника до сертификата.",
+      "before": [
+        "Онбординг — статичный PDF или видео, без проверки усвоения",
+        "HR не знает, кто прошёл материал и кто застрял",
+        "Контент сложно обновлять и персонализировать"
+      ],
+      "after": [
+        "Администратор загружает тему командой /import_topic",
+        "Бот задаёт адаптивные вопросы и валидирует ответы через OpenAI",
+        "Прогресс и результаты сохраняются в PostgreSQL, а сотрудник получает сертификат"
+      ],
+      "metrics": [
+        {
+          "label": "Канал",
+          "value": "Telegram",
+          "suffix": "привычный для сотрудников"
+        },
+        {
+          "label": "Контент",
+          "value": "динамический",
+          "suffix": "загрузка тем"
+        },
+        {
+          "label": "Валидация",
+          "value": "OpenAI",
+          "suffix": "проверка ответов"
+        }
+      ],
+      "problem_title": "Онбординг не проверяет, усвоил ли сотрудник материал",
+      "problem_lead": "Статичные материалы не адаптируются, HR не видит прогресса, а контент обновляется через разработчика.",
+      "problem_cards": [
+        {
+          "title": "Пассивное обучение",
+          "text": "Сотрудник смотрит видео, но никто не проверяет понимание."
+        },
+        {
+          "title": "Сложность обновления",
+          "text": "Каждая новая тема требует правки бота и деплоя."
+        }
+      ],
+      "solution_title": "Адаптивный Telegram-бот для онбординга",
+      "solution_lead": "Загрузка тем, адаптивные вопросы, валидация ответов и отслеживание прогресса в PostgreSQL.",
+      "solution_cards": [
+        {
+          "icon": "📥",
+          "title": "/import_topic",
+          "text": "Администратор загружает новую тему без изменения кода."
+        },
+        {
+          "icon": "❓",
+          "title": "Адаптивные вопросы",
+          "text": "Бот задаёт вопросы на основе ответов и уровня знаний."
+        },
+        {
+          "icon": "✅",
+          "title": "OpenAI-валидация",
+          "text": "Проверка ответов и обратная связь сотруднику."
+        },
+        {
+          "icon": "📜",
+          "title": "Сертификат",
+          "text": "По завершении темы выдаётся подтверждение."
+        }
+      ],
+      "pipeline_title": "Как работает онбординг",
+      "pipeline_lead": "От загрузки темы до адаптивного диалога, валидации и сертификата.",
+      "pipeline_svg_nodes": [
+        {
+          "title": "Админ",
+          "lines": [
+            "/import_topic",
+            "загрузка темы"
+          ],
+          "accent": true
+        },
+        {
+          "title": "Пользователь",
+          "lines": [
+            "/start",
+            "тема"
+          ]
+        },
+        {
+          "title": "Адаптация",
+          "lines": [
+            "Вопросы",
+            "под уровень"
+          ]
+        },
+        {
+          "title": "OpenAI",
+          "lines": [
+            "Валидация",
+            "ответов"
+          ],
+          "accent": true
+        },
+        {
+          "title": "PostgreSQL",
+          "lines": [
+            "Прогресс",
+            "и результаты"
+          ]
+        },
+        {
+          "title": "Сертификат",
+          "lines": [
+            "Завершение",
+            "темы"
+          ]
+        }
+      ],
+      "pipeline_steps": [
+        {
+          "number": "01",
+          "title": "Загрузка темы",
+          "text": "Администратор загружает контент командой /import_topic."
+        },
+        {
+          "number": "02",
+          "title": "Адаптивный диалог",
+          "text": "Бот задаёт вопросы, валидирует ответы через OpenAI и корректирует траекторию."
+        },
+        {
+          "number": "03",
+          "title": "Прогресс и сертификат",
+          "text": "Результаты сохраняются в PostgreSQL, сотрудник получает подтверждение."
+        }
+      ],
+      "ux_title": "Интерфейсы",
+      "ux_main_title": "Happy path и управление темами",
+      "ux_lead": "Сотрудник проходит тему в Telegram; администратор загружает новый контент.",
+      "scenario_1": {
+        "label": "Сценарий 1",
+        "title": "Happy path прохождения темы",
+        "text": "Сотрудник отвечает на вопросы, получает обратную связь и движется к сертификату.",
+        "type": "image",
+        "src": "../../telegram-onboarding-bot/docs/screenshots/TOB_ui_happy_path.png",
+        "alt": "Telegram: happy path прохождения темы"
+      },
+      "scenario_2": {
+        "label": "Сценарий 2",
+        "title": "Загрузка новой темы администратором",
+        "text": "Администратор использует /import_topic, чтобы добавить или обновить контент без разработчика.",
+        "type": "image",
+        "src": "../../telegram-onboarding-bot/docs/screenshots/TOB_admin_new_topic.png",
+        "alt": "Telegram: команда загрузки новой темы"
+      },
+      "quote": "Telegram Onboarding Bot делает онбординг диалогом, а не презентацией: сотрудник учится, а HR видит прогресс.",
+      "final_title": "Расскажите о вашем онбординге",
+      "final_lead": "Мы оценим, как Telegram Onboarding Bot сделает обучение сотрудников диалогом с проверкой усвоения.",
+      "final_cta_primary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_secondary": {
+        "text": "Открыть в Telegram",
+        "href": "https://t.me/PEcb07_bot",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_tertiary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/telegram-onboarding-bot",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_links": [],
+      "footer_positioning": "Адаптивный онбординг в Telegram"
+    },
+    {
+      "id": "retail-group",
+      "name": "Retail Group",
+      "domain": "Голосовой AI-ассистент первой линии поддержки",
+      "title": "Retail Group · Голосовой AI-ассистент первой линии",
+      "og_title": "Retail Group · Голосовой AI-ассистент первой линии",
+      "eyebrow": "Голосовой AI-ассистент первой линии поддержки",
+      "hero_title": "Автоматизируйте первую линию голосовой поддержки ритейлера",
+      "hero_lead": "Голосовой ассистент закрывает типовые звонки, сложные случаи переводит на операторов с сохранением контекста, а аналитика показывает темы и точки роста.",
+      "hero_cta_primary": {
+        "text": "Case Story",
+        "href": "https://pecb05.alex-n8n.site/case-story/case-story-retail-group-v2.html",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_secondary": {
+        "text": "План пилота",
+        "href": "https://pecb05.alex-n8n.site/",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_tertiary": {
+        "text": "Коммерческое предложение",
+        "href": "https://pecb04.alex-n8n.site/",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_quaternary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_screenshot_dark": "assets/screenshots/RG-portfolio-dark.png",
+      "hero_screenshot_light": "assets/screenshots/RG-portfolio-light.png",
+      "hero_screenshot_alt": "Голосовой AI-ассистент Retail Group на линии поддержки",
+      "summary_items": [
+        {
+          "label": "Кейс",
+          "value": "<strong>Retail Group</strong>"
+        },
+        {
+          "label": "Клиент",
+          "value": "Сеть продуктовых магазинов"
+        },
+        {
+          "label": "Канал",
+          "value": "Входящие голосовые звонки"
+        },
+        {
+          "label": "Нагрузка",
+          "value": "до 3 000 звонков/день"
+        },
+        {
+          "label": "Статус",
+          "value": "Пилотный план готов"
+        },
+        {
+          "label": "Case Story",
+          "value_html": "<a href='https://pecb05.alex-n8n.site/case-story/case-story-retail-group-v2.html' target='_blank' rel='noopener'>pecb05.alex-n8n.site/case-story</a>"
+        },
+        {
+          "label": "План пилота",
+          "value_html": "<a href='https://pecb05.alex-n8n.site/' target='_blank' rel='noopener'>pecb05.alex-n8n.site</a>"
+        },
+        {
+          "label": "Коммерческое предложение",
+          "value_html": "<a href='https://pecb04.alex-n8n.site/' target='_blank' rel='noopener'>pecb04.alex-n8n.site</a>"
+        }
+      ],
+      "results_title": "Меньше рутины на первой линии, больше внимания сложным случаям",
+      "results_lead": "Пилот прогнозирует высвобождение 2–3 операторов и экономию около 290 000 ₽/мес при окупаемости ~0,8 месяца.",
+      "before": [
+        "60% звонков — типовые вопросы, на которые отвечают 8 операторов",
+        "Время обработки типового звонка ~1,3 минуты оператора",
+        "Нет прозрачной аналитики по темам и ошибкам"
+      ],
+      "after": [
+        "AI-ассистент закрывает типовые обращения за 15–60 секунд",
+        "Сложные и конфликтные случаи переводятся на операторов с контекстом",
+        "Аналитика показывает темы, ошибки и точки роста"
+      ],
+      "metrics": [
+        {
+          "label": "Скорость",
+          "value": "15–60 сек",
+          "suffix": "на типовой звонок"
+        },
+        {
+          "label": "Освобождение",
+          "value": "2–3",
+          "suffix": "операторов"
+        },
+        {
+          "label": "Экономика",
+          "value": "~290 000 ₽/мес",
+          "suffix": "прогноз пилота"
+        }
+      ],
+      "problem_title": "Тысячи типовых звонков грузят операторов",
+      "problem_lead": "Большая часть обращений — шаблонные вопросы, на которые отвечают люди, хотя их мог бы закрывать AI.",
+      "problem_cards": [
+        {
+          "title": "Высокая нагрузка",
+          "text": "До 3 000 звонков в день, 60% из которых типовые."
+        },
+        {
+          "title": "Потеря данных",
+          "text": "Нет системной аналитики, чтобы понять, что спрашивают и где ошибается линия."
+        }
+      ],
+      "solution_title": "Голосовой AI-ассистент первой линии",
+      "solution_lead": "ASR/STT → n8n → классификатор → LLM+RAG / оператор → TTS → телефония, с логами и аналитикой.",
+      "solution_cards": [
+        {
+          "icon": "📞",
+          "title": "Голосовой контур",
+          "text": "Телефония, ASR/STT и TTS обеспечивают естественный разговор."
+        },
+        {
+          "icon": "🧠",
+          "title": "n8n + LLM + RAG",
+          "text": "Оркестратор классифицирует запросы и генерирует ответы по базе знаний."
+        },
+        {
+          "icon": "👤",
+          "title": "Эскалация на оператора",
+          "text": "Сложные случаи переводятся с сохранением полного контекста диалога."
+        },
+        {
+          "icon": "📊",
+          "title": "Аналитика пилота",
+          "text": "Логи в PostgreSQL и дашборд Metabase для оценки эффекта."
+        }
+      ],
+      "pipeline_title": "Как устроен голосовой контур",
+      "pipeline_lead": "От звонка клиента до AI-ответа или перевода на оператора с сохранением контекста.",
+      "pipeline_svg_nodes": [
+        {
+          "title": "Звонок",
+          "lines": [
+            "Телефония",
+            "клиент"
+          ]
+        },
+        {
+          "title": "ASR / STT",
+          "lines": [
+            "Распознавание",
+            "речи"
+          ],
+          "accent": true
+        },
+        {
+          "title": "n8n",
+          "lines": [
+            "Оркестратор",
+            "запроса"
+          ]
+        },
+        {
+          "title": "Классификатор",
+          "lines": [
+            "Типовой /",
+            "сложный"
+          ],
+          "accent": true
+        },
+        {
+          "title": "LLM + RAG",
+          "lines": [
+            "База знаний",
+            "CRM / API"
+          ]
+        },
+        {
+          "title": "TTS",
+          "lines": [
+            "Синтез",
+            "речи"
+          ]
+        },
+        {
+          "title": "Телефония",
+          "lines": [
+            "Ответ",
+            "клиенту"
+          ]
+        }
+      ],
+      "pipeline_steps": [
+        {
+          "number": "01",
+          "title": "Распознавание и классификация",
+          "text": "ASR/STT превращает речь в текст, n8n-классификатор определяет тип обращения."
+        },
+        {
+          "number": "02",
+          "title": "AI-ответ или эскалация",
+          "text": "Типовые вопросы закрывает LLM+RAG, сложные — переводятся на оператора с контекстом."
+        },
+        {
+          "number": "03",
+          "title": "Синтез и аналитика",
+          "text": "TTS возвращает ответ голосом, а все данные уходят в логи и дашборд."
+        }
+      ],
+      "ux_title": "История кейса",
+      "ux_main_title": "Голосовой диалог и метрики пилота",
+      "ux_lead": "Визуальная история показывает клиентский сценарий и ключевые метрики пилота.",
+      "scenario_1": {
+        "label": "Сценарий 1",
+        "title": "Клиентский голосовой диалог",
+        "text": "Клиент звонит с типовым вопросом, голосовой ассистент понимает запрос и отвечает естественной речью.",
+        "type": "image",
+        "src": "../../retail-group/deliverables/case-story/scenes/scene27.png",
+        "alt": "Сцена голосового диалога Retail Group"
+      },
+      "scenario_2": {
+        "label": "Сценарий 2",
+        "title": "Пять ключевых метрик пилота",
+        "text": "Снижение нагрузки, время ответа, точность классификации, покрытие FAQ и NPS пилота — единый dashboard.",
+        "type": "stylized"
+      },
+      "quote": "Retail Group — не замена операторов, а перераспределение внимания: AI берёт рутину, люди решают сложное.",
+      "final_title": "Расскажите о вашей первой линии",
+      "final_lead": "Мы оценим, как голосовой AI-ассистент снизит нагрузку на операторов и ускорит обработку типовых звонков.",
+      "final_cta_primary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_secondary": {
+        "text": "Case Story",
+        "href": "https://pecb05.alex-n8n.site/case-story/case-story-retail-group-v2.html",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_tertiary": {
+        "text": "План пилота",
+        "href": "https://pecb05.alex-n8n.site/",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_quaternary": {
+        "text": "Коммерческое предложение",
+        "href": "https://pecb04.alex-n8n.site/",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_links": [],
+      "footer_positioning": "Голосовой AI-ассистент первой линии поддержки"
+    },
+    {
+      "id": "prompt-review",
+      "name": "Prompt Review",
+      "domain": "AI-сервис анализа качества промптов",
+      "title": "Prompt Review — AI-сервис анализа качества промптов",
+      "og_title": "Prompt Review — AI-сервис анализа качества промптов",
+      "eyebrow": "AI-сервис анализа качества промптов",
+      "hero_title": "Code review для ваших промптов",
+      "hero_lead": "Prompt Review анализирует промпт как инженерный артефакт: классифицирует, оценивает по 8 критериям, предлагает улучшения и генерирует переработанную версию — без выполнения промпта.",
+      "hero_cta_primary": {
+        "text": "Live demo",
+        "href": "https://prompt-review-demo.alex-n8n.site/",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_secondary": {
+        "text": "Telegram-бот",
+        "href": "https://t.me/OptimusPromptReview_bot",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_tertiary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/PromptReview",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_cta_quaternary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "hero_screenshot_dark": "assets/screenshots/PR-portfolio-dark.png",
+      "hero_screenshot_light": "assets/screenshots/PR-portfolio-light.png",
+      "hero_screenshot_alt": "Интерфейс Prompt Review: анализ промпта",
+      "summary_items": [
+        {
+          "label": "Кейс",
+          "value": "<strong>Prompt Review</strong>"
+        },
+        {
+          "label": "Для кого",
+          "value": "Команды, которым нужен quality gate для LLM-промптов"
+        },
+        {
+          "label": "Статус",
+          "value": "Production-ready, Web / Telegram / API"
+        },
+        {
+          "label": "Стек",
+          "value": "FastAPI, PostgreSQL, LangChain, OpenAI"
+        },
+        {
+          "label": "Live demo",
+          "value_html": "<a href='https://prompt-review-demo.alex-n8n.site/' target='_blank' rel='noopener'>prompt-review-demo.alex-n8n.site</a>"
+        },
+        {
+          "label": "Telegram",
+          "value_html": "<a href='https://t.me/OptimusPromptReview_bot' target='_blank' rel='noopener'>@OptimusPromptReview_bot</a>"
+        },
+        {
+          "label": "GitHub",
+          "value_html": "<a href='https://github.com/AlexLvGulyaev/PromptReview' target='_blank' rel='noopener'>AlexLvGulyaev/PromptReview</a>"
+        }
+      ],
+      "results_title": "Промпты проверяются до production",
+      "results_lead": "Инженеры получают объективную оценку, команды выстраивают стандарты качества, а CI/CD автоматизирует аудит.",
+      "before": [
+        "Промпт работает нестабильно, но непонятно, что именно сломано",
+        "Ревью промптов зависит от интуиции и опыта конкретного человека",
+        "Нет единого формата оценки для команды или CI/CD"
+      ],
+      "after": [
+        "Сервис классифицирует вход и оценивает промпт по 8 критериям",
+        "Приоритизированные рекомендации показывают, что исправлять первым делом",
+        "Генерируется улучшенная версия промпта, готовая к использованию"
+      ],
+      "metrics": [
+        {
+          "label": "Критерии",
+          "value": "8",
+          "suffix": "оценка качества"
+        },
+        {
+          "label": "Интерфейсы",
+          "value": "3",
+          "suffix": "Web / Telegram / API"
+        },
+        {
+          "label": "Интеграция",
+          "value": "CI/CD",
+          "suffix": "GitLab / GitHub"
+        }
+      ],
+      "problem_title": "Промпты пишут, но не рецензируют",
+      "problem_lead": "Качество промпта определяет результат LLM, но у команд нет привычного инструмента для его объективной проверки.",
+      "problem_cards": [
+        {
+          "title": "Необъяснимая нестабильность",
+          "text": "Промпт работает через раз, а причины не формализованы."
+        },
+        {
+          "title": "Отсутствие стандартов",
+          "text": "В каждой команде свои договорённости о «хорошем» промпте."
+        }
+      ],
+      "solution_title": "Автоматический quality gate для промптов",
+      "solution_lead": "Prompt Review анализирует структуру, ясность, полноту и другие инженерные характеристики — как code review.",
+      "solution_cards": [
+        {
+          "icon": "🔍",
+          "title": "Классификация",
+          "text": "Определяет, является ли текст промптом LLM или обычным текстом."
+        },
+        {
+          "icon": "📋",
+          "title": "8 критериев",
+          "text": "Ясность, полнота, однозначность, аудитория, формат, ограничения, предположения, повторяемость."
+        },
+        {
+          "icon": "💡",
+          "title": "Рекомендации",
+          "text": "Приоритизированный список улучшений с пояснениями."
+        },
+        {
+          "icon": "✍️",
+          "title": "Улучшенная версия",
+          "text": "Переработанный промпт, который можно взять за основу."
+        }
+      ],
+      "pipeline_title": "Как анализируется промпт",
+      "pipeline_lead": "От отправки текста до структурированной оценки и улучшенной версии.",
+      "pipeline_svg_nodes": [
+        {
+          "title": "Ввод",
+          "lines": [
+            "Web / Telegram",
+            "или API"
+          ]
+        },
+        {
+          "title": "Классификация",
+          "lines": [
+            "Промпт",
+            "или текст"
+          ],
+          "accent": true
+        },
+        {
+          "title": "Анализ",
+          "lines": [
+            "8 критериев",
+            "качества"
+          ]
+        },
+        {
+          "title": "Рекомендации",
+          "lines": [
+            "Приоритеты",
+            "улучшений"
+          ],
+          "accent": true
+        },
+        {
+          "title": "Улучшенный",
+          "lines": [
+            "Переработанный",
+            "промпт"
+          ]
+        }
+      ],
+      "pipeline_steps": [
+        {
+          "number": "01",
+          "title": "Классификация",
+          "text": "Сервис определяет, является ли текст промптом LLM."
+        },
+        {
+          "number": "02",
+          "title": "Оценка по критериям",
+          "text": "Анализ по 8 инженерным характеристикам с числовыми оценками."
+        },
+        {
+          "number": "03",
+          "title": "Рекомендации и версия",
+          "text": "Приоритизированные улучшения и готовая переработанная версия промпта."
+        }
+      ],
+      "ux_title": "Интерфейсы",
+      "ux_main_title": "Web-форма и результат анализа",
+      "ux_lead": "Пользователь отправляет промпт и получает структурированный отчёт с оценками и улучшенной версией.",
+      "scenario_1": {
+        "label": "Сценарий 1",
+        "title": "Web-форма анализа",
+        "text": "Пользователь вставляет промпт, нажимает «Анализировать» и ждёт 30–60 секунд.",
+        "type": "image",
+        "src": "../../prompt-review/docs/screenshots/PEL06_ui_web_form.png",
+        "alt": "Web-форма Prompt Review"
+      },
+      "scenario_2": {
+        "label": "Сценарий 2",
+        "title": "Результат анализа",
+        "text": "Структурированный результат: оценки по критериям, рекомендации и улучшенная версия промпта.",
+        "type": "image",
+        "src": "../../prompt-review/docs/screenshots/PEL06_result_web_analysis1.png",
+        "alt": "Результат анализа промпта в Prompt Review"
+      },
+      "quote": "Prompt Review превращает проверку промптов из интуиции в инженерную дисциплину с измеримыми критериями.",
+      "final_title": "Расскажите о вашем workflow с промптами",
+      "final_lead": "Мы оценим, как Prompt Review встроит quality gate в вашу команду или CI/CD.",
+      "final_cta_primary": {
+        "text": "Обсудить проект",
+        "href": "/contacts.html",
+        "primary": true,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_secondary": {
+        "text": "Live demo",
+        "href": "https://prompt-review-demo.alex-n8n.site/",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_tertiary": {
+        "text": "Telegram-бот",
+        "href": "https://t.me/OptimusPromptReview_bot",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_cta_quaternary": {
+        "text": "GitHub",
+        "href": "https://github.com/AlexLvGulyaev/PromptReview",
+        "primary": false,
+        "target_blank": true,
+        "disabled": false
+      },
+      "final_links": [
+        {
+          "text": "API_CONTRACT.md",
+          "href": "https://github.com/AlexLvGulyaev/PromptReview/blob/main/docs/API_CONTRACT.md",
+          "target_blank": true
+        }
+      ],
+      "footer_positioning": "AI-сервис анализа качества промптов"
+    }
+  ]
+}

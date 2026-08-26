@@ -1,149 +1,911 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Портфолио AI-инженера. Проектирую и реализую AI-автоматизации бизнес-процессов: Telegram-боты, интеграции CRM, n8n, анализ звонков, RAG и контент-конвейеры.">
+  <meta name="description" content="Портфолио AI-инженера. Двенадцать работающих AI-автоматизаций: Telegram-боты, RAG-ассистенты, анализ звонков, n8n и голосовая первая линия.">
   <meta property="og:title" content="AI Portfolio — AI-инженер, автоматизация бизнес-процессов">
-  <meta property="og:description" content="Портфолио AI-инженера. Проектирую и реализую AI-автоматизации бизнес-процессов: Telegram-боты, интеграции CRM, n8n, анализ звонков, RAG и контент-конвейеры.">
+  <meta property="og:description" content="Портфолио AI-инженера. Двенадцать работающих AI-автоматизаций: Telegram-боты, RAG-ассистенты, анализ звонков, n8n и голосовая первая линия.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ai.alex-n8n.site/">
   <meta property="og:image" content="https://ai.alex-n8n.site/assets/images/og-image.jpg">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AI Portfolio — AI-инженер, автоматизация бизнес-процессов">
-  <meta name="twitter:description" content="Портфолио AI-инженера. Проектирую и реализую AI-автоматизации бизнес-процессов: Telegram-боты, интеграции CRM, n8n, анализ звонков, RAG и контент-конвейеры.">
+  <meta name="twitter:description" content="Портфолио AI-инженера. Двенадцать работающих AI-автоматизаций: Telegram-боты, RAG-ассистенты, анализ звонков, n8n и голосовая первая линия.">
   <meta name="twitter:image" content="https://ai.alex-n8n.site/assets/images/og-image.jpg">
   <link rel="canonical" href="https://ai.alex-n8n.site/">
   <title>AI Portfolio — AI-инженер, автоматизация бизнес-процессов</title>
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    (function() {
+      const saved = localStorage.getItem('aip-theme-teal');
+      if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+      else if (saved === 'light') document.documentElement.dataset.theme = 'light';
+    })();
+  </script>
+  <style>
+    :root {
+      --bg: #E3EAF2;
+      --surface: #FFFFFF;
+      --surface-elevated: #D8E0EA;
+      --border: #C7D0DB;
+      --text-primary: #1A1A1C;
+      --text-secondary: #5A5A62;
+      --text-muted: #7D7D85;
+      --accent: #0D9488;
+      --accent-hover: #0F766E;
+      --focus: #14B8A6;
+      --shadow-sm: 0 1px 2px rgba(13, 59, 55, 0.04);
+      --shadow-md: 0 8px 24px rgba(13, 59, 55, 0.10);
+      --shadow-lg: 0 18px 48px rgba(13, 59, 55, 0.14);
+      --radius: 2px;
+      --space-xs: 0.5rem;
+      --space-sm: 0.75rem;
+      --space-md: 1.25rem;
+      --space-lg: 2rem;
+      --space-xl: 3rem;
+      --space-2xl: 5rem;
+      --space-3xl: 7rem;
+      --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+      --font-body: "Inter", system-ui, sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0a0a0f;
+        --surface: #111118;
+        --surface-elevated: #18181f;
+        --border: rgba(255, 255, 255, 0.10);
+        --text-primary: #f5f5f7;
+        --text-secondary: #a1a1aa;
+        --text-muted: #71717a;
+        --accent: #14b8a6;
+        --accent-hover: #2dd4bf;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface-elevated: #18181f;
+      --border: rgba(255, 255, 255, 0.10);
+      --text-primary: #f5f5f7;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --accent: #14b8a6;
+      --accent-hover: #2dd4bf;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); }
+    a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+
+    .container {
+      width: min(1180px, 92vw);
+      margin-inline: auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .site-header__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .logo__mark { color: var(--accent); font-size: 1.3rem; line-height: 1; }
+
+    .nav {
+      display: flex;
+      gap: var(--space-md);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .nav a { color: var(--text-secondary); }
+    .nav a:hover { color: var(--text-primary); }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.2rem;
+      height: 2.2rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+    }
+
+    .theme-toggle:hover { color: var(--text-primary); border-color: var(--text-muted); }
+    .theme-toggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+    .hero {
+      padding: var(--space-2xl) 0 var(--space-lg);
+    }
+
+    .hero__eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: var(--space-md);
+    }
+
+    .hero__title {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 5.2vw, 4.2rem);
+      line-height: 1.08;
+      font-weight: 600;
+      margin: 0 0 var(--space-md);
+      max-width: 860px;
+      text-wrap: balance;
+    }
+
+    .hero__lead {
+      font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+      color: var(--text-secondary);
+      max-width: 620px;
+      margin: 0 0 var(--space-lg);
+    }
+
+    .hero__meta {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .section-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: var(--space-md);
+    }
+
+    .featured { padding-bottom: var(--space-xl); }
+
+    .featured__list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xl);
+    }
+
+    .featured-card {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .featured-card:hover {
+      transform: translateY(-3px);
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+      box-shadow: var(--shadow-lg);
+    }
+
+    .featured-card--reverse {
+      grid-template-columns: 1fr 1.2fr;
+    }
+
+    .featured-card--reverse .featured-card__media { order: 2; }
+    .featured-card--reverse .featured-card__body { order: 1; }
+
+    .featured-card__media {
+      position: relative;
+      background: var(--surface-elevated);
+      min-height: 380px;
+      max-height: 460px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      padding: var(--space-md);
+    }
+
+    .featured-card__media::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 55%);
+      pointer-events: none;
+    }
+
+    .featured-card__screenshot {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 620px;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      object-position: top left;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+    }
+
+    .featured-card__body {
+      padding: var(--space-xl);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .featured-card__category {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: var(--space-sm);
+    }
+
+    .featured-card__title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+      font-weight: 600;
+      margin: 0 0 var(--space-sm);
+      line-height: 1.15;
+    }
+
+    .featured-card__desc {
+      color: var(--text-secondary);
+      margin: 0 0 var(--space-lg);
+      max-width: 440px;
+    }
+
+    .featured-card__stats {
+      display: flex;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+
+    .stat__value {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .stat__label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: 0.7rem 1.2rem;
+      border-radius: var(--radius);
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #FFFFFF;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #FFFFFF; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border-color: var(--border);
+    }
+
+    .btn-ghost:hover { color: var(--text-primary); border-color: var(--text-muted); }
+
+    .featured-card__actions { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
+
+    /* Dual-theme image switching */
+    .featured-card__media .preview-light,
+    .project-card__media .preview-light { display: none; }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .featured-card__media .preview-dark,
+      :root:not([data-theme="light"]) .project-card__media .preview-dark { display: none; }
+      :root:not([data-theme="light"]) .featured-card__media .preview-light,
+      :root:not([data-theme="light"]) .project-card__media .preview-light { display: block; }
+    }
+
+    :root[data-theme="dark"] .featured-card__media .preview-dark,
+    :root[data-theme="dark"] .project-card__media .preview-dark { display: none; }
+    :root[data-theme="dark"] .featured-card__media .preview-light,
+    :root[data-theme="dark"] .project-card__media .preview-light { display: block; }
+
+    .archive__filters {
+      position: sticky;
+      top: 64px;
+      z-index: 40;
+      background: color-mix(in srgb, var(--bg) 96%, transparent);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid transparent;
+      padding: var(--space-md) 0;
+      margin-bottom: var(--space-lg);
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .archive__filters.is-stuck {
+      border-bottom-color: var(--border);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+
+    .filter-btn {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 0.45rem 0.85rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 150ms ease;
+    }
+
+    .filter-btn:hover { color: var(--text-primary); border-color: var(--text-muted); }
+    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #FFFFFF; }
+
+    .filter-result {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-left: auto;
+      align-self: center;
+    }
+
+    .archive {
+      padding-bottom: var(--space-3xl);
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-xl);
+    }
+
+    .project-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: transform 180ms ease, border-color 180ms ease, opacity 180ms ease;
+    }
+
+    .project-card:hover {
+      transform: translateY(-4px);
+      border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+      cursor: pointer;
+    }
+
+    .project-card.is-hidden { display: none; }
+
+    .project-card__media {
+      position: relative;
+      aspect-ratio: 16/9;
+      background: var(--surface-elevated);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .project-card__thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top left;
+      display: block;
+    }
+
+    .project-card__placeholder {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 20% 30%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 35%),
+        radial-gradient(circle at 80% 70%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 40%),
+        var(--surface-elevated);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-align: center;
+      padding: var(--space-md);
+    }
+
+    .project-card__body {
+      padding: var(--space-md) var(--space-lg) var(--space-lg);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .project-card__meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-sm);
+    }
+
+    .project-card__category {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+    }
+
+    .project-card__status {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 0.15rem 0.4rem;
+      border-radius: var(--radius);
+    }
+
+    .project-card__title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0 0 var(--space-xs);
+      line-height: 1.2;
+    }
+
+    .project-card__title a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 180ms ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .project-card__title a::after {
+      content: '→';
+      font-size: 0.85em;
+      color: var(--text-muted);
+      transition: transform 180ms ease, color 180ms ease;
+    }
+
+    .project-card:hover .project-card__title a {
+      color: var(--accent);
+    }
+
+    .project-card:hover .project-card__title a::after {
+      transform: translateX(3px);
+      color: var(--accent);
+    }
+
+    .project-card__desc {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      margin: 0 0 var(--space-md);
+      flex: 1;
+    }
+
+    .project-card__tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.45rem;
+      border-radius: var(--radius);
+    }
+
+    .cta {
+      padding: var(--space-3xl) 0;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .cta__inner {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: var(--space-xl);
+      align-items: center;
+    }
+
+    .cta__title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 600;
+      margin: 0 0 var(--space-sm);
+      line-height: 1.15;
+    }
+
+    .cta__lead {
+      color: var(--text-secondary);
+      margin: 0 0 var(--space-lg);
+      max-width: 520px;
+    }
+
+    .cta__actions { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
+
+    .cta__contact {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+    }
+
+    .cta__contact a { display: inline-flex; align-items: center; gap: 0.4rem; }
+
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: var(--space-lg) 0;
+    }
+
+    .site-footer__inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+
+    /* Loading / error states */
+    .cards-loading, .cards-error {
+      font-family: var(--font-body);
+      color: var(--text-secondary);
+      padding: var(--space-xl) 0;
+    }
+
+    /* Chat widget */
+    .chat-launcher {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: transform 150ms ease, box-shadow 150ms ease;
+      z-index: 1000;
+      color: #fff;
+      font-size: 1.4rem;
+    }
+    .chat-launcher:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .chat-widget {
+      position: fixed;
+      bottom: 92px;
+      right: 24px;
+      width: 380px;
+      max-width: calc(100vw - 32px);
+      height: 560px;
+      max-height: calc(100vh - 120px);
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      z-index: 1001;
+    }
+    .chat-header {
+      padding: var(--space-md) var(--space-lg);
+      background: var(--surface-elevated);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-primary);
+    }
+    .chat-header-left { display: flex; gap: var(--space-sm); align-items: center; }
+    .chat-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .chat-title { font-size: 0.9375rem; font-weight: 600; }
+    .chat-subtitle { font-size: 0.75rem; color: var(--text-muted); }
+    .chat-close {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 20px;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 150ms ease;
+      padding: var(--space-xs);
+    }
+    .chat-close:hover { opacity: 1; }
+    .chat-messages {
+      flex: 1;
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      overflow-y: auto;
+      background: var(--bg);
+    }
+    .chat-message {
+      max-width: 85%;
+      border-radius: var(--radius);
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.875rem;
+      line-height: 1.5;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+    .chat-message.user {
+      margin-left: auto;
+      background: var(--accent);
+      color: #fff;
+    }
+    .chat-message.bot {
+      margin-right: auto;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+    .chat-message--error {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: #ef4444;
+      color: var(--text-primary);
+    }
+    .chat-message__text { margin-bottom: 0; }
+    .chat-message__meta {
+      margin-top: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .chat-message__meta-label { font-size: 0.6875rem; color: var(--text-muted); margin-right: var(--space-xs); }
+    .chat-message__meta-value { font-size: 0.75rem; color: var(--text-secondary); }
+    .chat-message__sources,
+    .chat-message__provider,
+    .chat-message__time { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+    .chat-message__cache {
+      display: inline-block;
+      font-size: 0.625rem;
+      padding: 2px var(--space-sm);
+      background: rgba(34, 197, 94, 0.12);
+      color: #22c55e;
+      border-radius: var(--radius);
+      border: 1px solid #22c55e;
+    }
+    .typing-indicator { display: inline-flex; gap: 3px; padding: var(--space-xs) 0; }
+    .typing-indicator .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--text-muted);
+      animation: typing 1s infinite ease-in-out;
+    }
+    .typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing {
+      0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+      40% { opacity: 1; transform: translateY(-2px); }
+    }
+    .chat-footer {
+      padding: var(--space-sm) var(--space-md);
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      gap: var(--space-sm);
+      align-items: center;
+    }
+    .chat-input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 150ms ease;
+    }
+    .chat-input:focus { border-color: var(--accent); }
+    .chat-input::placeholder { color: var(--text-muted); }
+    .chat-send {
+      border-radius: 999px;
+      border: none;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      transition: opacity 150ms ease;
+    }
+    .chat-send:hover:not(:disabled) { opacity: 0.9; }
+    .chat-send:disabled { opacity: 0.5; cursor: default; }
+    .chat-send span { font-size: 1rem; }
+
+    @media (max-width: 900px) {
+      .featured-card,
+      .featured-card--reverse { grid-template-columns: 1fr; }
+      .featured-card--reverse .featured-card__media,
+      .featured-card--reverse .featured-card__body { order: unset; }
+      .project-grid { grid-template-columns: 1fr; }
+      .cta__inner { grid-template-columns: 1fr; }
+      .hero { padding-top: var(--space-2xl); }
+      .filter-result { width: 100%; text-align: left; margin-left: 0; }
+    }
+  </style>
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
-    <div class="header__content">
-      <a href="index.html" class="header__logo">
-        <span class="logo__icon">◇</span>
-        <span>AI Portfolio</span>
-      </a>
-      <nav class="nav">
-        <a href="index.html" class="nav__link nav__link--active">Главная</a>
-        <a href="portfolio.html" class="nav__link">Проекты</a>
-        <a href="services.html" class="nav__link">Услуги</a>
-        <a href="contacts.html" class="nav__link">Контакты</a>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="/" class="logo"><span class="logo__mark">◇</span> AI Portfolio</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="/">Главная</a>
+        <a href="/portfolio.html">Проекты</a>
+        <a href="/services.html">Услуги</a>
+        <a href="/contacts.html">Контакты</a>
       </nav>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">🌙</button>
     </div>
   </header>
 
-  <!-- Main -->
-  <main class="main">
-    <div class="page">
-      <!-- Hero -->
-      <section class="hero">
-        <div class="container hero__content">
-          <div class="hero__text">
-            <h1 class="hero__title">AI-инженер</h1>
-            <p class="hero__subtitle">
-              Проектирую и реализую AI-автоматизации для бизнеса.
-              Превращаю рутинные процессы в эффективные системы.
-            </p>
-            <div class="hero__cta">
-              <a href="contacts.html" class="btn btn-primary">Обсудить проект</a>
-              <a href="portfolio.html" class="btn btn-ghost">Проекты</a>
+  <main>
+    <section class="hero">
+      <div class="container">
+        <p class="hero__eyebrow">AI Automation Portfolio Lab</p>
+        <h1 class="hero__title">Двенадцать работающих AI-автоматизаций</h1>
+        <p class="hero__lead">От Telegram-ботов и RAG-ассистентов до голосовой первой линии. Каждый проект — не слайд, а развёрнутый сервис или проверенная пилотная концепция с Deployment Validation.</p>
+        <p class="hero__meta" id="hero-meta">Загрузка проектов…</p>
+      </div>
+    </section>
+
+    <section class="featured" aria-labelledby="featured-title">
+      <div class="container">
+        <p class="section-eyebrow" id="featured-title">Флагманские кейсы</p>
+        <div class="featured__list" id="featured-list">
+          <p class="cards-loading">Загрузка флагманских проектов…</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="archive" aria-labelledby="archive-title">
+      <div class="container">
+        <p class="section-eyebrow" id="archive-title">Остальные проекты</p>
+
+        <div class="archive__filters" id="archive-filters">
+          <div class="container" style="display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-sm);">
+            <div class="filters" role="group" aria-label="Filter projects" id="filters">
+              <button class="filter-btn active" data-filter="all">Все</button>
+              <button class="filter-btn" data-filter="telegram">Telegram</button>
+              <button class="filter-btn" data-filter="fastapi">FastAPI</button>
+              <button class="filter-btn" data-filter="rag">RAG</button>
+              <button class="filter-btn" data-filter="n8n">n8n</button>
+              <button class="filter-btn" data-filter="voice">Voice AI</button>
             </div>
-          </div>
-          <div class="hero__visual">
-            <!-- Neural Network SVG -->
-            <svg viewBox="0 0 400 300" class="neural-network">
-              <!-- Connection lines -->
-              <path d="M50 100 L150 80" stroke="rgba(47,123,255,0.3)" stroke-width="1" fill="none"/>
-              <path d="M50 150 L150 80" stroke="rgba(47,123,255,0.3)" stroke-width="1" fill="none"/>
-              <path d="M50 150 L150 150" stroke="rgba(47,123,255,0.3)" stroke-width="1" fill="none"/>
-              <path d="M50 200 L150 150" stroke="rgba(47,123,255,0.3)" stroke-width="1" fill="none"/>
-              <path d="M50 200 L150 220" stroke="rgba(47,123,255,0.3)" stroke-width="1" fill="none"/>
-
-              <path d="M150 80 L250 100" stroke="rgba(34,211,238,0.4)" stroke-width="1" fill="none"/>
-              <path d="M150 80 L250 150" stroke="rgba(34,211,238,0.4)" stroke-width="1" fill="none"/>
-              <path d="M150 150 L250 150" stroke="rgba(34,211,238,0.4)" stroke-width="1" fill="none"/>
-              <path d="M150 150 L250 200" stroke="rgba(34,211,238,0.4)" stroke-width="1" fill="none"/>
-              <path d="M150 220 L250 200" stroke="rgba(34,211,238,0.4)" stroke-width="1" fill="none"/>
-
-              <path d="M250 100 L350 120" stroke="rgba(47,123,255,0.3)" stroke-width="1" fill="none"/>
-              <path d="M250 150 L350 150" stroke="rgba(47,123,255,0.3)" stroke-width="1" fill="none"/>
-              <path d="M250 200 L350 180" stroke="rgba(47,123,255,0.3)" stroke-width="1" fill="none"/>
-
-              <!-- Input nodes -->
-              <circle cx="50" cy="100" r="4" fill="#22D3EE"/>
-              <circle cx="50" cy="150" r="4" fill="#2F7BFF"/>
-              <circle cx="50" cy="200" r="4" fill="#22D3EE"/>
-
-              <!-- Hidden layer nodes -->
-              <circle cx="150" cy="80" r="4" fill="#2F7BFF"/>
-              <circle cx="150" cy="150" r="4" fill="#22D3EE"/>
-              <circle cx="150" cy="220" r="4" fill="#2F7BFF"/>
-
-              <!-- Middle layer nodes -->
-              <circle cx="250" cy="100" r="4" fill="#22D3EE"/>
-              <circle cx="250" cy="150" r="4" fill="#2F7BFF"/>
-              <circle cx="250" cy="200" r="4" fill="#22D3EE"/>
-
-              <!-- Output nodes -->
-              <circle cx="350" cy="120" r="4" fill="#2F7BFF"/>
-              <circle cx="350" cy="150" r="4" fill="#22D3EE"/>
-              <circle cx="350" cy="180" r="4" fill="#2F7BFF"/>
-
-              <!-- Labels -->
-              <text x="50" y="60" fill="#7E8CA8" font-size="10" text-anchor="middle">Input</text>
-              <text x="200" y="40" fill="#7E8CA8" font-size="10" text-anchor="middle">Hidden Layers</text>
-              <text x="350" y="100" fill="#7E8CA8" font-size="10" text-anchor="middle">Output</text>
-            </svg>
+            <span class="filter-result" id="filter-result">Загрузка…</span>
           </div>
         </div>
-      </section>
 
-      <!-- Projects -->
-      <section class="section section--compact">
-        <div class="container">
-          <div class="section__header" style="margin-bottom: var(--space-lg);">
-            <h2 class="section__title">Реализованные проекты</h2>
-          </div>
+        <div class="project-grid" id="project-grid">
+          <p class="cards-loading">Загрузка проектов…</p>
+        </div>
+      </div>
+    </section>
 
-          <div class="cards-grid" data-project-cards="homepage">
-            <p class="case-card__excerpt">Загрузка проектов...</p>
+    <section class="cta">
+      <div class="container cta__inner">
+        <div>
+          <h2 class="cta__title">Нужна такая же автоматизация?</h2>
+          <p class="cta__lead">Расскажите, какая рутина отнимает время у команды. Мы спроектируем решение, соберём прототип и проведём Deployment Validation в вашем контуре.</p>
+          <div class="cta__actions">
+            <a href="/contacts.html" class="btn btn-primary">Обсудить проект</a>
+            <a href="#" class="btn btn-ghost">Скачать портфолио PDF</a>
           </div>
         </div>
-      </section>
-
-      <!-- CTA -->
-      <section class="section section--compact">
-        <div class="container text-center">
-          <h2 class="section__title" style="font-size: 1.5rem; margin-bottom: var(--space-sm);">Готовы обсудить проект?</h2>
-          <a href="contacts.html" class="btn btn-primary">Связаться</a>
+        <div class="cta__contact">
+          <span><strong>Александр Гуляев</strong>, AI Automation Portfolio Lab</span>
+          <a href="https://t.me/AlexLvGulyaev" target="_blank" rel="noopener">Telegram: @AlexLvGulyaev</a>
+          <a href="mailto:sbs.gulyaev.al@gmail.com">sbs.gulyaev.al@gmail.com</a>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   </main>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer__content">
-      <p class="footer__copyright">© 2026 AI Automation Portfolio Lab</p>
-      <nav class="footer__links">
-        <a href="portfolio.html" class="footer__link">Проекты</a>
-        <a href="services.html" class="footer__link">Услуги</a>
-        <a href="contacts.html" class="footer__link">Контакты</a>
-      </nav>
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <span>© 2026 AI Automation Portfolio Lab</span>
+      <span id="footer-counter">12 проектов · от идеи до Deployment Validation</span>
     </div>
   </footer>
-
-  <script src="js/main.js"></script>
-  <script src="js/project-cards.js"></script>
-  <script src="js/api-client.js"></script>
-  <script src="js/chat-widget.js"></script>
 
   <!-- Chat Launcher Button -->
   <button class="chat-launcher" id="chat-launcher" aria-label="Открыть AI-ассистента">
@@ -175,5 +937,229 @@
       </button>
     </div>
   </div>
+
+  <script src="js/api-client.js"></script>
+  <script src="js/chat-widget.js"></script>
+  <script>
+    (function() {
+      const btn = document.getElementById('theme-toggle');
+      const root = document.documentElement;
+
+      function isDark() {
+        return root.dataset.theme === 'dark' || (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      }
+
+      function updateIcon() {
+        btn.textContent = isDark() ? '☀️' : '🌙';
+        btn.setAttribute('aria-label', isDark() ? 'Переключить на светлую тему' : 'Переключить на тёмную тему');
+      }
+
+      btn.addEventListener('click', function() {
+        if (isDark()) {
+          root.dataset.theme = 'light';
+          localStorage.setItem('aip-theme-teal', 'light');
+        } else {
+          root.dataset.theme = 'dark';
+          localStorage.setItem('aip-theme-teal', 'dark');
+        }
+        updateIcon();
+      });
+
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+        if (!localStorage.getItem('aip-theme-teal')) updateIcon();
+      });
+
+      updateIcon();
+    })();
+  </script>
+
+  <script>
+    (function() {
+      const CONFIG = {
+        ENDPOINT: '/project-cards',
+        TIMEOUT_MS: 10000,
+        PLACEHOLDER_SLUG: 'prompt-review',
+      };
+
+      const ASSETS = {
+        'ai-curator': { category: 'Education / RAG', stats: ['3', '423', 'Live'], labels: ['LLM-провайдера', 'Чанка в индексе', 'Демо-стенд'], dark: '/assets/screenshots/AIC_portfolio_dark.png', light: '/assets/screenshots/AIC_portfolio_light.png', altDark: 'AI Curator: тёмная операционная консоль диалога с ответом системы и источниками', altLight: 'AI Curator: светлый диалог студента с ответом AI и ссылкой на дедлайн', actionPrimary: '/cases/ai-curator.html', actionPrimaryLabel: 'Узнать больше', actionGhost: 'https://curator.alex-n8n.site', actionGhostLabel: 'Live demo' },
+        'ai-data-assistant': { category: 'Data Analysis / Reports', stats: ['DOCX', '3+', 'Live'], labels: ['Отчёты на лету', 'Провайдера LLM', 'Демо-стенд'], dark: '/assets/screenshots/ADA_portfolio_dark.png', light: '/assets/screenshots/ADA_portfolio_light.png', altDark: 'AI Data Assistant: тёмная операционная консоль', altLight: 'AI Data Assistant: светлый чат с аналитикой', actionPrimary: '/cases/ai-data-assistant.html', actionPrimaryLabel: 'Узнать больше', actionGhost: 'https://data-assistant.alex-n8n.site', actionGhostLabel: 'Live demo' },
+        'review-flow': { category: 'Review / RAG', stats: ['19', 'Hybrid', 'Case'], labels: ['Тем обработки', 'LLM + оператор', 'Полноценный прототип'], dark: '/assets/screenshots/RF_portfolio_dark.png', light: '/assets/screenshots/RF_portfolio_light.png', altDark: 'Review Flow: статус обращения NL-00250112-001 — опубликовано', altLight: 'Review Flow: портал проверки статуса обращения с ответом компании', actionPrimary: '/cases/review-flow.html', actionPrimaryLabel: 'Узнать больше', actionGhost: 'https://review-flow.alex-n8n.site', actionGhostLabel: 'Live demo' },
+        'review-auto-responder': { category: 'Review Automation', status: 'Live demo', tags: ['FastAPI', 'OpenAI', 'GigaChat'], dark: '/assets/screenshots/RAR_portfolio_dark.png', light: '/assets/screenshots/RAR_portfolio_light.png', altDark: 'Review Auto Responder: тёмная операционная консоль с трассой обработки отзыва', altLight: 'Review Auto Responder: светлый публичный тред отзыва и ответ AI Support' },
+        'assistant-flow': { category: 'Intake / Routing', status: 'Prototype', tags: ['RAG', 'Multimodal', 'Routing'], dark: '/assets/screenshots/AF_portfolio_dark.png', light: '/assets/screenshots/AF_portfolio_light.png', altDark: 'Assistant Flow: тёмная панель обработки multimodal-запроса', altLight: 'Assistant Flow: светлый Telegram-диалог с генерацией изображения' },
+        'meeting-audit-bot': { category: 'STT / Audit', status: 'Live demo', tags: ['Telegram', 'AssemblyAI', 'FastAPI'], dark: '/assets/screenshots/mab_portfolio_dark.png', light: '/assets/screenshots/mab_portfolio_light.png', altDark: 'Meeting Audit Bot: тёмная операторская консоль execution-трейса', altLight: 'Meeting Audit Bot: светлый Telegram-аудит звонка с оценкой' },
+        'lead-qualification': { category: 'Sales / CRM', status: 'Case study', tags: ['n8n', 'AI', 'CRM'], dark: '/assets/screenshots/LQ_portfolio_dark.png', light: '/assets/screenshots/LQ_portfolio_light.png', altDark: 'Lead Qualification: тёмная админ-консоль', altLight: 'Lead Qualification: светлая админ-консоль' },
+        'hr-assistant': { category: 'HR Automation', status: 'Case study', tags: ['Telegram', 'HR', 'Matching'], dark: '/assets/screenshots/HRA_portfolio_dark.png', light: '/assets/screenshots/HRA_portfolio_light.png', altDark: 'HR Assistant: тёмная панель matching', altLight: 'HR Assistant: светлая панель matching' },
+        'hr-assistant-lora': { category: 'ML / Fine-Tuning', status: 'Research', tags: ['LoRA', 'Qwen', 'ML'], dark: '/assets/screenshots/HRA-Lora_portfolio_dark.png', light: '/assets/screenshots/HRA-Lora_portfolio_light.png', altDark: 'HR Assistant — LoRA: тёмная Jupyter-консоль с обучением Qwen2.5 и сравнением с GPT', altLight: 'HR Assistant — LoRA: светлая training-диаграмма дообучения matching-модели' },
+        'telegram-intake-bot': { category: 'Support / Leads', status: 'MVP ready', tags: ['Telegram', 'aiogram', 'OpenAI'], dark: '/assets/screenshots/TIB_portfolio_dark.png', light: '/assets/screenshots/TIB_portfolio_light.png', altDark: 'Telegram Intake Bot: тёмная карточка диалога поддержки и структурированной заявки', altLight: 'Telegram Intake Bot: светлая карточка диалога поддержки и структурированной заявки' },
+        'telegram-onboarding-bot': { category: 'Onboarding', status: 'MVP ready', tags: ['Telegram', 'FSM', 'PostgreSQL'], dark: '/assets/screenshots/TOB_portfolio_dark.png', light: '/assets/screenshots/TOB_portfolio_light.png', altDark: 'Telegram Onboarding Bot: тёмная карточка обучения и тестирования сотрудника', altLight: 'Telegram Onboarding Bot: светлая карточка обучения и тестирования сотрудника' },
+        'retail-group': { category: 'Voice AI / Presale', status: 'Case story', tags: ['n8n', 'Voice AI', 'RAG'], dark: '/assets/screenshots/RG-portfolio-dark.png', light: '/assets/screenshots/RG-portfolio-light.png', altDark: 'Retail Group: тёмная Case Story голосового AI-ассистента первой линии', altLight: 'Retail Group: светлая Case Story голосового AI-ассистента первой линии' },
+        'prompt-review': { category: 'Prompt Engineering', status: 'In progress', tags: ['OpenAI', 'Structured Output', 'Review'], dark: '/assets/screenshots/PR-portfolio-dark.png', light: '/assets/screenshots/PR-portfolio-light.png', altDark: 'Prompt Review: тёмная карточка анализа промпта с scorecard по 8 критериям и улучшенной редакцией', altLight: 'Prompt Review: светлая карточка анализа промпта с scorecard по 8 критериям и улучшенной редакцией', actionPrimary: '/cases/prompt-review.html', actionPrimaryLabel: 'Открыть кейс', actionGhost: '#', actionGhostLabel: 'Live demo' },
+      };
+
+      const FILTERS = ['all', 'telegram', 'fastapi', 'rag', 'n8n', 'voice'];
+
+      function escapeHtml(text) {
+        if (text == null) return '';
+        return String(text)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function pluralize(n) {
+        if (n % 10 === 1 && n % 100 !== 11) return 'проект';
+        if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 > 20)) return 'проекта';
+        return 'проектов';
+      }
+
+      function renderFeatured(card, index) {
+        const meta = ASSETS[card.slug] || {};
+        const isReverse = index % 2 === 1;
+        const hasScreenshots = meta.dark && meta.light && !meta.placeholder;
+        const media = hasScreenshots
+          ? ('<img class="featured-card__screenshot preview-dark" src="' + escapeHtml(meta.dark) + '" alt="' + escapeHtml(meta.altDark || card.title) + '" loading="lazy">' +
+             '<img class="featured-card__screenshot preview-light" src="' + escapeHtml(meta.light) + '" alt="' + escapeHtml(meta.altLight || card.title) + '" loading="lazy">')
+          : '<div class="project-card__placeholder">' + escapeHtml(card.title) + '<br>скриншоты появятся позже</div>';
+
+        const statsHtml = (meta.stats || []).map(function(value, i) {
+          return '<div><div class="stat__value">' + escapeHtml(value) + '</div><div class="stat__label">' + escapeHtml((meta.labels || [])[i] || '') + '</div></div>';
+        }).join('');
+
+        return (
+          '<article class="featured-card' + (isReverse ? ' featured-card--reverse' : '') + '" data-tags="' + escapeHtml((card.tags || []).join(' ')) + '">' +
+            '<div class="featured-card__media">' + media + '</div>' +
+            '<div class="featured-card__body">' +
+              '<p class="featured-card__category">' + escapeHtml(meta.category || card.category) + '</p>' +
+              '<h2 class="featured-card__title">' + escapeHtml(card.title) + '</h2>' +
+              '<p class="featured-card__desc">' + escapeHtml(card.short_description) + '</p>' +
+              '<div class="featured-card__stats">' + statsHtml + '</div>' +
+              '<div class="featured-card__actions">' +
+                '<a href="' + escapeHtml(meta.actionPrimary || card.external_url || '#') + '" class="btn btn-primary">' + escapeHtml(meta.actionPrimaryLabel || 'Открыть кейс') + '</a>' +
+                '<a href="' + escapeHtml(meta.actionGhost || '#') + '" class="btn btn-ghost">' + escapeHtml(meta.actionGhostLabel || 'Подробнее') + '</a>' +
+              '</div>' +
+            '</div>' +
+          '</article>'
+        );
+      }
+
+      function renderArchive(card) {
+        const meta = ASSETS[card.slug] || {};
+        const tagsHtml = (meta.tags || card.tags || []).map(function(tag) { return '<span class="tag">' + escapeHtml(tag) + '</span>'; }).join('');
+        const hasScreenshots = meta.dark && meta.light && !meta.placeholder;
+        const media = hasScreenshots
+          ? ('<img class="project-card__thumb preview-dark" src="' + escapeHtml(meta.dark) + '" alt="' + escapeHtml(meta.altDark || card.title) + '" loading="lazy">' +
+             '<img class="project-card__thumb preview-light" src="' + escapeHtml(meta.light) + '" alt="' + escapeHtml(meta.altLight || card.title) + '" loading="lazy">')
+          : '<div class="project-card__placeholder">' + escapeHtml(card.title) + '<br>скриншоты появятся позже</div>';
+
+        return (
+          '<article class="project-card" data-tags="' + escapeHtml((card.tags || []).join(' ')) + '">' +
+            '<div class="project-card__media">' + media + '</div>' +
+            '<div class="project-card__body">' +
+              '<div class="project-card__meta">' +
+                '<span class="project-card__category">' + escapeHtml(meta.category || card.category) + '</span>' +
+                '<span class="project-card__status">' + escapeHtml(meta.status || 'Case') + '</span>' +
+              '</div>' +
+              '<h3 class="project-card__title"><a href="' + escapeHtml(card.external_url || meta.actionPrimary || '#') + '">' + escapeHtml(card.title) + '</a></h3>' +
+              '<p class="project-card__desc">' + escapeHtml(card.short_description) + '</p>' +
+              '<div class="project-card__tags">' + tagsHtml + '</div>' +
+            '</div>' +
+          '</article>'
+        );
+      }
+
+      async function loadProjectCards() {
+        const featuredContainer = document.getElementById('featured-list');
+        const archiveContainer = document.getElementById('project-grid');
+        const heroMeta = document.getElementById('hero-meta');
+        const filterResult = document.getElementById('filter-result');
+
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(function() { controller.abort(); }, CONFIG.TIMEOUT_MS);
+          const response = await fetch(CONFIG.ENDPOINT, { method: 'GET', headers: { 'Accept': 'application/json' }, signal: controller.signal });
+          clearTimeout(timeoutId);
+
+          if (!response.ok) throw new Error('Failed to load project cards: ' + response.status);
+          const data = await response.json();
+          const cards = (data.items || []).filter(function(c) { return c.is_visible !== false; });
+          const sorted = cards.slice().sort(function(a, b) { return (a.display_order || 0) - (b.display_order || 0); });
+
+          const featured = sorted.slice(0, 3);
+          const archive = sorted.slice(3);
+
+          featuredContainer.innerHTML = featured.length
+            ? featured.map(function(c, i) { return renderFeatured(c, i); }).join('')
+            : '<p class="cards-error">Флагманские проекты временно недоступны.</p>';
+
+          archiveContainer.innerHTML = archive.length
+            ? archive.map(function(c) { return renderArchive(c); }).join('')
+            : '<p class="cards-error">Архивные проекты временно недоступны.</p>';
+
+          heroMeta.textContent = sorted.length + ' проектов · 3 флагманских кейса · 6 технологических контуров';
+          filterResult.textContent = archive.length + ' ' + pluralize(archive.length);
+          document.getElementById('footer-counter').textContent = sorted.length + ' проектов · от идеи до Deployment Validation';
+
+          initFilters();
+
+        } catch (error) {
+          console.error('Project cards load error:', error);
+          featuredContainer.innerHTML = '<p class="cards-error">Не удалось загрузить проекты. Попробуйте обновить страницу.</p>';
+          archiveContainer.innerHTML = '<p class="cards-error">Не удалось загрузить проекты. Попробуйте обновить страницу.</p>';
+        }
+      }
+
+      function initFilters() {
+        const filterBar = document.getElementById('archive-filters');
+        const filters = document.getElementById('filters');
+        const buttons = filters.querySelectorAll('.filter-btn');
+        const cards = document.querySelectorAll('.project-card');
+        const resultLabel = document.getElementById('filter-result');
+
+        function applyFilter(filter) {
+          let visible = 0;
+          cards.forEach(function(card) {
+            const tags = card.getAttribute('data-tags') || '';
+            const match = filter === 'all' || tags.includes(filter);
+            if (match) {
+              card.classList.remove('is-hidden');
+              visible++;
+            } else {
+              card.classList.add('is-hidden');
+            }
+          });
+          buttons.forEach(function(btn) {
+            if (btn.getAttribute('data-filter') === filter) btn.classList.add('active');
+            else btn.classList.remove('active');
+          });
+          resultLabel.textContent = visible + ' ' + pluralize(visible);
+        }
+
+        buttons.forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            applyFilter(btn.getAttribute('data-filter'));
+          });
+        });
+
+        const stickyObserver = new IntersectionObserver(
+          function(entries) {
+            entries.forEach(function(entry) {
+              filterBar.classList.toggle('is-stuck', entry.intersectionRatio < 1);
+            });
+          },
+          { threshold: [1], rootMargin: '-64px 0px 0px 0px' }
+        );
+        stickyObserver.observe(filterBar);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadProjectCards);
+      } else {
+        loadProjectCards();
+      }
+    })();
+  </script>
 </body>
 </html>
