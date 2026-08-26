@@ -1374,7 +1374,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--two-row" viewBox="0 0 1088 314" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Review Auto Responder: от входа к результату">
   <defs>
-    <marker id="arrow-tr-18259" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-tr-40005" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1384,21 +1384,21 @@
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Новый</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">отзыв</text>
   </g>
-  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-18259)" />
+  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-40005)" />
   <g transform="translate(306, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Poller</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Обнаружение</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">и чтение</text>
   </g>
-  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-18259)" />
+  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-40005)" />
   <g transform="translate(572, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Классификатор</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Тональность</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">и приоритет</text>
   </g>
-  <path d="M 782 75.0 L 838 75.0" class="arrow" marker-end="url(#arrow-tr-18259)" />
+  <path d="M 782 75.0 L 838 75.0" class="arrow" marker-end="url(#arrow-tr-40005)" />
   <g transform="translate(838, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">LLM-цепочка</text>
@@ -1407,21 +1407,21 @@
   </g>
   <path d="M 943.0 122 L 943.0 157.0" class="arrow" />
   <path d="M 943.0 157.0 L 278.0 157.0" class="arrow" />
-  <path d="M 278.0 157.0 L 278.0 192" class="arrow" marker-end="url(#arrow-tr-18259)" />
+  <path d="M 278.0 157.0 L 278.0 192" class="arrow" marker-end="url(#arrow-tr-40005)" />
   <g transform="translate(173, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Ответ в тред</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Публикация</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">на сайте</text>
   </g>
-  <path d="M 383 239.0 L 439 239.0" class="arrow" marker-end="url(#arrow-tr-18259)" />
+  <path d="M 383 239.0 L 439 239.0" class="arrow" marker-end="url(#arrow-tr-40005)" />
   <g transform="translate(439, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Telegram</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Уведомление</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">оператору</text>
   </g>
-  <path d="M 649 239.0 L 705 239.0" class="arrow" marker-end="url(#arrow-tr-18259)" />
+  <path d="M 649 239.0 L 705 239.0" class="arrow" marker-end="url(#arrow-tr-40005)" />
   <g transform="translate(705, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">/admin</text>
@@ -1459,8 +1459,8 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Интерфейсы</p>
-          <h2 class="section__title">Сайт отзывов и операторское уведомление</h2>
-          <p class="section__lead">Публичный тред с AI-ответом и Telegram-уведомление, которое получает оператор.</p>
+          <h2 class="section__title">Сайт отзывов и админка оператора</h2>
+          <p class="section__lead">Публичный тред с AI-ответом и операционная консоль /admin с детализацией исполнения.</p>
         </div>
 
         
@@ -1530,31 +1530,52 @@
         <div class="demo-block">
           <div class="demo-block__header">
             <div class="demo-block__label">Сценарий 2</div>
-            <h3 class="demo-block__title">Telegram-уведомление оператору</h3>
-            <p class="demo-block__text">Оператор видит краткое уведомление об отзыве, тональность и ссылку на /admin для аудита.</p>
+            <h3 class="demo-block__title">Детализация запроса в /admin</h3>
+            <p class="demo-block__text">Администратор открывает карточку выполнения: параметры запроса, параметры исполнения, исходный отзыв и сгенерированный ответ системы.</p>
           </div>
           
-          <svg class="ui-illustration" viewBox="0 0 980 540" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Review Auto Responder: Telegram-уведомление оператору о новом отзыве">
+          <svg class="ui-illustration" viewBox="0 0 980 640" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Review Auto Responder: админка детализации выполнения запроса">
   <defs>
-    <clipPath id="tg-window-clip">
-      <rect x="20" y="10" width="940" height="520" rx="8" />
+    <clipPath id="rar-admin-clip">
+      <rect x="20" y="20" width="940" height="600" rx="8" />
     </clipPath>
   </defs>
-  <rect x="20" y="10" width="940" height="520" rx="8" class="ui-window" />
-  <rect x="20" y="10" width="940" height="62" class="ui-header" clip-path="url(#tg-window-clip)" />
-  <circle cx="48" cy="41" r="12" class="ui-avatar" />
-  <text x="72" y="38" class="ui-title">PEcb09</text>
-  <circle cx="180" cy="41" r="4" fill="#22c55e" />
-  <text x="192" y="45" class="ui-subtitle" style="font-size:12px;">Бот онлайн</text>
-  <rect x="40" y="100" width="420" height="46" rx="8" class="ui-msg-bot" />
-  <text x="56" y="124" text-anchor="start" class="ui-msg-text-bot" style="font-size:14px;fill:var(--text-primary);">Новый отзыв</text>
-  <rect x="40" y="162" width="420" height="46" rx="8" class="ui-msg-bot" />
-  <text x="56" y="186" text-anchor="start" class="ui-msg-text-bot" style="font-size:14px;fill:var(--text-primary);">ID: 54 · Имя: Александр · Тон: нейтральный</text>
-  <rect x="40" y="224" width="420" height="60" rx="8" class="ui-msg-bot" />
-  <text x="56" y="248" text-anchor="start" class="ui-msg-text-bot" style="font-size:14px;fill:var(--text-primary);">Курьер вашей компании был крайне груб, бросил посылку</text>
-  <text x="56" y="266" text-anchor="start" class="ui-msg-text-bot" style="font-size:14px;fill:var(--text-primary);">возле дверей...</text>
-  <rect x="40" y="300" width="420" height="46" rx="8" class="ui-msg-bot" />
-  <text x="56" y="324" text-anchor="start" class="ui-msg-text-bot" style="font-size:14px;fill:var(--text-primary);">Просьба принять меры!!!</text>
+  <rect x="20" y="20" width="940" height="600" rx="8" class="ui-window" />
+  <rect x="20" y="20" width="940" height="52" class="ui-header" clip-path="url(#rar-admin-clip)" />
+  <text x="38" y="54" class="ui-main-title" style="font-size:16px;">ДЕТАЛИЗАЦИЯ ЗАПРОСА</text>
+  <rect x="860" y="36" width="86" height="22" rx="4" class="ui-status-published" />
+  <text x="903" y="51" text-anchor="middle" class="ui-status-text" style="font-size:10px;">УСПЕШНО</text>
+  <rect x="32" y="72" width="916" height="548" fill="var(--bg)" clip-path="url(#rar-admin-clip)" />
+  <rect x="50" y="90" width="432" height="112" rx="6" class="ui-window" />
+  <text x="62" y="112" class="ui-table-header-text">ПАРАМЕТРЫ ЗАПРОСА</text>
+  <text x="62" y="136" class="ui-sidebar-text" style="font-size:12px;">Код отзыва</text>
+  <text x="160" y="136" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">#56</text>
+  <text x="62" y="154" class="ui-sidebar-text" style="font-size:12px;">Имя пользователя</text>
+  <text x="180" y="154" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">—</text>
+  <text x="62" y="172" class="ui-sidebar-text" style="font-size:12px;">Тон</text>
+  <rect x="180" y="160" width="86" height="16" rx="3" class="ui-input" />
+  <text x="223" y="172" text-anchor="middle" class="ui-input-text" style="font-size:10px;">нейтральный</text>
+  <text x="62" y="190" class="ui-sidebar-text" style="font-size:12px;">Маршрут</text>
+  <text x="180" y="190" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">review_processing</text>
+  <rect x="498" y="90" width="432" height="112" rx="6" class="ui-window" />
+  <text x="510" y="112" class="ui-table-header-text">ПАРАМЕТРЫ ИСПОЛНЕНИЯ</text>
+  <text x="510" y="136" class="ui-sidebar-text" style="font-size:12px;">Провайдер</text>
+  <text x="618" y="136" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">gigachat</text>
+  <text x="510" y="154" class="ui-sidebar-text" style="font-size:12px;">Модель</text>
+  <text x="618" y="154" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">GigaChat-Max</text>
+  <text x="510" y="172" class="ui-sidebar-text" style="font-size:12px;">Длительность</text>
+  <text x="618" y="172" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">1437 мс</text>
+  <text x="510" y="190" class="ui-sidebar-text" style="font-size:12px;">Токены</text>
+  <text x="618" y="190" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">212</text>
+  <rect x="50" y="218" width="432" height="112" rx="6" class="ui-window" />
+  <text x="62" y="240" class="ui-table-header-text">ЗАПРОС ПОЛЬЗОВАТЕЛЯ</text>
+  <text x="62" y="266" class="ui-msg-text-bot" style="font-size:12px;">Прислали посылку с повреждённой упаковкой!</text>
+  <text x="62" y="288" class="ui-msg-text-bot" style="font-size:12px;">Срочно нужна замена!!!</text>
+  <rect x="498" y="218" width="432" height="112" rx="6" class="ui-window" />
+  <text x="510" y="240" class="ui-table-header-text">ОТВЕТ СИСТЕМЫ</text>
+  <text x="510" y="266" class="ui-msg-text-bot" style="font-size:12px;">Нам очень жаль, что так произошло.</text>
+  <text x="510" y="288" class="ui-msg-text-bot" style="font-size:12px;">Мы немедленно отправим вам замену.</text>
+  <text x="510" y="310" class="ui-msg-text-bot" style="font-size:12px;">Сообщите номер вашего заказа для быстрой обработки.</text>
 </svg>
           
         </div>
