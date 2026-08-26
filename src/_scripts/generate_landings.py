@@ -1861,6 +1861,13 @@ TEMPLATE = r'''<!doctype html>
       gap: var(--space-lg);
     }
 
+    .solution-grid > *:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      justify-self: center;
+      max-width: 50%;
+      width: 100%;
+    }
+
     .solution-card {
       display: flex;
       gap: var(--space-md);
