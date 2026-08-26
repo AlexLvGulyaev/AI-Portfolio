@@ -1951,11 +1951,10 @@ TEMPLATE = r'''<!doctype html>
     }
 
     .metric-card__value {
-      font-family: var(--font-display);
-      font-size: 1.5rem;
-      font-weight: 700;
-      line-height: 1.2;
-      color: var(--text-primary);
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.4;
+      color: var(--accent);
     }
 
     .metric-card__suffix {
