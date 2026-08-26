@@ -302,72 +302,62 @@ def telegram_phone_svg(title, messages, aria_label, width=440, height=620) -> st
     return "\n".join(svg)
 
 
-def hra_phone_svg(title, messages, aria_label, width=440, max_height=620) -> str:
-    """MAB-style Telegram phone panel that preserves line breaks and fits content.
+def hr_scenario_1_svg() -> str:
+    """Two MAB-style Telegram phone panels side-by-side: request and response.
 
-    Unlike `telegram_phone_svg()`, this helper:
-    - keeps explicit \n paragraph breaks,
-    - wraps each paragraph individually,
-    - auto-sizes the phone height to the message content (up to max_height),
-    - draws the full phone frame so no empty-looking tall screen remains.
+    The two phone SVGs are placed inside a single SVG on a shared 980×620
+    canvas, matching the other composite illustrations in the portfolio and
+    avoiding the small-scaling issues of a CSS side-by-side grid.
     """
+    w, h = 980, 620
+    phone_w = 440
+    phone_h = 620
+    left_x = 40
+    right_x = w - phone_w - 40
     margin = 18
     header_h = 50
-    bubble_w = width - margin * 2
+    bubble_w = phone_w - margin * 2
     line_h = 17
 
-    def layout_messages(messages):
-        bubbles = []
+    def build_panel(svg, px, title, messages):
+        # Phone body
+        svg.append(f'  <rect x="{px}" y="0" width="{phone_w}" height="{phone_h}" rx="0" fill="#e5f2e5"/>')
+        # Header
+        svg.append(f'  <rect x="{px}" y="0" width="{phone_w}" height="{header_h}" fill="#2f7763"/>')
+        svg.append(f'  <circle cx="{px + margin + 17}" cy="{header_h // 2}" r="13" fill="#a8d5ba"/>')
+        svg.append(
+            f'  <text x="{px + margin + 40}" y="{header_h // 2 + 5}" '
+            f'style="font-size:13px; fill:#ffffff; font-weight:600;">{escape_text(title)}</text>'
+        )
+        y = header_h + 18
         for msg in messages:
             is_user = msg.get("user", False)
+            x = px + phone_w - margin - bubble_w if is_user else px + margin
+            fill = "#d9fdd3" if is_user else "#ffffff"
+            # Preserve line breaks; wrap each paragraph
             lines = []
             for para in msg.get("text", "").split("\n"):
                 para = para.strip()
                 if para:
                     lines.extend(textwrap.wrap(para, width=38))
                 elif lines:
-                    lines.append("")  # paragraph spacing
-            h = max(34, 14 + line_h * len(lines))
-            bubbles.append({"user": is_user, "lines": lines, "h": h})
-        return bubbles
-
-    bubbles = layout_messages(messages)
-    content_h = sum(b["h"] for b in bubbles) + 12 * (len(bubbles) - 1)
-    phone_h = min(max_height, header_h + 18 + content_h + 18)
+                    lines.append("")
+            bubble_h = max(34, 14 + line_h * len(lines))
+            svg.append(f'  <rect x="{x}" y="{y}" width="{bubble_w}" height="{bubble_h}" rx="10" fill="{fill}"/>')
+            for i, line in enumerate(lines):
+                if line:
+                    svg.append(
+                        f'  <text x="{x + 12}" y="{y + 20 + i * line_h}" '
+                        f'style="font-size:12px; fill:var(--text-primary);">{escape_text(line)}</text>'
+                    )
+            y += bubble_h + 12
 
     svg = [
-        f'<svg class="ui-illustration ui-illustration--phone" viewBox="0 0 {width} {phone_h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="{escape_attr(aria_label)}">',
-        f'  <rect x="0" y="0" width="{width}" height="{phone_h}" rx="0" fill="#e5f2e5"/>',
-        f'  <rect x="0" y="0" width="{width}" height="{header_h}" fill="#2f7763"/>',
-        f'  <circle cx="{margin + 17}" cy="{header_h // 2}" r="13" fill="#a8d5ba"/>',
-        f'  <text x="{margin + 40}" y="{header_h // 2 + 5}" class="ui-title" style="font-size:13px; fill:#ffffff;">{escape_text(title)}</text>',
+        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="HR Assistant: запрос пользователя и ответ системы с match score">',
+        f'  <rect x="20" y="10" width="{w - 40}" height="{h - 20}" rx="8" class="ui-window" />',
+        f'  <text x="{w // 2}" y="44" text-anchor="middle" class="ui-title">Telegram · Запрос → Ответ</text>',
     ]
 
-    y = header_h + 18
-    for b in bubbles:
-        x = width - margin - bubble_w if b["user"] else margin
-        fill = "#d9fdd3" if b["user"] else "#ffffff"
-        tcls = "ui-msg-text-user" if b["user"] else "ui-msg-text-bot"
-        svg.append(f'  <rect x="{x}" y="{y}" width="{bubble_w}" height="{b["h"]}" rx="10" fill="{fill}"/>')
-        for i, line in enumerate(b["lines"]):
-            if line:
-                svg.append(
-                    f'  <text x="{x + 12}" y="{y + 20 + i * line_h}" class="{tcls}" '
-                    f'style="font-size:12px; fill:var(--text-primary);">{escape_text(line)}</text>'
-                )
-        y += b["h"] + 12
-
-    svg.append('</svg>')
-    return "\n".join(svg)
-
-
-def hr_scenario_1_svg() -> str:
-    """Two MAB-style Telegram phone panels side-by-side: request and response.
-
-    Returns two independent phone illustrations wrapped in the same
-    side-by-side container used for image pairs. This mirrors the MAB
-    Telegram pattern and keeps each panel tightly filled with content.
-    """
     request_messages = [
         {"text": "Здравствуйте! Отправьте резюме или ссылку на вакансию.", "user": False},
         {"text": "Анна Морозова, Москва. Ищу позицию системного аналитика.\n\nОпыт работы: 6 лет.\n\nКлючевые навыки: сбор и анализ требований, BPMN, UML, SQL, REST API, интеграционная аналитика, подготовка ТЗ, user stories, Jira, Confluence.\n\nЗ/П ожидания: 180000 рублей.", "user": True},
@@ -376,15 +366,11 @@ def hr_scenario_1_svg() -> str:
         {"text": "💼 Системный аналитик\n\n📊 Совпадение: 100/100\n\nКритерии:\n• роль: 30/30\n• навыки: 35/35\n• опыт: 20/20\n• условия: 15/15\n\n📝 Кандидат полностью соответствует вакансии.", "user": False},
     ]
 
-    req_svg = hra_phone_svg("Запрос пользователя", request_messages, "HR Assistant: запрос пользователя")
-    resp_svg = hra_phone_svg("Ответ системы", response_messages, "HR Assistant: ответ системы с match score")
+    build_panel(svg, left_x, "Запрос пользователя", request_messages)
+    build_panel(svg, right_x, "Ответ системы", response_messages)
 
-    return (
-        '<div class="demo-frame demo-frame--side-by-side" style="cursor:default;" aria-label="HR Assistant: запрос пользователя и ответ системы с match score">\n'
-        f'  {req_svg}\n'
-        f'  {resp_svg}\n'
-        '</div>'
-    )
+    svg.append('</svg>')
+    return "\n".join(svg)
 
 
 def ada_scenario_1_svg() -> str:
