@@ -3,7 +3,7 @@
 **Проект:** ai-portfolio  
 **Дата создания:** 2026-07-12  
 **Последнее обновление:** 2026-08-25  
-**Статус:** Главная страница обновлена до пилотной dual-theme версии с 13 карточками (12 проектов + Prompt Review placeholder). Production URL `https://ai.alex-n8n.site/` отдаёт новую страницу. `SPEC.md` v2.1, `TZ.md` v1.4 и `IMPLEMENTATION_PLAN.md` v3.2 актуализированы под расширенный состав портфеля. Каталог, отдельные страницы кейсов, AI-ассистент на новом корпусе и presale-аналитика ещё не завершены.
+**Статус:** Главная страница обновлена до пилотной dual-theme версии с 13 карточками (12 проектов + Prompt Review placeholder). Production URL `https://ai.alex-n8n.site/` отдаёт новую страницу. Принят единый dual-theme шаблон лендинга кейса (`AIP Case Landing Page Standard v1.1`), эталонная реализация — страница AI Curator (`/cases/ai-curator-template-preview.html`). `SPEC.md` v2.2, `TZ.md` v1.5 и `IMPLEMENTATION_PLAN.md` v3.3 актуализированы под расширенный состав портфеля и стандарт страниц кейсов. Каталог, оставшиеся 11 страниц кейсов, AI-ассистент на новом корпусе и presale-аналитика ещё не завершены.
 
 ---
 
@@ -44,7 +44,8 @@ AI Portfolio — персональный публичный сайт AI-инж�
 - Execution tracing и operational logs.
 - Аудит входа в админку и посещений сайта.
 - Production deploy на VPS.
-- Актуализированы `SPEC.md` v2.1, `TZ.md` v1.4 и `IMPLEMENTATION_PLAN.md` v3.2 под 13 управляемыми карточками и новую логику главной страницы.
+- Актуализированы `SPEC.md` v2.2, `TZ.md` v1.5 и `IMPLEMENTATION_PLAN.md` v3.3 под 13 управляемыми карточками, новую логику главной страницы и принятый стандарт лендинга кейса.
+- **Принят единый шаблон лендинга кейса:** `AIP Case Landing Page Standard v1.1` задокументирован в `shared/patterns/`; эталонная реализация — страница AI Curator (`/cases/ai-curator-template-preview.html`) с вертикальным hero, dual-theme, SVG-иллюстрациями сценариев и highlight-тезисом.
 
 **Что ещё не реализовано (оставшиеся P2–P6):**
 - Публичный каталог (`/portfolio.html`) — требует актуализации под 12 страниц проектов.
@@ -96,7 +97,7 @@ AI Portfolio создан как публичная витрина компет�
 
 ## 6. Decision
 
-**Принято:** довести AI Portfolio до production-ready состояния в период 19.08.2026 — 04.09.2026 в соответствии с `docs/TZ.md` v1.4 (утверждено) и `docs/IMPLEMENTATION_PLAN.md` v3.2 (утверждено).
+**Принято:** довести AI Portfolio до production-ready состояния в период 19.08.2026 — 04.09.2026 в соответствии с `docs/TZ.md` v1.5 (утверждено) и `docs/IMPLEMENTATION_PLAN.md` v3.3 (утверждено).
 
 **Утверждённые решения:**
 - Итоговый проект курса — AI Portfolio.
@@ -112,6 +113,7 @@ AI Portfolio создан как публичная витрина компет�
 - Отсрочка Deployment Validation утверждена для: Telegram Intake Bot, Telegram Onboarding Bot, Review Flow, AI Portfolio.
 - На старте реализации DEFER CANDIDATE отсутствуют. Полный scope выполняется по IMPLEMENTATION_PLAN до 04.09.2026.
 - Production release выполняется на существующем VPS и домене `ai.alex-n8n.site`.
+- **Стандарт лендинга кейса:** `AIP Case Landing Page Standard v1.1` принят и задокументирован в `shared/patterns/aip-case-landing-page-standard.md`; эталонная реализация — страница AI Curator (`/cases/ai-curator-template-preview.html`). Все страницы завершённых кейсов AI Portfolio должны выполняться в соответствии с этим стандартом.
 
 **Ожидающие решения владельца:**
 - При фактической угрозе дедлайна 04.09.2026 — отдельное решение по DEFER CANDIDATE или другому сокращению scope.
@@ -124,16 +126,17 @@ AI Portfolio создан как публичная витрина компет�
 1. ✅ Утвердить ТЗ v1.4 (`docs/TZ.md`).
 2. ✅ Утвердить IMPLEMENTATION_PLAN v3.2.
 3. ✅ Утвердить PROJECT_STATE.
-4. ✅ Актуализировать `SPEC.md` v2.1, `TZ.md` v1.4 и `IMPLEMENTATION_PLAN.md` v3.2 под 13 карточек и новую логику главной страницы.
+4. ✅ Актуализировать `SPEC.md` v2.2, `TZ.md` v1.5 и `IMPLEMENTATION_PLAN.md` v3.3 под 13 карточек, новую логику главной страницы и принятый стандарт лендинга кейса.
 5. ✅ Провести разовую финализацию 12 проектов (P0 плана) — завершена интеграция в главную страницу.
 6. ✅ Актуализировать `ProjectCard` под 12 проектов + Prompt Review placeholder.
 7. ⏳ Расширить GitHub Sync и перестроить ChromaDB.
-8. ⏳ Обновить публичный frontend — главная страница развёрнута; каталог и страницы кейсов в работе.
-9. ⏳ Настроить AI-ассистент на новый корпус.
-10. ⏳ Добавить presale-аналитику в Admin Console.
-11. ⏳ Пройти тестирование и production release к 04.09.2026.
-12. ⏳ (отложено) Deployment Validation AI Portfolio.
-13. ⏳ (отложено) Deployment Validation Telegram Intake Bot, Telegram Onboarding Bot, Review Flow.
+8. ⏳ Обновить публичный frontend — главная страница развёрнута; каталог в работе; страницы кейсов делаются по принятому шаблону `AIP Case Landing Page Standard v1.1` (эталон — AI Curator).
+9. ⏳ Тиражировать принятый шаблон на 11 оставшихся завершённых проектов (Review Auto Responder, AI Data Assistant, Assistant Flow, Meeting Audit Bot, Lead Qualification, HR Assistant, HRA-LoRA, Telegram Intake Bot, Telegram Onboarding Bot, Review Flow, Retail Group).
+10. ⏳ Настроить AI-ассистент на новый корпус.
+11. ⏳ Добавить presale-аналитику в Admin Console.
+12. ⏳ Пройти тестирование и production release к 04.09.2026.
+13. ⏳ (отложено) Deployment Validation AI Portfolio.
+14. ⏳ (отложено) Deployment Validation Telegram Intake Bot, Telegram Onboarding Bot, Review Flow.
 
 ---
 
@@ -175,15 +178,16 @@ AI Portfolio создан как публичная витрина компет�
 | 2026-07-19 | GitHub Sync | 7 источников, 192 документа, ~5400 чанков |
 | 2026-08-18 | Финальное планирование | TZ v1.2, IMPLEMENTATION_PLAN v3.1, PEf05_RATING v2.3, PORTFOLIO_CORPUS_AUDIT v1.2 утверждены; релиз 04.09.2026 (status quo ante) |
 | 2026-08-25 | Новая главная страница + расширение до 13 карточек | Развёрнута пилотная dual-theme главная с 13 карточками; нумерация ProjectCard зафиксирована; чат-виджет и темы работают; production URL `https://ai.alex-n8n.site/`; `SPEC.md` v2.1, `TZ.md` v1.4 и `IMPLEMENTATION_PLAN.md` v3.2 актуализированы под 13 карточек и логику featured/archive; каталог, страницы кейсов, AI-ассистент и presale-аналитика ещё не завершены |
+| 2026-08-25 | Принят UI-baseline страницы кейса | Принят `AIP Case Landing Page Standard v1.1`; эталонная реализация — dual-theme лендинг AI Curator (`/cases/ai-curator-template-preview.html`); задокументировано в `shared/patterns/aip-case-landing-page-standard.md`; планируется тиражирование на остальные 11 страниц кейсов |
 
 ---
 
 ## 11. Связанные документы
 
 - [`README.md`](../README.md) — главная страница проекта.
-- [`docs/SPEC.md`](SPEC.md) — продуктовая спецификация v2.1 (as-built baseline).
-- [`docs/TZ.md`](TZ.md) — техническое задание v1.4 (утверждено).
-- [`docs/IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) — технический план v3.2 (утверждено).
+- [`docs/SPEC.md`](SPEC.md) — продуктовая спецификация v2.2 (as-built baseline).
+- [`docs/TZ.md`](TZ.md) — техническое задание v1.5 (утверждено).
+- [`docs/IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) — технический план v3.3 (утверждено).
 - [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) — архитектура.
 - [`docs/DEPLOYMENT_GUIDE.md`](DEPLOYMENT_GUIDE.md) — развёртывание.
 - [`docs/PEf05_RATING.md`](PEf05_RATING.md) — рейтинг 13 кандидатов + 12 проектов в портфеле (v2.3, утверждено как внутренний аналитический артефакт).
