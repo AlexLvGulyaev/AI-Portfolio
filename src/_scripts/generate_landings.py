@@ -835,6 +835,175 @@ def rar_scenario_2_svg() -> str:
     return "\n".join(svg)
 
 
+def mab_scenario_1_svg() -> str:
+    """Scenario 1: Telegram chat with audio file and audit report."""
+    w, h = 520, 720
+    margin = 18
+    header_h = 58
+    bubble_w = w - margin * 2
+
+    svg = [
+        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Meeting Audit Bot: аудит звонка в Telegram">',
+        f'  <rect x="0" y="0" width="{w}" height="{h}" rx="0" fill="#e5f2e5"/>',
+        # header bar
+        f'  <rect x="0" y="0" width="{w}" height="{header_h}" fill="#2f7763"/>',
+        f'  <circle cx="{margin + 18}" cy="{header_h // 2}" r="16" fill="#a8d5ba"/>',
+        f'  <text x="{margin + 45}" y="{header_h // 2 + 5}" class="ui-title" style="font-size:15px; fill:#ffffff;">Рecb10 · Meeting Audit Bot</text>',
+        # audio file bubble
+        f'  <rect x="{margin}" y="{header_h + 20}" width="{bubble_w}" height="56" rx="10" fill="#d9fdd3"/>',
+        f'  <circle cx="{margin + 28}" cy="{header_h + 48}" r="14" fill="#2f7763"/>',
+        f'  <polygon points="{margin + 24},{header_h + 43} {margin + 24},{header_h + 53} {margin + 35},{header_h + 48}" fill="#ffffff"/>',
+        f'  <text x="{margin + 55}" y="{header_h + 40}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill:var(--text-primary);">meeting-audit-bot-e2e-sales_2.ogg</text>',
+        f'  <text x="{margin + 55}" y="{header_h + 58}" class="ui-subtitle" style="font-size:11px;">0:00 · 732 КБ</text>',
+        # audit report bubble
+        f'  <rect x="{margin}" y="{header_h + 90}" width="{bubble_w}" rx="12" fill="#ffffff"/>',
+    ]
+    y = header_h + 110
+    lines = [
+        ("# Общая оценка", "ui-table-header-text", 13),
+        ("Качество звонка соответствует 87,5%.", "ui-sidebar-text", 12),
+        ("", "ui-sidebar-text", 12),
+        ("✅ 1. Приветствие и представление", "ui-sidebar-text", 12),
+        ("✅ 2. Квалификация", "ui-sidebar-text", 12),
+        ("✅ 3. Потребность", "ui-sidebar-text", 12),
+        ("✅ 4. Ценностное предложение", "ui-sidebar-text", 12),
+        ("✅ 5. Возражения", "ui-sidebar-text", 12),
+        ("⚠️ 6. Следующий шаг", "ui-sidebar-text", 12),
+        ("✅ 7. Тон и манера", "ui-sidebar-text", 12),
+        ("✅ 8. Запись данных", "ui-sidebar-text", 12),
+        ("", "ui-sidebar-text", 12),
+        ("## Итоговые статусы", "ui-table-header-text", 13),
+        ("✅ ✅ ✅ ✅ ⚠️ ✅ ✅ ✅", "ui-sidebar-text", 12),
+        ("Количество ✅ = 7 из 8 → 87,5%", "ui-sidebar-text", 12),
+        ("", "ui-sidebar-text", 12),
+        ("Рекомендую доработать.", "ui-sidebar-text", 12),
+    ]
+    report_h = len(lines) * 20 + 30
+    svg.insert(-1, f'  <rect x="{margin}" y="{header_h + 90}" width="{bubble_w}" height="{report_h}" rx="12" fill="#ffffff"/>')
+    for text, cls, size in lines:
+        if text:
+            svg.append(f'  <text x="{margin + 14}" y="{y}" class="{cls}" style="font-size:{size}px;">{text}</text>')
+        y += 20
+    svg.append('</svg>')
+    return "\n".join(svg)
+
+
+def mab_scenario_2_svg() -> str:
+    """Scenario 2: /admin execution detail panel for meeting audit."""
+    w, h = 980, 540
+    margin = 18
+    hdr = 48
+    pad = 14
+    gap = 14
+
+    svg = [
+        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Meeting Audit Bot: детализация сессии в /admin">',
+        '  <defs>',
+        f'    <clipPath id="mab-admin-clip">',
+        f'      <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="8" />',
+        f'    </clipPath>',
+        '  </defs>',
+        f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="8" class="ui-window" />',
+        f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{hdr}" class="ui-header" clip-path="url(#mab-admin-clip)" />',
+        f'  <text x="{margin + pad}" y="{margin + 32}" class="ui-main-title" style="font-size:15px;">ДЕТАЛИЗАЦИЯ СЕССИИ #10</text>',
+        f'  <rect x="{w - margin - 94}" y="{margin + 14}" width="80" height="20" rx="4" class="ui-status-published" />',
+        f'  <text x="{w - margin - 54}" y="{margin + 28}" text-anchor="middle" class="ui-status-text" style="font-size:10px;">УСПЕШНО</text>',
+        f'  <rect x="{margin + 10}" y="{margin + hdr}" width="{w - margin * 2 - 20}" height="{h - margin * 2 - hdr}" fill="var(--bg)" clip-path="url(#mab-admin-clip)" />',
+    ]
+    y = margin + hdr + pad
+    col_w = (w - margin * 2 - 20 - gap - pad * 2) // 2
+    left_x = margin + pad + 10
+    right_x = left_x + col_w + gap
+
+    # Request params
+    rp_h = 120
+    svg.extend([
+        f'  <rect x="{left_x}" y="{y}" width="{col_w}" height="{rp_h}" rx="6" class="ui-window" />',
+        f'  <text x="{left_x + 10}" y="{y + 20}" class="ui-table-header-text">ПАРАМЕТРЫ ЗАПРОСА</text>',
+        f'  <text x="{left_x + 10}" y="{y + 40}" class="ui-sidebar-text" style="font-size:11px;">Имя файла</text>',
+        f'  <text x="{left_x + 120}" y="{y + 40}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">meeting-audit-bot-e2e-sales_2.ogg</text>',
+        f'  <text x="{left_x + 10}" y="{y + 56}" class="ui-sidebar-text" style="font-size:11px;">MIME-тип</text>',
+        f'  <text x="{left_x + 120}" y="{y + 56}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">audio/ogg</text>',
+        f'  <text x="{left_x + 10}" y="{y + 72}" class="ui-sidebar-text" style="font-size:11px;">Размер файла</text>',
+        f'  <text x="{left_x + 120}" y="{y + 72}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">731.53 КБ</text>',
+        f'  <text x="{left_x + 10}" y="{y + 88}" class="ui-sidebar-text" style="font-size:11px;">Длительность</text>',
+        f'  <text x="{left_x + 120}" y="{y + 88}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">194 с</text>',
+        f'  <text x="{left_x + 10}" y="{y + 104}" class="ui-sidebar-text" style="font-size:11px;">Время создания</text>',
+        f'  <text x="{left_x + 120}" y="{y + 104}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">2026-08-16 11:01:49</text>',
+    ])
+
+    # Execution params
+    ep_h = 120
+    svg.extend([
+        f'  <rect x="{right_x}" y="{y}" width="{col_w}" height="{ep_h}" rx="6" class="ui-window" />',
+        f'  <text x="{right_x + 10}" y="{y + 20}" class="ui-table-header-text">ПАРАМЕТРЫ ИСПОЛНЕНИЯ</text>',
+        f'  <text x="{right_x + 10}" y="{y + 40}" class="ui-sidebar-text" style="font-size:11px;">Провайдер</text>',
+        f'  <text x="{right_x + 120}" y="{y + 40}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">openai</text>',
+        f'  <text x="{right_x + 10}" y="{y + 56}" class="ui-sidebar-text" style="font-size:11px;">Модель</text>',
+        f'  <text x="{right_x + 120}" y="{y + 56}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">gpt-4.1-mini</text>',
+        f'  <text x="{right_x + 10}" y="{y + 72}" class="ui-sidebar-text" style="font-size:11px;">Prompt ID</text>',
+        f'  <text x="{right_x + 120}" y="{y + 72}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">sales-call</text>',
+        f'  <text x="{right_x + 10}" y="{y + 88}" class="ui-sidebar-text" style="font-size:11px;">Токены</text>',
+        f'  <text x="{right_x + 120}" y="{y + 88}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">3230</text>',
+        f'  <text x="{right_x + 10}" y="{y + 104}" class="ui-sidebar-text" style="font-size:11px;">Время обработки</text>',
+        f'  <text x="{right_x + 120}" y="{y + 104}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">16.55 с</text>',
+    ])
+
+    y += rp_h + gap
+
+    # User request (transcript preview)
+    ur_h = 130
+    svg.extend([
+        f'  <rect x="{left_x}" y="{y}" width="{col_w}" height="{ur_h}" rx="6" class="ui-window" />',
+        f'  <text x="{left_x + 10}" y="{y + 20}" class="ui-table-header-text">ЗАПРОС ПОЛЬЗОВАТЕЛЯ</text>',
+        f'  <rect x="{left_x + 10}" y="{y + 32}" width="{col_w - 20}" height="28" rx="4" class="ui-input" />',
+        f'  <text x="{left_x + 42}" y="{y + 50}" class="ui-sidebar-text" style="font-size:11px; fill:var(--text-primary);">▶ 0:24 · meeting-audit-bot-e2e-sales_2.ogg</text>',
+        f'  <text x="{left_x + 10}" y="{y + 78}" class="ui-msg-text-bot" style="font-size:11px;">Speaker A: Добрый день, Александр Петрович...</text>',
+        f'  <text x="{left_x + 10}" y="{y + 96}" class="ui-msg-text-bot" style="font-size:11px;">Speaker B: Добрый день, Анна. Да, звонков</text>',
+        f'  <text x="{left_x + 10}" y="{y + 114}" class="ui-msg-text-bot" style="font-size:11px;">действительно много. Сейчас у нас в первой...</text>',
+    ])
+
+    # System response (audit preview)
+    sr_h = 130
+    svg.extend([
+        f'  <rect x="{right_x}" y="{y}" width="{col_w}" height="{sr_h}" rx="6" class="ui-window" />',
+        f'  <text x="{right_x + 10}" y="{y + 20}" class="ui-table-header-text">ОТВЕТ СИСТЕМЫ</text>',
+        f'  <text x="{right_x + 10}" y="{y + 44}" class="ui-table-header-text" style="font-size:12px;"># Общая оценка</text>',
+        f'  <text x="{right_x + 10}" y="{y + 64}" class="ui-msg-text-bot" style="font-size:11px;">Качество звонка соответствует 87,5%.</text>',
+        f'  <text x="{right_x + 10}" y="{y + 84}" class="ui-msg-text-bot" style="font-size:11px;">✅ Приветствие · ✅ Квалификация · ✅ Потребность</text>',
+        f'  <text x="{right_x + 10}" y="{y + 104}" class="ui-msg-text-bot" style="font-size:11px;">⚠️ Следующий шаг: клиент не подтвердил действие</text>',
+        f'  <text x="{right_x + 10}" y="{y + 120}" class="ui-sidebar-text" style="font-size:10px;">Рекомендация: добейтесь явного согласия.</text>',
+    ])
+
+    y += ur_h + gap
+
+    # Pipeline timeline
+    tl_h = 90
+    svg.extend([
+        f'  <rect x="{left_x}" y="{y}" width="{col_w * 2 + gap}" height="{tl_h}" rx="6" class="ui-window" />',
+        f'  <text x="{left_x + 10}" y="{y + 20}" class="ui-table-header-text">ТАЙМЛАЙН ПАЙПЛАЙНА</text>',
+        # timeline items
+        f'  <text x="{left_x + 10}" y="{y + 44}" class="ui-sidebar-text" style="font-size:11px;">11:01:49</text>',
+        f'  <circle cx="{left_x + 80}" cy="{y + 40}" r="5" class="ui-status-published"/>',
+        f'  <text x="{left_x + 95}" y="{y + 44}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Получен файл</text>',
+        f'  <text x="{left_x + 10}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px;">11:01:49</text>',
+        f'  <circle cx="{left_x + 80}" cy="{y + 60}" r="5" class="ui-status-published"/>',
+        f'  <text x="{left_x + 95}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Загрузка файла · 0.32 с</text>',
+        f'  <text x="{left_x + 10}" y="{y + 84}" class="ui-sidebar-text" style="font-size:11px;">11:01:58</text>',
+        f'  <circle cx="{left_x + 80}" cy="{y + 80}" r="5" class="ui-status-published"/>',
+        f'  <text x="{left_x + 95}" y="{y + 84}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Транскрибация · 9.41 с</text>',
+        f'  <text x="{left_x + 320}" y="{y + 44}" class="ui-sidebar-text" style="font-size:11px;">11:02:05</text>',
+        f'  <circle cx="{left_x + 390}" cy="{y + 40}" r="5" class="ui-status-published"/>',
+        f'  <text x="{left_x + 405}" y="{y + 44}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Анализ LLM · 6.73 с</text>',
+        f'  <text x="{left_x + 320}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px;">11:02:06</text>',
+        f'  <circle cx="{left_x + 390}" cy="{y + 60}" r="5" class="ui-status-published"/>',
+        f'  <text x="{left_x + 405}" y="{y + 64}" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Сохранение аудита · 0.03 с</text>',
+    ])
+
+    svg.append('</svg>')
+    return "\n".join(svg)
+
+
 def hr_scenario_2_svg() -> str:
     """HR console candidate card."""
     w, h = 980, 620
@@ -2454,6 +2623,8 @@ def build_project(project: dict) -> dict:
                 entry["svg_html"] = rf_scenario_1_svg() if i == 1 else rf_scenario_2_svg()
             elif pid == "review-auto-responder":
                 entry["svg_html"] = rar_scenario_1_svg() if i == 1 else rar_scenario_2_svg()
+            elif pid == "meeting-audit-bot":
+                entry["svg_html"] = mab_scenario_1_svg() if i == 1 else mab_scenario_2_svg()
             elif pid == "retail-group" and i == 2:
                 entry["svg_html"] = retail_metrics_svg()
             else:

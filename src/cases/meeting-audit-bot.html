@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Meeting Audit Bot принимает аудио/видео, транскрибирует через AssemblyAI с диаризацией, прогоняет LLM-аудит по сценарию и возвращает структурированный отчёт.">
+  <meta name="description" content="Meeting Audit Bot принимает аудио и видео в Telegram, транскрибирует речь через AssemblyAI с разделением спикеров, проводит LLM-аудит по выбранному сценарию и возвращает структурированный вердикт с оценкой, рисками и next steps. Руководитель видит каждую обработку в /admin: шаги, токены, провайдер и security audit log.">
   <meta property="og:title" content="Meeting Audit Bot — аудит встреч и звонков">
-  <meta property="og:description" content="Meeting Audit Bot принимает аудио/видео, транскрибирует через AssemblyAI с диаризацией, прогоняет LLM-аудит по сценарию и возвращает структурированный отчёт.">
+  <meta property="og:description" content="Meeting Audit Bot принимает аудио и видео в Telegram, транскрибирует речь через AssemblyAI с разделением спикеров, проводит LLM-аудит по выбранному сценарию и возвращает структурированный вердикт с оценкой, рисками и next steps. Руководитель видит каждую обработку в /admin: шаги, токены, провайдер и security audit log.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ai.alex-n8n.site/cases/meeting-audit-bot.html">
   <meta property="og:image" content="/assets/screenshots/mab_portfolio_light.png">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Meeting Audit Bot — аудит встреч и звонков">
-  <meta name="twitter:description" content="Meeting Audit Bot принимает аудио/видео, транскрибирует через AssemblyAI с диаризацией, прогоняет LLM-аудит по сценарию и возвращает структурированный отчёт.">
+  <meta name="twitter:description" content="Meeting Audit Bot принимает аудио и видео в Telegram, транскрибирует речь через AssemblyAI с разделением спикеров, проводит LLM-аудит по выбранному сценарию и возвращает структурированный вердикт с оценкой, рисками и next steps. Руководитель видит каждую обработку в /admin: шаги, токены, провайдер и security audit log.">
   <meta name="twitter:image" content="/assets/screenshots/mab_portfolio_light.png">
   <link rel="canonical" href="https://ai.alex-n8n.site/cases/meeting-audit-bot.html">
   <title>Meeting Audit Bot — аудит встреч и звонков</title>
@@ -1149,8 +1149,8 @@
       <div class="container hero__inner">
         <div class="hero__body">
           <p class="eyebrow hero__eyebrow">Аудит встреч и звонков через Telegram</p>
-          <h1 class="hero__title">Аудируйте переговоры и встречи в Telegram за минуты</h1>
-          <p class="hero__lead">Meeting Audit Bot принимает аудио/видео, транскрибирует через AssemblyAI с диаризацией, прогоняет LLM-аудит по сценарию и возвращает структурированный отчёт.</p>
+          <h1 class="hero__title">Отправьте запись звонка — получите разбор по чек-листу за секунды</h1>
+          <p class="hero__lead">Meeting Audit Bot принимает аудио и видео в Telegram, транскрибирует речь через AssemblyAI с разделением спикеров, проводит LLM-аудит по выбранному сценарию и возвращает структурированный вердикт с оценкой, рисками и next steps. Руководитель видит каждую обработку в /admin: шаги, токены, провайдер и security audit log.</p>
           <div class="hero__actions">
             <a href="https://t.me/PEcb10_bot" class="btn btn-primary" target="_blank" rel="noopener">Открыть в Telegram</a>
             <a href="https://meeting-audit-bot.alex-n8n.site/admin/login" class="btn btn-ghost" target="_blank" rel="noopener">Admin Console</a>
@@ -1214,8 +1214,8 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Результат</p>
-          <h2 class="section__title">Контроль качества переговоров без ручной расшифровки</h2>
-          <p class="section__lead">Менеджер присылает запись встречи и получает отчёт по скриптам, рискам и действиям.</p>
+          <h2 class="section__title">Каждая запись встречи превращается в контрольную точку</h2>
+          <p class="section__lead">Менеджер получает структурированный аудит с оценкой, цитатами из транскрипта и рекомендациями; руководитель видит полную историю обработок и метрики в /admin.</p>
         </div>
 
         <div class="ba-grid">
@@ -1223,11 +1223,15 @@
             <h3 class="ba-card__title"><span>❌</span> До</h3>
             <ul class="ba-card__list">
               
-              <li>Записи встреч копятся, но никто их не разбирает</li>
+              <li>Руководитель тратит 30–60 минут на ручной разбор одного звонка — успевает проверить лишь выборку</li>
               
-              <li>Расшифровка и аудит по чек-листу занимают часы</li>
+              <li>Оценка зависит от настроения руководителя: один строгий, другой мягкий — обратная связь непредсказуема</li>
               
-              <li>Нет единой истории и метрик по командам</li>
+              <li>Новые менеджеры повторяют ошибки неделями, пока не получат разбор</li>
+              
+              <li>Записи вечером и в выходные лежат до следующего рабочего дня — нет 24/7</li>
+              
+              <li>Нет единой истории аудитов и динамики по команде</li>
               
             </ul>
           </div>
@@ -1236,32 +1240,39 @@
             <h3 class="ba-card__title"><span>✅</span> После</h3>
             <ul class="ba-card__list">
               
-              <li>Пользователь пересылает аудио/видео в Telegram</li>
+              <li>Пользователь пересылает аудио или видео в Telegram — обработка занимает 10–18 секунд</li>
               
-              <li>AssemblyAI строит транскрипцию с разделением спикеров</li>
+              <li>AssemblyAI строит транскрипцию с разделением спикеров: кто, когда и что сказал</li>
               
-              <li>LLM проверяет сценарий, риски и next steps, возвращая структурированный отчёт</li>
+              <li>LLM проверяет сценарий, фиксирует риски и next steps, возвращая Markdown-аудит с процентом</li>
+              
+              <li>Руководитель видит в /admin dashboard, execution traces, токены и security audit log</li>
               
             </ul>
           </div>
         </div>
 
         
-        <div class="summary__grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="summary__grid" style="grid-template-columns: repeat(4, 1fr);">
           
           <div class="summary__item">
-            <div class="summary__label">Транскрибация</div>
-            <div class="summary__value"><strong>AssemblyAI</strong> + диаризация</div>
+            <div class="summary__label">Скорость</div>
+            <div class="summary__value"><strong>10–18 с</strong> на запись ~2 мин</div>
           </div>
           
           <div class="summary__item">
-            <div class="summary__label">Отчёт</div>
-            <div class="summary__value"><strong>минуты</strong> на встречу любой длины</div>
+            <div class="summary__label">Стоимость</div>
+            <div class="summary__value"><strong>$0.02–0.03</strong> за обработку vs $15–30 ручного разбора</div>
           </div>
           
           <div class="summary__item">
-            <div class="summary__label">Админка</div>
-            <div class="summary__value"><strong>dashboard</strong> + execution traces</div>
+            <div class="summary__label">Покрытие</div>
+            <div class="summary__value"><strong>100%</strong> загруженных записей</div>
+          </div>
+          
+          <div class="summary__item">
+            <div class="summary__label">Observability</div>
+            <div class="summary__value"><strong>3 контура</strong> stdout, execution trace, audit log</div>
           </div>
           
         </div>
@@ -1274,20 +1285,35 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Проблема</p>
-          <h2 class="section__title">Записи встреч не превращаются в действия</h2>
-          <p class="section__lead">Без системного аудита ценная информация из переговоров теряется, а качество продаж не контролируется.</p>
+          <h2 class="section__title">Записи переговоров копятся, а качество продаж не контролируется</h2>
+          <p class="section__lead">Без системного аудита ценная информация из встреч теряется, обратная связь задерживается, а команда не обучается на реальных разговорах.</p>
         </div>
 
-        <div class="ba-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="ba-grid" style="grid-template-columns: repeat(5, 1fr);">
           
           <div class="problem-card">
-            <h3 class="problem-card__title">Ручной труд</h3>
-            <p class="problem-card__text">Расшифровка и проверка по чек-листу отнимают у менеджера часы.</p>
+            <h3 class="problem-card__title">Ручной разбор дорог и медленен</h3>
+            <p class="problem-card__text">30–60 мин руководителя на один звонок → покрывается только выборка.</p>
           </div>
           
           <div class="problem-card">
-            <h3 class="problem-card__title">Потеря обратной связи</h3>
-            <p class="problem-card__text">Нет централизованной истории, по которой можно обучать команду.</p>
+            <h3 class="problem-card__title">Нет единой шкалы оценки</h3>
+            <p class="problem-card__text">Разные руководители оценивают по-разному; критерии живут в головах, а не в системе.</p>
+          </div>
+          
+          <div class="problem-card">
+            <h3 class="problem-card__title">Задержка обратной связи</h3>
+            <p class="problem-card__text">Новые менеджеры повторяют ошибки неделями, пока не получат разбор.</p>
+          </div>
+          
+          <div class="problem-card">
+            <h3 class="problem-card__title">Нет 24/7</h3>
+            <p class="problem-card__text">Записи вечером и в выходные лежат без реакции.</p>
+          </div>
+          
+          <div class="problem-card">
+            <h3 class="problem-card__title">Разрозненная история</h3>
+            <p class="problem-card__text">Нет централизованного журнала аудитов и динамики по команде.</p>
           </div>
           
         </div>
@@ -1299,8 +1325,8 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Решение</p>
-          <h2 class="section__title">Автоматический аудит звонков и встреч</h2>
-          <p class="section__lead">Telegram-бот + AssemblyAI + LLM превращают запись в структурированный отчёт.</p>
+          <h2 class="section__title">Автономный аудит звонков и встреч с операторским контуром</h2>
+          <p class="section__lead">Telegram-бот + AssemblyAI STT + LLM-аудит превращают запись в структурированный отчёт; /admin даёт руководителю полный контроль и прозрачность.</p>
         </div>
 
         <div class="solution-grid">
@@ -1309,7 +1335,7 @@
             <div class="solution-card__icon">🎙️</div>
             <div>
               <h3 class="solution-card__title">Telegram-бот</h3>
-              <p class="solution-card__text">Принимает аудио и видео прямо в мессенджере.</p>
+              <p class="solution-card__text">Принимает аудио и видео прямо в мессенджере — никаких новых приложений.</p>
             </div>
           </div>
           
@@ -1324,16 +1350,24 @@
           <div class="solution-card">
             <div class="solution-card__icon">🧠</div>
             <div>
-              <h3 class="solution-card__title">LLM-аудит</h3>
-              <p class="solution-card__text">Проверяет сценарий, скрипты, риски, next steps и compliance.</p>
+              <h3 class="solution-card__title">LLM-аудит по сценарию</h3>
+              <p class="solution-card__text">Проверяет скрипты, риски, next steps и compliance по выбираемому промпту.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">🔁</div>
+            <div>
+              <h3 class="solution-card__title">Active/fallback LLM</h3>
+              <p class="solution-card__text">OpenAI / GigaChat через единую абстракцию; переключение в runtime без рестарта.</p>
             </div>
           </div>
           
           <div class="solution-card">
             <div class="solution-card__icon">📊</div>
             <div>
-              <h3 class="solution-card__title">Admin dashboard</h3>
-              <p class="solution-card__text">Визуализация executions, логов и аналитики по командам.</p>
+              <h3 class="solution-card__title">Admin dashboard + audit</h3>
+              <p class="solution-card__text">Execution traces, токены, провайдер и security audit log в одной панели.</p>
             </div>
           </div>
           
@@ -1347,12 +1381,12 @@
         <div class="section__header">
           <p class="eyebrow">Как это работает</p>
           <h2 class="section__title">Как аудируется встреча</h2>
-          <p class="section__lead">От записи в Telegram до структурированного отчёта и операционной консоли.</p>
+          <p class="section__lead">От записи в Telegram до структурированного отчёта и операционной консоли: каждый шаг логируется и доступен в /admin.</p>
         </div>
 
         <svg class="pipeline-diagram pipeline-diagram--two-row" viewBox="0 0 822 314" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Meeting Audit Bot: от входа к результату">
   <defs>
-    <marker id="arrow-tr-16592" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-tr-14944" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1362,14 +1396,14 @@
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Аудио / видео</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">переговора</text>
   </g>
-  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-16592)" />
+  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-14944)" />
   <g transform="translate(306, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Download</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Скачивание</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">и обработка</text>
   </g>
-  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-16592)" />
+  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-14944)" />
   <g transform="translate(572, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">AssemblyAI</text>
@@ -1378,26 +1412,26 @@
   </g>
   <path d="M 677.0 122 L 677.0 157.0" class="arrow" />
   <path d="M 677.0 157.0 L 145.0 157.0" class="arrow" />
-  <path d="M 145.0 157.0 L 145.0 192" class="arrow" marker-end="url(#arrow-tr-16592)" />
+  <path d="M 145.0 157.0 L 145.0 192" class="arrow" marker-end="url(#arrow-tr-14944)" />
   <g transform="translate(40, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">LLM-аудит</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Сценарий</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">и структура</text>
   </g>
-  <path d="M 250 239.0 L 306 239.0" class="arrow" marker-end="url(#arrow-tr-16592)" />
+  <path d="M 250 239.0 L 306 239.0" class="arrow" marker-end="url(#arrow-tr-14944)" />
   <g transform="translate(306, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Отчёт</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Структурированный</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">результат</text>
   </g>
-  <path d="M 516 239.0 L 572 239.0" class="arrow" marker-end="url(#arrow-tr-16592)" />
+  <path d="M 516 239.0 L 572 239.0" class="arrow" marker-end="url(#arrow-tr-14944)" />
   <g transform="translate(572, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Telegram + Admin</text>
+    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Telegram + /admin</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Ответ</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">и dashboard</text>
+    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">и audit trail</text>
   </g>
 </svg>
 
@@ -1412,13 +1446,13 @@
           <div class="pipeline-card">
             <div class="pipeline-card__number">02</div>
             <h3 class="pipeline-card__title">LLM-аудит по сценарию</h3>
-            <p class="pipeline-card__text">LLM проверяет скрипты, риски, договорённости и формирует отчёт.</p>
+            <p class="pipeline-card__text">LLM проверяет скрипты, риски, договорённости и формирует Markdown-аудит с оценкой.</p>
           </div>
           
           <div class="pipeline-card">
             <div class="pipeline-card__number">03</div>
             <h3 class="pipeline-card__title">Доставка и observability</h3>
-            <p class="pipeline-card__text">Отчёт возвращается в Telegram, а admin dashboard сохраняет execution traces.</p>
+            <p class="pipeline-card__text">Отчёт возвращается в Telegram, а /admin сохраняет execution traces, токены и security audit log.</p>
           </div>
           
         </div>
@@ -1431,35 +1465,122 @@
         <div class="section__header">
           <p class="eyebrow">Интерфейсы</p>
           <h2 class="section__title">Telegram-аудит и операционная консоль</h2>
-          <p class="section__lead">Пользователь получает отчёт в Telegram; руководитель смотрит dashboard и список executions.</p>
+          <p class="section__lead">Пользователь получает вердикт в Telegram; руководитель смотрит dashboard, список executions и security audit log.</p>
         </div>
 
         
         <div class="demo-block">
           <div class="demo-block__header">
             <div class="demo-block__label">Сценарий 1</div>
-            <h3 class="demo-block__title">Аудит sales-call в Telegram</h3>
-            <p class="demo-block__text">Пользователь пересылает аудио звонка, бот возвращает структурированный аудит по скрипту и рискам.</p>
+            <h3 class="demo-block__title">Аудит звонка в Telegram</h3>
+            <p class="demo-block__text">Пользователь пересылает аудио звонка — бот возвращает структурированный аудит с оценкой, критериями и цитатами из транскрипта.</p>
           </div>
           
-          <div class="demo-frame">
-            <img src="/assets/cases/meeting-audit-bot/scenario-1.png" alt="Telegram: аудит sales-call">
-            <div class="demo-frame__hint">Кликните для полного размера</div>
-          </div>
+          <svg class="ui-illustration" viewBox="0 0 520 720" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Meeting Audit Bot: аудит звонка в Telegram">
+  <rect x="0" y="0" width="520" height="720" rx="0" fill="#e5f2e5"/>
+  <rect x="0" y="0" width="520" height="58" fill="#2f7763"/>
+  <circle cx="36" cy="29" r="16" fill="#a8d5ba"/>
+  <text x="63" y="34" class="ui-title" style="font-size:15px; fill:#ffffff;">Рecb10 · Meeting Audit Bot</text>
+  <rect x="18" y="78" width="484" height="56" rx="10" fill="#d9fdd3"/>
+  <circle cx="46" cy="106" r="14" fill="#2f7763"/>
+  <polygon points="42,101 42,111 53,106" fill="#ffffff"/>
+  <text x="73" y="98" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill:var(--text-primary);">meeting-audit-bot-e2e-sales_2.ogg</text>
+  <text x="73" y="116" class="ui-subtitle" style="font-size:11px;">0:00 · 732 КБ</text>
+  <rect x="18" y="148" width="484" height="370" rx="12" fill="#ffffff"/>
+  <rect x="18" y="148" width="484" rx="12" fill="#ffffff"/>
+  <text x="32" y="168" class="ui-table-header-text" style="font-size:13px;"># Общая оценка</text>
+  <text x="32" y="188" class="ui-sidebar-text" style="font-size:12px;">Качество звонка соответствует 87,5%.</text>
+  <text x="32" y="228" class="ui-sidebar-text" style="font-size:12px;">✅ 1. Приветствие и представление</text>
+  <text x="32" y="248" class="ui-sidebar-text" style="font-size:12px;">✅ 2. Квалификация</text>
+  <text x="32" y="268" class="ui-sidebar-text" style="font-size:12px;">✅ 3. Потребность</text>
+  <text x="32" y="288" class="ui-sidebar-text" style="font-size:12px;">✅ 4. Ценностное предложение</text>
+  <text x="32" y="308" class="ui-sidebar-text" style="font-size:12px;">✅ 5. Возражения</text>
+  <text x="32" y="328" class="ui-sidebar-text" style="font-size:12px;">⚠️ 6. Следующий шаг</text>
+  <text x="32" y="348" class="ui-sidebar-text" style="font-size:12px;">✅ 7. Тон и манера</text>
+  <text x="32" y="368" class="ui-sidebar-text" style="font-size:12px;">✅ 8. Запись данных</text>
+  <text x="32" y="408" class="ui-table-header-text" style="font-size:13px;">## Итоговые статусы</text>
+  <text x="32" y="428" class="ui-sidebar-text" style="font-size:12px;">✅ ✅ ✅ ✅ ⚠️ ✅ ✅ ✅</text>
+  <text x="32" y="448" class="ui-sidebar-text" style="font-size:12px;">Количество ✅ = 7 из 8 → 87,5%</text>
+  <text x="32" y="488" class="ui-sidebar-text" style="font-size:12px;">Рекомендую доработать.</text>
+</svg>
           
         </div>
         
         <div class="demo-block">
           <div class="demo-block__header">
             <div class="demo-block__label">Сценарий 2</div>
-            <h3 class="demo-block__title">Обзорная панель администратора</h3>
-            <p class="demo-block__text">Админка показывает ключевые метрики, статусы аудитов и переход к деталям execution.</p>
+            <h3 class="demo-block__title">Execution trace в /admin</h3>
+            <p class="demo-block__text">Админка показывает полный путь обработки: шаги download → transcribe → audit → persist, метаданные LLM и security audit log.</p>
           </div>
           
-          <div class="demo-frame">
-            <img src="/assets/cases/meeting-audit-bot/scenario-2.png" alt="Dashboard Meeting Audit Bot">
-            <div class="demo-frame__hint">Кликните для полного размера</div>
-          </div>
+          <svg class="ui-illustration" viewBox="0 0 980 540" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Meeting Audit Bot: детализация сессии в /admin">
+  <defs>
+    <clipPath id="mab-admin-clip">
+      <rect x="18" y="18" width="944" height="504" rx="8" />
+    </clipPath>
+  </defs>
+  <rect x="18" y="18" width="944" height="504" rx="8" class="ui-window" />
+  <rect x="18" y="18" width="944" height="48" class="ui-header" clip-path="url(#mab-admin-clip)" />
+  <text x="32" y="50" class="ui-main-title" style="font-size:15px;">ДЕТАЛИЗАЦИЯ СЕССИИ #10</text>
+  <rect x="868" y="32" width="80" height="20" rx="4" class="ui-status-published" />
+  <text x="908" y="46" text-anchor="middle" class="ui-status-text" style="font-size:10px;">УСПЕШНО</text>
+  <rect x="28" y="66" width="924" height="456" fill="var(--bg)" clip-path="url(#mab-admin-clip)" />
+  <rect x="42" y="80" width="441" height="120" rx="6" class="ui-window" />
+  <text x="52" y="100" class="ui-table-header-text">ПАРАМЕТРЫ ЗАПРОСА</text>
+  <text x="52" y="120" class="ui-sidebar-text" style="font-size:11px;">Имя файла</text>
+  <text x="162" y="120" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">meeting-audit-bot-e2e-sales_2.ogg</text>
+  <text x="52" y="136" class="ui-sidebar-text" style="font-size:11px;">MIME-тип</text>
+  <text x="162" y="136" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">audio/ogg</text>
+  <text x="52" y="152" class="ui-sidebar-text" style="font-size:11px;">Размер файла</text>
+  <text x="162" y="152" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">731.53 КБ</text>
+  <text x="52" y="168" class="ui-sidebar-text" style="font-size:11px;">Длительность</text>
+  <text x="162" y="168" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">194 с</text>
+  <text x="52" y="184" class="ui-sidebar-text" style="font-size:11px;">Время создания</text>
+  <text x="162" y="184" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">2026-08-16 11:01:49</text>
+  <rect x="497" y="80" width="441" height="120" rx="6" class="ui-window" />
+  <text x="507" y="100" class="ui-table-header-text">ПАРАМЕТРЫ ИСПОЛНЕНИЯ</text>
+  <text x="507" y="120" class="ui-sidebar-text" style="font-size:11px;">Провайдер</text>
+  <text x="617" y="120" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">openai</text>
+  <text x="507" y="136" class="ui-sidebar-text" style="font-size:11px;">Модель</text>
+  <text x="617" y="136" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">gpt-4.1-mini</text>
+  <text x="507" y="152" class="ui-sidebar-text" style="font-size:11px;">Prompt ID</text>
+  <text x="617" y="152" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">sales-call</text>
+  <text x="507" y="168" class="ui-sidebar-text" style="font-size:11px;">Токены</text>
+  <text x="617" y="168" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">3230</text>
+  <text x="507" y="184" class="ui-sidebar-text" style="font-size:11px;">Время обработки</text>
+  <text x="617" y="184" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">16.55 с</text>
+  <rect x="42" y="214" width="441" height="130" rx="6" class="ui-window" />
+  <text x="52" y="234" class="ui-table-header-text">ЗАПРОС ПОЛЬЗОВАТЕЛЯ</text>
+  <rect x="52" y="246" width="421" height="28" rx="4" class="ui-input" />
+  <text x="84" y="264" class="ui-sidebar-text" style="font-size:11px; fill:var(--text-primary);">▶ 0:24 · meeting-audit-bot-e2e-sales_2.ogg</text>
+  <text x="52" y="292" class="ui-msg-text-bot" style="font-size:11px;">Speaker A: Добрый день, Александр Петрович...</text>
+  <text x="52" y="310" class="ui-msg-text-bot" style="font-size:11px;">Speaker B: Добрый день, Анна. Да, звонков</text>
+  <text x="52" y="328" class="ui-msg-text-bot" style="font-size:11px;">действительно много. Сейчас у нас в первой...</text>
+  <rect x="497" y="214" width="441" height="130" rx="6" class="ui-window" />
+  <text x="507" y="234" class="ui-table-header-text">ОТВЕТ СИСТЕМЫ</text>
+  <text x="507" y="258" class="ui-table-header-text" style="font-size:12px;"># Общая оценка</text>
+  <text x="507" y="278" class="ui-msg-text-bot" style="font-size:11px;">Качество звонка соответствует 87,5%.</text>
+  <text x="507" y="298" class="ui-msg-text-bot" style="font-size:11px;">✅ Приветствие · ✅ Квалификация · ✅ Потребность</text>
+  <text x="507" y="318" class="ui-msg-text-bot" style="font-size:11px;">⚠️ Следующий шаг: клиент не подтвердил действие</text>
+  <text x="507" y="334" class="ui-sidebar-text" style="font-size:10px;">Рекомендация: добейтесь явного согласия.</text>
+  <rect x="42" y="358" width="896" height="90" rx="6" class="ui-window" />
+  <text x="52" y="378" class="ui-table-header-text">ТАЙМЛАЙН ПАЙПЛАЙНА</text>
+  <text x="52" y="402" class="ui-sidebar-text" style="font-size:11px;">11:01:49</text>
+  <circle cx="122" cy="398" r="5" class="ui-status-published"/>
+  <text x="137" y="402" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Получен файл</text>
+  <text x="52" y="422" class="ui-sidebar-text" style="font-size:11px;">11:01:49</text>
+  <circle cx="122" cy="418" r="5" class="ui-status-published"/>
+  <text x="137" y="422" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Загрузка файла · 0.32 с</text>
+  <text x="52" y="442" class="ui-sidebar-text" style="font-size:11px;">11:01:58</text>
+  <circle cx="122" cy="438" r="5" class="ui-status-published"/>
+  <text x="137" y="442" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Транскрибация · 9.41 с</text>
+  <text x="362" y="402" class="ui-sidebar-text" style="font-size:11px;">11:02:05</text>
+  <circle cx="432" cy="398" r="5" class="ui-status-published"/>
+  <text x="447" y="402" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Анализ LLM · 6.73 с</text>
+  <text x="362" y="422" class="ui-sidebar-text" style="font-size:11px;">11:02:06</text>
+  <circle cx="432" cy="418" r="5" class="ui-status-published"/>
+  <text x="447" y="422" class="ui-sidebar-text" style="font-size:11px; font-weight:500; fill:var(--text-primary);">Сохранение аудита · 0.03 с</text>
+</svg>
           
         </div>
         
@@ -1481,7 +1602,7 @@
         <div>
           <p class="eyebrow">Следующий шаг</p>
           <h2 class="final__title">Расскажите о ваших переговорах</h2>
-          <p class="final__lead">Мы оценим, как Meeting Audit Bot уберёт ручную расшифровку и даст контроль качества звонков и встреч.</p>
+          <p class="final__lead">Мы оценим, как паттерн «Telegram → STT → LLM-аудит → /admin» уберёт ручную расшифровку и даст контроль качества звонков и встреч.</p>
           <div class="final__actions">
             <a href="/contacts.html" class="btn btn-primary" target="_blank" rel="noopener">Обсудить проект</a>
             <a href="https://t.me/PEcb10_bot" class="btn btn-ghost" target="_blank" rel="noopener">Открыть в Telegram</a>
