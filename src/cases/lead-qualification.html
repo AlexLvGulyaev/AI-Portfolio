@@ -1398,7 +1398,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--single" viewBox="0 0 1138 180" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Lead Qualification: от входа к результату">
   <defs>
-    <marker id="arrow-sr-81028" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-sr-99782" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1408,28 +1408,28 @@
     <text x="85.0" y="44" text-anchor="middle" class="body-text">Web-форма</text>
     <text x="85.0" y="60" text-anchor="middle" class="body-text">Telegram</text>
   </g>
-  <path d="M 194 90.0 L 254 90.0" class="arrow" marker-end="url(#arrow-sr-81028)" />
+  <path d="M 194 90.0 L 254 90.0" class="arrow" marker-end="url(#arrow-sr-99782)" />
   <g transform="translate(254, 50)">
     <rect x="0" y="0" width="170" height="80" rx="4" class="node-accent" />
     <text x="85.0" y="24" text-anchor="middle" class="title-text">Ingestion</text>
     <text x="85.0" y="44" text-anchor="middle" class="body-text">n8n приём</text>
     <text x="85.0" y="60" text-anchor="middle" class="body-text">PostgreSQL</text>
   </g>
-  <path d="M 424 90.0 L 484 90.0" class="arrow" marker-end="url(#arrow-sr-81028)" />
+  <path d="M 424 90.0 L 484 90.0" class="arrow" marker-end="url(#arrow-sr-99782)" />
   <g transform="translate(484, 50)">
     <rect x="0" y="0" width="170" height="80" rx="4" class="node-rect" />
     <text x="85.0" y="24" text-anchor="middle" class="title-text">AI</text>
     <text x="85.0" y="44" text-anchor="middle" class="body-text">Классификация</text>
     <text x="85.0" y="60" text-anchor="middle" class="body-text">confidence</text>
   </g>
-  <path d="M 654 90.0 L 714 90.0" class="arrow" marker-end="url(#arrow-sr-81028)" />
+  <path d="M 654 90.0 L 714 90.0" class="arrow" marker-end="url(#arrow-sr-99782)" />
   <g transform="translate(714, 50)">
     <rect x="0" y="0" width="170" height="80" rx="4" class="node-rect" />
     <text x="85.0" y="24" text-anchor="middle" class="title-text">CRM Writer</text>
     <text x="85.0" y="44" text-anchor="middle" class="body-text">Kommo</text>
     <text x="85.0" y="60" text-anchor="middle" class="body-text">сделка + задача</text>
   </g>
-  <path d="M 884 90.0 L 944 90.0" class="arrow" marker-end="url(#arrow-sr-81028)" />
+  <path d="M 884 90.0 L 944 90.0" class="arrow" marker-end="url(#arrow-sr-99782)" />
   <g transform="translate(944, 50)">
     <rect x="0" y="0" width="170" height="80" rx="4" class="node-accent" />
     <text x="85.0" y="24" text-anchor="middle" class="title-text">Менеджер</text>
@@ -1572,64 +1572,76 @@
             <p class="demo-block__text">Менеджер в Admin Console видит квалифицированных лидов, их типы hot/warm/cold/spam, источники и статус синхронизации с CRM.</p>
           </div>
           
-          <svg class="ui-illustration" viewBox="0 0 980 540" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Lead Qualification: админ-панель с разбором лидов по классам hot, warm, cold, spam">
-  <rect x="20" y="10" width="940" height="520" rx="8" class="ui-window" />
-  <rect x="50" y="40" width="180" height="470" rx="6" class="ui-source-card" style="opacity:0.4;" />
-  <text x="140" y="70" text-anchor="middle" class="ui-source-label">LEAD QUAL</text>
-  <line x1="80" y1="100" x2="200" y2="100" class="ui-flow-line" />
-  <text x="80" y="130" class="ui-subtitle">Dashboard</text>
-  <text x="80" y="165" class="ui-subtitle" style="opacity:0.7;">Leads</text>
-  <text x="80" y="200" class="ui-subtitle" style="opacity:0.7;">Rules</text>
-  <text x="80" y="235" class="ui-subtitle" style="opacity:0.7;">Logs</text>
-  <rect x="260" y="40" width="700" height="60" rx="6" class="ui-source-card" style="opacity:0.3;" />
-  <text x="290" y="75" class="ui-main-title">Lead Qualification Dashboard</text>
-  <text x="840" y="75" text-anchor="end" class="ui-subtitle">12 hot · 8 warm · 34 cold · 3 spam</text>
-  <text x="290" y="145" class="ui-source-label">Lead</text>
-  <text x="430" y="145" class="ui-source-label">Источник</text>
-  <text x="560" y="145" class="ui-source-label">Класс</text>
-  <text x="650" y="145" class="ui-source-label">Confidence</text>
-  <text x="770" y="145" class="ui-source-label">SLA</text>
-  <text x="870" y="145" class="ui-source-label">Действие</text>
-  <rect x="260" y="168" width="700" height="48" rx="4" class="ui-source-card" style="opacity:0.15;" />
-  <text x="290" y="195" class="ui-subtitle">Анна П.</text>
-  <text x="430" y="195" class="ui-subtitle">Website</text>
-  <rect x="536" y="182" width="76" height="22" rx="4" class="ui-accent-fill" style="fill-opacity:0.2;" />
-  <text x="574" y="198" text-anchor="middle" class="ui-source-value" style="font-size:11px;fill:#14b8a6;">HOT</text>
-  <text x="650" y="195" class="ui-subtitle">0.94</text>
-  <text x="770" y="195" class="ui-subtitle">14 мин</text>
-  <text x="870" y="195" class="ui-source-label" style="font-size:10px;">→ CRM</text>
-  <rect x="260" y="216" width="700" height="48" rx="4" class="ui-source-card" style="opacity:0.15;" />
-  <text x="290" y="243" class="ui-subtitle">ООО Техно</text>
-  <text x="430" y="243" class="ui-subtitle">Telegram</text>
-  <rect x="536" y="230" width="76" height="22" rx="4" class="ui-accent-fill" style="fill-opacity:0.2;" />
-  <text x="574" y="246" text-anchor="middle" class="ui-source-value" style="font-size:11px;fill:#14b8a6;">HOT</text>
-  <text x="650" y="243" class="ui-subtitle">0.91</text>
-  <text x="770" y="243" class="ui-subtitle">9 мин</text>
-  <text x="870" y="243" class="ui-source-label" style="font-size:10px;">→ CRM</text>
-  <rect x="260" y="264" width="700" height="48" rx="4" class="ui-source-card" style="opacity:0.15;" />
-  <text x="290" y="291" class="ui-subtitle">Иван С.</text>
-  <text x="430" y="291" class="ui-subtitle">Website</text>
-  <rect x="536" y="278" width="76" height="22" rx="4" class="ui-source-card" style="fill-opacity:0.2;" />
-  <text x="574" y="294" text-anchor="middle" class="ui-source-value" style="font-size:11px;fill:var(--text-primary);">WARM</text>
-  <text x="650" y="291" class="ui-subtitle">0.78</text>
-  <text x="770" y="291" class="ui-subtitle">22 ч</text>
-  <text x="870" y="291" class="ui-source-label" style="font-size:10px;">→ CRM</text>
-  <rect x="260" y="312" width="700" height="48" rx="4" class="ui-source-card" style="opacity:0.15;" />
-  <text x="290" y="339" class="ui-subtitle">spam@mail.ru</text>
-  <text x="430" y="339" class="ui-subtitle">Telegram</text>
-  <rect x="536" y="326" width="76" height="22" rx="4" class="ui-accent-fill" style="fill-opacity:0.2;" />
-  <text x="574" y="342" text-anchor="middle" class="ui-source-value" style="font-size:11px;fill:#ef4444;">SPAM</text>
-  <text x="650" y="339" class="ui-subtitle">0.89</text>
-  <text x="770" y="339" class="ui-subtitle">—</text>
-  <text x="870" y="339" class="ui-source-label" style="font-size:10px;">Отклонить</text>
-  <rect x="260" y="360" width="700" height="48" rx="4" class="ui-source-card" style="opacity:0.15;" />
-  <text x="290" y="387" class="ui-subtitle">Елена К.</text>
-  <text x="430" y="387" class="ui-subtitle">Website</text>
-  <rect x="536" y="374" width="76" height="22" rx="4" class="ui-source-card" style="fill-opacity:0.2;" />
-  <text x="574" y="390" text-anchor="middle" class="ui-source-value" style="font-size:11px;fill:var(--text-primary);">COLD</text>
-  <text x="650" y="387" class="ui-subtitle">0.62</text>
-  <text x="770" y="387" class="ui-subtitle">6 дн</text>
-  <text x="870" y="387" class="ui-source-label" style="font-size:10px;">→ Nurturing</text>
+          <svg class="ui-illustration" viewBox="0 0 1200 640" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Lead Qualification: карточка лида LQ-100031 Петрова Александра в админ-панели">
+  <rect x="24" y="24" width="1152" height="50" rx="6" class="ui-window" />
+  <text x="40" y="57" class="ui-main-title" style="font-size:18px; font-weight:700;">Лид LQ-100031</text>
+  <rect x="1046" y="36" width="114" height="26" rx="5" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />
+  <text x="1103" y="54" text-anchor="middle" style="font-size:11px; fill:#22c55e; font-weight:600; letter-spacing:0.3px;">ПЕРЕДАН В CRM</text>
+  <rect x="24" y="90" width="568" height="210" rx="8" class="ui-source-card" style="fill:var(--surface-elevated);" />
+  <text x="40" y="114" class="ui-source-label" style="font-size:11px; letter-spacing:0.5px;">ПАСПОРТ ЛИДА</text>
+  <text x="40" y="146" style="font-size:12px; fill:var(--text-secondary);">Создан</text>
+  <text x="170" y="146" style="font-size:13px; fill:var(--text-primary); font-weight:500;">16.06.2026, 16:16</text>
+  <text x="40" y="174" style="font-size:12px; fill:var(--text-secondary);">Источник</text>
+  <text x="170" y="174" style="font-size:13px; fill:#22c55e; font-weight:500;">Website</text>
+  <text x="40" y="202" style="font-size:12px; fill:var(--text-secondary);">Клиент</text>
+  <text x="170" y="202" style="font-size:13px; fill:var(--text-primary); font-weight:600;">Петров Александр</text>
+  <text x="40" y="230" style="font-size:12px; fill:var(--text-secondary);">Телефон</text>
+  <text x="170" y="230" style="font-size:13px; fill:var(--text-primary); font-weight:500;">+7 (495) 123-45-67</text>
+  <text x="40" y="258" style="font-size:12px; fill:var(--text-secondary);">Email</text>
+  <text x="170" y="258" style="font-size:13px; fill:var(--text-primary); font-weight:500;">a.petrov@example.com</text>
+  <rect x="608" y="90" width="568" height="210" rx="8" class="ui-source-card" style="fill:var(--surface-elevated);" />
+  <text x="624" y="114" class="ui-source-label" style="font-size:11px; letter-spacing:0.5px;">КВАЛИФИКАЦИЯ ЛИДА</text>
+  <text x="624" y="146" style="font-size:12px; fill:var(--text-secondary);">Квалифицирован</text>
+  <text x="754" y="146" style="font-size:13px; fill:var(--text-primary); font-weight:500;">16.06.2026, 16:20</text>
+  <text x="624" y="174" style="font-size:12px; fill:var(--text-secondary);">Тип</text>
+  <rect x="754" y="160" width="66" height="22" rx="4" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="1" />
+  <text x="787" y="175" text-anchor="middle" style="font-size:12px; fill:#f59e0b; font-weight:600;">Тёплый</text>
+  <text x="624" y="206" style="font-size:12px; fill:var(--text-secondary);">Приоритет</text>
+  <text x="754" y="206" style="font-size:13px; fill:var(--text-primary); font-weight:500;">Средний</text>
+  <text x="624" y="234" style="font-size:12px; fill:var(--text-secondary);">Уверенность</text>
+  <text x="754" y="234" style="font-size:13px; fill:var(--text-primary); font-weight:500;">85 %</text>
+  <text x="624" y="262" style="font-size:12px; fill:var(--text-secondary);">Рекомендуемое действие</text>
+  <text x="754" y="262" style="font-size:13px; fill:var(--text-primary); font-weight:500;">Email</text>
+  <rect x="24" y="316" width="568" height="170" rx="8" class="ui-source-card" style="fill:var(--surface-elevated);" />
+  <rect x="40" y="334" width="16" height="14" rx="2" fill="#14b8a6" />
+  <text x="40" y="346" style="font-size:12px; fill:var(--bg); font-weight:600;" text-anchor="middle"></text>
+  <text x="64" y="346" class="ui-main-title" style="font-size:15px;">Обращение клиента</text>
+  <text x="40" y="374" style="font-size:12px; fill:var(--text-primary);">Здравствуйте!</text>
+  <text x="40" y="393" style="font-size:12px; fill:var(--text-primary);">Нужно автоматизировать обработку входящих заявок.</text>
+  <text x="40" y="412" style="font-size:12px; fill:var(--text-primary);">Интересует решение с AI-квалификацией лидов, интеграцией</text>
+  <text x="40" y="431" style="font-size:12px; fill:var(--text-primary);">с CRM и автоматической постановкой задач менеджерам.</text>
+  <text x="40" y="450" style="font-size:12px; fill:var(--text-primary);">Хотел бы обсудить сроки внедрения, возможности интеграции</text>
+  <text x="40" y="469" style="font-size:12px; fill:var(--text-primary);">и ориентировочный бюджет проекта.</text>
+  <rect x="608" y="316" width="568" height="170" rx="8" class="ui-source-card" style="fill:var(--surface-elevated);" />
+  <circle cx="632" cy="342" r="9" fill="#14b8a6" fill-opacity="0.15" stroke="#14b8a6" stroke-width="1.5" />
+  <text x="632" y="346" text-anchor="middle" style="font-size:12px; fill:#14b8a6; font-weight:700;">+</text>
+  <text x="650" y="346" class="ui-main-title" style="font-size:15px;">Решение системы</text>
+  <rect x="1066" y="330" width="90" height="26" rx="5" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="1" />
+  <text x="1111" y="348" text-anchor="middle" style="font-size:12px; fill:#f59e0b; font-weight:600;">Тёплый 85%</text>
+  <text x="624" y="380" style="font-size:13px; fill:var(--text-primary);">Клиент задаёт вопросы о сроках и возможностях, что</text>
+  <text x="624" y="401" style="font-size:13px; fill:var(--text-primary);">указывает на интерес, но не на готовность к немедленному</text>
+  <text x="624" y="422" style="font-size:13px; fill:var(--text-primary);">действию.</text>
+  <rect x="24" y="502" width="568" height="130" rx="8" class="ui-source-card" style="fill:var(--surface-elevated);" />
+  <text x="40" y="524" class="ui-source-label" style="font-size:11px; letter-spacing:0.5px;">CRM СИНХРОНИЗАЦИЯ</text>
+  <text x="40" y="552" style="font-size:12px; fill:var(--text-secondary);">Статус синхронизации</text>
+  <text x="170" y="552" style="font-size:13px; fill:#22c55e; font-weight:500;">Успешно</text>
+  <text x="40" y="578" style="font-size:12px; fill:var(--text-secondary);">Создана запись</text>
+  <text x="170" y="578" style="font-size:13px; fill:var(--text-primary); font-weight:500;">16.06.2026, 16:20</text>
+  <text x="40" y="604" style="font-size:12px; fill:var(--text-secondary);">Последняя синхронизация</text>
+  <text x="170" y="604" style="font-size:13px; fill:var(--text-primary); font-weight:500;">16.06.2026, 16:20</text>
+  <text x="40" y="630" style="font-size:12px; fill:var(--text-secondary);">Начальная задача создана</text>
+  <text x="170" y="630" style="font-size:13px; fill:var(--text-primary); font-weight:500;">Да</text>
+  <text x="40" y="620" style="font-size:12px; fill:#14b8a6; font-weight:500;">↗ Открыть в Kommo</text>
+  <rect x="608" y="502" width="568" height="130" rx="8" class="ui-source-card" style="fill:var(--surface-elevated);" />
+  <text x="624" y="524" class="ui-source-label" style="font-size:11px; letter-spacing:0.5px;">СОСТОЯНИЕ СДЕЛКИ</text>
+  <text x="624" y="552" style="font-size:12px; fill:var(--text-secondary);">Воронка</text>
+  <text x="754" y="552" style="font-size:13px; fill:var(--text-primary); font-weight:500;">Основная воронка</text>
+  <text x="624" y="578" style="font-size:12px; fill:var(--text-secondary);">Статус сделки</text>
+  <text x="754" y="578" style="font-size:13px; fill:var(--text-primary); font-weight:500;">Переговоры</text>
+  <text x="624" y="604" style="font-size:12px; fill:var(--text-secondary);">Активная задача</text>
+  <text x="754" y="604" style="font-size:13px; fill:var(--text-primary); font-weight:500;">Да</text>
+  <text x="624" y="630" style="font-size:12px; fill:var(--text-secondary);">Ближайшая задача</text>
+  <text x="754" y="630" style="font-size:13px; fill:var(--text-primary); font-weight:500;">17.06.2026, 16:20</text>
 </svg>
           
         </div>
