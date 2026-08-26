@@ -836,10 +836,10 @@ def rar_scenario_2_svg() -> str:
 
 
 def mab_scenario_1_svg() -> str:
-    """Scenario 1: Telegram chat with audio file and audit report."""
-    w, h = 520, 720
-    margin = 18
-    header_h = 58
+    """Scenario 1: Telegram chat with audio file and audit report (compact 70%)."""
+    w, h = 364, 504
+    margin = 12
+    header_h = 40
     bubble_w = w - margin * 2
 
     svg = [
@@ -847,43 +847,50 @@ def mab_scenario_1_svg() -> str:
         f'  <rect x="0" y="0" width="{w}" height="{h}" rx="0" fill="#e5f2e5"/>',
         # header bar
         f'  <rect x="0" y="0" width="{w}" height="{header_h}" fill="#2f7763"/>',
-        f'  <circle cx="{margin + 18}" cy="{header_h // 2}" r="16" fill="#a8d5ba"/>',
-        f'  <text x="{margin + 45}" y="{header_h // 2 + 5}" class="ui-title" style="font-size:15px; fill:#ffffff;">Рecb10 · Meeting Audit Bot</text>',
+        f'  <circle cx="{margin + 13}" cy="{header_h // 2}" r="11" fill="#a8d5ba"/>',
+        f'  <text x="{margin + 31}" y="{header_h // 2 + 4}" class="ui-title" style="font-size:11px; fill:#ffffff;">Рecb10 · Meeting Audit Bot</text>',
         # audio file bubble
-        f'  <rect x="{margin}" y="{header_h + 20}" width="{bubble_w}" height="56" rx="10" fill="#d9fdd3"/>',
-        f'  <circle cx="{margin + 28}" cy="{header_h + 48}" r="14" fill="#2f7763"/>',
-        f'  <polygon points="{margin + 24},{header_h + 43} {margin + 24},{header_h + 53} {margin + 35},{header_h + 48}" fill="#ffffff"/>',
-        f'  <text x="{margin + 55}" y="{header_h + 40}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill:var(--text-primary);">meeting-audit-bot-e2e-sales_2.ogg</text>',
-        f'  <text x="{margin + 55}" y="{header_h + 58}" class="ui-subtitle" style="font-size:11px;">0:00 · 732 КБ</text>',
+        f'  <rect x="{margin}" y="{header_h + 14}" width="{bubble_w}" height="40" rx="8" fill="#d9fdd3"/>',
+        f'  <circle cx="{margin + 20}" cy="{header_h + 34}" r="10" fill="#2f7763"/>',
+        f'  <polygon points="{margin + 17},{header_h + 30} {margin + 17},{header_h + 38} {margin + 25},{header_h + 34}" fill="#ffffff"/>',
+        f'  <text x="{margin + 38}" y="{header_h + 29}" class="ui-sidebar-text" style="font-size:8px; font-weight:500; fill:var(--text-primary);">meeting-audit-bot-e2e-sales_2.ogg</text>',
+        f'  <text x="{margin + 38}" y="{header_h + 42}" class="ui-subtitle" style="font-size:8px;">0:00 · 732 КБ</text>',
         # audit report bubble
-        f'  <rect x="{margin}" y="{header_h + 90}" width="{bubble_w}" rx="12" fill="#ffffff"/>',
+        f'  <rect x="{margin}" y="{header_h + 64}" width="{bubble_w}" rx="8" fill="#ffffff"/>',
     ]
-    y = header_h + 110
+    y = header_h + 78
     lines = [
-        ("# Общая оценка", "ui-table-header-text", 13),
-        ("Качество звонка соответствует 87,5%.", "ui-sidebar-text", 12),
-        ("", "ui-sidebar-text", 12),
-        ("✅ 1. Приветствие и представление", "ui-sidebar-text", 12),
-        ("✅ 2. Квалификация", "ui-sidebar-text", 12),
-        ("✅ 3. Потребность", "ui-sidebar-text", 12),
-        ("✅ 4. Ценностное предложение", "ui-sidebar-text", 12),
-        ("✅ 5. Возражения", "ui-sidebar-text", 12),
-        ("⚠️ 6. Следующий шаг", "ui-sidebar-text", 12),
-        ("✅ 7. Тон и манера", "ui-sidebar-text", 12),
-        ("✅ 8. Запись данных", "ui-sidebar-text", 12),
-        ("", "ui-sidebar-text", 12),
-        ("## Итоговые статусы", "ui-table-header-text", 13),
-        ("✅ ✅ ✅ ✅ ⚠️ ✅ ✅ ✅", "ui-sidebar-text", 12),
-        ("Количество ✅ = 7 из 8 → 87,5%", "ui-sidebar-text", 12),
-        ("", "ui-sidebar-text", 12),
-        ("Рекомендую доработать.", "ui-sidebar-text", 12),
+        ("# Общая оценка", "ui-table-header-text", 9),
+        ("Качество звонка соответствует 87,5%.", "ui-sidebar-text", 8),
+        ("", "ui-sidebar-text", 8),
+        ("✅ 1. Приветствие и представление", "ui-sidebar-text", 8),
+        ("✅ 2. Квалификация", "ui-sidebar-text", 8),
+        ("✅ 3. Потребность", "ui-sidebar-text", 8),
+        ("✅ 4. Ценностное предложение", "ui-sidebar-text", 8),
+        ("✅ 5. Возражения", "ui-sidebar-text", 8),
+        ("⚠️ 6. Следующий шаг", "ui-sidebar-text", 8),
+        ("✅ 7. Тон и манера", "ui-sidebar-text", 8),
+        ("✅ 8. Запись данных", "ui-sidebar-text", 8),
+        ("", "ui-sidebar-text", 8),
+        ("## Итоговые статусы", "ui-table-header-text", 9),
+        ("✅ ✅ ✅ ✅ ⚠️ ✅ ✅ ✅", "ui-sidebar-text", 8),
+        ("Количество ✅ = 7 из 8 → 87,5%", "ui-sidebar-text", 8),
+        ("", "ui-sidebar-text", 8),
+        ("Рекомендация:", "ui-table-header-text", 9),
+        ("добейтесь явного согласия клиента на", "ui-sidebar-text", 8),
+        ("конкретное действие менеджера (отправка", "ui-sidebar-text", 8),
+        ("приглашения), чтобы исключить", "ui-sidebar-text", 8),
+        ("двусмысленность и повысить вероятность", "ui-sidebar-text", 8),
+        ("выполнения следующего шага.", "ui-sidebar-text", 8),
+        ("В первую очередь работайте над 6", "ui-sidebar-text", 8),
+        ("(Следующий шаг).", "ui-sidebar-text", 8),
     ]
-    report_h = len(lines) * 20 + 30
-    svg.insert(-1, f'  <rect x="{margin}" y="{header_h + 90}" width="{bubble_w}" height="{report_h}" rx="12" fill="#ffffff"/>')
+    report_h = len(lines) * 14 + 20
+    svg.insert(-1, f'  <rect x="{margin}" y="{header_h + 64}" width="{bubble_w}" height="{report_h}" rx="8" fill="#ffffff"/>')
     for text, cls, size in lines:
         if text:
-            svg.append(f'  <text x="{margin + 14}" y="{y}" class="{cls}" style="font-size:{size}px;">{text}</text>')
-        y += 20
+            svg.append(f'  <text x="{margin + 10}" y="{y}" class="{cls}" style="font-size:{size}px;">{text}</text>')
+        y += 14
     svg.append('</svg>')
     return "\n".join(svg)
 
