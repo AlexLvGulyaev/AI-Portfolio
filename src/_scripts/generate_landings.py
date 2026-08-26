@@ -1106,7 +1106,7 @@ def lq_scenario_1_svg() -> str:
         # Header bar
         f'  <rect x="{m}" y="{m}" width="{w - 2 * m}" height="{hdr_h}" rx="6" class="ui-window" />',
         f'  <text x="{m + 16}" y="{m + 29}" class="ui-main-title" style="font-size:16px; font-weight:600;">Lead Qual</text>',
-        f'  <circle cx="{w - m - 146}" cy="{m + 23}" r="5" fill="#22c55e" />',
+        f'  <circle cx="{w - m - 158}" cy="{m + 23}" r="5" fill="#22c55e" />',
         f'  <text x="{w - m - 16}" y="{m + 29}" text-anchor="end" class="ui-subtitle" style="font-size:12px; letter-spacing:0.5px;">СИСТЕМА АКТИВНА</text>',
     ]
 
@@ -1185,7 +1185,7 @@ def lq_scenario_1_svg() -> str:
         f'  <text x="{x2 + 28}" y="{t_y + 140}" style="font-size:13px; fill:var(--text-primary);">интеграцией с CRM и автоматической постановкой</text>',
         f'  <text x="{x2 + 28}" y="{t_y + 160}" style="font-size:13px; fill:var(--text-primary);">задач менеджерам. Хотел бы обсудить сроки</text>',
         f'  <text x="{x2 + 28}" y="{t_y + 180}" style="font-size:13px; fill:var(--text-primary);">внедрения, возможности интеграции и бюджет.</text>',
-        f'  <text x="{x2 + panel_w - 22}" y="{t_y + 204}" text-anchor="end" class="ui-subtitle" style="font-size:11px;">271 / 2000</text>',
+        f'  <text x="{x2 + panel_w - 22}" y="{t_y + 214}" text-anchor="end" class="ui-subtitle" style="font-size:11px;">271 / 2000</text>',
         f'  <text x="{x2 + 18}" y="{t_y + 232}" style="font-size:13px; fill:#22c55e;">✓ Достаточно</text>',
         f'  <text x="{x2 + 18}" y="{t_y + 266}" style="font-size:12px; fill:var(--text-secondary);">Откуда вы узнали о нас? <tspan style="fill:#14b8a6;">*</tspan></text>',
         f'  <rect x="{x2 + 18}" y="{t_y + 272}" width="{panel_w - 36}" height="38" rx="5" class="ui-input" style="fill:var(--bg); stroke:var(--border);" />',
