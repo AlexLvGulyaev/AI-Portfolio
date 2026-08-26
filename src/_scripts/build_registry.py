@@ -594,7 +594,7 @@ def meeting_audit_bot():
         "og_title": "Meeting Audit Bot — аудит встреч и звонков",
         "eyebrow": "Аудит встреч и звонков через Telegram",
         "hero_title": "Отправьте запись звонка — получите разбор по чек-листу за секунды",
-        "hero_lead": "Meeting Audit Bot принимает аудио и видео в Telegram, транскрибирует речь через AssemblyAI с разделением спикеров, проводит LLM-аудит по выбранному сценарию и возвращает структурированный вердикт с оценкой, рисками и next steps. Руководитель видит каждую обработку в /admin: шаги, токены, провайдер и security audit log.",
+        "hero_lead": "Telegram-бот принимает аудио и видео, транскрибирует речь через AssemblyAI с разделением спикеров и проводит LLM-аудит по сценарию. Руководитель видит каждую обработку в /admin: шаги, токены, провайдер и audit log.",
         "hero_cta_primary": cta("Открыть в Telegram", "https://t.me/PEcb10_bot", primary=True),
         "hero_cta_secondary": cta("Admin Console", "https://meeting-audit-bot.alex-n8n.site/admin/login"),
         "hero_cta_tertiary": cta("GitHub", "https://github.com/AlexLvGulyaev/meeting-audit-bot"),
