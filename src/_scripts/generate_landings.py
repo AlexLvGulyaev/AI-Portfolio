@@ -735,7 +735,7 @@ def rar_scenario_1_svg() -> str:
 
 def rar_scenario_2_svg() -> str:
     """Scenario 2: /admin execution detail panel for the auto-responded review."""
-    w, h = 980, 640
+    w, h = 980, 720
     margin = 20
     hdr = 52
     inner_h = h - margin * 2 - hdr
@@ -766,55 +766,68 @@ def rar_scenario_2_svg() -> str:
     right_x = left_x + col_w + gap
 
     # --- Request params ---
-    rp_h = 112
+    rp_h = 130
     svg.extend([
         f'  <rect x="{left_x}" y="{y}" width="{col_w}" height="{rp_h}" rx="6" class="ui-window" />',
         f'  <text x="{left_x + 12}" y="{y + 22}" class="ui-table-header-text">ПАРАМЕТРЫ ЗАПРОСА</text>',
-        f'  <text x="{left_x + 12}" y="{y + 46}" class="ui-sidebar-text" style="font-size:12px;">Код отзыва</text>',
-        f'  <text x="{left_x + 110}" y="{y + 46}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">#56</text>',
-        f'  <text x="{left_x + 12}" y="{y + 64}" class="ui-sidebar-text" style="font-size:12px;">Имя пользователя</text>',
-        f'  <text x="{left_x + 130}" y="{y + 64}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">—</text>',
-        f'  <text x="{left_x + 12}" y="{y + 82}" class="ui-sidebar-text" style="font-size:12px;">Тон</text>',
-        f'  <rect x="{left_x + 130}" y="{y + 70}" width="86" height="16" rx="3" class="ui-input" />',
-        f'  <text x="{left_x + 173}" y="{y + 82}" text-anchor="middle" class="ui-input-text" style="font-size:10px;">нейтральный</text>',
-        f'  <text x="{left_x + 12}" y="{y + 100}" class="ui-sidebar-text" style="font-size:12px;">Маршрут</text>',
-        f'  <text x="{left_x + 130}" y="{y + 100}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">review_processing</text>',
+        f'  <text x="{left_x + 12}" y="{y + 44}" class="ui-sidebar-text" style="font-size:12px;">Код отзыва</text>',
+        f'  <text x="{left_x + 110}" y="{y + 44}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">#56</text>',
+        f'  <text x="{left_x + 12}" y="{y + 62}" class="ui-sidebar-text" style="font-size:12px;">Имя пользователя</text>',
+        f'  <text x="{left_x + 130}" y="{y + 62}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">—</text>',
+        f'  <text x="{left_x + 12}" y="{y + 80}" class="ui-sidebar-text" style="font-size:12px;">Тон</text>',
+        f'  <rect x="{left_x + 130}" y="{y + 68}" width="86" height="16" rx="3" class="ui-input" />',
+        f'  <text x="{left_x + 173}" y="{y + 80}" text-anchor="middle" class="ui-input-text" style="font-size:10px;">нейтральный</text>',
+        f'  <text x="{left_x + 12}" y="{y + 98}" class="ui-sidebar-text" style="font-size:12px;">Маршрут</text>',
+        f'  <text x="{left_x + 130}" y="{y + 98}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">review_processing</text>',
+        f'  <text x="{left_x + 12}" y="{y + 116}" class="ui-sidebar-text" style="font-size:12px;">Время создания</text>',
+        f'  <text x="{left_x + 130}" y="{y + 116}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">2026-08-14 01:14:35</text>',
     ])
 
     # --- Execution params ---
-    ep_h = 112
+    ep_h = 130
     svg.extend([
         f'  <rect x="{right_x}" y="{y}" width="{col_w}" height="{ep_h}" rx="6" class="ui-window" />',
         f'  <text x="{right_x + 12}" y="{y + 22}" class="ui-table-header-text">ПАРАМЕТРЫ ИСПОЛНЕНИЯ</text>',
-        f'  <text x="{right_x + 12}" y="{y + 46}" class="ui-sidebar-text" style="font-size:12px;">Провайдер</text>',
-        f'  <text x="{right_x + 120}" y="{y + 46}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">gigachat</text>',
-        f'  <text x="{right_x + 12}" y="{y + 64}" class="ui-sidebar-text" style="font-size:12px;">Модель</text>',
-        f'  <text x="{right_x + 120}" y="{y + 64}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">GigaChat-Max</text>',
-        f'  <text x="{right_x + 12}" y="{y + 82}" class="ui-sidebar-text" style="font-size:12px;">Длительность</text>',
-        f'  <text x="{right_x + 120}" y="{y + 82}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">1437 мс</text>',
-        f'  <text x="{right_x + 12}" y="{y + 100}" class="ui-sidebar-text" style="font-size:12px;">Токены</text>',
-        f'  <text x="{right_x + 120}" y="{y + 100}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">212</text>',
+        f'  <text x="{right_x + 12}" y="{y + 44}" class="ui-sidebar-text" style="font-size:12px;">Провайдер</text>',
+        f'  <text x="{right_x + 120}" y="{y + 44}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">gigachat</text>',
+        f'  <text x="{right_x + 12}" y="{y + 62}" class="ui-sidebar-text" style="font-size:12px;">Модель</text>',
+        f'  <text x="{right_x + 120}" y="{y + 62}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">GigaChat-Max</text>',
+        f'  <text x="{right_x + 12}" y="{y + 80}" class="ui-sidebar-text" style="font-size:12px;">Длительность</text>',
+        f'  <text x="{right_x + 120}" y="{y + 80}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">1437 мс</text>',
+        f'  <text x="{right_x + 12}" y="{y + 98}" class="ui-sidebar-text" style="font-size:12px;">Токены</text>',
+        f'  <text x="{right_x + 120}" y="{y + 98}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">212</text>',
+        f'  <text x="{right_x + 12}" y="{y + 116}" class="ui-sidebar-text" style="font-size:12px;">Время завершения</text>',
+        f'  <text x="{right_x + 120}" y="{y + 116}" class="ui-sidebar-text" style="font-size:12px; font-weight:500; fill: var(--text-primary);">2026-08-14 01:14:39</text>',
     ])
 
     y += rp_h + gap
 
+    # --- Pipeline chain ---
+    chain_h = 66
+    svg.extend([
+        f'  <rect x="{left_x}" y="{y}" width="{col_w * 2 + gap}" height="{chain_h}" rx="6" class="ui-window" />',
+        f'  <text x="{left_x + 12}" y="{y + 22}" class="ui-table-header-text">ЦЕПОЧКА ЭТАПОВ</text>',
+        f'  <text x="{left_x + 12}" y="{y + 46}" class="ui-sidebar-text" style="font-size:12px;">Получен отзыв → Классификация тона → Уведомление Telegram → Генерация LLM →</text>',
+        f'  <text x="{left_x + 12}" y="{y + 64}" class="ui-sidebar-text" style="font-size:12px;">Сохранение ответа → Отметка обработано</text>',
+    ])
+
+    y += chain_h + gap
+
     # --- User request ---
-    ur_h = 112
+    ur_h = 120
     svg.extend([
         f'  <rect x="{left_x}" y="{y}" width="{col_w}" height="{ur_h}" rx="6" class="ui-window" />',
         f'  <text x="{left_x + 12}" y="{y + 22}" class="ui-table-header-text">ЗАПРОС ПОЛЬЗОВАТЕЛЯ</text>',
-        f'  <text x="{left_x + 12}" y="{y + 48}" class="ui-msg-text-bot" style="font-size:12px;">Прислали посылку с повреждённой упаковкой!</text>',
-        f'  <text x="{left_x + 12}" y="{y + 70}" class="ui-msg-text-bot" style="font-size:12px;">Срочно нужна замена!!!</text>',
+        f'  <text x="{left_x + 12}" y="{y + 52}" class="ui-msg-text-bot" style="font-size:12px;">Прислали посылку с повреждённой упаковкой! Срочно нужна замена!!!</text>',
     ])
 
     # --- System response ---
-    sr_h = 112
+    sr_h = 130
     svg.extend([
         f'  <rect x="{right_x}" y="{y}" width="{col_w}" height="{sr_h}" rx="6" class="ui-window" />',
         f'  <text x="{right_x + 12}" y="{y + 22}" class="ui-table-header-text">ОТВЕТ СИСТЕМЫ</text>',
-        f'  <text x="{right_x + 12}" y="{y + 48}" class="ui-msg-text-bot" style="font-size:12px;">Нам очень жаль, что так произошло.</text>',
-        f'  <text x="{right_x + 12}" y="{y + 70}" class="ui-msg-text-bot" style="font-size:12px;">Мы немедленно отправим вам замену.</text>',
-        f'  <text x="{right_x + 12}" y="{y + 92}" class="ui-msg-text-bot" style="font-size:12px;">Сообщите номер вашего заказа для быстрой обработки.</text>',
+        f'  <text x="{right_x + 12}" y="{y + 50}" class="ui-msg-text-bot" style="font-size:12px;">Нам очень жаль, что так произошло. Мы немедленно отправим вам замену.</text>',
+        f'  <text x="{right_x + 12}" y="{y + 72}" class="ui-msg-text-bot" style="font-size:12px;">Пожалуйста, сообщите нам номер вашего заказа для быстрой обработки запроса.</text>',
     ])
 
     svg.append('</svg>')
