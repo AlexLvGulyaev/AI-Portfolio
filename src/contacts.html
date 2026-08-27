@@ -1,148 +1,582 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Связаться с AI-инженером. Обсудить проект автоматизации бизнес-процессов через Telegram или email.">
+  <meta name="description" content="Связаться с Александром Гуляевым. Обсудить проект автоматизации через Telegram @AlexLvGulyaев или email sbs.gulyaev.ai@gmail.com.">
   <meta property="og:title" content="Контакты — AI Portfolio">
-  <meta property="og:description" content="Связаться с AI-инженером. Обсудить проект автоматизации бизнес-процессов через Telegram или email.">
+  <meta property="og:description" content="Связаться с Александром Гуляевым. Обсудить проект автоматизации через Telegram @AlexLvGulyaев или email.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ai.alex-n8n.site/contacts.html">
   <meta property="og:image" content="https://ai.alex-n8n.site/assets/images/og-image.jpg">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Контакты — AI Portfolio">
-  <meta name="twitter:description" content="Связаться с AI-инженером. Обсудить проект автоматизации бизнес-процессов через Telegram или email.">
+  <meta name="twitter:description" content="Связаться с Александром Гуляевым. Обсудить проект автоматизации через Telegram @AlexLvGulyaев или email.">
   <meta name="twitter:image" content="https://ai.alex-n8n.site/assets/images/og-image.jpg">
   <link rel="canonical" href="https://ai.alex-n8n.site/contacts.html">
   <title>Контакты — AI Portfolio</title>
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600<link rel="stylesheet" href="css/styles.css">display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    (function() {
+      const saved = localStorage.getItem('aip-theme-teal');
+      if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+      else if (saved === 'light') document.documentElement.dataset.theme = 'light';
+    })();
+  </script>
+  <style>
+    :root {
+      --bg: #E3EAF2;
+      --surface: #FFFFFF;
+      --surface-elevated: #D8E0EA;
+      --border: #C7D0DB;
+      --text-primary: #1A1A1C;
+      --text-secondary: #5A5A62;
+      --text-muted: #7D7D85;
+      --accent: #0D9488;
+      --accent-hover: #0F766E;
+      --focus: #14B8A6;
+      --shadow-sm: 0 1px 2px rgba(13, 59, 55, 0.04);
+      --shadow-md: 0 8px 24px rgba(13, 59, 55, 0.10);
+      --shadow-lg: 0 18px 48px rgba(13, 59, 55, 0.14);
+      --radius: 2px;
+      --space-xs: 0.5rem;
+      --space-sm: 0.75rem;
+      --space-md: 1.25rem;
+      --space-lg: 2rem;
+      --space-xl: 3rem;
+      --space-2xl: 5rem;
+      --space-3xl: 7rem;
+      --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+      --font-body: "Inter", system-ui, sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0a0a0f;
+        --surface: #111118;
+        --surface-elevated: #18181f;
+        --border: rgba(255, 255, 255, 0.10);
+        --text-primary: #f5f5f7;
+        --text-secondary: #a1a1aa;
+        --text-muted: #71717a;
+        --accent: #14b8a6;
+        --accent-hover: #2dd4bf;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface-elevated: #18181f;
+      --border: rgba(255, 255, 255, 0.10);
+      --text-primary: #f5f5f7;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --accent: #14b8a6;
+      --accent-hover: #2dd4bf;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); }
+    a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+
+    .container {
+      width: min(1180px, 92vw);
+      margin-inline: auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .site-header__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .logo__mark { color: var(--accent); font-size: 1.3rem; line-height: 1; }
+
+    .nav {
+      display: flex;
+      gap: var(--space-md);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .nav a { color: var(--text-secondary); }
+    .nav a:hover { color: var(--text-primary); }
+    .nav a[aria-current="page"] { color: var(--text-primary); }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.2rem;
+      height: 2.2rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+    }
+
+    .theme-toggle:hover { color: var(--text-primary); border-color: var(--text-muted); }
+    .theme-toggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      padding: 0.8rem 1.4rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 1px solid transparent;
+      transition: background 150ms ease, color 150ms ease, border-color 150ms ease, transform 150ms ease;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #fff; transform: translateY(-1px); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-primary);
+      border-color: var(--border);
+    }
+
+    .btn-ghost:hover { background: var(--surface-elevated); border-color: var(--text-muted); color: var(--text-primary); }
+
+    /* Contact page */
+    .contact-page {
+      padding: var(--space-xl) 0;
+    }
+
+    .contact__inner {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: var(--space-xl);
+      align-items: start;
+    }
+
+    .contact__eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin: 0 0 var(--space-sm);
+    }
+
+    .contact__title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+      line-height: 1.12;
+      font-weight: 600;
+      margin: 0 0 var(--space-md);
+      max-width: 620px;
+      text-wrap: balance;
+    }
+
+    .contact__lead {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin: 0 0 var(--space-md);
+      max-width: 520px;
+      line-height: 1.5;
+    }
+
+    .contact__author {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-md);
+    }
+
+    .contact__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+
+    .contact__addresses {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm) var(--space-lg);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-sm);
+    }
+
+    .contact__addresses a {
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .contact__addresses a:hover { color: var(--accent); }
+
+    .contact__note {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin: 0;
+      max-width: 520px;
+    }
+
+    .guide-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .guide-card + .guide-card { margin-top: var(--space-md); }
+
+    .guide-card__title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 0 0 var(--space-sm);
+      line-height: 1.2;
+    }
+
+    .guide-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .guide-list li {
+      position: relative;
+      padding-left: 1.55rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      font-size: 0.95rem;
+    }
+
+    .guide-list li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .guide-list--numbered { counter-reset: guide-item; }
+
+    .guide-list--numbered li { padding-left: 1.85rem; }
+
+    .guide-list--numbered li::before {
+      counter-increment: guide-item;
+      content: counter(guide-item);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      width: 1.25rem;
+      height: 1.25rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: var(--surface-elevated);
+      color: var(--accent);
+      top: -0.05rem;
+    }
+
+    .guide-list strong { color: var(--text-primary); font-weight: 600; }
+
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: var(--space-md) 0;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .site-footer__inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    /* Chat widget */
+    .chat-launcher {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      z-index: 100;
+      transition: transform 150ms ease, background 150ms ease;
+    }
+
+    .chat-launcher:hover { background: var(--accent-hover); transform: scale(1.05); }
+    .chat-launcher:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+    .chat-widget {
+      position: fixed;
+      bottom: 5.5rem;
+      right: 1.5rem;
+      width: min(360px, calc(100vw - 2rem));
+      height: 500px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      display: none;
+      flex-direction: column;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .chat-widget.open { display: flex; }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-md);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-elevated);
+    }
+
+    .chat-header-left { display: flex; align-items: center; gap: var(--space-sm); }
+    .chat-avatar {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+    .chat-title { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); }
+    .chat-subtitle { font-size: 0.75rem; color: var(--text-muted); }
+    .chat-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 150ms ease;
+      padding: var(--space-xs);
+    }
+    .chat-close:hover { opacity: 1; }
+    .chat-messages {
+      flex: 1;
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      overflow-y: auto;
+      background: var(--bg);
+    }
+    .chat-message {
+      max-width: 85%;
+      border-radius: var(--radius);
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.875rem;
+      line-height: 1.5;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+    .chat-message.user {
+      margin-left: auto;
+      background: var(--accent);
+      color: #fff;
+    }
+    .chat-message.bot {
+      margin-right: auto;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+    .chat-footer {
+      padding: var(--space-sm) var(--space-md);
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      gap: var(--space-sm);
+      align-items: center;
+    }
+    .chat-input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 150ms ease;
+    }
+    .chat-input:focus { border-color: var(--accent); }
+    .chat-input::placeholder { color: var(--text-muted); }
+    .chat-send {
+      border-radius: 999px;
+      border: none;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      transition: opacity 150ms ease;
+    }
+    .chat-send:hover:not(:disabled) { opacity: 0.9; }
+    .chat-send:disabled { opacity: 0.5; cursor: default; }
+
+    @media (max-width: 900px) {
+      .site-header__inner { height: 56px; }
+      .nav { gap: var(--space-sm); font-size: 0.85rem; }
+      .contact-page { padding: var(--space-lg) 0; }
+      .contact__inner {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+      }
+      .contact__actions { flex-direction: column; align-items: stretch; }
+      .site-footer__inner { flex-direction: column; align-items: flex-start; gap: var(--space-xs); }
+    }
+  </style>
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
-    <div class="header__content">
-      <a href="index.html" class="header__logo">
-        <span class="logo__icon">◇</span>
-        <span>AI Portfolio</span>
-      </a>
-      <nav class="nav">
-        <a href="index.html" class="nav__link">Главная</a>
-        <a href="/" class="nav__link">Проекты</a>
-        <a href="services.html" class="nav__link">Услуги</a>
-        <a href="contacts.html" class="nav__link nav__link--active">Контакты</a>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="/" class="logo"><span class="logo__mark">◇</span> AI Portfolio</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="/">Главная</a>
+        <a href="/">Проекты</a>
+        <a href="/services.html">Услуги</a>
+        <a href="/contacts.html" aria-current="page">Контакты</a>
       </nav>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">🌙</button>
     </div>
   </header>
 
-  <!-- Main -->
-  <main class="main">
-    <div class="page">
-      <section class="section">
-        <div class="container">
-          <div class="text-center" style="margin-bottom: var(--space-lg);">
-            <h1 class="section__title">Контакты</h1>
+  <main>
+    <section class="contact-page">
+      <div class="container contact__inner">
+        <div class="contact__intro">
+          <p class="contact__eyebrow">Обсудить проект</p>
+          <h1 class="contact__title">Расскажите, какой процесс хотите автоматизировать</h1>
+          <p class="contact__lead">Для первого сообщения достаточно описать, что сейчас выполняется вручную, кто участвует в процессе и какой результат требуется получить.</p>
+          <p class="contact__author">Александр Гуляев, AI Automation Portfolio Lab</p>
+
+          <div class="contact__actions">
+            <a href="https://t.me/AlexLvGulyaev" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Написать в Telegram</a>
+            <a href="mailto:sbs.gulyaev.ai@gmail.com" class="btn btn-ghost">Написать на email</a>
+            <a href="/" class="btn btn-ghost">Смотреть проекты</a>
           </div>
 
-          <div class="contacts-grid">
-            <!-- Contact Info -->
-            <div class="contacts__info">
-              <!-- Telegram -->
-              <div class="contact-item">
-                <div class="contact-item__icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 5L2.5 12L21 19L17 12L21 5Z" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M17 12L12 15" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <div>
-                  <p class="contact-item__label">Telegram</p>
-                  <p class="contact-item__value">
-                    <a href="https://t.me/yourusername" target="_blank" rel="noopener noreferrer">@yourusername</a>
-                  </p>
-                </div>
-              </div>
+          <div class="contact__addresses">
+            <a href="https://t.me/AlexLvGulyaev" target="_blank" rel="noopener noreferrer">Telegram: @AlexLvGulyaев</a>
+            <a href="mailto:sbs.gulyaev.ai@gmail.com">Email: sbs.gulyaev.ai@gmail.com</a>
+          </div>
 
-              <!-- Email -->
-              <div class="contact-item">
-                <div class="contact-item__icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                  </svg>
-                </div>
-                <div>
-                  <p class="contact-item__label">Email</p>
-                  <p class="contact-item__value">
-                    <a href="mailto:your@email.com">your@email.com</a>
-                  </p>
-                </div>
-              </div>
+          <p class="contact__note">Можно написать в свободной форме — отдельный бриф для первого обращения не требуется.</p>
+        </div>
 
-              <!-- CTA Button -->
-              <a href="https://t.me/yourusername" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="width: 100%; justify-content: center;">
-                Написать в Telegram
-              </a>
-            </div>
+        <div class="contact__guide">
+          <div class="guide-card">
+            <h2 class="guide-card__title">Что указать в сообщении</h2>
+            <ul class="guide-list">
+              <li><strong>Текущий процесс</strong> — что сейчас выполняется вручную.</li>
+              <li><strong>Проблемная точка</strong> — где теряется время, данные или клиенты.</li>
+              <li><strong>Системы и данные</strong> — какие каналы, CRM, базы знаний или документы используются.</li>
+              <li><strong>Требуемый результат</strong> — что должно происходить автоматически.</li>
+            </ul>
+          </div>
 
-            <!-- Process -->
-            <div class="contacts__process">
-              <h3 class="process__title">Как работает взаимодействие</h3>
-              <div class="process__steps">
-                <div class="process__step">
-                  <div class="process__step-number">1</div>
-                  <div class="process__step-content">
-                    <p class="process__step-title">Обсуждение задачи</p>
-                    <p class="process__step-desc">Расскажите о вашей задаче и ожидаемых результатах</p>
-                  </div>
-                </div>
-                <div class="process__step">
-                  <div class="process__step-number">2</div>
-                  <div class="process__step-content">
-                    <p class="process__step-title">Анализ и предложение</p>
-                    <p class="process__step-desc">Анализ задачи, варианты решения, оценка сроков</p>
-                  </div>
-                </div>
-                <div class="process__step">
-                  <div class="process__step-number">3</div>
-                  <div class="process__step-content">
-                    <p class="process__step-title">Реализация</p>
-                    <p class="process__step-desc">Разработка, тестирование, документация</p>
-                  </div>
-                </div>
-                <div class="process__step">
-                  <div class="process__step-number">4</div>
-                  <div class="process__step-content">
-                    <p class="process__step-title">Поддержка</p>
-                    <p class="process__step-desc">Сопровождение после сдачи проекта</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div class="guide-card">
+            <h2 class="guide-card__title">Что будет дальше</h2>
+            <ol class="guide-list guide-list--numbered">
+              <li><strong>Разбор задачи</strong> — оценю контур и подходящие инструменты.</li>
+              <li><strong>Уточняющие вопросы</strong> — уточню детали, сроки и ожидания.</li>
+              <li><strong>Следующий шаг</strong> — предложу варианты решения и план прототипа.</li>
+            </ol>
           </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   </main>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer__content">
-      <p class="footer__copyright">© 2026 AI Automation Portfolio Lab</p>
-      <nav class="footer__links">
-        <a href="/" class="footer__link">Проекты</a>
-        <a href="services.html" class="footer__link">Услуги</a>
-        <a href="contacts.html" class="footer__link">Контакты</a>
-      </nav>
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <span>© 2026 AI Automation Portfolio Lab</span>
+      <span>От идеи до Deployment Validation</span>
     </div>
   </footer>
-
-  <script src="js/main.js"></script>
-  <script src="js/api-client.js"></script>
-  <script src="js/chat-widget.js"></script>
 
   <!-- Chat Launcher Button -->
   <button class="chat-launcher" id="chat-launcher" aria-label="Открыть AI-ассистента">
@@ -174,5 +608,40 @@
       </button>
     </div>
   </div>
+
+  <script src="/js/api-client.js"></script>
+  <script src="/js/chat-widget.js"></script>
+  <script>
+    (function() {
+      const btn = document.getElementById('theme-toggle');
+      const root = document.documentElement;
+
+      function isDark() {
+        return root.dataset.theme === 'dark' || (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      }
+
+      function updateIcon() {
+        btn.textContent = isDark() ? '☀️' : '🌙';
+        btn.setAttribute('aria-label', isDark() ? 'Переключить на светлую тему' : 'Переключить на тёмную тему');
+      }
+
+      btn.addEventListener('click', function() {
+        if (isDark()) {
+          root.dataset.theme = 'light';
+          localStorage.setItem('aip-theme-teal', 'light');
+        } else {
+          root.dataset.theme = 'dark';
+          localStorage.setItem('aip-theme-teal', 'dark');
+        }
+        updateIcon();
+      });
+
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+        if (!localStorage.getItem('aip-theme-teal')) updateIcon();
+      });
+
+      updateIcon();
+    })();
+  </script>
 </body>
 </html>
