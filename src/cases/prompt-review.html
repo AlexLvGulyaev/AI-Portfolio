@@ -1319,7 +1319,7 @@
           
           <div class="summary__item">
             <div class="summary__label">Стек</div>
-            <div class="summary__value">FastAPI, PostgreSQL, LangChain, OpenAI</div>
+            <div class="summary__value">FastAPI · PostgreSQL · LangChain · OpenAI</div>
           </div>
           
           <div class="summary__item">
@@ -1499,7 +1499,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--five" viewBox="0 0 1120 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Prompt Review: от входа к результату">
   <defs>
-    <marker id="arrow-5n-65596" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-5n-0157d4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1509,28 +1509,28 @@
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Web / Telegram</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">или API</text>
   </g>
-  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-65596)" />
+  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-0157d4)" />
   <g transform="translate(250, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Классификация</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Промпт</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">или текст</text>
   </g>
-  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-65596)" />
+  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-0157d4)" />
   <g transform="translate(470, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Анализ</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">8 критериев</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">качества</text>
   </g>
-  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-65596)" />
+  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-0157d4)" />
   <g transform="translate(690, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Рекомендации</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Приоритеты</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">улучшений</text>
   </g>
-  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-65596)" />
+  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-0157d4)" />
   <g transform="translate(910, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Улучшенный</text>
@@ -1580,10 +1580,31 @@
             <p class="demo-block__text">Пользователь вставляет промпт, нажимает «Анализировать» и ждёт 30–60 секунд.</p>
           </div>
           
-          <div class="demo-frame">
-            <img src="/assets/cases/prompt-review/scenario-1.png" alt="Web-форма Prompt Review">
-            <div class="demo-frame__hint">Кликните для полного размера</div>
-          </div>
+          <svg class="ui-illustration" viewBox="0 0 980 540" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Prompt Review: веб-форма для ввода промпта">
+  <defs>
+    <clipPath id="pr-window-clip">
+      <rect x="14" y="14" width="952" height="512" rx="6" />
+    </clipPath>
+  </defs>
+  <rect x="14" y="14" width="952" height="512" rx="6" class="ui-window" />
+  <rect x="14" y="14" width="952" height="56" class="ui-header" clip-path="url(#pr-window-clip)" />
+  <rect x="30" y="28" width="28" height="28" rx="4" class="ui-avatar" />
+  <text x="68" y="48" class="ui-title">Prompt Review</text>
+  <text x="68" y="64" class="ui-subtitle" style="font-size:11px;">AI-сервис анализа качества промптов</text>
+  <circle cx="836" cy="42" r="5" fill="#22c55e" />
+  <text x="850" y="46" class="ui-subtitle" style="font-size:12px;">Backend Online</text>
+  <rect x="54" y="98" width="872" height="400" rx="8" class="ui-msg-bot" style="fill:var(--surface-elevated);" />
+  <text x="86" y="142" class="ui-main-title" style="font-size:22px;">Анализ промпта</text>
+  <text x="86" y="172" class="ui-sidebar-text" style="font-size:13px;">Отправьте текст, и я проанализирую, является ли он промптом и насколько он хорош.</text>
+  <text x="86" y="192" class="ui-sidebar-text" style="font-size:13px;">Получите оценки по критериям, рекомендации и улучшенную редакцию.</text>
+  <rect x="86" y="220" width="808" height="186" rx="6" class="ui-input" style="fill:var(--surface);" />
+  <text x="106" y="252" style="font-size:14px; fill:var(--text-primary);">Ты — опытный маркетолог. Напиши пост для Instagram о запуске</text>
+  <text x="106" y="274" style="font-size:14px; fill:var(--text-primary);">нового продукта. Включи: заголовок, 3 ключевых преимущества,</text>
+  <text x="106" y="296" style="font-size:14px; fill:var(--text-primary);">призыв к действию. Тон: энергичный, но профессиональный.</text>
+  <text x="86" y="440" class="ui-subtitle" style="font-size:12px;">179 / 10,000 символов</text>
+  <rect x="738" y="424" width="188" height="42" rx="6" class="ui-btn-primary" />
+  <text x="832" y="450" text-anchor="middle" class="ui-btn-text" style="font-size:14px;">◷ Проанализировать</text>
+</svg>
           
         </div>
         
@@ -1594,10 +1615,128 @@
             <p class="demo-block__text">Структурированный результат: оценки по критериям, рекомендации и улучшенная версия промпта.</p>
           </div>
           
-          <div class="demo-frame">
-            <img src="/assets/cases/prompt-review/scenario-2.png" alt="Результат анализа промпта в Prompt Review">
-            <div class="demo-frame__hint">Кликните для полного размера</div>
-          </div>
+          <svg class="ui-illustration" viewBox="0 0 980 1080" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Prompt Review: структурированный отчёт об анализе промпта для Instagram">
+  <rect x="0" y="0" width="980" height="1080" rx="6" fill="#0a0a0f" />
+  <rect x="28" y="28" width="924" height="498" rx="8" fill="#131316" />
+  <rect x="28" y="28" width="4" height="498" rx="2" fill="#f59e0b" />
+  <path d="M 52 58 L 62 74 L 72 58 Z" fill="#f59e0b" />
+  <text x="62" y="69" text-anchor="middle" style="font-size:11px; fill:#0a0a0f; font-weight:700;">!</text>
+  <text x="82" y="72" style="font-size:20px; fill:#f5f5f7; font-weight:700;">Анализ промпта</text>
+  <text x="82" y="92" style="font-size:12px; fill:#a1a1aa;">Назначение: Создание поста для Instagram о запуске нового продукта.</text>
+  <text x="932" y="60" text-anchor="end" style="font-size:11px; fill:#a1a1aa; letter-spacing:0.05em;">КАЧЕСТВО:</text>
+  <text x="932" y="86" text-anchor="end" style="font-size:24px; fill:#f59e0b; font-weight:700;">Удовлетворительно</text>
+  <text x="932" y="108" text-anchor="end" style="font-size:13px; fill:#a1a1aa;">Общая оценка: 6.5/10</text>
+  <text x="52" y="126" style="font-size:11px; fill:#a1a1aa; font-weight:600; letter-spacing:0.05em;">НАЗНАЧЕНИЕ</text>
+  <text x="52" y="148" style="font-size:13px; fill:#f5f5f7;">Создание поста для Instagram о запуске нового продукта.</text>
+  <text x="52" y="178" style="font-size:11px; fill:#a1a1aa; font-weight:600; letter-spacing:0.05em;">ОЦЕНКИ ПО КРИТЕРИЯМ</text>
+  <rect x="52" y="196" width="222" height="68" rx="5" fill="#1a1a1e" />
+  <text x="62" y="218" style="font-size:13px; fill:#a1a1aa;">Понятность</text>
+  <text x="264" y="218" text-anchor="end" style="font-size:14px; fill:#14b8a6; font-weight:600;">8/10</text>
+  <rect x="60" y="244" width="206" height="6" rx="3" fill="#26262b" />
+  <rect x="60" y="244" width="164" height="6" rx="3" fill="#14b8a6" />
+  <rect x="278" y="196" width="222" height="68" rx="5" fill="#1a1a1e" />
+  <text x="288" y="218" style="font-size:13px; fill:#a1a1aa;">Полнота</text>
+  <text x="490" y="218" text-anchor="end" style="font-size:14px; fill:#14b8a6; font-weight:600;">7/10</text>
+  <rect x="286" y="244" width="206" height="6" rx="3" fill="#26262b" />
+  <rect x="286" y="244" width="144" height="6" rx="3" fill="#14b8a6" />
+  <rect x="504" y="196" width="222" height="68" rx="5" fill="#1a1a1e" />
+  <text x="514" y="214" style="font-size:12px; fill:#a1a1aa;">Отсутствие</text>
+  <text x="514" y="230" style="font-size:12px; fill:#a1a1aa;">неоднозначностей</text>
+  <text x="716" y="218" text-anchor="end" style="font-size:14px; fill:#14b8a6; font-weight:600;">7/10</text>
+  <rect x="512" y="244" width="206" height="6" rx="3" fill="#26262b" />
+  <rect x="512" y="244" width="144" height="6" rx="3" fill="#14b8a6" />
+  <rect x="730" y="196" width="222" height="68" rx="5" fill="#1a1a1e" />
+  <text x="740" y="214" style="font-size:12px; fill:#a1a1aa;">Соответствие</text>
+  <text x="740" y="230" style="font-size:12px; fill:#a1a1aa;">аудитории</text>
+  <text x="942" y="218" text-anchor="end" style="font-size:14px; fill:#14b8a6; font-weight:600;">6/10</text>
+  <rect x="738" y="244" width="206" height="6" rx="3" fill="#26262b" />
+  <rect x="738" y="244" width="123" height="6" rx="3" fill="#14b8a6" />
+  <rect x="52" y="268" width="222" height="68" rx="5" fill="#1a1a1e" />
+  <text x="62" y="286" style="font-size:12px; fill:#a1a1aa;">Формат</text>
+  <text x="62" y="302" style="font-size:12px; fill:#a1a1aa;">результата</text>
+  <text x="264" y="290" text-anchor="end" style="font-size:14px; fill:#14b8a6; font-weight:600;">6/10</text>
+  <rect x="60" y="316" width="206" height="6" rx="3" fill="#26262b" />
+  <rect x="60" y="316" width="123" height="6" rx="3" fill="#14b8a6" />
+  <rect x="278" y="268" width="222" height="68" rx="5" fill="#1a1a1e" />
+  <text x="288" y="286" style="font-size:12px; fill:#a1a1aa;">Качество</text>
+  <text x="288" y="302" style="font-size:12px; fill:#a1a1aa;">ограничений</text>
+  <text x="490" y="290" text-anchor="end" style="font-size:14px; fill:#14b8a6; font-weight:600;">5/10</text>
+  <rect x="286" y="316" width="206" height="6" rx="3" fill="#26262b" />
+  <rect x="286" y="316" width="103" height="6" rx="3" fill="#14b8a6" />
+  <rect x="504" y="268" width="222" height="68" rx="5" fill="#1a1a1e" />
+  <text x="514" y="286" style="font-size:12px; fill:#a1a1aa;">Достаточность</text>
+  <text x="514" y="302" style="font-size:12px; fill:#a1a1aa;">предположений</text>
+  <text x="716" y="290" text-anchor="end" style="font-size:14px; fill:#14b8a6; font-weight:600;">6/10</text>
+  <rect x="512" y="316" width="206" height="6" rx="3" fill="#26262b" />
+  <rect x="512" y="316" width="123" height="6" rx="3" fill="#14b8a6" />
+  <rect x="730" y="268" width="222" height="68" rx="5" fill="#1a1a1e" />
+  <text x="740" y="290" style="font-size:13px; fill:#a1a1aa;">Структурированность</text>
+  <text x="942" y="290" text-anchor="end" style="font-size:14px; fill:#14b8a6; font-weight:600;">7/10</text>
+  <rect x="738" y="316" width="206" height="6" rx="3" fill="#26262b" />
+  <rect x="738" y="316" width="144" height="6" rx="3" fill="#14b8a6" />
+  <text x="52" y="496" style="font-size:14px; fill:#a1a1aa;">Общая оценка:</text>
+  <text x="932" y="486" text-anchor="end" style="font-size:28px; fill:#14b8a6; font-weight:700;">6.5/10</text>
+  <text x="932" y="514" text-anchor="end" style="font-size:12px; fill:#a1a1aa;">Время обработки: 8624 мс</text>
+  <rect x="28" y="554" width="924" height="498" rx="8" fill="#131316" />
+  <rect x="28" y="554" width="450" height="160" rx="8" fill="#131316" stroke="#1f1f24" stroke-width="1" />
+  <rect x="28" y="554" width="4" height="160" rx="2" fill="#22c55e" />
+  <rect x="42" y="568" width="20" height="20" rx="4" fill="#22c55e" />
+  <path d="M 47 579 L 52 584 L 59 574" stroke="#0a0a0f" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+  <text x="70" y="584" style="font-size:15px; fill:#f5f5f7; font-weight:700;">Сильные стороны</text>
+  <circle cx="52" cy="604" r="3" fill="#22c55e" />
+  <text x="66" y="608" style="font-size:12px; fill:#f5f5f7;">Четко определена роль исполнителя</text>
+  <circle cx="52" cy="622" r="3" fill="#22c55e" />
+  <text x="66" y="626" style="font-size:12px; fill:#f5f5f7;">(опытный маркетолог).</text>
+  <circle cx="52" cy="640" r="3" fill="#22c55e" />
+  <text x="66" y="644" style="font-size:12px; fill:#f5f5f7;">Указаны конкретные элементы, которые должны</text>
+  <circle cx="52" cy="658" r="3" fill="#22c55e" />
+  <text x="66" y="662" style="font-size:12px; fill:#f5f5f7;">быть включены в пост (заголовок,</text>
+  <circle cx="52" cy="676" r="3" fill="#22c55e" />
+  <text x="66" y="680" style="font-size:12px; fill:#f5f5f7;">преимущества, призыв к действию).</text>
+  <circle cx="52" cy="694" r="3" fill="#22c55e" />
+  <text x="66" y="698" style="font-size:12px; fill:#f5f5f7;">Задан тон сообщения (энергичный, но</text>
+  <circle cx="52" cy="712" r="3" fill="#22c55e" />
+  <text x="66" y="716" style="font-size:12px; fill:#f5f5f7;">профессиональный).</text>
+  <rect x="502" y="554" width="450" height="160" rx="8" fill="#131316" stroke="#1f1f24" stroke-width="1" />
+  <rect x="502" y="554" width="4" height="160" rx="2" fill="#f59e0b" />
+  <path d="M 516 568 L 527 586 L 538 568 Z" fill="#f59e0b" />
+  <text x="527" y="580" text-anchor="middle" style="font-size:11px; fill:#0a0a0f; font-weight:700;">!</text>
+  <text x="546" y="584" style="font-size:15px; fill:#f5f5f7; font-weight:700;">Слабые стороны</text>
+  <circle cx="526" cy="604" r="3" fill="#f59e0b" />
+  <text x="540" y="608" style="font-size:12px; fill:#f5f5f7;">Не указана целевая аудитория поста.</text>
+  <circle cx="526" cy="622" r="3" fill="#f59e0b" />
+  <text x="540" y="626" style="font-size:12px; fill:#f5f5f7;">Отсутствуют конкретные ограничения</text>
+  <circle cx="526" cy="640" r="3" fill="#f59e0b" />
+  <text x="540" y="644" style="font-size:12px; fill:#f5f5f7;">по длине поста.</text>
+  <circle cx="526" cy="658" r="3" fill="#f59e0b" />
+  <text x="540" y="662" style="font-size:12px; fill:#f5f5f7;">Не определен формат представления</text>
+  <circle cx="526" cy="676" r="3" fill="#f59e0b" />
+  <text x="540" y="680" style="font-size:12px; fill:#f5f5f7;">ключевых преимуществ.</text>
+  <rect x="28" y="734" width="924" height="120" rx="8" fill="#131316" stroke="#1f1f24" stroke-width="1" />
+  <circle cx="54" cy="758" r="11" fill="#f59e0b" />
+  <text x="54" y="762" text-anchor="middle" style="font-size:13px; fill:#0a0a0f; font-weight:700;">i</text>
+  <text x="76" y="762" style="font-size:15px; fill:#f5f5f7; font-weight:700;">Рекомендации</text>
+  <rect x="42" y="772" width="68" height="20" rx="3" fill="#f59e0b" fill-opacity="0.15" />
+  <text x="76" y="785" text-anchor="middle" style="font-size:11px; fill:#f59e0b; font-weight:600;">MEDIUM</text>
+  <text x="120" y="788" style="font-size:12px; fill:#f5f5f7;">Уточнить целевую аудиторию для более точного таргетинга.</text>
+  <rect x="42" y="808" width="68" height="20" rx="3" fill="#f59e0b" fill-opacity="0.15" />
+  <text x="76" y="821" text-anchor="middle" style="font-size:11px; fill:#f59e0b; font-weight:600;">MEDIUM</text>
+  <text x="120" y="824" style="font-size:12px; fill:#f5f5f7;">Добавить ограничения по длине поста, чтобы соответствовать</text>
+  <text x="120" y="840" style="font-size:12px; fill:#f5f5f7;">формату Instagram.</text>
+  <rect x="42" y="844" width="68" height="20" rx="3" fill="#f59e0b" fill-opacity="0.15" />
+  <text x="76" y="857" text-anchor="middle" style="font-size:11px; fill:#f59e0b; font-weight:600;">MEDIUM</text>
+  <text x="120" y="860" style="font-size:12px; fill:#f5f5f7;">Указать, как именно должны быть представлены ключевые</text>
+  <text x="120" y="876" style="font-size:12px; fill:#f5f5f7;">преимущества (например, в виде списка или абзаца).</text>
+  <rect x="28" y="868" width="924" height="184" rx="8" fill="#131316" stroke="#1f1f24" stroke-width="1" />
+  <rect x="42" y="882" width="20" height="24" rx="3" fill="#3b82f6" />
+  <text x="72" y="900" style="font-size:15px; fill:#f5f5f7; font-weight:700;">Улучшенная редакция</text>
+  <rect x="916" y="882" width="18" height="20" rx="2" stroke="#a1a1aa" stroke-width="1.5" fill="none" />
+  <rect x="910" y="888" width="18" height="20" rx="2" stroke="#a1a1aa" stroke-width="1.5" fill="none" />
+  <text x="46" y="930" style="font-size:13px; fill:#f5f5f7;">Ты — опытный маркетолог. Напиши пост для Instagram о запуске нового продукта. Включи:</text>
+  <text x="46" y="952" style="font-size:13px; fill:#f5f5f7;">заголовок, 3 ключевых преимущества в виде списка, призыв к действию. Тон: энергичный, но</text>
+  <text x="46" y="974" style="font-size:13px; fill:#f5f5f7;">профессиональный. Целевая аудитория: молодые профессионалы в возрасте 25–35 лет.</text>
+  <text x="46" y="996" style="font-size:13px; fill:#f5f5f7;">Ограничение по длине: не более 150 слов.</text>
+</svg>
           
         </div>
         
