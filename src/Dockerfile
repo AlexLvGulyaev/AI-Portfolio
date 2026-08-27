@@ -26,6 +26,7 @@ COPY --from=admin-builder /app/admin/dist /usr/share/nginx/html/admin
 
 # Copy public static site files
 COPY src/index.html src/contacts.html src/portfolio.html src/services.html /usr/share/nginx/html/
+COPY src/projects /usr/share/nginx/html/projects/
 COPY src/assets /usr/share/nginx/html/assets/
 COPY src/cases /usr/share/nginx/html/cases/
 COPY src/css /usr/share/nginx/html/css/

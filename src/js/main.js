@@ -97,10 +97,31 @@
     navLinks.forEach(function(link) {
       const href = link.getAttribute('href');
       if (href) {
-        const linkPath = href.replace(/^\.\//, '');
-        if (currentPath.includes(linkPath) ||
-            (currentPath.endsWith('/') && linkPath === 'index.html') ||
-            (currentPath.includes('cases/') && linkPath === 'portfolio.html')) {
+        // Normalize path: strip leading ./, ../, and /
+        let linkPath = href.replace(/^(\.\.\/|\.\/)+/, '').replace(/^\//, '');
+        if (linkPath === '') linkPath = 'index.html';
+        // Treat old portfolio catalog as homepage (it now redirects to /)
+        if (linkPath === 'portfolio.html') linkPath = 'index.html';
+
+        const current = currentPath.replace(/^\//, '').replace(/\/$/, '') || 'index.html';
+        const isCasePage = current.startsWith('cases/');
+        const isHome = current === 'index.html';
+        const linkText = link.textContent.trim();
+
+        let active = false;
+        if (linkPath === 'index.html') {
+          // "Проекты" is active on the project catalog (homepage) and on case pages;
+          // "Главная" is active only on the homepage.
+          if (linkText === 'Проекты') {
+            active = isHome || isCasePage;
+          } else if (linkText === 'Главная') {
+            active = isHome;
+          }
+        } else {
+          active = current.includes(linkPath);
+        }
+
+        if (active) {
           link.classList.add('nav__link--active');
         }
       }
