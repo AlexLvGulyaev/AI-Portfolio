@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Telegram Onboarding Bot загружает темы через /import_topic, задаёт адаптивные вопросы, валидирует ответы через OpenAI и сохраняет прогресс в PostgreSQL.">
+  <meta name="description" content="Бот объясняет материал, проводит тест и сохраняет результат — без живого наставника.">
   <meta property="og:title" content="Telegram Onboarding Bot — адаптивный онбординг">
-  <meta property="og:description" content="Telegram Onboarding Bot загружает темы через /import_topic, задаёт адаптивные вопросы, валидирует ответы через OpenAI и сохраняет прогресс в PostgreSQL.">
+  <meta property="og:description" content="Бот объясняет материал, проводит тест и сохраняет результат — без живого наставника.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ai.alex-n8n.site/cases/telegram-onboarding-bot.html">
   <meta property="og:image" content="/assets/screenshots/TOB_portfolio_light.png">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Telegram Onboarding Bot — адаптивный онбординг">
-  <meta name="twitter:description" content="Telegram Onboarding Bot загружает темы через /import_topic, задаёт адаптивные вопросы, валидирует ответы через OpenAI и сохраняет прогресс в PostgreSQL.">
+  <meta name="twitter:description" content="Бот объясняет материал, проводит тест и сохраняет результат — без живого наставника.">
   <meta name="twitter:image" content="/assets/screenshots/TOB_portfolio_light.png">
   <link rel="canonical" href="https://ai.alex-n8n.site/cases/telegram-onboarding-bot.html">
   <title>Telegram Onboarding Bot — адаптивный онбординг</title>
@@ -1280,9 +1280,9 @@
     <section class="hero">
       <div class="container hero__inner">
         <div class="hero__body">
-          <p class="eyebrow hero__eyebrow">Адаптивный онбординг в Telegram</p>
-          <h1 class="hero__title">Адаптируйте онбординг сотрудников под каждую роль</h1>
-          <p class="hero__lead">Telegram Onboarding Bot загружает темы через /import_topic, задаёт адаптивные вопросы, валидирует ответы через OpenAI и сохраняет прогресс в PostgreSQL.</p>
+          <p class="eyebrow hero__eyebrow">Адаптивный онбординг сотрудников в Telegram</p>
+          <h1 class="hero__title">Автоматизируйте первичное обучение сотрудников в Telegram</h1>
+          <p class="hero__lead">Бот объясняет материал, проводит тест и сохраняет результат — без живого наставника.</p>
           <div class="hero__actions">
             <a href="https://t.me/PEcb07_bot" class="btn btn-primary" target="_blank" rel="noopener">Открыть в Telegram</a>
             <a href="https://github.com/AlexLvGulyaev/telegram-onboarding-bot" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a>
@@ -1314,12 +1314,12 @@
           
           <div class="summary__item">
             <div class="summary__label">Статус</div>
-            <div class="summary__value">Production-ready, /import_topic, OpenAI-валидация</div>
+            <div class="summary__value">MVP, универсальные темы, guard-слой, RBAC</div>
           </div>
           
           <div class="summary__item">
             <div class="summary__label">Стек</div>
-            <div class="summary__value">Python, PostgreSQL, Telegram Bot API, OpenAI</div>
+            <div class="summary__value">Python · aiogram · PostgreSQL · OpenAI API · Docker</div>
           </div>
           
           <div class="summary__item">
@@ -1341,8 +1341,8 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Результат</p>
-          <h2 class="section__title">Онбординг, который подстраивается под ответы</h2>
-          <p class="section__lead">Вместо статичного чек-листа бот задаёт вопросы, проверяет понимание и ведёт сотрудника до сертификата.</p>
+          <h2 class="section__title">Онбординг становится измеримым и не зависит от наставника</h2>
+          <p class="section__lead">Бот подаёт материал в темпе сотрудника, проверяет каждый ответ и фиксирует балл в PostgreSQL.</p>
         </div>
 
         <div class="ba-grid">
@@ -1350,11 +1350,13 @@
             <h3 class="ba-card__title"><span>❌</span> До</h3>
             <ul class="ba-card__list">
               
-              <li>Онбординг — статичный PDF или видео, без проверки усвоения</li>
+              <li>Наставник лично объясняет регламент каждому новичку — 1,5–3 часа на одного сотрудника</li>
               
-              <li>HR не знает, кто прошёл материал и кто застрял</li>
+              <li>Качество обучения зависит от загрузки и опыта наставника, критерии субъективны</li>
               
-              <li>Контент сложно обновлять и персонализировать</li>
+              <li>Нет измеримого результата — неизвестно, что сотрудник реально усвоил</li>
+              
+              <li>Контент сложно обновлять: каждая тема требует правки бота и деплоя</li>
               
             </ul>
           </div>
@@ -1363,11 +1365,13 @@
             <h3 class="ba-card__title"><span>✅</span> После</h3>
             <ul class="ba-card__list">
               
-              <li>Администратор загружает тему командой /import_topic</li>
+              <li>Сотрудник проходит тему асинхронно в Telegram, бот задаёт вопросы и даёт обратную связь</li>
               
-              <li>Бот задаёт адаптивные вопросы и валидирует ответы через OpenAI</li>
+              <li>OpenAI оценивает каждый ответ по единым критериям, guard-слой контролирует жизненный цикл сессии</li>
               
-              <li>Прогресс и результаты сохраняются в PostgreSQL, а сотрудник получает сертификат</li>
+              <li>Результат сохраняется в PostgreSQL: балл, процент, итоговая сводка</li>
+              
+              <li>Администратор добавляет темы через /import_topic или /new_topic — без изменения кода</li>
               
             </ul>
           </div>
@@ -1377,26 +1381,34 @@
         <div class="metrics-grid">
           
           <div class="metric-card">
-            <div class="metric-card__icon">💬</div>
+            <div class="metric-card__icon">⏱</div>
             <div class="metric-card__content">
-              <div class="metric-card__label">Канал</div>
-              <div class="metric-card__value">Telegram<span class="metric-card__suffix"> привычный для сотрудников</span></div>
+              <div class="metric-card__label">Экономия времени наставника</div>
+              <div class="metric-card__value">до 96 ч/год<span class="metric-card__suffix"> при 4 новичках в месяц</span></div>
             </div>
           </div>
           
           <div class="metric-card">
-            <div class="metric-card__icon">📥</div>
+            <div class="metric-card__icon">💵</div>
             <div class="metric-card__content">
-              <div class="metric-card__label">Контент</div>
-              <div class="metric-card__value">динамический<span class="metric-card__suffix"> загрузка тем</span></div>
+              <div class="metric-card__label">Стоимость обучения</div>
+              <div class="metric-card__value">~$0,002<span class="metric-card__suffix"> за сессию через OpenAI API</span></div>
+            </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-card__icon">🎯</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">Консистентность</div>
+              <div class="metric-card__value">100%<span class="metric-card__suffix"> одинаковый материал и критерии для всех</span></div>
             </div>
           </div>
           
           <div class="metric-card">
             <div class="metric-card__icon">✅</div>
             <div class="metric-card__content">
-              <div class="metric-card__label">Валидация</div>
-              <div class="metric-card__value">OpenAI<span class="metric-card__suffix"> проверка ответов</span></div>
+              <div class="metric-card__label">Результат</div>
+              <div class="metric-card__value">балл в БД<span class="metric-card__suffix"> вместо «вроде понял»</span></div>
             </div>
           </div>
           
@@ -1417,17 +1429,33 @@
         <div class="problem-grid">
           
           <div class="problem-card">
-            <div class="problem-card__icon">📺</div>
+            <div class="problem-card__icon">⏱️</div>
             <div>
-              <h3 class="problem-card__title">Пассивное обучение</h3>
-              <p class="problem-card__text">Сотрудник смотрит видео, но никто не проверяет понимание.</p>
+              <h3 class="problem-card__title">1,5–3 часа наставника на одного новичка</h3>
+              <p class="problem-card__text">Опытные сотрудники тратят время на повторяющийся пересказ базовых правил.</p>
+            </div>
+          </div>
+          
+          <div class="problem-card">
+            <div class="problem-card__icon">📉</div>
+            <div>
+              <h3 class="problem-card__title">Качество обучения нестабильно</h3>
+              <p class="problem-card__text">Результат зависит от загрузки и опыта наставника, критерии оценки субъективны.</p>
+            </div>
+          </div>
+          
+          <div class="problem-card">
+            <div class="problem-card__icon">🔍</div>
+            <div>
+              <h3 class="problem-card__title">Нет измеримого результата</h3>
+              <p class="problem-card__text">Неизвестно, что сотрудник реально усвоил, и кто застрял в материале.</p>
             </div>
           </div>
           
           <div class="problem-card">
             <div class="problem-card__icon">🚧</div>
             <div>
-              <h3 class="problem-card__title">Сложность обновления</h3>
+              <h3 class="problem-card__title">Контент сложно обновлять</h3>
               <p class="problem-card__text">Каждая новая тема требует правки бота и деплоя.</p>
             </div>
           </div>
@@ -1442,7 +1470,7 @@
         <div class="section__header">
           <p class="eyebrow">Решение</p>
           <h2 class="section__title">Адаптивный Telegram-бот для онбординга</h2>
-          <p class="section__lead">Загрузка тем, адаптивные вопросы, валидация ответов и отслеживание прогресса в PostgreSQL.</p>
+          <p class="section__lead">Загрузка тем, адаптивные вопросы, OpenAI-валидация, guard-слой и отслеживание прогресса в PostgreSQL.</p>
         </div>
 
         <div class="solution-grid">
@@ -1450,8 +1478,16 @@
           <div class="solution-card">
             <div class="solution-card__icon">📥</div>
             <div>
-              <h3 class="solution-card__title">/import_topic</h3>
-              <p class="solution-card__text">Администратор загружает новую тему без изменения кода.</p>
+              <h3 class="solution-card__title">/import_topic и /new_topic</h3>
+              <p class="solution-card__text">Администратор добавляет темы без изменения кода.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">🧠</div>
+            <div>
+              <h3 class="solution-card__title">Двухслойный промпт</h3>
+              <p class="solution-card__text">Поведение в `system.md`, технический JSON-контракт в коде — версионируется без деплоя.</p>
             </div>
           </div>
           
@@ -1459,23 +1495,31 @@
             <div class="solution-card__icon">❓</div>
             <div>
               <h3 class="solution-card__title">Адаптивные вопросы</h3>
-              <p class="solution-card__text">Бот задаёт вопросы на основе ответов и уровня знаний.</p>
+              <p class="solution-card__text">Бот сам ведёт от материала к тесту и оценивает каждый ответ.</p>
             </div>
           </div>
           
           <div class="solution-card">
-            <div class="solution-card__icon">✅</div>
+            <div class="solution-card__icon">🛡️</div>
             <div>
-              <h3 class="solution-card__title">OpenAI-валидация</h3>
-              <p class="solution-card__text">Проверка ответов и обратная связь сотруднику.</p>
+              <h3 class="solution-card__title">Guard-слой</h3>
+              <p class="solution-card__text">Код не даёт модели нарушить фазы: досрочный финал, возврат к обучению, пропуск вопроса.</p>
             </div>
           </div>
           
           <div class="solution-card">
-            <div class="solution-card__icon">📜</div>
+            <div class="solution-card__icon">🔐</div>
             <div>
-              <h3 class="solution-card__title">Сертификат</h3>
-              <p class="solution-card__text">По завершении темы выдаётся подтверждение.</p>
+              <h3 class="solution-card__title">RBAC</h3>
+              <p class="solution-card__text">Админ-команды управления темами закрыты проверкой Telegram ID.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">🗄️</div>
+            <div>
+              <h3 class="solution-card__title">Результаты в PostgreSQL</h3>
+              <p class="solution-card__text">Балл, процент и итоговая сводка сохраняются для аналитики.</p>
             </div>
           </div>
           
@@ -1494,7 +1538,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--two-row" viewBox="0 0 822 314" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Telegram Onboarding Bot: от входа к результату">
   <defs>
-    <marker id="arrow-tr-10370" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-tr-b48ece" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1504,42 +1548,42 @@
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">/import_topic</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">загрузка темы</text>
   </g>
-  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-10370)" />
+  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-b48ece)" />
   <g transform="translate(306, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Пользователь</text>
+    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Сотрудник</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">/start</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">тема</text>
+    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">имя</text>
   </g>
-  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-10370)" />
+  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-b48ece)" />
   <g transform="translate(572, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Адаптация</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Вопросы</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">под уровень</text>
+    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Обучение</text>
+    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Материал</text>
+    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">готовность</text>
   </g>
   <path d="M 677.0 122 L 677.0 157.0" class="arrow" />
   <path d="M 677.0 157.0 L 145.0 157.0" class="arrow" />
-  <path d="M 145.0 157.0 L 145.0 192" class="arrow" marker-end="url(#arrow-tr-10370)" />
+  <path d="M 145.0 157.0 L 145.0 192" class="arrow" marker-end="url(#arrow-tr-b48ece)" />
   <g transform="translate(40, 192)">
+    <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
+    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Тест</text>
+    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Вопросы</text>
+    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">по одному</text>
+  </g>
+  <path d="M 250 239.0 L 306 239.0" class="arrow" marker-end="url(#arrow-tr-b48ece)" />
+  <g transform="translate(306, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">OpenAI</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Валидация</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">ответов</text>
   </g>
-  <path d="M 250 239.0 L 306 239.0" class="arrow" marker-end="url(#arrow-tr-10370)" />
-  <g transform="translate(306, 192)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">PostgreSQL</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Прогресс</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">и результаты</text>
-  </g>
-  <path d="M 516 239.0 L 572 239.0" class="arrow" marker-end="url(#arrow-tr-10370)" />
+  <path d="M 516 239.0 L 572 239.0" class="arrow" marker-end="url(#arrow-tr-b48ece)" />
   <g transform="translate(572, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Сертификат</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Завершение</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">темы</text>
+    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">PostgreSQL</text>
+    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Балл</text>
+    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">и сводка</text>
   </g>
 </svg>
 
@@ -1548,19 +1592,19 @@
           <div class="pipeline-card">
             <div class="pipeline-card__number">01</div>
             <h3 class="pipeline-card__title">Загрузка темы</h3>
-            <p class="pipeline-card__text">Администратор загружает контент командой /import_topic.</p>
+            <p class="pipeline-card__text">Администратор загружает контент командой /import_topic или создаёт тему через /new_topic.</p>
           </div>
           
           <div class="pipeline-card">
             <div class="pipeline-card__number">02</div>
-            <h3 class="pipeline-card__title">Адаптивный диалог</h3>
-            <p class="pipeline-card__text">Бот задаёт вопросы, валидирует ответы через OpenAI и корректирует траекторию.</p>
+            <h3 class="pipeline-card__title">Обучение и тест</h3>
+            <p class="pipeline-card__text">Бот подаёт материал, проверяет готовность и задаёт вопросы, OpenAI валидирует ответы.</p>
           </div>
           
           <div class="pipeline-card">
             <div class="pipeline-card__number">03</div>
-            <h3 class="pipeline-card__title">Прогресс и сертификат</h3>
-            <p class="pipeline-card__text">Результаты сохраняются в PostgreSQL, сотрудник получает подтверждение.</p>
+            <h3 class="pipeline-card__title">Результат в БД</h3>
+            <p class="pipeline-card__text">Итоговый балл и сводка сохраняются в PostgreSQL, сотрудник получает подтверждение.</p>
           </div>
           
         </div>
@@ -1573,35 +1617,165 @@
         <div class="section__header">
           <p class="eyebrow">Интерфейсы</p>
           <h2 class="section__title">Happy path и управление темами</h2>
-          <p class="section__lead">Сотрудник проходит тему в Telegram; администратор загружает новый контент.</p>
+          <p class="section__lead">Сотрудник проходит тему в Telegram; администратор загружает новый контент без разработчика.</p>
         </div>
 
         
         <div class="demo-block">
           <div class="demo-block__header">
             <div class="demo-block__label">Сценарий 1</div>
-            <h3 class="demo-block__title">Happy path прохождения темы</h3>
-            <p class="demo-block__text">Сотрудник отвечает на вопросы, получает обратную связь и движется к сертификату.</p>
+            <h3 class="demo-block__title">Happy path: обучение и тест</h3>
+            <p class="demo-block__text">Сотрудник получает материал, отвечает на 5 вопросов и видит итоговый балл — всё в одном диалоге.</p>
           </div>
           
-          <div class="demo-frame">
-            <img src="/assets/cases/telegram-onboarding-bot/scenario-1.png" alt="Telegram: happy path прохождения темы">
-            <div class="demo-frame__hint">Кликните для полного размера</div>
-          </div>
+          <svg class="ui-illustration" viewBox="0 0 980 586" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Telegram Onboarding Bot: happy path обучения и теста — два фрагмента">
+  <rect x="20" y="10" width="940" height="566" rx="8" class="ui-window" />
+  <text x="490" y="40" text-anchor="middle" class="ui-title">PEcb07 · Onboarding Bot</text>
+  <rect x="40" y="50" width="440" height="516" rx="0" fill="#e5f2e5"/>
+  <rect x="40" y="50" width="440" height="32" fill="#2f7763"/>
+  <circle cx="69" cy="66" r="13" fill="#a8d5ba"/>
+  <text x="92" y="71" style="font-size:13px; fill:#ffffff; font-weight:600;">PEcb07 · Onboarding Bot</text>
+  <text x="260" y="100" text-anchor="middle" style="font-size:11px; fill:var(--text-muted);">Обучение и тест · часть 1</text>
+  <rect x="52" y="110" width="416" height="76" rx="10" fill="#ffffff"/>
+  <text x="64" y="130" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Здравствуйте! Я помогу изучить материал, а затем</text>
+  <text x="64" y="142" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">проведу тестирование.</text>
+  <text x="64" y="154" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Тема: Кибербезопасность для сотрудников</text>
+  <text x="64" y="166" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Количество вопросов теста: 5</text>
+  <text x="64" y="178" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Напишите имя сотрудника, которого нужно обучить.</text>
+  <rect x="52" y="190" width="416" height="36" rx="10" fill="#d9fdd3"/>
+  <text x="64" y="210" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Александр Петров</text>
+  <rect x="52" y="230" width="416" height="124" rx="10" fill="#ffffff"/>
+  <text x="64" y="250" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">• Пароли — уникальные, ≥12 символов, буквы, цифры,</text>
+  <text x="64" y="262" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">спецсимволы.</text>
+  <text x="64" y="274" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">• Не передавать пароли в мессенджерах и по почте.</text>
+  <text x="64" y="286" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">• Фишинг — переслать в ИБ, не открывать вложения.</text>
+  <text x="64" y="298" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">• Рабочие данные — только в корпоративном</text>
+  <text x="64" y="310" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">хранилище.</text>
+  <text x="64" y="322" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">• Не хранить данные на личных флешках и в</text>
+  <text x="64" y="334" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">публичных облаках.</text>
+  <text x="64" y="346" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Напишите «Готов», когда будете готовы к тесту.</text>
+  <rect x="52" y="358" width="416" height="36" rx="10" fill="#d9fdd3"/>
+  <text x="64" y="378" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Готов</text>
+  <rect x="52" y="398" width="416" height="40" rx="10" fill="#ffffff"/>
+  <text x="64" y="418" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Начинаем тест. Каким должен быть пароль по</text>
+  <text x="64" y="430" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">требованиям безопасности?</text>
+  <rect x="52" y="442" width="416" height="52" rx="10" fill="#d9fdd3"/>
+  <text x="64" y="462" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Уникальным и сложным, минимум 12 символов, с</text>
+  <text x="64" y="474" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">заглавными и строчными буквами, цифрами и</text>
+  <text x="64" y="486" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">спецсимволами.</text>
+  <rect x="52" y="498" width="416" height="40" rx="10" fill="#ffffff"/>
+  <text x="64" y="518" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Верно. Продолжим тест. Как нельзя передавать</text>
+  <text x="64" y="530" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">пароли?</text>
+  <rect x="500" y="50" width="440" height="516" rx="0" fill="#e5f2e5"/>
+  <rect x="500" y="50" width="440" height="32" fill="#2f7763"/>
+  <circle cx="529" cy="66" r="13" fill="#a8d5ba"/>
+  <text x="552" y="71" style="font-size:13px; fill:#ffffff; font-weight:600;">PEcb07 · Onboarding Bot</text>
+  <text x="720" y="100" text-anchor="middle" style="font-size:11px; fill:var(--text-muted);">Обучение и тест · часть 2</text>
+  <rect x="512" y="110" width="416" height="36" rx="10" fill="#d9fdd3"/>
+  <text x="524" y="130" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Пароли нельзя передавать в мессенджерах и по почте</text>
+  <rect x="512" y="150" width="416" height="52" rx="10" fill="#ffffff"/>
+  <text x="524" y="170" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Ответ верный: пароли нельзя передавать в</text>
+  <text x="524" y="182" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">мессенджерах и по почте. Какой способ хранения</text>
+  <text x="524" y="194" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">рабочих данных запрещён?</text>
+  <rect x="512" y="206" width="416" height="36" rx="10" fill="#d9fdd3"/>
+  <text x="524" y="226" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">На личных флешках и в публичных облаках</text>
+  <rect x="512" y="246" width="416" height="52" rx="10" fill="#ffffff"/>
+  <text x="524" y="266" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Верно. Рабочие данные нельзя хранить на личных</text>
+  <text x="524" y="278" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">флешках и в публичных облаках. Что нужно сделать с</text>
+  <text x="524" y="290" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">подозрительным письмом?</text>
+  <rect x="512" y="302" width="416" height="36" rx="10" fill="#d9fdd3"/>
+  <text x="524" y="322" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Направить в службу ИБ</text>
+  <rect x="512" y="342" width="416" height="64" rx="10" fill="#ffffff"/>
+  <text x="524" y="362" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Верно. Подозрительное письмо нужно переслать в</text>
+  <text x="524" y="374" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">службу ИБ, не открывая вложения. Как нужно</text>
+  <text x="524" y="386" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">поступить с рабочими данными: можно ли хранить их</text>
+  <text x="524" y="398" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">на личных флешках или в публичных облаках?</text>
+  <rect x="512" y="410" width="416" height="36" rx="10" fill="#d9fdd3"/>
+  <text x="524" y="430" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Нельзя</text>
+  <rect x="512" y="450" width="416" height="88" rx="10" fill="#ffffff"/>
+  <text x="524" y="470" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Отличный результат: вы ответили правильно на все 5</text>
+  <text x="524" y="482" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">вопросов (100%). Сильные стороны: вы хорошо знаете</text>
+  <text x="524" y="494" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">требования к паролям, правила передачи паролей,</text>
+  <text x="524" y="506" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">безопасное обращение с подозрительными письмами и</text>
+  <text x="524" y="518" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">ограничения по хранению рабочих данных. Результат</text>
+  <text x="524" y="530" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">сохранён в Postgres. Итог: 5/5 (100%).</text>
+</svg>
           
         </div>
         
         <div class="demo-block">
           <div class="demo-block__header">
             <div class="demo-block__label">Сценарий 2</div>
-            <h3 class="demo-block__title">Загрузка новой темы администратором</h3>
-            <p class="demo-block__text">Администратор использует /import_topic, чтобы добавить или обновить контент без разработчика.</p>
+            <h3 class="demo-block__title">Управление темами администратором</h3>
+            <p class="demo-block__text">Администратор создаёт тему через /new_topic и активирует её — без правки кода и деплоя.</p>
           </div>
           
-          <div class="demo-frame">
-            <img src="/assets/cases/telegram-onboarding-bot/scenario-2.png" alt="Telegram: команда загрузки новой темы">
-            <div class="demo-frame__hint">Кликните для полного размера</div>
-          </div>
+          <svg class="ui-illustration" viewBox="0 0 980 598" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Telegram Onboarding Bot: создание новой темы администратором">
+  <rect x="20" y="10" width="940" height="578" rx="8" class="ui-window" />
+  <text x="490" y="40" text-anchor="middle" class="ui-title">PEcb07 · Onboarding Bot</text>
+  <rect x="40" y="50" width="440" height="528" rx="0" fill="#e5f2e5"/>
+  <rect x="40" y="50" width="440" height="32" fill="#2f7763"/>
+  <circle cx="69" cy="66" r="13" fill="#a8d5ba"/>
+  <text x="92" y="71" style="font-size:13px; fill:#ffffff; font-weight:600;">PEcb07 · Onboarding Bot</text>
+  <text x="260" y="100" text-anchor="middle" style="font-size:11px; fill:var(--text-muted);">Создание темы · часть 1</text>
+  <rect x="52" y="110" width="416" height="36" rx="10" fill="#d9fdd3"/>
+  <text x="64" y="130" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">/admin</text>
+  <rect x="52" y="150" width="416" height="100" rx="10" fill="#ffffff"/>
+  <text x="64" y="170" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Панель администратора.</text>
+  <text x="64" y="182" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Доступные команды:</text>
+  <text x="64" y="194" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">/new_topic — создать новую тему обучения</text>
+  <text x="64" y="206" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">/list_topics — список тем</text>
+  <text x="64" y="218" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">/delete_topic &lt;id&gt; — удалить тему</text>
+  <text x="64" y="230" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">/set_topic &lt;id&gt; — сделать тему активной по</text>
+  <text x="64" y="242" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">умолчанию</text>
+  <rect x="52" y="254" width="416" height="36" rx="10" fill="#d9fdd3"/>
+  <text x="64" y="274" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">/new_topic</text>
+  <rect x="52" y="294" width="416" height="52" rx="10" fill="#ffffff"/>
+  <text x="64" y="314" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Создание новой темы. Шаг 1/4</text>
+  <text x="64" y="326" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Введите идентификатор темы (латиницей, без</text>
+  <text x="64" y="338" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">пробелов, например: customer-service).</text>
+  <rect x="52" y="350" width="416" height="36" rx="10" fill="#d9fdd3"/>
+  <text x="64" y="370" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">prompt-engineering</text>
+  <rect x="52" y="390" width="416" height="36" rx="10" fill="#ffffff"/>
+  <text x="64" y="410" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Шаг 2/4. Введите название темы (человекочитаемое).</text>
+  <rect x="52" y="430" width="416" height="36" rx="10" fill="#d9fdd3"/>
+  <text x="64" y="450" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Промпт-инжиниринг для сотрудников</text>
+  <rect x="52" y="470" width="416" height="36" rx="10" fill="#ffffff"/>
+  <text x="64" y="490" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Шаг 3/4. Введите краткое описание темы.</text>
+  <rect x="52" y="510" width="416" height="40" rx="10" fill="#d9fdd3"/>
+  <text x="64" y="530" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Базовые принципы составления эффективных промптов</text>
+  <text x="64" y="542" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">для работы с LLM.</text>
+  <rect x="500" y="50" width="440" height="528" rx="0" fill="#e5f2e5"/>
+  <rect x="500" y="50" width="440" height="32" fill="#2f7763"/>
+  <circle cx="529" cy="66" r="13" fill="#a8d5ba"/>
+  <text x="552" y="71" style="font-size:13px; fill:#ffffff; font-weight:600;">PEcb07 · Onboarding Bot</text>
+  <text x="720" y="100" text-anchor="middle" style="font-size:11px; fill:var(--text-muted);">Создание темы · часть 2</text>
+  <rect x="512" y="110" width="416" height="52" rx="10" fill="#ffffff"/>
+  <text x="524" y="130" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Шаг 4/4. Введите материал для обучения.</text>
+  <text x="524" y="142" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Бот будет опираться на этот текст при обучении и</text>
+  <text x="524" y="154" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">тестировании.</text>
+  <rect x="512" y="166" width="416" height="136" rx="10" fill="#d9fdd3"/>
+  <text x="524" y="186" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Промпт-инжиниринг — это практика составления</text>
+  <text x="524" y="198" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">запросов к языковым моделям так, чтобы получать</text>
+  <text x="524" y="210" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">полезные и точные ответы.</text>
+  <text x="524" y="234" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Принцип 1. Формулируйте задачу ясно и конкретно.</text>
+  <text x="524" y="246" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Принцип 2. Задавайте роль.</text>
+  <text x="524" y="258" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Принцип 3. Предоставляйте контекст.</text>
+  <text x="524" y="270" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Принцип 4. Давайте примеры (few-shot).</text>
+  <text x="524" y="282" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Принцип 5. Разбивайте сложную задачу на шаги.</text>
+  <rect x="512" y="306" width="416" height="64" rx="10" fill="#ffffff"/>
+  <text x="524" y="326" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">✅ Тема «Промпт-инжиниринг для сотрудников»</text>
+  <text x="524" y="338" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">сохранена.</text>
+  <text x="524" y="350" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Для активации отправьте /set_topic prompt-</text>
+  <text x="524" y="362" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">engineering</text>
+  <rect x="512" y="374" width="416" height="36" rx="10" fill="#d9fdd3"/>
+  <text x="524" y="394" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">/set_topic prompt-engineering</text>
+  <rect x="512" y="414" width="416" height="64" rx="10" fill="#ffffff"/>
+  <text x="524" y="434" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Тема по умолчанию изменена на «Промпт-инжиниринг</text>
+  <text x="524" y="446" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">для сотрудников».</text>
+  <text x="524" y="458" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">Отправьте /start, чтобы начать обучение по новой</text>
+  <text x="524" y="470" style="font-size:10px; fill:#1A1A1C; font-family:inherit;">теме.</text>
+</svg>
           
         </div>
         
@@ -1623,7 +1797,7 @@
         <div>
           <p class="eyebrow">Следующий шаг</p>
           <h2 class="final__title">Расскажите о вашем онбординге</h2>
-          <p class="final__lead">Мы оценим, как Telegram Onboarding Bot сделает обучение сотрудников диалогом с проверкой усвоения.</p>
+          <p class="final__lead">Мы оценим, как Telegram Onboarding Bot сделает обучение сотрудников измеримым и независимым от наставника.</p>
           <div class="final__actions">
             <a href="/contacts.html" class="btn btn-primary" target="_blank" rel="noopener">Обсудить проект</a>
             <a href="https://t.me/PEcb07_bot" class="btn btn-ghost" target="_blank" rel="noopener">Открыть в Telegram</a>
@@ -1644,7 +1818,7 @@
   <footer class="site-footer">
     <div class="container site-footer__inner">
       <span>© 2026 AI Automation Portfolio Lab</span>
-      <span>Адаптивный онбординг в Telegram</span>
+      <span>Адаптивный онбординг сотрудников в Telegram</span>
     </div>
   </footer>
 

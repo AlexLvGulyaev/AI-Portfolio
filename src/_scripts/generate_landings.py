@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Generate AIP v1.1 case landing pages and SVG assets from content registry."""
 
+import hashlib
 import json
 import math
 import os
+import random
 import shutil
 import textwrap
 from pathlib import Path
@@ -69,7 +71,7 @@ def _pipeline_single_row_svg(nodes, aria_label) -> str:
     gap = 60
     width = margin_x * 2 + node_w * n + gap * (n - 1)
     height = 180
-    marker_id = f"arrow-sr-{abs(hash(aria_label)) % 100000}"
+    marker_id = f"arrow-sr-{hashlib.md5(aria_label.encode('utf-8')).hexdigest()[:6]}"
     svg = [
         f'<svg class="pipeline-diagram pipeline-diagram--single" viewBox="0 0 {width} {height}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="{escape_attr(aria_label)}">',
         "  <defs>",
@@ -108,7 +110,7 @@ def _pipeline_five_node_svg(nodes, aria_label) -> str:
     gap = 40
     width = margin_x * 2 + node_w * n + gap * (n - 1)
     height = 300
-    marker_id = f"arrow-5n-{abs(hash(aria_label)) % 100000}"
+    marker_id = f"arrow-5n-{hashlib.md5(aria_label.encode('utf-8')).hexdigest()[:6]}"
     svg = [
         f'<svg class="pipeline-diagram pipeline-diagram--five" viewBox="0 0 {width} {height}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="{escape_attr(aria_label)}">',
         "  <defs>",
@@ -152,7 +154,7 @@ def _pipeline_two_row_svg(nodes, aria_label) -> str:
     max_in_row = max(len(top_nodes), len(bottom_nodes))
     row_width = margin_x * 2 + node_w * max_in_row + gap * (max_in_row - 1)
     height = margin_y * 2 + node_h * 2 + row_gap
-    marker_id = f"arrow-tr-{abs(hash(aria_label)) % 100000}"
+    marker_id = f"arrow-tr-{hashlib.md5(aria_label.encode('utf-8')).hexdigest()[:6]}"
     svg = [
         f'<svg class="pipeline-diagram pipeline-diagram--two-row" viewBox="0 0 {row_width} {height}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="{escape_attr(aria_label)}">',
         "  <defs>",
@@ -270,6 +272,31 @@ def telegram_phone_svg(title, messages, aria_label, width=440, height=620) -> st
     margin = 18
     header_h = 50
     bubble_w = width - margin * 2
+    wrap_w = 52
+    gap = 8
+    top_margin = 14
+    bottom_margin = 14
+
+    # Pre-compute layout to derive dynamic canvas height.
+    # Preserve explicit line breaks so lists and paragraphs keep their shape.
+    layout = []
+    total_h = header_h + top_margin + bottom_margin
+    for msg in messages:
+        raw = msg.get("text", "")
+        lines = []
+        for para in raw.split("\n"):
+            para = para.strip()
+            if para:
+                lines.extend(textwrap.wrap(para, width=wrap_w))
+            elif lines:
+                lines.append("")
+        lines = lines[:8]
+        h = max(36, 16 + 17 * len(lines))
+        layout.append({"lines": lines, "h": h, "user": msg.get("user", False)})
+        total_h += h
+    total_h += (len(messages) - 1) * gap
+    height = max(height, total_h)
+
     svg = [
         f'<svg class="ui-illustration ui-illustration--phone" viewBox="0 0 {width} {height}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="{escape_attr(aria_label)}">',
         f'  <rect x="0" y="0" width="{width}" height="{height}" rx="0" fill="#e5f2e5"/>',
@@ -277,27 +304,252 @@ def telegram_phone_svg(title, messages, aria_label, width=440, height=620) -> st
         f'  <circle cx="{margin + 17}" cy="{header_h // 2}" r="13" fill="#a8d5ba"/>',
         f'  <text x="{margin + 40}" y="{header_h // 2 + 5}" class="ui-title" style="font-size:13px; fill:#ffffff;">{escape_text(title)}</text>',
     ]
-    y = header_h + 18
-    for msg in messages:
-        is_user = msg.get("user", False)
-        text = msg.get("text", "")
-        lines = textwrap.wrap(text, width=40)
-        h = max(40, 18 + 17 * len(lines[:6]))
+    y = header_h + top_margin
+    for item in layout:
+        is_user = item["user"]
+        lines = item["lines"]
+        h = item["h"]
         if is_user:
             x = width - margin - bubble_w
             fill = "#d9fdd3"
             tcls = "ui-msg-text-user"
-            tfill = "var(--text-primary)"
+            tfill = "#1A1A1C"
         else:
             x = margin
             fill = "#ffffff"
             tcls = "ui-msg-text-bot"
-            tfill = "var(--text-primary)"
+            tfill = "#1A1A1C"
         svg.append(f'  <rect x="{x}" y="{y}" width="{bubble_w}" height="{h}" rx="10" fill="{fill}"/>')
-        for j, line in enumerate(lines[:6]):
+        for j, line in enumerate(lines):
             tx = x + 12
-            svg.append(f'  <text x="{tx}" y="{y + 20 + j*17}" class="{tcls}" style="font-size:12px; fill:{tfill};">{escape_text(line)}</text>')
-        y += h + 12
+            svg.append(f'  <text x="{tx}" y="{y + 18 + j*17}" class="{tcls}" style="font-size:12px; fill:{tfill};">{escape_text(line)}</text>')
+        y += h + gap
+    svg.append('</svg>')
+    return "\n".join(svg)
+
+
+def tib_scenario_1_svg() -> str:
+    """Telegram Intake Bot: full support request dialog on a phone panel."""
+    return telegram_phone_svg(
+        "PEcb06 · Intake Bot",
+        [
+            {"text": "Здравствуйте! Выберите направление:\n1 — Техподдержка\n2 — Заявка для отдела продаж", "user": False},
+            {"text": "1", "user": True},
+            {"text": "Я помогу вам с обращением в техподдержку. Как вас зовут?", "user": False},
+            {"text": "Александр", "user": True},
+            {"text": "Спасибо, Александр! Какая у вас возникла проблема?", "user": False},
+            {"text": "Не включается ноутбук после обновления", "user": True},
+            {"text": "Когда именно началась проблема?", "user": False},
+            {"text": "сегодня утром", "user": True},
+            {"text": "Где именно проявляется проблема?", "user": False},
+            {"text": "на ноутбуке", "user": True},
+            {"text": "Какой приоритет у этой проблемы: срочно, средне или низкий?", "user": False},
+            {"text": "срочно", "user": True},
+            {"text": "Спасибо! Я передал вашу заявку специалисту. Мы свяжемся с вами в ближайшее время.", "user": False},
+        ],
+        "Telegram Intake Bot: полный диалог техподдержки",
+    )
+
+
+def tib_scenario_2_svg() -> str:
+    """Telegram Intake Bot: full sales lead dialog on a phone panel."""
+    return telegram_phone_svg(
+        "PEcb06 · Intake Bot",
+        [
+            {"text": "Здравствуйте! Выберите направление:\n1 — Техподдержка\n2 — Заявка для отдела продаж", "user": False},
+            {"text": "2", "user": True},
+            {"text": "Я помогу вам оставить заявку для отдела продаж. Как вас зовут?", "user": False},
+            {"text": "Алексей", "user": True},
+            {"text": "Спасибо, Алексей! Укажите, пожалуйста, ваш контакт (телефон или Telegram).", "user": False},
+            {"text": "@alexei_sales", "user": True},
+            {"text": "Укажите компанию или напишите «для себя».", "user": False},
+            {"text": "ООО Ромашка", "user": True},
+            {"text": "Какая услуга или продукт вас интересует?", "user": False},
+            {"text": "Автоматизация продаж через Telegram-бота", "user": True},
+            {"text": "В каком диапазоне ориентировочный бюджет?", "user": False},
+            {"text": "100–200 тыс. руб.", "user": True},
+            {"text": "Когда планируете начать?", "user": False},
+            {"text": "В течение недели", "user": True},
+            {"text": "Спасибо! Я передал вашу заявку менеджеру. Мы свяжемся с вами в ближайшее время.", "user": False},
+        ],
+        "Telegram Intake Bot: полный диалог sales-лида",
+    )
+
+
+def tob_scenario_1_svg() -> str:
+    """Telegram Onboarding Bot: happy-path learning + test as two side-by-side phone panels."""
+    return _two_phone_svg(
+        "PEcb07 · Onboarding Bot",
+        "Обучение и тест · часть 1",
+        [
+            {
+                "text": "Здравствуйте! Я помогу изучить материал, а затем проведу тестирование.\nТема: Кибербезопасность для сотрудников\nКоличество вопросов теста: 5\nНапишите имя сотрудника, которого нужно обучить.",
+                "user": False,
+            },
+            {"text": "Александр Петров", "user": True},
+            {
+                "text": "• Пароли — уникальные, ≥12 символов, буквы, цифры, спецсимволы.\n• Не передавать пароли в мессенджерах и по почте.\n• Фишинг — переслать в ИБ, не открывать вложения.\n• Рабочие данные — только в корпоративном хранилище.\n• Не хранить данные на личных флешках и в публичных облаках.\nНапишите «Готов», когда будете готовы к тесту.",
+                "user": False,
+            },
+            {"text": "Готов", "user": True},
+            {"text": "Начинаем тест. Каким должен быть пароль по требованиям безопасности?", "user": False},
+            {
+                "text": "Уникальным и сложным, минимум 12 символов, с заглавными и строчными буквами, цифрами и спецсимволами.",
+                "user": True,
+            },
+            {"text": "Верно. Продолжим тест. Как нельзя передавать пароли?", "user": False},
+        ],
+        "Обучение и тест · часть 2",
+        [
+            {"text": "Пароли нельзя передавать в мессенджерах и по почте", "user": True},
+            {
+                "text": "Ответ верный: пароли нельзя передавать в мессенджерах и по почте. Какой способ хранения рабочих данных запрещён?",
+                "user": False,
+            },
+            {"text": "На личных флешках и в публичных облаках", "user": True},
+            {
+                "text": "Верно. Рабочие данные нельзя хранить на личных флешках и в публичных облаках. Что нужно сделать с подозрительным письмом?",
+                "user": False,
+            },
+            {"text": "Направить в службу ИБ", "user": True},
+            {
+                "text": "Верно. Подозрительное письмо нужно переслать в службу ИБ, не открывая вложения. Как нужно поступить с рабочими данными: можно ли хранить их на личных флешках или в публичных облаках?",
+                "user": False,
+            },
+            {"text": "Нельзя", "user": True},
+            {
+                "text": "Отличный результат: вы ответили правильно на все 5 вопросов (100%). Сильные стороны: вы хорошо знаете требования к паролям, правила передачи паролей, безопасное обращение с подозрительными письмами и ограничения по хранению рабочих данных. Результат сохранён в Postgres. Итог: 5/5 (100%).",
+                "user": False,
+            },
+        ],
+        aria_label="Telegram Onboarding Bot: happy path обучения и теста — два фрагмента",
+    )
+
+
+def tob_scenario_2_svg() -> str:
+    """Telegram Onboarding Bot: admin creates a new topic via /new_topic."""
+    return _two_phone_svg(
+        "PEcb07 · Onboarding Bot",
+        "Создание темы · часть 1",
+        [
+            {"text": "/admin", "user": True},
+            {
+                "text": "Панель администратора.\nДоступные команды:\n/new_topic — создать новую тему обучения\n/list_topics — список тем\n/delete_topic <id> — удалить тему\n/set_topic <id> — сделать тему активной по умолчанию",
+                "user": False,
+            },
+            {"text": "/new_topic", "user": True},
+            {"text": "Создание новой темы. Шаг 1/4\nВведите идентификатор темы (латиницей, без пробелов, например: customer-service).", "user": False},
+            {"text": "prompt-engineering", "user": True},
+            {"text": "Шаг 2/4. Введите название темы (человекочитаемое).", "user": False},
+            {"text": "Промпт-инжиниринг для сотрудников", "user": True},
+            {"text": "Шаг 3/4. Введите краткое описание темы.", "user": False},
+            {"text": "Базовые принципы составления эффективных промптов для работы с LLM.", "user": True},
+        ],
+        "Создание темы · часть 2",
+        [
+            {"text": "Шаг 4/4. Введите материал для обучения.\nБот будет опираться на этот текст при обучении и тестировании.", "user": False},
+            {
+                "text": "Промпт-инжиниринг — это практика составления запросов к языковым моделям так, чтобы получать полезные и точные ответы.\n\nПринцип 1. Формулируйте задачу ясно и конкретно.\nПринцип 2. Задавайте роль.\nПринцип 3. Предоставляйте контекст.\nПринцип 4. Давайте примеры (few-shot).\nПринцип 5. Разбивайте сложную задачу на шаги.\n\nПять фактов, которые стоит запомнить: явная формулировка задачи, задание роли, предоставление контекста, использование примеров, пошаговое рассуждение.",
+                "user": True,
+            },
+            {"text": "✅ Тема «Промпт-инжиниринг для сотрудников» сохранена.\nДля активации отправьте /set_topic prompt-engineering", "user": False},
+            {"text": "/set_topic prompt-engineering", "user": True},
+            {"text": "Тема по умолчанию изменена на «Промпт-инжиниринг для сотрудников».\nОтправьте /start, чтобы начать обучение по новой теме.", "user": False},
+        ],
+        aria_label="Telegram Onboarding Bot: создание новой темы администратором",
+    )
+
+
+def _two_phone_svg(title, left_subtitle, left_messages, right_subtitle, right_messages, aria_label):
+    """Two compact Telegram phone panels side-by-side on a shared 980px canvas.
+
+    Panels are scaled down (narrower width, smaller font, tighter spacing)
+    so long dialogs fill the width rather than the height and avoid the
+    feeling of a tall scroll area.
+    """
+    w = 980
+    phone_w = 440
+    margin = 12
+    header_h = 32
+    top_margin = 6
+    bottom_margin = 6
+    gap_y = 4
+    line_h = 12
+    bubble_w = phone_w - margin * 2
+    font_size = 10
+    title_h = 44
+
+    def panel_height(messages):
+        h = header_h + top_margin + bottom_margin
+        for msg in messages:
+            lines = []
+            for para in msg.get("text", "").split("\n"):
+                para = para.strip()
+                if para:
+                    lines.extend(textwrap.wrap(para, width=50))
+                elif lines:
+                    lines.append("")
+            lines = lines[:10]
+            bubble_h = max(36, 16 + line_h * len(lines))
+            h += bubble_h + gap_y
+        return h - gap_y + title_h
+
+    left_h = panel_height(left_messages)
+    right_h = panel_height(right_messages)
+    phone_h = max(left_h, right_h)
+    canvas_h = phone_h + 70  # top title + larger bottom margin so panels fit inside window
+    left_x = 40
+    right_x = w - phone_w - 40
+
+    svg = [
+        f'<svg class="ui-illustration" viewBox="0 0 {w} {canvas_h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="{escape_attr(aria_label)}">',
+        f'  <rect x="20" y="10" width="{w - 40}" height="{canvas_h - 20}" rx="8" class="ui-window" />',
+        f'  <text x="{w // 2}" y="40" text-anchor="middle" class="ui-title">{escape_text(title)}</text>',
+    ]
+
+    def build_panel(px, subtitle, messages):
+        phone_y = 50
+        avatar_cx = px + margin + 17
+        avatar_cy = phone_y + header_h // 2
+        title_y = phone_y + header_h // 2 + 5
+        subtitle_y = phone_y + header_h + 18
+        svg.append(f'  <rect x="{px}" y="{phone_y}" width="{phone_w}" height="{phone_h}" rx="0" fill="#e5f2e5"/>')
+        svg.append(f'  <rect x="{px}" y="{phone_y}" width="{phone_w}" height="{header_h}" fill="#2f7763"/>')
+        svg.append(f'  <circle cx="{avatar_cx}" cy="{avatar_cy}" r="13" fill="#a8d5ba"/>')
+        svg.append(
+            f'  <text x="{px + margin + 40}" y="{title_y}" '
+            f'style="font-size:13px; fill:#ffffff; font-weight:600;">{escape_text(title)}</text>'
+        )
+        svg.append(
+            f'  <text x="{px + phone_w // 2}" y="{subtitle_y}" text-anchor="middle" '
+            f'style="font-size:11px; fill:var(--text-muted);">{escape_text(subtitle)}</text>'
+        )
+        y = phone_y + header_h + top_margin + 22
+        for msg in messages:
+            is_user = msg.get("user", False)
+            x = px + phone_w - margin - bubble_w if is_user else px + margin
+            fill = "#d9fdd3" if is_user else "#ffffff"
+            lines = []
+            for para in msg.get("text", "").split("\n"):
+                para = para.strip()
+                if para:
+                    lines.extend(textwrap.wrap(para, width=50))
+                elif lines:
+                    lines.append("")
+            lines = lines[:10]
+            bubble_h = max(36, 16 + line_h * len(lines))
+            svg.append(f'  <rect x="{x}" y="{y}" width="{bubble_w}" height="{bubble_h}" rx="10" fill="{fill}"/>')
+            for i, line in enumerate(lines):
+                if line:
+                    svg.append(
+                        f'  <text x="{x + 12}" y="{y + 20 + i * line_h}" '
+                        f'style="font-size:{font_size}px; fill:#1A1A1C; font-family:inherit;">'
+                        f'{escape_text(line)}</text>'
+                    )
+            y += bubble_h + gap_y
+
+    build_panel(left_x, left_subtitle, left_messages)
+    build_panel(right_x, right_subtitle, right_messages)
     svg.append('</svg>')
     return "\n".join(svg)
 
@@ -1304,6 +1556,62 @@ def hr_scenario_2_svg() -> str:
     return "\n".join(svg)
 
 
+def retail_scenario_1_svg() -> str:
+    """Retail Group scenario 1: voice call transcript with ASR and TTS status."""
+    w, h = 980, 540
+    margin, hdr = 14, 64
+    inner_h = h - margin * 2 - hdr
+    svg = [
+        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Retail Group: голосовой диалог клиента с AI-ассистентом">',
+        '  <defs>',
+        '    <clipPath id="rg-call-clip">',
+        f'      <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="6" />',
+        '    </clipPath>',
+        '  </defs>',
+        f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="6" class="ui-window" />',
+        f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{hdr}" class="ui-header" clip-path="url(#rg-call-clip)" />',
+        f'  <text x="{w // 2}" y="{margin + 30}" text-anchor="middle" class="ui-title">Voice AI · Retail Group</text>',
+        f'  <text x="{w // 2}" y="{margin + 52}" text-anchor="middle" class="ui-subtitle" style="font-size:12px;">Входящий звонок · на линии 00:42</text>',
+        # Call status icon
+        f'  <circle cx="{w // 2}" cy="{margin + hdr + 44}" r="32" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2" />',
+        f'  <path d="M{w // 2 - 12} {margin + hdr + 44} C{w // 2 - 12} {margin + hdr + 32} {w // 2 + 12} {margin + hdr + 32} {w // 2 + 12} {margin + hdr + 44} C{w // 2 + 12} {margin + hdr + 56} {w // 2 - 12} {margin + hdr + 56} {w // 2 - 12} {margin + hdr + 44}" stroke="var(--accent)" stroke-width="3" fill="none" stroke-linecap="round" />',
+        # Waveform
+        f'  <rect x="{margin + 80}" y="{margin + hdr + 94}" width="{w - margin * 2 - 160}" height="48" rx="4" fill="var(--surface-elevated)" stroke="var(--border)" stroke-width="1" />',
+    ]
+    # Waveform bars
+    wave_y = margin + hdr + 118
+    random.seed("retail-voice")
+    bar_count = 48
+    bar_w = 6
+    gap = 4
+    total_wave_w = bar_count * (bar_w + gap) - gap
+    start_x = (w - total_wave_w) // 2
+    for i in range(bar_count):
+        bh = 8 + random.randint(0, 24)
+        bx = start_x + i * (bar_w + gap)
+        svg.append(f'  <rect x="{bx}" y="{wave_y - bh // 2}" width="{bar_w}" height="{bh}" rx="2" fill="var(--accent)" />')
+    # Dialogue bubbles
+    bubble_y = margin + hdr + 170
+    bubble_w = 420
+    # Customer bubble (left)
+    svg.append(f'  <rect x="{margin + 60}" y="{bubble_y}" width="{bubble_w}" height="64" rx="8" class="ui-msg-user" />')
+    svg.append(f'  <text x="{margin + 80}" y="{bubble_y + 22}" style="font-size:11px; fill:#ffffff; font-weight:500;">Клиент</text>')
+    svg.append(f'  <text x="{margin + 80}" y="{bubble_y + 46}" style="font-size:14px; fill:#ffffff;">До сколько работает магазин на Ленина?</text>')
+    # Assistant bubble (right)
+    svg.append(f'  <rect x="{w - margin - 60 - bubble_w}" y="{bubble_y + 84}" width="{bubble_w}" height="80" rx="8" class="ui-msg-bot" />')
+    svg.append(f'  <text x="{w - margin - 40 - bubble_w}" y="{bubble_y + 84 + 22}" style="font-size:11px; fill:var(--accent); font-weight:500;">Ассистент</text>')
+    svg.append(f'  <text x="{w - margin - 40 - bubble_w}" y="{bubble_y + 84 + 46}" style="font-size:14px; fill:var(--text-primary);">Магазин на Ленина, 12 работает до 23:00.</text>')
+    svg.append(f'  <text x="{w - margin - 40 - bubble_w}" y="{bubble_y + 84 + 66}" style="font-size:14px; fill:var(--text-primary);">Хотите узнать про акции?</text>')
+    # Status badges
+    badge_y = h - margin - 54
+    svg.append(f'  <rect x="{margin + 60}" y="{badge_y}" width="220" height="34" rx="4" fill="var(--surface-elevated)" stroke="var(--border)" stroke-width="1" />')
+    svg.append(f'  <text x="{margin + 76}" y="{badge_y + 22}" style="font-size:12px; fill:var(--text-secondary);">ASR: распознано · 94%</text>')
+    svg.append(f'  <rect x="{w - margin - 280}" y="{badge_y}" width="220" height="34" rx="4" fill="var(--surface-elevated)" stroke="var(--border)" stroke-width="1" />')
+    svg.append(f'  <text x="{w - margin - 264}" y="{badge_y + 22}" style="font-size:12px; fill:var(--text-secondary);">TTS: ответ синтезирован · 63 мс</text>')
+    svg.append('</svg>')
+    return "\n".join(svg)
+
+
 def retail_metrics_svg() -> str:
     """Five key pilot metrics dashboard."""
     w, h = 980, 540
@@ -1566,6 +1874,331 @@ def lq_scenario_2_svg() -> str:
     label_value(x2 + 16, y3 + 130, "Активная задача", "Да")
     label_value(x2 + 16, y3 + 164, "Ближайшая задача", "17.06.2026, 16:20")
 
+    svg.append('</svg>')
+    return "\n".join(svg)
+
+
+def pr_scenario_1_svg() -> str:
+    """Prompt Review scenario 1: web form with prompt input."""
+    w, h = 980, 540
+    margin, hdr = 14, 56
+    inner_h = h - margin * 2 - hdr
+    svg = [
+        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Prompt Review: веб-форма для ввода промпта">',
+        '  <defs>',
+        '    <clipPath id="pr-window-clip">',
+        f'      <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="6" />',
+        '    </clipPath>',
+        '  </defs>',
+        f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="6" class="ui-window" />',
+        f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{hdr}" class="ui-header" clip-path="url(#pr-window-clip)" />',
+        # Logo icon
+        f'  <rect x="{margin + 16}" y="{margin + 14}" width="28" height="28" rx="4" class="ui-avatar" />',
+        f'  <text x="{margin + 54}" y="{margin + 34}" class="ui-title">Prompt Review</text>',
+        f'  <text x="{margin + 54}" y="{margin + 50}" class="ui-subtitle" style="font-size:11px;">AI-сервис анализа качества промптов</text>',
+        # Backend status
+        f'  <circle cx="{w - margin - 130}" cy="{margin + 28}" r="5" fill="#22c55e" />',
+        f'  <text x="{w - margin - 116}" y="{margin + 32}" class="ui-subtitle" style="font-size:12px;">Backend Online</text>',
+        # Main card
+        f'  <rect x="{margin + 40}" y="{margin + hdr + 28}" width="{w - margin * 2 - 80}" height="{inner_h - 56}" rx="8" class="ui-msg-bot" style="fill:var(--surface-elevated);" />',
+        f'  <text x="{margin + 72}" y="{margin + hdr + 72}" class="ui-main-title" style="font-size:22px;">Анализ промпта</text>',
+        f'  <text x="{margin + 72}" y="{margin + hdr + 102}" class="ui-sidebar-text" style="font-size:13px;">Отправьте текст, и я проанализирую, является ли он промптом и насколько он хорош.</text>',
+        f'  <text x="{margin + 72}" y="{margin + hdr + 122}" class="ui-sidebar-text" style="font-size:13px;">Получите оценки по критериям, рекомендации и улучшенную редакцию.</text>',
+        # Textarea
+        f'  <rect x="{margin + 72}" y="{margin + hdr + 150}" width="{w - margin * 2 - 144}" height="{inner_h - 270}" rx="6" class="ui-input" style="fill:var(--surface);" />',
+        # Prompt text inside textarea
+        f'  <text x="{margin + 92}" y="{margin + hdr + 182}" style="font-size:14px; fill:var(--text-primary);">Ты — опытный маркетолог. Напиши пост для Instagram о запуске</text>',
+        f'  <text x="{margin + 92}" y="{margin + hdr + 204}" style="font-size:14px; fill:var(--text-primary);">нового продукта. Включи: заголовок, 3 ключевых преимущества,</text>',
+        f'  <text x="{margin + 92}" y="{margin + hdr + 226}" style="font-size:14px; fill:var(--text-primary);">призыв к действию. Тон: энергичный, но профессиональный.</text>',
+        # Counter + button
+        f'  <text x="{margin + 72}" y="{margin + hdr + inner_h - 86}" class="ui-subtitle" style="font-size:12px;">179 / 10,000 символов</text>',
+        f'  <rect x="{w - margin - 228}" y="{margin + hdr + inner_h - 102}" width="188" height="42" rx="6" class="ui-btn-primary" />',
+        f'  <text x="{w - margin - 134}" y="{margin + hdr + inner_h - 76}" text-anchor="middle" class="ui-btn-text" style="font-size:14px;">◷ Проанализировать</text>',
+        '</svg>',
+    ]
+    return "\n".join(svg)
+
+
+def pr_scenario_2_svg() -> str:
+    """Prompt Review scenario 2: real Instagram prompt analysis report (two 16:9 fragments stacked)."""
+    w, h = 980, 1080
+    margin = 28
+    panel_w = w - margin * 2  # 924
+    panel_h = (h - margin * 3) // 2  # 498
+    bg = "#0a0a0f"
+    panel = "#131316"
+    text_primary = "#f5f5f7"
+    text_secondary = "#a1a1aa"
+    accent = "#14b8a6"
+    warning = "#f59e0b"
+    success = "#22c55e"
+
+    svg = [
+        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Prompt Review: структурированный отчёт об анализе промпта для Instagram">',
+        f'  <rect x="0" y="0" width="{w}" height="{h}" rx="6" fill="{bg}" />',
+    ]
+
+    # -------------------------------------------------------------------------
+    # Top panel: quality report
+    # -------------------------------------------------------------------------
+    lx = margin
+    ly = margin
+    svg.append(f'  <rect x="{lx}" y="{ly}" width="{panel_w}" height="{panel_h}" rx="8" fill="{panel}" />')
+    svg.append(f'  <rect x="{lx}" y="{ly}" width="4" height="{panel_h}" rx="2" fill="{warning}" />')
+
+    header_x = lx + 24
+    header_y = ly + 30
+    svg.append(f'  <path d="M {header_x} {header_y} L {header_x + 10} {header_y + 16} L {header_x + 20} {header_y} Z" fill="{warning}" />')
+    svg.append(f'  <text x="{header_x + 10}" y="{header_y + 11}" text-anchor="middle" style="font-size:11px; fill:#0a0a0f; font-weight:700;">!</text>')
+    svg.append(f'  <text x="{header_x + 30}" y="{header_y + 14}" style="font-size:20px; fill:{text_primary}; font-weight:700;">Анализ промпта</text>')
+    svg.append(f'  <text x="{header_x + 30}" y="{header_y + 34}" style="font-size:12px; fill:{text_secondary};">Назначение: Создание поста для Instagram о запуске нового продукта.</text>')
+
+    badge_right = lx + panel_w - 20
+    svg.append(f'  <text x="{badge_right}" y="{header_y + 2}" text-anchor="end" style="font-size:11px; fill:{text_secondary}; letter-spacing:0.05em;">КАЧЕСТВО:</text>')
+    svg.append(f'  <text x="{badge_right}" y="{header_y + 28}" text-anchor="end" style="font-size:24px; fill:{warning}; font-weight:700;">Удовлетворительно</text>')
+    svg.append(f'  <text x="{badge_right}" y="{header_y + 50}" text-anchor="end" style="font-size:13px; fill:{text_secondary};">Общая оценка: 6.5/10</text>')
+
+    purpose_y = ly + 98
+    svg.append(f'  <text x="{header_x}" y="{purpose_y}" style="font-size:11px; fill:{text_secondary}; font-weight:600; letter-spacing:0.05em;">НАЗНАЧЕНИЕ</text>')
+    svg.append(f'  <text x="{header_x}" y="{purpose_y + 22}" style="font-size:13px; fill:{text_primary};">Создание поста для Instagram о запуске нового продукта.</text>')
+
+    grid_title_y = purpose_y + 52
+    svg.append(f'  <text x="{header_x}" y="{grid_title_y}" style="font-size:11px; fill:{text_secondary}; font-weight:600; letter-spacing:0.05em;">ОЦЕНКИ ПО КРИТЕРИЯМ</text>')
+
+    scores = [
+        ("Понятность", 8), ("Полнота", 7), ("Отсутствие неоднозначностей", 7), ("Соответствие аудитории", 6),
+        ("Формат результата", 6), ("Качество ограничений", 5), ("Достаточность предположений", 6), ("Структурированность", 7),
+    ]
+    col_w = (panel_w - 24 - 12) // 4
+    row_h = 68
+    gap = 4
+    grid_y = grid_title_y + 18
+    for i, (label, score) in enumerate(scores):
+        col = i % 4
+        row = i // 4
+        x = header_x + col * (col_w + gap)
+        y = grid_y + row * (row_h + gap)
+        bar_w = col_w - 16
+        fill_w = int(bar_w * score / 10)
+        svg.append(f'  <rect x="{x}" y="{y}" width="{col_w}" height="{row_h}" rx="5" fill="#1a1a1e" />')
+        words = label.split()
+        if len(label) > 16 and len(words) > 1:
+            mid = len(words) // 2
+            line1 = " ".join(words[:mid])
+            line2 = " ".join(words[mid:])
+            svg.append(f'  <text x="{x + 10}" y="{y + 18}" style="font-size:12px; fill:{text_secondary};">{escape_text(line1)}</text>')
+            svg.append(f'  <text x="{x + 10}" y="{y + 34}" style="font-size:12px; fill:{text_secondary};">{escape_text(line2)}</text>')
+        else:
+            svg.append(f'  <text x="{x + 10}" y="{y + 22}" style="font-size:13px; fill:{text_secondary};">{escape_text(label)}</text>')
+        svg.append(f'  <text x="{x + col_w - 10}" y="{y + 22}" text-anchor="end" style="font-size:14px; fill:{accent}; font-weight:600;">{score}/10</text>')
+        svg.append(f'  <rect x="{x + 8}" y="{y + 48}" width="{bar_w}" height="6" rx="3" fill="#26262b" />')
+        svg.append(f'  <rect x="{x + 8}" y="{y + 48}" width="{fill_w}" height="6" rx="3" fill="{accent}" />')
+
+    footer_y = ly + panel_h - 30
+    svg.append(f'  <text x="{header_x}" y="{footer_y}" style="font-size:14px; fill:{text_secondary};">Общая оценка:</text>')
+    svg.append(f'  <text x="{badge_right}" y="{footer_y - 10}" text-anchor="end" style="font-size:28px; fill:{accent}; font-weight:700;">6.5/10</text>')
+    svg.append(f'  <text x="{badge_right}" y="{footer_y + 18}" text-anchor="end" style="font-size:12px; fill:{text_secondary};">Время обработки: 8624 мс</text>')
+
+    # -------------------------------------------------------------------------
+    # Bottom panel: strengths, weaknesses, recommendations, improved version
+    # -------------------------------------------------------------------------
+    rx = margin
+    ry = margin * 2 + panel_h
+
+    svg.append(f'  <rect x="{rx}" y="{ry}" width="{panel_w}" height="{panel_h}" rx="8" fill="{panel}" />')
+
+    box_w = (panel_w - 24) // 2
+    strengths = [
+        "Четко определена роль исполнителя",
+        "(опытный маркетолог).",
+        "Указаны конкретные элементы, которые должны",
+        "быть включены в пост (заголовок,",
+        "преимущества, призыв к действию).",
+        "Задан тон сообщения (энергичный, но",
+        "профессиональный).",
+    ]
+    svg.append(f'  <rect x="{rx}" y="{ry}" width="{box_w}" height="160" rx="8" fill="{panel}" stroke="#1f1f24" stroke-width="1" />')
+    svg.append(f'  <rect x="{rx}" y="{ry}" width="4" height="160" rx="2" fill="{success}" />')
+    svg.append(f'  <rect x="{rx + 14}" y="{ry + 14}" width="20" height="20" rx="4" fill="{success}" />')
+    svg.append(f'  <path d="M {rx + 19} {ry + 25} L {rx + 24} {ry + 30} L {rx + 31} {ry + 20}" stroke="#0a0a0f" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />')
+    svg.append(f'  <text x="{rx + 42}" y="{ry + 30}" style="font-size:15px; fill:{text_primary}; font-weight:700;">Сильные стороны</text>')
+    sy = ry + 54
+    for line in strengths:
+        svg.append(f'  <circle cx="{rx + 24}" cy="{sy - 4}" r="3" fill="{success}" />')
+        svg.append(f'  <text x="{rx + 38}" y="{sy}" style="font-size:12px; fill:{text_primary};">{escape_text(line)}</text>')
+        sy += 18
+
+    weaknesses = [
+        "Не указана целевая аудитория поста.",
+        "Отсутствуют конкретные ограничения",
+        "по длине поста.",
+        "Не определен формат представления",
+        "ключевых преимуществ.",
+    ]
+    wx = rx + box_w + 24
+    svg.append(f'  <rect x="{wx}" y="{ry}" width="{box_w}" height="160" rx="8" fill="{panel}" stroke="#1f1f24" stroke-width="1" />')
+    svg.append(f'  <rect x="{wx}" y="{ry}" width="4" height="160" rx="2" fill="{warning}" />')
+    svg.append(f'  <path d="M {wx + 14} {ry + 14} L {wx + 25} {ry + 32} L {wx + 36} {ry + 14} Z" fill="{warning}" />')
+    svg.append(f'  <text x="{wx + 25}" y="{ry + 26}" text-anchor="middle" style="font-size:11px; fill:#0a0a0f; font-weight:700;">!</text>')
+    svg.append(f'  <text x="{wx + 44}" y="{ry + 30}" style="font-size:15px; fill:{text_primary}; font-weight:700;">Слабые стороны</text>')
+    wy = ry + 54
+    for line in weaknesses:
+        svg.append(f'  <circle cx="{wx + 24}" cy="{wy - 4}" r="3" fill="{warning}" />')
+        svg.append(f'  <text x="{wx + 38}" y="{wy}" style="font-size:12px; fill:{text_primary};">{escape_text(line)}</text>')
+        wy += 18
+
+    rec_y = ry + 180
+    rec_h = 120
+    svg.append(f'  <rect x="{rx}" y="{rec_y}" width="{panel_w}" height="{rec_h}" rx="8" fill="{panel}" stroke="#1f1f24" stroke-width="1" />')
+    svg.append(f'  <circle cx="{rx + 26}" cy="{rec_y + 24}" r="11" fill="{warning}" />')
+    svg.append(f'  <text x="{rx + 26}" y="{rec_y + 28}" text-anchor="middle" style="font-size:13px; fill:#0a0a0f; font-weight:700;">i</text>')
+    svg.append(f'  <text x="{rx + 48}" y="{rec_y + 28}" style="font-size:15px; fill:{text_primary}; font-weight:700;">Рекомендации</text>')
+    recs = [
+        ("Уточнить целевую аудиторию для более точного таргетинга.",),
+        ("Добавить ограничения по длине поста, чтобы соответствовать", "формату Instagram."),
+        ("Указать, как именно должны быть представлены ключевые", "преимущества (например, в виде списка или абзаца)."),
+    ]
+    ryy = rec_y + 54
+    for rec_lines in recs:
+        svg.append(f'  <rect x="{rx + 14}" y="{ryy - 16}" width="68" height="20" rx="3" fill="{warning}" fill-opacity="0.15" />')
+        svg.append(f'  <text x="{rx + 48}" y="{ryy - 3}" text-anchor="middle" style="font-size:11px; fill:{warning}; font-weight:600;">MEDIUM</text>')
+        for j, line in enumerate(rec_lines):
+            svg.append(f'  <text x="{rx + 92}" y="{ryy + j * 16}" style="font-size:12px; fill:{text_primary};">{escape_text(line)}</text>')
+        ryy += 36
+
+    imp_y = ry + 314
+    imp_h = panel_h - 314
+    svg.append(f'  <rect x="{rx}" y="{imp_y}" width="{panel_w}" height="{imp_h}" rx="8" fill="{panel}" stroke="#1f1f24" stroke-width="1" />')
+    svg.append(f'  <rect x="{rx + 14}" y="{imp_y + 14}" width="20" height="24" rx="3" fill="#3b82f6" />')
+    svg.append(f'  <text x="{rx + 44}" y="{imp_y + 32}" style="font-size:15px; fill:{text_primary}; font-weight:700;">Улучшенная редакция</text>')
+    copy_x = rx + panel_w - 36
+    svg.append(f'  <rect x="{copy_x}" y="{imp_y + 14}" width="18" height="20" rx="2" stroke="{text_secondary}" stroke-width="1.5" fill="none" />')
+    svg.append(f'  <rect x="{copy_x - 6}" y="{imp_y + 20}" width="18" height="20" rx="2" stroke="{text_secondary}" stroke-width="1.5" fill="none" />')
+    improved = [
+        "Ты — опытный маркетолог. Напиши пост для Instagram о запуске нового продукта. Включи:",
+        "заголовок, 3 ключевых преимущества в виде списка, призыв к действию. Тон: энергичный, но",
+        "профессиональный. Целевая аудитория: молодые профессионалы в возрасте 25–35 лет.",
+        "Ограничение по длине: не более 150 слов.",
+    ]
+    imp_text_y = imp_y + 62
+    for line in improved:
+        svg.append(f'  <text x="{rx + 18}" y="{imp_text_y}" style="font-size:13px; fill:{text_primary};">{escape_text(line)}</text>')
+        imp_text_y += 22
+
+    svg.append('</svg>')
+    return "\n".join(svg)
+
+
+def af_scenario_1_svg() -> str:
+    """Assistant Flow scenario 1: RAG answer in Telegram about НоваТех."""
+    return telegram_phone_svg(
+        "PEn06 · Assistant Flow",
+        [
+            {"text": "Дай полную сводку по компании НоваТех", "user": True},
+            {"text": "Ищу в базе знаний... ⏳", "user": False},
+            {"text": "ООО «НоваТех» зарегистрировано 14 марта 2019 в Казани.\nОсновная деятельность — разработка ПО для корпоративной аналитики.", "user": False},
+            {"text": "Генеральный директор: Елена Соколова. Штат: 127 человек, из них 89 инженеры.", "user": False},
+            {"text": "99,5% доступность в месяц. Стратегический интегратор — «СеверАналитика».", "user": False},
+        ],
+        "Assistant Flow: RAG-ответ о компании НоваТех в Telegram",
+    )
+
+
+def af_scenario_2_svg() -> str:
+    """Assistant Flow scenario 2: admin console overview dashboard."""
+    w, h = 980, 540
+    margin, hdr = 14, 56
+    inner_h = h - margin * 2 - hdr
+    sidebar_w = 180
+    main_x = margin + sidebar_w + 16
+    main_w = w - margin * 2 - sidebar_w - 16
+    svg = [
+        f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Assistant Flow: обзорная панель администратора">',
+        '  <defs>',
+        '    <clipPath id="af-admin-clip">',
+        f'      <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="6" />',
+        '    </clipPath>',
+        '  </defs>',
+        f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="6" class="ui-window" />',
+        f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{hdr}" class="ui-header" clip-path="url(#af-admin-clip)" />',
+        f'  <text x="{margin + 18}" y="{margin + 34}" class="ui-title">Assistant Flow</text>',
+        f'  <text x="{margin + 18}" y="{margin + 50}" class="ui-subtitle" style="font-size:11px;">Admin console · FastAPI + Zerocoder</text>',
+        f'  <text x="{w - margin - 18}" y="{margin + 34}" text-anchor="end" class="ui-subtitle" style="font-size:13px; fill:var(--accent); font-weight:500;">Zerocoder</text>',
+        # Sidebar
+        f'  <rect x="{margin}" y="{margin + hdr}" width="{sidebar_w}" height="{inner_h}" class="ui-sidebar" clip-path="url(#af-admin-clip)" />',
+        f'  <rect x="{margin + 10}" y="{margin + hdr + 14}" width="{sidebar_w - 20}" height="32" rx="4" class="ui-sidebar-item-active" />',
+        f'  <text x="{margin + 26}" y="{margin + hdr + 36}" class="ui-sidebar-text-active">Обзор</text>',
+    ]
+    menu = ["Сводка", "Текст", "RAG", "Изображения", "Аудио", "Документы", "Логи", "Анализ RAG"]
+    my = margin + hdr + 58
+    for item in menu:
+        svg.append(f'  <text x="{margin + 26}" y="{my}" class="ui-sidebar-text">{escape_text(item)}</text>')
+        my += 28
+    # Main title
+    svg.append(f'  <text x="{main_x}" y="{margin + hdr + 34}" class="ui-main-title" style="font-size:20px;">Обзор</text>')
+    svg.append(f'  <text x="{main_x + 90}" y="{margin + hdr + 36}" class="ui-subtitle" style="font-size:12px;">/api/overview + live /api/health</text>')
+    # Top row cards
+    card_w = (main_w - 32) // 3
+    card_h = 112
+    row_y = margin + hdr + 54
+    # Runtime state card
+    svg.append(f'  <rect x="{main_x}" y="{row_y}" width="{card_w}" height="{card_h}" rx="6" class="ui-source-card" style="fill:var(--surface-elevated);" />')
+    svg.append(f'  <text x="{main_x + 16}" y="{row_y + 24}" class="ui-source-label" style="font-size:11px;">СОСТОЯНИЕ СИСТЕМЫ</text>')
+    statuses = [("API", "НОРМА"), ("PostgreSQL", "НОРМА"), ("Retrieval", "READY"), ("RAG", "НОРМА")]
+    sy = row_y + 44
+    for name, status in statuses:
+        svg.append(f'  <text x="{main_x + 16}" y="{sy}" style="font-size:12px; fill:var(--text-secondary);">{escape_text(name)}</text>')
+        color = "#22c55e" if status in ("НОРМА", "READY") else "#f59e0b"
+        svg.append(f'  <rect x="{main_x + card_w - 72}" y="{sy - 13}" width="56" height="18" rx="3" fill="{color}" fill-opacity="0.15" stroke="{color}" stroke-width="1" />')
+        svg.append(f'  <text x="{main_x + card_w - 44}" y="{sy - 1}" text-anchor="middle" style="font-size:10px; fill:{color}; font-weight:600;">{escape_text(status)}</text>')
+        sy += 20
+    # LLM providers card
+    svg.append(f'  <rect x="{main_x + card_w + 16}" y="{row_y}" width="{card_w}" height="{card_h}" rx="6" class="ui-source-card" style="fill:var(--surface-elevated);" />')
+    svg.append(f'  <text x="{main_x + card_w + 32}" y="{row_y + 24}" class="ui-source-label" style="font-size:11px;">LLM-ПРОВАЙДЕРЫ</text>')
+    providers = ["gigachat", "openai", "proxy"]
+    py = row_y + 44
+    for pv in providers:
+        svg.append(f'  <rect x="{main_x + card_w + 32}" y="{py - 13}" width="78" height="20" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1" />')
+        svg.append(f'  <text x="{main_x + card_w + 42}" y="{py}" style="font-size:11px; fill:var(--text-secondary);">{escape_text(pv)}</text>')
+        svg.append(f'  <rect x="{main_x + card_w + 94}" y="{py - 13}" width="64" height="20" rx="4" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />')
+        svg.append(f'  <text x="{main_x + card_w + 126}" y="{py}" text-anchor="middle" style="font-size:10px; fill:#22c55e; font-weight:600;">НАСТРОЕНО</text>')
+        py += 26
+    # Operational status card
+    svg.append(f'  <rect x="{main_x + 2 * (card_w + 16)}" y="{row_y}" width="{card_w}" height="{card_h}" rx="6" class="ui-source-card" style="fill:var(--surface-elevated);" />')
+    svg.append(f'  <text x="{main_x + 2 * (card_w + 16) + 16}" y="{row_y + 24}" class="ui-source-label" style="font-size:11px;">ОПЕРАТИВНЫЙ СТАТУС</text>')
+    ops = [("Проверено", "2026-05-18 14:02"), ("Latency", "63 мс"), ("LLM-провайдеров", "3")]
+    oy = row_y + 46
+    for label, value in ops:
+        svg.append(f'  <text x="{main_x + 2 * (card_w + 16) + 16}" y="{oy}" style="font-size:12px; fill:var(--text-secondary);">{escape_text(label)}</text>')
+        svg.append(f'  <text x="{main_x + 2 * (card_w + 16) + card_w - 16}" y="{oy}" text-anchor="end" style="font-size:13px; fill:var(--text-primary); font-weight:500;">{escape_text(value)}</text>')
+        oy += 24
+    # Bottom row: AI activity + retrieval platform
+    bot_y = row_y + card_h + 16
+    bot_h = inner_h - 54 - card_h - 16 - 16
+    # AI activity
+    svg.append(f'  <rect x="{main_x}" y="{bot_y}" width="{(main_w - 16) // 2}" height="{bot_h}" rx="6" class="ui-source-card" style="fill:var(--surface-elevated);" />')
+    svg.append(f'  <text x="{main_x + 16}" y="{bot_y + 24}" class="ui-source-label" style="font-size:11px;">AI-АКТИВНОСТЬ</text>')
+    ai_metrics = [("Text", "2"), ("RAG", "28"), ("Изображения", "1"), ("Аудио", "1"), ("Всего событий", "224"), ("Запросов (сессий)", "33")]
+    ay = bot_y + 48
+    for label, value in ai_metrics:
+        svg.append(f'  <text x="{main_x + 16}" y="{ay}" style="font-size:12px; fill:var(--text-secondary);">{escape_text(label)}</text>')
+        svg.append(f'  <text x="{main_x + (main_w - 16) // 2 - 16}" y="{ay}" text-anchor="end" style="font-size:13px; fill:var(--text-primary); font-weight:500;">{escape_text(value)}</text>')
+        ay += 22
+    # Retrieval platform
+    right_x = main_x + (main_w - 16) // 2 + 16
+    svg.append(f'  <rect x="{right_x}" y="{bot_y}" width="{(main_w - 16) // 2}" height="{bot_h}" rx="6" class="ui-source-card" style="fill:var(--surface-elevated);" />')
+    svg.append(f'  <text x="{right_x + 16}" y="{bot_y + 24}" class="ui-source-label" style="font-size:11px;">RETRIEVAL PLATFORM</text>')
+    svg.append(f'  <rect x="{right_x + 16}" y="{bot_y + 36}" width="{(main_w - 16) // 2 - 32}" height="38" rx="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="1" />')
+    svg.append(f'  <text x="{right_x + 26}" y="{bot_y + 60}" style="font-size:13px; fill:var(--accent); font-weight:600;">ACTIVE BACKEND: Weaviate — READY</text>')
+    backends = [("Chroma", "426"), ("Faiss", "423"), ("Weaviate", "423")]
+    by = bot_y + 86
+    for name, count in backends:
+        svg.append(f'  <text x="{right_x + 16}" y="{by}" style="font-size:12px; fill:var(--text-secondary);">{escape_text(name)}</text>')
+        svg.append(f'  <rect x="{right_x + 100}" y="{by - 13}" width="56" height="18" rx="3" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />')
+        svg.append(f'  <text x="{right_x + 128}" y="{by - 1}" text-anchor="middle" style="font-size:10px; fill:#22c55e; font-weight:600;">READY</text>')
+        svg.append(f'  <text x="{right_x + (main_w - 16) // 2 - 16}" y="{by}" text-anchor="end" style="font-size:12px; fill:var(--text-primary);">{escape_text(count)}</text>')
+        by += 22
+    svg.append(f'  <text x="{right_x + 16}" y="{by + 4}" style="font-size:12px; fill:var(--text-secondary);">Документов в БД: 21 · Чанков: 423 · Синхронизация: НОРМА</text>')
     svg.append('</svg>')
     return "\n".join(svg)
 
@@ -3254,8 +3887,18 @@ def build_project(project: dict) -> dict:
                 entry["svg_html"] = rar_scenario_1_svg() if i == 1 else rar_scenario_2_svg()
             elif pid == "meeting-audit-bot":
                 entry["svg_html"] = mab_scenario_1_svg() if i == 1 else mab_scenario_2_svg()
+            elif pid == "telegram-intake-bot":
+                entry["svg_html"] = tib_scenario_1_svg() if i == 1 else tib_scenario_2_svg()
+            elif pid == "telegram-onboarding-bot":
+                entry["svg_html"] = tob_scenario_1_svg() if i == 1 else tob_scenario_2_svg()
             elif pid == "lead-qualification":
                 entry["svg_html"] = lq_scenario_1_svg() if i == 1 else lq_scenario_2_svg()
+            elif pid == "prompt-review":
+                entry["svg_html"] = pr_scenario_1_svg() if i == 1 else pr_scenario_2_svg()
+            elif pid == "assistant-flow":
+                entry["svg_html"] = af_scenario_1_svg() if i == 1 else af_scenario_2_svg()
+            elif pid == "retail-group" and i == 1:
+                entry["svg_html"] = retail_scenario_1_svg()
             elif pid == "retail-group" and i == 2:
                 entry["svg_html"] = retail_metrics_svg()
             else:

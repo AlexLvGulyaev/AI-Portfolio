@@ -1504,7 +1504,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--two-row" viewBox="0 0 1088 314" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Retail Group: от входа к результату">
   <defs>
-    <marker id="arrow-tr-28157" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-tr-aaf206" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1514,21 +1514,21 @@
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Телефония</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">клиент</text>
   </g>
-  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-28157)" />
+  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-aaf206)" />
   <g transform="translate(306, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">ASR / STT</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Распознавание</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">речи</text>
   </g>
-  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-28157)" />
+  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-aaf206)" />
   <g transform="translate(572, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">n8n</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Оркестратор</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">запроса</text>
   </g>
-  <path d="M 782 75.0 L 838 75.0" class="arrow" marker-end="url(#arrow-tr-28157)" />
+  <path d="M 782 75.0 L 838 75.0" class="arrow" marker-end="url(#arrow-tr-aaf206)" />
   <g transform="translate(838, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Классификатор</text>
@@ -1537,21 +1537,21 @@
   </g>
   <path d="M 943.0 122 L 943.0 157.0" class="arrow" />
   <path d="M 943.0 157.0 L 278.0 157.0" class="arrow" />
-  <path d="M 278.0 157.0 L 278.0 192" class="arrow" marker-end="url(#arrow-tr-28157)" />
+  <path d="M 278.0 157.0 L 278.0 192" class="arrow" marker-end="url(#arrow-tr-aaf206)" />
   <g transform="translate(173, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">LLM + RAG</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">База знаний</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">CRM / API</text>
   </g>
-  <path d="M 383 239.0 L 439 239.0" class="arrow" marker-end="url(#arrow-tr-28157)" />
+  <path d="M 383 239.0 L 439 239.0" class="arrow" marker-end="url(#arrow-tr-aaf206)" />
   <g transform="translate(439, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">TTS</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Синтез</text>
     <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">речи</text>
   </g>
-  <path d="M 649 239.0 L 705 239.0" class="arrow" marker-end="url(#arrow-tr-28157)" />
+  <path d="M 649 239.0 L 705 239.0" class="arrow" marker-end="url(#arrow-tr-aaf206)" />
   <g transform="translate(705, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Телефония</text>
@@ -1601,10 +1601,79 @@
             <p class="demo-block__text">Клиент звонит с типовым вопросом, голосовой ассистент понимает запрос и отвечает естественной речью.</p>
           </div>
           
-          <div class="demo-frame">
-            <img src="/assets/cases/retail-group/scenario-1.png" alt="Сцена голосового диалога Retail Group">
-            <div class="demo-frame__hint">Кликните для полного размера</div>
-          </div>
+          <svg class="ui-illustration" viewBox="0 0 980 540" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Retail Group: голосовой диалог клиента с AI-ассистентом">
+  <defs>
+    <clipPath id="rg-call-clip">
+      <rect x="14" y="14" width="952" height="512" rx="6" />
+    </clipPath>
+  </defs>
+  <rect x="14" y="14" width="952" height="512" rx="6" class="ui-window" />
+  <rect x="14" y="14" width="952" height="64" class="ui-header" clip-path="url(#rg-call-clip)" />
+  <text x="490" y="44" text-anchor="middle" class="ui-title">Voice AI · Retail Group</text>
+  <text x="490" y="66" text-anchor="middle" class="ui-subtitle" style="font-size:12px;">Входящий звонок · на линии 00:42</text>
+  <circle cx="490" cy="122" r="32" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2" />
+  <path d="M478 122 C478 110 502 110 502 122 C502 134 478 134 478 122" stroke="var(--accent)" stroke-width="3" fill="none" stroke-linecap="round" />
+  <rect x="94" y="172" width="792" height="48" rx="4" fill="var(--surface-elevated)" stroke="var(--border)" stroke-width="1" />
+  <rect x="252" y="191" width="6" height="10" rx="2" fill="var(--accent)" />
+  <rect x="262" y="185" width="6" height="22" rx="2" fill="var(--accent)" />
+  <rect x="272" y="191" width="6" height="10" rx="2" fill="var(--accent)" />
+  <rect x="282" y="190" width="6" height="12" rx="2" fill="var(--accent)" />
+  <rect x="292" y="191" width="6" height="11" rx="2" fill="var(--accent)" />
+  <rect x="302" y="191" width="6" height="10" rx="2" fill="var(--accent)" />
+  <rect x="312" y="188" width="6" height="16" rx="2" fill="var(--accent)" />
+  <rect x="322" y="189" width="6" height="14" rx="2" fill="var(--accent)" />
+  <rect x="332" y="190" width="6" height="12" rx="2" fill="var(--accent)" />
+  <rect x="342" y="184" width="6" height="24" rx="2" fill="var(--accent)" />
+  <rect x="352" y="188" width="6" height="16" rx="2" fill="var(--accent)" />
+  <rect x="362" y="181" width="6" height="30" rx="2" fill="var(--accent)" />
+  <rect x="372" y="184" width="6" height="24" rx="2" fill="var(--accent)" />
+  <rect x="382" y="186" width="6" height="21" rx="2" fill="var(--accent)" />
+  <rect x="392" y="181" width="6" height="30" rx="2" fill="var(--accent)" />
+  <rect x="402" y="190" width="6" height="12" rx="2" fill="var(--accent)" />
+  <rect x="412" y="192" width="6" height="8" rx="2" fill="var(--accent)" />
+  <rect x="422" y="188" width="6" height="16" rx="2" fill="var(--accent)" />
+  <rect x="432" y="190" width="6" height="12" rx="2" fill="var(--accent)" />
+  <rect x="442" y="183" width="6" height="26" rx="2" fill="var(--accent)" />
+  <rect x="452" y="189" width="6" height="14" rx="2" fill="var(--accent)" />
+  <rect x="462" y="188" width="6" height="16" rx="2" fill="var(--accent)" />
+  <rect x="472" y="189" width="6" height="15" rx="2" fill="var(--accent)" />
+  <rect x="482" y="184" width="6" height="25" rx="2" fill="var(--accent)" />
+  <rect x="492" y="187" width="6" height="18" rx="2" fill="var(--accent)" />
+  <rect x="502" y="185" width="6" height="23" rx="2" fill="var(--accent)" />
+  <rect x="512" y="184" width="6" height="24" rx="2" fill="var(--accent)" />
+  <rect x="522" y="186" width="6" height="20" rx="2" fill="var(--accent)" />
+  <rect x="532" y="191" width="6" height="11" rx="2" fill="var(--accent)" />
+  <rect x="542" y="182" width="6" height="28" rx="2" fill="var(--accent)" />
+  <rect x="552" y="184" width="6" height="24" rx="2" fill="var(--accent)" />
+  <rect x="562" y="190" width="6" height="12" rx="2" fill="var(--accent)" />
+  <rect x="572" y="186" width="6" height="20" rx="2" fill="var(--accent)" />
+  <rect x="582" y="191" width="6" height="11" rx="2" fill="var(--accent)" />
+  <rect x="592" y="189" width="6" height="15" rx="2" fill="var(--accent)" />
+  <rect x="602" y="189" width="6" height="14" rx="2" fill="var(--accent)" />
+  <rect x="612" y="186" width="6" height="20" rx="2" fill="var(--accent)" />
+  <rect x="622" y="186" width="6" height="20" rx="2" fill="var(--accent)" />
+  <rect x="632" y="184" width="6" height="25" rx="2" fill="var(--accent)" />
+  <rect x="642" y="186" width="6" height="21" rx="2" fill="var(--accent)" />
+  <rect x="652" y="181" width="6" height="31" rx="2" fill="var(--accent)" />
+  <rect x="662" y="182" width="6" height="29" rx="2" fill="var(--accent)" />
+  <rect x="672" y="185" width="6" height="23" rx="2" fill="var(--accent)" />
+  <rect x="682" y="180" width="6" height="32" rx="2" fill="var(--accent)" />
+  <rect x="692" y="183" width="6" height="26" rx="2" fill="var(--accent)" />
+  <rect x="702" y="184" width="6" height="24" rx="2" fill="var(--accent)" />
+  <rect x="712" y="191" width="6" height="11" rx="2" fill="var(--accent)" />
+  <rect x="722" y="187" width="6" height="18" rx="2" fill="var(--accent)" />
+  <rect x="74" y="248" width="420" height="64" rx="8" class="ui-msg-user" />
+  <text x="94" y="270" style="font-size:11px; fill:#ffffff; font-weight:500;">Клиент</text>
+  <text x="94" y="294" style="font-size:14px; fill:#ffffff;">До сколько работает магазин на Ленина?</text>
+  <rect x="486" y="332" width="420" height="80" rx="8" class="ui-msg-bot" />
+  <text x="506" y="354" style="font-size:11px; fill:var(--accent); font-weight:500;">Ассистент</text>
+  <text x="506" y="378" style="font-size:14px; fill:var(--text-primary);">Магазин на Ленина, 12 работает до 23:00.</text>
+  <text x="506" y="398" style="font-size:14px; fill:var(--text-primary);">Хотите узнать про акции?</text>
+  <rect x="74" y="472" width="220" height="34" rx="4" fill="var(--surface-elevated)" stroke="var(--border)" stroke-width="1" />
+  <text x="90" y="494" style="font-size:12px; fill:var(--text-secondary);">ASR: распознано · 94%</text>
+  <rect x="686" y="472" width="220" height="34" rx="4" fill="var(--surface-elevated)" stroke="var(--border)" stroke-width="1" />
+  <text x="702" y="494" style="font-size:12px; fill:var(--text-secondary);">TTS: ответ синтезирован · 63 мс</text>
+</svg>
           
         </div>
         

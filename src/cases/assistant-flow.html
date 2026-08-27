@@ -1319,7 +1319,7 @@
           
           <div class="summary__item">
             <div class="summary__label">Стек</div>
-            <div class="summary__value">Python, Telegram Bot API, RAG, OCR, LLM</div>
+            <div class="summary__value">Python · Telegram Bot API · RAG · OCR · LLM</div>
           </div>
           
           <div class="summary__item">
@@ -1502,7 +1502,7 @@
 
         <svg class="pipeline-diagram pipeline-diagram--five" viewBox="0 0 1120 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Assistant Flow: от входа к результату">
   <defs>
-    <marker id="arrow-5n-28851" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-5n-4b40a0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
@@ -1512,28 +1512,28 @@
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Текст / голос</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">фото / файл</text>
   </g>
-  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-28851)" />
+  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-4b40a0)" />
   <g transform="translate(250, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Маршрутизация</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Тип входных</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">данных</text>
   </g>
-  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-28851)" />
+  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-4b40a0)" />
   <g transform="translate(470, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">RAG / OCR</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">База знаний</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">и документы</text>
   </g>
-  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-28851)" />
+  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-4b40a0)" />
   <g transform="translate(690, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">LLM</text>
     <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Ответ</text>
     <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">с источниками</text>
   </g>
-  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-28851)" />
+  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-4b40a0)" />
   <g transform="translate(910, 105)">
     <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
     <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Консоль</text>
@@ -1583,10 +1583,27 @@
             <p class="demo-block__text">Пользователь спрашивает про ООО НоваТех и получает структурированный ответ с источниками из базы знаний.</p>
           </div>
           
-          <div class="demo-frame">
-            <img src="/assets/cases/assistant-flow/scenario-1.png" alt="Telegram-чат Assistant Flow с RAG-ответом">
-            <div class="demo-frame__hint">Кликните для полного размера</div>
-          </div>
+          <svg class="ui-illustration ui-illustration--phone" viewBox="0 0 440 620" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Assistant Flow: RAG-ответ о компании НоваТех в Telegram">
+  <rect x="0" y="0" width="440" height="620" rx="0" fill="#e5f2e5"/>
+  <rect x="0" y="0" width="440" height="50" fill="#2f7763"/>
+  <circle cx="35" cy="25" r="13" fill="#a8d5ba"/>
+  <text x="58" y="30" class="ui-title" style="font-size:13px; fill:#ffffff;">PEn06 · Assistant Flow</text>
+  <rect x="18" y="64" width="404" height="36" rx="10" fill="#d9fdd3"/>
+  <text x="30" y="82" class="ui-msg-text-user" style="font-size:12px; fill:#1A1A1C;">Дай полную сводку по компании НоваТех</text>
+  <rect x="18" y="108" width="404" height="36" rx="10" fill="#ffffff"/>
+  <text x="30" y="126" class="ui-msg-text-bot" style="font-size:12px; fill:#1A1A1C;">Ищу в базе знаний... ⏳</text>
+  <rect x="18" y="152" width="404" height="84" rx="10" fill="#ffffff"/>
+  <text x="30" y="170" class="ui-msg-text-bot" style="font-size:12px; fill:#1A1A1C;">ООО «НоваТех» зарегистрировано 14 марта 2019 в</text>
+  <text x="30" y="187" class="ui-msg-text-bot" style="font-size:12px; fill:#1A1A1C;">Казани.</text>
+  <text x="30" y="204" class="ui-msg-text-bot" style="font-size:12px; fill:#1A1A1C;">Основная деятельность — разработка ПО для</text>
+  <text x="30" y="221" class="ui-msg-text-bot" style="font-size:12px; fill:#1A1A1C;">корпоративной аналитики.</text>
+  <rect x="18" y="244" width="404" height="50" rx="10" fill="#ffffff"/>
+  <text x="30" y="262" class="ui-msg-text-bot" style="font-size:12px; fill:#1A1A1C;">Генеральный директор: Елена Соколова. Штат: 127</text>
+  <text x="30" y="279" class="ui-msg-text-bot" style="font-size:12px; fill:#1A1A1C;">человек, из них 89 инженеры.</text>
+  <rect x="18" y="302" width="404" height="50" rx="10" fill="#ffffff"/>
+  <text x="30" y="320" class="ui-msg-text-bot" style="font-size:12px; fill:#1A1A1C;">99,5% доступность в месяц. Стратегический интегратор</text>
+  <text x="30" y="337" class="ui-msg-text-bot" style="font-size:12px; fill:#1A1A1C;">— «СеверАналитика».</text>
+</svg>
           
         </div>
         
@@ -1597,10 +1614,98 @@
             <p class="demo-block__text">Администратор видит список диалогов, статистику и настройки интеграций в одной панели.</p>
           </div>
           
-          <div class="demo-frame">
-            <img src="/assets/cases/assistant-flow/scenario-2.png" alt="Обзорная панель администратора Assistant Flow">
-            <div class="demo-frame__hint">Кликните для полного размера</div>
-          </div>
+          <svg class="ui-illustration" viewBox="0 0 980 540" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Assistant Flow: обзорная панель администратора">
+  <defs>
+    <clipPath id="af-admin-clip">
+      <rect x="14" y="14" width="952" height="512" rx="6" />
+    </clipPath>
+  </defs>
+  <rect x="14" y="14" width="952" height="512" rx="6" class="ui-window" />
+  <rect x="14" y="14" width="952" height="56" class="ui-header" clip-path="url(#af-admin-clip)" />
+  <text x="32" y="48" class="ui-title">Assistant Flow</text>
+  <text x="32" y="64" class="ui-subtitle" style="font-size:11px;">Admin console · FastAPI + Zerocoder</text>
+  <text x="948" y="48" text-anchor="end" class="ui-subtitle" style="font-size:13px; fill:var(--accent); font-weight:500;">Zerocoder</text>
+  <rect x="14" y="70" width="180" height="456" class="ui-sidebar" clip-path="url(#af-admin-clip)" />
+  <rect x="24" y="84" width="160" height="32" rx="4" class="ui-sidebar-item-active" />
+  <text x="40" y="106" class="ui-sidebar-text-active">Обзор</text>
+  <text x="40" y="128" class="ui-sidebar-text">Сводка</text>
+  <text x="40" y="156" class="ui-sidebar-text">Текст</text>
+  <text x="40" y="184" class="ui-sidebar-text">RAG</text>
+  <text x="40" y="212" class="ui-sidebar-text">Изображения</text>
+  <text x="40" y="240" class="ui-sidebar-text">Аудио</text>
+  <text x="40" y="268" class="ui-sidebar-text">Документы</text>
+  <text x="40" y="296" class="ui-sidebar-text">Логи</text>
+  <text x="40" y="324" class="ui-sidebar-text">Анализ RAG</text>
+  <text x="210" y="104" class="ui-main-title" style="font-size:20px;">Обзор</text>
+  <text x="300" y="106" class="ui-subtitle" style="font-size:12px;">/api/overview + live /api/health</text>
+  <rect x="210" y="124" width="241" height="112" rx="6" class="ui-source-card" style="fill:var(--surface-elevated);" />
+  <text x="226" y="148" class="ui-source-label" style="font-size:11px;">СОСТОЯНИЕ СИСТЕМЫ</text>
+  <text x="226" y="168" style="font-size:12px; fill:var(--text-secondary);">API</text>
+  <rect x="379" y="155" width="56" height="18" rx="3" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />
+  <text x="407" y="167" text-anchor="middle" style="font-size:10px; fill:#22c55e; font-weight:600;">НОРМА</text>
+  <text x="226" y="188" style="font-size:12px; fill:var(--text-secondary);">PostgreSQL</text>
+  <rect x="379" y="175" width="56" height="18" rx="3" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />
+  <text x="407" y="187" text-anchor="middle" style="font-size:10px; fill:#22c55e; font-weight:600;">НОРМА</text>
+  <text x="226" y="208" style="font-size:12px; fill:var(--text-secondary);">Retrieval</text>
+  <rect x="379" y="195" width="56" height="18" rx="3" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />
+  <text x="407" y="207" text-anchor="middle" style="font-size:10px; fill:#22c55e; font-weight:600;">READY</text>
+  <text x="226" y="228" style="font-size:12px; fill:var(--text-secondary);">RAG</text>
+  <rect x="379" y="215" width="56" height="18" rx="3" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />
+  <text x="407" y="227" text-anchor="middle" style="font-size:10px; fill:#22c55e; font-weight:600;">НОРМА</text>
+  <rect x="467" y="124" width="241" height="112" rx="6" class="ui-source-card" style="fill:var(--surface-elevated);" />
+  <text x="483" y="148" class="ui-source-label" style="font-size:11px;">LLM-ПРОВАЙДЕРЫ</text>
+  <rect x="483" y="155" width="78" height="20" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1" />
+  <text x="493" y="168" style="font-size:11px; fill:var(--text-secondary);">gigachat</text>
+  <rect x="545" y="155" width="64" height="20" rx="4" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />
+  <text x="577" y="168" text-anchor="middle" style="font-size:10px; fill:#22c55e; font-weight:600;">НАСТРОЕНО</text>
+  <rect x="483" y="181" width="78" height="20" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1" />
+  <text x="493" y="194" style="font-size:11px; fill:var(--text-secondary);">openai</text>
+  <rect x="545" y="181" width="64" height="20" rx="4" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />
+  <text x="577" y="194" text-anchor="middle" style="font-size:10px; fill:#22c55e; font-weight:600;">НАСТРОЕНО</text>
+  <rect x="483" y="207" width="78" height="20" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1" />
+  <text x="493" y="220" style="font-size:11px; fill:var(--text-secondary);">proxy</text>
+  <rect x="545" y="207" width="64" height="20" rx="4" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />
+  <text x="577" y="220" text-anchor="middle" style="font-size:10px; fill:#22c55e; font-weight:600;">НАСТРОЕНО</text>
+  <rect x="724" y="124" width="241" height="112" rx="6" class="ui-source-card" style="fill:var(--surface-elevated);" />
+  <text x="740" y="148" class="ui-source-label" style="font-size:11px;">ОПЕРАТИВНЫЙ СТАТУС</text>
+  <text x="740" y="170" style="font-size:12px; fill:var(--text-secondary);">Проверено</text>
+  <text x="949" y="170" text-anchor="end" style="font-size:13px; fill:var(--text-primary); font-weight:500;">2026-05-18 14:02</text>
+  <text x="740" y="194" style="font-size:12px; fill:var(--text-secondary);">Latency</text>
+  <text x="949" y="194" text-anchor="end" style="font-size:13px; fill:var(--text-primary); font-weight:500;">63 мс</text>
+  <text x="740" y="218" style="font-size:12px; fill:var(--text-secondary);">LLM-провайдеров</text>
+  <text x="949" y="218" text-anchor="end" style="font-size:13px; fill:var(--text-primary); font-weight:500;">3</text>
+  <rect x="210" y="252" width="370" height="258" rx="6" class="ui-source-card" style="fill:var(--surface-elevated);" />
+  <text x="226" y="276" class="ui-source-label" style="font-size:11px;">AI-АКТИВНОСТЬ</text>
+  <text x="226" y="300" style="font-size:12px; fill:var(--text-secondary);">Text</text>
+  <text x="564" y="300" text-anchor="end" style="font-size:13px; fill:var(--text-primary); font-weight:500;">2</text>
+  <text x="226" y="322" style="font-size:12px; fill:var(--text-secondary);">RAG</text>
+  <text x="564" y="322" text-anchor="end" style="font-size:13px; fill:var(--text-primary); font-weight:500;">28</text>
+  <text x="226" y="344" style="font-size:12px; fill:var(--text-secondary);">Изображения</text>
+  <text x="564" y="344" text-anchor="end" style="font-size:13px; fill:var(--text-primary); font-weight:500;">1</text>
+  <text x="226" y="366" style="font-size:12px; fill:var(--text-secondary);">Аудио</text>
+  <text x="564" y="366" text-anchor="end" style="font-size:13px; fill:var(--text-primary); font-weight:500;">1</text>
+  <text x="226" y="388" style="font-size:12px; fill:var(--text-secondary);">Всего событий</text>
+  <text x="564" y="388" text-anchor="end" style="font-size:13px; fill:var(--text-primary); font-weight:500;">224</text>
+  <text x="226" y="410" style="font-size:12px; fill:var(--text-secondary);">Запросов (сессий)</text>
+  <text x="564" y="410" text-anchor="end" style="font-size:13px; fill:var(--text-primary); font-weight:500;">33</text>
+  <rect x="596" y="252" width="370" height="258" rx="6" class="ui-source-card" style="fill:var(--surface-elevated);" />
+  <text x="612" y="276" class="ui-source-label" style="font-size:11px;">RETRIEVAL PLATFORM</text>
+  <rect x="612" y="288" width="338" height="38" rx="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="1" />
+  <text x="622" y="312" style="font-size:13px; fill:var(--accent); font-weight:600;">ACTIVE BACKEND: Weaviate — READY</text>
+  <text x="612" y="338" style="font-size:12px; fill:var(--text-secondary);">Chroma</text>
+  <rect x="696" y="325" width="56" height="18" rx="3" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />
+  <text x="724" y="337" text-anchor="middle" style="font-size:10px; fill:#22c55e; font-weight:600;">READY</text>
+  <text x="950" y="338" text-anchor="end" style="font-size:12px; fill:var(--text-primary);">426</text>
+  <text x="612" y="360" style="font-size:12px; fill:var(--text-secondary);">Faiss</text>
+  <rect x="696" y="347" width="56" height="18" rx="3" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />
+  <text x="724" y="359" text-anchor="middle" style="font-size:10px; fill:#22c55e; font-weight:600;">READY</text>
+  <text x="950" y="360" text-anchor="end" style="font-size:12px; fill:var(--text-primary);">423</text>
+  <text x="612" y="382" style="font-size:12px; fill:var(--text-secondary);">Weaviate</text>
+  <rect x="696" y="369" width="56" height="18" rx="3" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1" />
+  <text x="724" y="381" text-anchor="middle" style="font-size:10px; fill:#22c55e; font-weight:600;">READY</text>
+  <text x="950" y="382" text-anchor="end" style="font-size:12px; fill:var(--text-primary);">423</text>
+  <text x="612" y="408" style="font-size:12px; fill:var(--text-secondary);">Документов в БД: 21 · Чанков: 423 · Синхронизация: НОРМА</text>
+</svg>
           
         </div>
         
