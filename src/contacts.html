@@ -201,20 +201,32 @@
 
     .contact__layout {
       display: grid;
-      grid-template-columns: 0.48fr 0.52fr;
+      grid-template-columns: 420px 600px;
       gap: var(--space-lg);
       align-items: start;
+      width: fit-content;
+      margin-inline: auto;
     }
 
+    .contact__column {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+    }
+
+    .contact__column--left { align-items: flex-start; }
+    .contact__column--right { gap: var(--space-lg); }
+
     .contact__photo {
-      max-width: 420px;
       width: 100%;
+      max-width: 420px;
       aspect-ratio: 1 / 1;
       border-radius: var(--radius);
       overflow: hidden;
       border: 1px solid var(--border);
       background: var(--surface);
       box-shadow: var(--shadow-md);
+      flex-shrink: 0;
     }
 
     .contact__photo img {
@@ -224,7 +236,7 @@
       display: block;
     }
 
-    .contact__intro { grid-column: 2; }
+    .contact__intro { padding-left: 0; }
 
     .contact__eyebrow {
       font-family: var(--font-mono);
@@ -292,11 +304,7 @@
     }
 
     .contact__guide-row {
-      grid-column: 1 / -1;
-      display: grid;
-      grid-template-columns: 0.48fr 0.52fr;
-      gap: var(--space-lg);
-      margin-top: var(--space-md);
+      display: contents;
     }
 
     .guide-card {
@@ -523,6 +531,14 @@
     .chat-send:hover:not(:disabled) { opacity: 0.9; }
     .chat-send:disabled { opacity: 0.5; cursor: default; }
 
+    @media (max-width: 1150px) {
+      .contact__layout {
+        grid-template-columns: 1fr 1fr;
+        width: auto;
+      }
+      .contact__photo { max-width: 100%; }
+    }
+
     @media (max-width: 900px) {
       .site-header__inner { height: 56px; }
       .nav { gap: var(--space-sm); font-size: 0.85rem; }
@@ -532,20 +548,27 @@
         flex-direction: column;
         gap: var(--space-lg);
       }
+      .contact__column {
+        gap: var(--space-md);
+      }
+      .contact__column--left { align-items: center; }
       .contact__photo {
         max-width: 320px;
         margin-inline: auto;
         order: 2;
       }
       .contact__intro {
-        grid-column: auto;
         order: 1;
       }
       .contact__actions { flex-direction: column; align-items: stretch; }
       .contact__guide-row {
-        grid-template-columns: 1fr;
-        margin-top: var(--space-lg);
+        display: flex;
+        flex-direction: column;
+        order: 3;
+        gap: var(--space-md);
+        margin-top: 0;
       }
+      .guide-card { order: 0; }
       .site-footer__inner { flex-direction: column; align-items: flex-start; gap: var(--space-xs); }
     }
   </style>
@@ -568,49 +591,55 @@
     <section class="contact-page">
       <div class="container">
         <div class="contact__layout">
-          <div class="contact__photo">
-            <img src="/assets/screenshots/CCM.jpg" alt="Александр Гуляев рядом со скульптурой Осипа Мандельштама" width="320" height="320" loading="eager">
+          <div class="contact__column contact__column--left">
+            <div class="contact__photo">
+              <img src="/assets/screenshots/CCM.jpg" alt="Александр Гуляев рядом со скульптурой Осипа Мандельштама" width="320" height="320" loading="eager">
+            </div>
+
+            <div class="contact__guide-row">
+              <div class="guide-card">
+                <h2 class="guide-card__title">Что указать в сообщении</h2>
+                <ul class="guide-list">
+                  <li><strong>Текущий процесс</strong> — что сейчас выполняется вручную.</li>
+                  <li><strong>Проблемная точка</strong> — где теряется время, данные или клиенты.</li>
+                  <li><strong>Системы и данные</strong> — какие каналы, CRM, базы знаний или документы используются.</li>
+                  <li><strong>Требуемый результат</strong> — что должно происходить автоматически.</li>
+                </ul>
+              </div>
+            </div>
           </div>
 
-          <div class="contact__intro">
-            <p class="contact__eyebrow">Обсудить проект</p>
-            <h1 class="contact__title">Расскажите, какой процесс хотите автоматизировать</h1>
-            <p class="contact__lead">Для первого сообщения достаточно описать, что сейчас выполняется вручную, кто участвует в процессе и какой результат требуется получить.</p>
+          <div class="contact__column contact__column--right">
+            <div class="contact__intro">
+              <p class="contact__eyebrow">Обсудить проект</p>
+              <h1 class="contact__title">Расскажите, какой процесс хотите автоматизировать</h1>
+              <p class="contact__lead">Для первого сообщения достаточно описать, что сейчас выполняется вручную, кто участвует в процессе и какой результат требуется получить.</p>
 
-            <p class="contact__author">Александр Гуляев, AI Automation Portfolio Lab</p>
+              <p class="contact__author">Александр Гуляев, AI Automation Portfolio Lab</p>
 
-            <div class="contact__actions">
-              <a href="https://t.me/AlexLvGulyaev" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Написать в Telegram</a>
-              <a href="mailto:sbs.gulyaev.al@gmail.com" class="btn btn-ghost">Написать на email</a>
-              <a href="/" class="btn btn-ghost">Смотреть проекты</a>
+              <div class="contact__actions">
+                <a href="https://t.me/AlexLvGulyaev" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Написать в Telegram</a>
+                <a href="mailto:sbs.gulyaev.al@gmail.com" class="btn btn-ghost">Написать на email</a>
+                <a href="/" class="btn btn-ghost">Смотреть проекты</a>
+              </div>
+
+              <div class="contact__addresses">
+                <a href="https://t.me/AlexLvGulyaev" target="_blank" rel="noopener noreferrer">Telegram: @AlexLvGulyaev</a>
+                <a href="mailto:sbs.gulyaev.al@gmail.com">Email: sbs.gulyaev.al@gmail.com</a>
+              </div>
+
+              <p class="contact__note">Можно написать в свободной форме — отдельный бриф для первого обращения не требуется.</p>
             </div>
 
-            <div class="contact__addresses">
-              <a href="https://t.me/AlexLvGulyaev" target="_blank" rel="noopener noreferrer">Telegram: @AlexLvGulyaev</a>
-              <a href="mailto:sbs.gulyaev.al@gmail.com">Email: sbs.gulyaev.al@gmail.com</a>
-            </div>
-
-            <p class="contact__note">Можно написать в свободной форме — отдельный бриф для первого обращения не требуется.</p>
-          </div>
-
-          <div class="contact__guide-row">
-            <div class="guide-card">
-              <h2 class="guide-card__title">Что указать в сообщении</h2>
-              <ul class="guide-list">
-                <li><strong>Текущий процесс</strong> — что сейчас выполняется вручную.</li>
-                <li><strong>Проблемная точка</strong> — где теряется время, данные или клиенты.</li>
-                <li><strong>Системы и данные</strong> — какие каналы, CRM, базы знаний или документы используются.</li>
-                <li><strong>Требуемый результат</strong> — что должно происходить автоматически.</li>
-              </ul>
-            </div>
-
-            <div class="guide-card">
-              <h2 class="guide-card__title">Что будет дальше</h2>
-              <ol class="guide-list guide-list--numbered">
-                <li><strong>Разбор задачи</strong> — оценю контур и подходящие инструменты.</li>
-                <li><strong>Уточняющие вопросы</strong> — уточню детали, сроки и ожидания.</li>
-                <li><strong>Следующий шаг</strong> — предложу варианты решения и план прототипа.</li>
-              </ol>
+            <div class="contact__guide-row">
+              <div class="guide-card">
+                <h2 class="guide-card__title">Что будет дальше</h2>
+                <ol class="guide-list guide-list--numbered">
+                  <li><strong>Разбор задачи</strong> — оценю контур и подходящие инструменты.</li>
+                  <li><strong>Уточняющие вопросы</strong> — уточню детали, сроки и ожидания.</li>
+                  <li><strong>Следующий шаг</strong> — предложу варианты решения и план прототипа.</li>
+                </ol>
+              </div>
             </div>
           </div>
         </div>
