@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Prompt Review анализирует промпт как инженерный артефакт: классифицирует, оценивает по 8 критериям, предлагает улучшения и генерирует переработанную версию — без выполнения промпта.">
+  <meta name="description" content="Prompt Review анализирует промпт как инженерный артефакт: определяет, является ли текст промптом, оценивает по 8 критериям, выявляет слабые места и возвращает улучшенную редакцию — без выполнения промпта. Анализ занимает около 9 секунд.">
   <meta property="og:title" content="Prompt Review — AI-сервис анализа качества промптов">
-  <meta property="og:description" content="Prompt Review анализирует промпт как инженерный артефакт: классифицирует, оценивает по 8 критериям, предлагает улучшения и генерирует переработанную версию — без выполнения промпта.">
+  <meta property="og:description" content="Prompt Review анализирует промпт как инженерный артефакт: определяет, является ли текст промптом, оценивает по 8 критериям, выявляет слабые места и возвращает улучшенную редакцию — без выполнения промпта. Анализ занимает около 9 секунд.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ai.alex-n8n.site/cases/prompt-review.html">
   <meta property="og:image" content="/assets/screenshots/PR-portfolio-light.png">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Prompt Review — AI-сервис анализа качества промптов">
-  <meta name="twitter:description" content="Prompt Review анализирует промпт как инженерный артефакт: классифицирует, оценивает по 8 критериям, предлагает улучшения и генерирует переработанную версию — без выполнения промпта.">
+  <meta name="twitter:description" content="Prompt Review анализирует промпт как инженерный артефакт: определяет, является ли текст промптом, оценивает по 8 критериям, выявляет слабые места и возвращает улучшенную редакцию — без выполнения промпта. Анализ занимает около 9 секунд.">
   <meta name="twitter:image" content="/assets/screenshots/PR-portfolio-light.png">
   <link rel="canonical" href="https://ai.alex-n8n.site/cases/prompt-review.html">
   <title>Prompt Review — AI-сервис анализа качества промптов</title>
@@ -762,6 +762,28 @@
       display: block;
     }
 
+    .demo-block .preview-dark,
+    .demo-block .preview-light {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      object-position: top left;
+      border-radius: var(--radius);
+      background: var(--bg);
+      border: 1px solid var(--border);
+    }
+
+    .demo-block .preview-dark { display: block; }
+    .demo-block .preview-light { display: none; }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .demo-block .preview-dark { display: none; }
+      :root:not([data-theme="light"]) .demo-block .preview-light { display: block; }
+    }
+
+    :root[data-theme="dark"] .demo-block .preview-dark { display: none; }
+    :root[data-theme="dark"] .demo-block .preview-light { display: block; }
+
     .ui-illustration--phone {
       max-width: 440px;
       margin: 0;
@@ -1281,8 +1303,8 @@
       <div class="container hero__inner">
         <div class="hero__body">
           <p class="eyebrow hero__eyebrow">AI-сервис анализа качества промптов</p>
-          <h1 class="hero__title">Code review для ваших промптов</h1>
-          <p class="hero__lead">Prompt Review анализирует промпт как инженерный артефакт: классифицирует, оценивает по 8 критериям, предлагает улучшения и генерирует переработанную версию — без выполнения промпта.</p>
+          <h1 class="hero__title">Сделайте качество промптов измеримым до запуска в production</h1>
+          <p class="hero__lead">Prompt Review анализирует промпт как инженерный артефакт: определяет, является ли текст промптом, оценивает по 8 критериям, выявляет слабые места и возвращает улучшенную редакцию — без выполнения промпта. Анализ занимает около 9 секунд.</p>
           <div class="hero__actions">
             <a href="https://prompt-review-demo.alex-n8n.site/" class="btn btn-primary" target="_blank" rel="noopener">Live demo</a>
             <a href="https://t.me/OptimusPromptReview_bot" class="btn btn-ghost" target="_blank" rel="noopener">Telegram-бот</a>
@@ -1319,7 +1341,7 @@
           
           <div class="summary__item">
             <div class="summary__label">Стек</div>
-            <div class="summary__value">FastAPI · PostgreSQL · LangChain · OpenAI</div>
+            <div class="summary__value">FastAPI · LangFlow · LangChain · OpenAI · Telegram Bot API · Docker</div>
           </div>
           
           <div class="summary__item">
@@ -1346,8 +1368,8 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Результат</p>
-          <h2 class="section__title">Промпты проверяются до production</h2>
-          <p class="section__lead">Инженеры получают объективную оценку, команды выстраивают стандарты качества, а CI/CD автоматизирует аудит.</p>
+          <h2 class="section__title">Меньше инцидентов и итераций отладки благодаря quality gate на входе</h2>
+          <p class="section__lead">Команда получает структурированный отчёт за секунды: оценки, рекомендации и улучшенную версию промпта — до того, как он попадёт в production.</p>
         </div>
 
         <div class="ba-grid">
@@ -1355,11 +1377,13 @@
             <h3 class="ba-card__title"><span>❌</span> До</h3>
             <ul class="ba-card__list">
               
-              <li>Промпт работает нестабильно, но непонятно, что именно сломано</li>
+              <li>Промпт работает через раз, а причины нестабильности не формализованы</li>
               
-              <li>Ревью промптов зависит от интуиции и опыта конкретного человека</li>
+              <li>Ревью зависит от интуиции конкретного инженера и не воспроизводится</li>
               
-              <li>Нет единого формата оценки для команды или CI/CD</li>
+              <li>В команде нет единого языка и стандарта «хорошего» промпта</li>
+              
+              <li>Ручная проверка не масштабируется в CI/CD и не ловит дефекты в потоке</li>
               
             </ul>
           </div>
@@ -1368,11 +1392,13 @@
             <h3 class="ba-card__title"><span>✅</span> После</h3>
             <ul class="ba-card__list">
               
-              <li>Сервис классифицирует вход и оценивает промпт по 8 критериям</li>
+              <li>Сервис классифицирует вход и оценивает промпт по 8 инженерным критериям</li>
               
               <li>Приоритизированные рекомендации показывают, что исправлять первым делом</li>
               
-              <li>Генерируется улучшенная версия промпта, готовая к использованию</li>
+              <li>Генерируется улучшенная версия промпта, готовая к доработке и валидации</li>
+              
+              <li>Один и тот же quality gate доступен через Web UI, Telegram Bot и REST API / CI/CD</li>
               
             </ul>
           </div>
@@ -1390,6 +1416,14 @@
           </div>
           
           <div class="metric-card">
+            <div class="metric-card__icon">⏱️</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">Скорость анализа</div>
+              <div class="metric-card__value">~9 сек<span class="metric-card__suffix"> реальный замер PEl06</span></div>
+            </div>
+          </div>
+          
+          <div class="metric-card">
             <div class="metric-card__icon">🖥️</div>
             <div class="metric-card__content">
               <div class="metric-card__label">Интерфейсы</div>
@@ -1398,10 +1432,10 @@
           </div>
           
           <div class="metric-card">
-            <div class="metric-card__icon">🔗</div>
+            <div class="metric-card__icon">🔌</div>
             <div class="metric-card__content">
-              <div class="metric-card__label">Интеграция</div>
-              <div class="metric-card__value">CI/CD<span class="metric-card__suffix"> GitLab / GitHub</span></div>
+              <div class="metric-card__label">Backend</div>
+              <div class="metric-card__value">2<span class="metric-card__suffix"> LangFlow / LangChain</span></div>
             </div>
           </div>
           
@@ -1415,8 +1449,8 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Проблема</p>
-          <h2 class="section__title">Промпты пишут, но не рецензируют</h2>
-          <p class="section__lead">Качество промпта определяет результат LLM, но у команд нет привычного инструмента для его объективной проверки.</p>
+          <h2 class="section__title">Плохие промпты уходят в production, потому что проверка не встроена в процесс</h2>
+          <p class="section__lead">Качество инструкции определяет результат LLM, но команды не рецензируют промпты системно: нестабильность растёт, а ручное ревью не масштабируется.</p>
         </div>
 
         <div class="problem-grid">
@@ -1425,7 +1459,15 @@
             <div class="problem-card__icon">🎲</div>
             <div>
               <h3 class="problem-card__title">Необъяснимая нестабильность</h3>
-              <p class="problem-card__text">Промпт работает через раз, а причины не формализованы.</p>
+              <p class="problem-card__text">Промпт работает через раз, а причины не формализованы — команда гадает, что именно сломано.</p>
+            </div>
+          </div>
+          
+          <div class="problem-card">
+            <div class="problem-card__icon">👤</div>
+            <div>
+              <h3 class="problem-card__title">Субъективное ручное ревью</h3>
+              <p class="problem-card__text">Один и тот же промпт получает разные оценки; экспертов мало, а их время дорого.</p>
             </div>
           </div>
           
@@ -1433,7 +1475,15 @@
             <div class="problem-card__icon">📏</div>
             <div>
               <h3 class="problem-card__title">Отсутствие стандартов</h3>
-              <p class="problem-card__text">В каждой команде свои договорённости о «хорошем» промпте.</p>
+              <p class="problem-card__text">В каждой команде свои договорённости о «хорошем» промпте — нет общего языка качества.</p>
+            </div>
+          </div>
+          
+          <div class="problem-card">
+            <div class="problem-card__icon">🚧</div>
+            <div>
+              <h3 class="problem-card__title">Не масштабируется в CI/CD</h3>
+              <p class="problem-card__text">Ручная проверка не ловит дефекты в потоке, и низкокачественные промпты проскакивают в production.</p>
             </div>
           </div>
           
@@ -1447,7 +1497,7 @@
         <div class="section__header">
           <p class="eyebrow">Решение</p>
           <h2 class="section__title">Автоматический quality gate для промптов</h2>
-          <p class="section__lead">Prompt Review анализирует структуру, ясность, полноту и другие инженерные характеристики — как code review.</p>
+          <p class="section__lead">Prompt Review анализирует структуру, ясность, полноту и инженерные характеристики промпта через Backend Adapter Pattern — с LangFlow или LangChain backend, через Web UI, Telegram Bot или REST API.</p>
         </div>
 
         <div class="solution-grid">
@@ -1464,7 +1514,7 @@
             <div class="solution-card__icon">📋</div>
             <div>
               <h3 class="solution-card__title">8 критериев</h3>
-              <p class="solution-card__text">Ясность, полнота, однозначность, аудитория, формат, ограничения, предположения, повторяемость.</p>
+              <p class="solution-card__text">Ясность, полнота, однозначность, аудитория, формат, ограничения, предположения, повторяемость — шкала 1–10.</p>
             </div>
           </div>
           
@@ -1481,6 +1531,22 @@
             <div>
               <h3 class="solution-card__title">Улучшенная версия</h3>
               <p class="solution-card__text">Переработанный промпт, который можно взять за основу.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">🔌</div>
+            <div>
+              <h3 class="solution-card__title">Backend Adapter Pattern</h3>
+              <p class="solution-card__text">Переключение между LangFlow и LangChain без изменения FastAPI — гибкость под инфраструктуру заказчика.</p>
+            </div>
+          </div>
+          
+          <div class="solution-card">
+            <div class="solution-card__icon">📦</div>
+            <div>
+              <h3 class="solution-card__title">Единый JSON-контракт</h3>
+              <p class="solution-card__text">Одинаковый формат ответа для Web UI, Telegram Bot, REST API и CI/CD.</p>
             </div>
           </div>
           
