@@ -201,7 +201,7 @@
 
     .contact__layout {
       display: grid;
-      grid-template-columns: 420px 600px;
+      grid-template-columns: 600px 360px;
       gap: var(--space-lg);
       align-items: start;
       width: fit-content;
@@ -214,12 +214,15 @@
       gap: var(--space-lg);
     }
 
-    .contact__column--left { align-items: flex-start; }
-    .contact__column--right { gap: var(--space-lg); }
+    .contact__column--left { gap: var(--space-lg); }
+    .contact__column--right {
+      align-items: flex-start;
+      padding-top: calc(var(--space-sm) + 0.72rem + var(--space-md));
+    }
 
     .contact__photo {
       width: 100%;
-      max-width: 420px;
+      max-width: 360px;
       aspect-ratio: 1 / 1;
       border-radius: var(--radius);
       overflow: hidden;
@@ -536,6 +539,7 @@
         grid-template-columns: 1fr 1fr;
         width: auto;
       }
+      .contact__column--right { padding-top: 0; }
       .contact__photo { max-width: 100%; }
     }
 
@@ -557,6 +561,7 @@
         margin-inline: auto;
         order: 2;
       }
+      .contact__column--right { padding-top: 0; }
       .contact__intro {
         order: 1;
       }
@@ -592,24 +597,6 @@
       <div class="container">
         <div class="contact__layout">
           <div class="contact__column contact__column--left">
-            <div class="contact__photo">
-              <img src="/assets/screenshots/CCM.jpg" alt="Александр Гуляев рядом со скульптурой Осипа Мандельштама" width="320" height="320" loading="eager">
-            </div>
-
-            <div class="contact__guide-row">
-              <div class="guide-card">
-                <h2 class="guide-card__title">Что указать в сообщении</h2>
-                <ul class="guide-list">
-                  <li><strong>Текущий процесс</strong> — что сейчас выполняется вручную.</li>
-                  <li><strong>Проблемная точка</strong> — где теряется время, данные или клиенты.</li>
-                  <li><strong>Системы и данные</strong> — какие каналы, CRM, базы знаний или документы используются.</li>
-                  <li><strong>Требуемый результат</strong> — что должно происходить автоматически.</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div class="contact__column contact__column--right">
             <div class="contact__intro">
               <p class="contact__eyebrow">Обсудить проект</p>
               <h1 class="contact__title">Расскажите, какой процесс хотите автоматизировать</h1>
@@ -639,6 +626,24 @@
                   <li><strong>Уточняющие вопросы</strong> — уточню детали, сроки и ожидания.</li>
                   <li><strong>Следующий шаг</strong> — предложу варианты решения и план прототипа.</li>
                 </ol>
+              </div>
+            </div>
+          </div>
+
+          <div class="contact__column contact__column--right">
+            <div class="contact__photo">
+              <img src="/assets/screenshots/CCM.jpg" alt="Александр Гуляев рядом со скульптурой Осипа Мандельштама" width="320" height="320" loading="eager">
+            </div>
+
+            <div class="contact__guide-row">
+              <div class="guide-card">
+                <h2 class="guide-card__title">Что указать в сообщении</h2>
+                <ul class="guide-list">
+                  <li><strong>Текущий процесс</strong> — что сейчас выполняется вручную.</li>
+                  <li><strong>Проблемная точка</strong> — где теряется время, данные или клиенты.</li>
+                  <li><strong>Системы и данные</strong> — какие каналы, CRM, базы знаний или документы используются.</li>
+                  <li><strong>Требуемый результат</strong> — что должно происходить автоматически.</li>
+                </ul>
               </div>
             </div>
           </div>
