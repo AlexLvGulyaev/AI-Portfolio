@@ -1879,7 +1879,7 @@ def lq_scenario_2_svg() -> str:
 
 
 def pr_scenario_1_svg() -> str:
-    """Prompt Review scenario 1: web form with prompt input."""
+    """Prompt Review scenario 1: web form with prompt input (shared visual style)."""
     w, h = 980, 540
     margin, hdr = 14, 56
     inner_h = h - margin * 2 - hdr
@@ -1906,10 +1906,10 @@ def pr_scenario_1_svg() -> str:
         f'  <text x="{margin + 72}" y="{margin + hdr + 122}" class="ui-sidebar-text" style="font-size:13px;">Получите оценки по критериям, рекомендации и улучшенную редакцию.</text>',
         # Textarea
         f'  <rect x="{margin + 72}" y="{margin + hdr + 150}" width="{w - margin * 2 - 144}" height="{inner_h - 270}" rx="6" class="ui-input" style="fill:var(--surface);" />',
-        # Prompt text inside textarea
-        f'  <text x="{margin + 92}" y="{margin + hdr + 182}" style="font-size:14px; fill:var(--text-primary);">Ты — опытный маркетолог. Напиши пост для Instagram о запуске</text>',
-        f'  <text x="{margin + 92}" y="{margin + hdr + 204}" style="font-size:14px; fill:var(--text-primary);">нового продукта. Включи: заголовок, 3 ключевых преимущества,</text>',
-        f'  <text x="{margin + 92}" y="{margin + hdr + 226}" style="font-size:14px; fill:var(--text-primary);">призыв к действию. Тон: энергичный, но профессиональный.</text>',
+        # Prompt text inside textarea (full width of textarea)
+        f'  <text x="{margin + 92}" y="{margin + hdr + 182}" style="font-size:14px; fill:var(--text-primary);">Ты — опытный маркетолог. Напиши пост для Instagram о запуске нового продукта. Включи:</text>',
+        f'  <text x="{margin + 92}" y="{margin + hdr + 204}" style="font-size:14px; fill:var(--text-primary);">заголовок, 3 ключевых преимущества, призыв к действию. Тон: энергичный, но</text>',
+        f'  <text x="{margin + 92}" y="{margin + hdr + 226}" style="font-size:14px; fill:var(--text-primary);">профессиональный.</text>',
         # Counter + button
         f'  <text x="{margin + 72}" y="{margin + hdr + inner_h - 86}" class="ui-subtitle" style="font-size:12px;">179 / 10,000 символов</text>',
         f'  <rect x="{w - margin - 228}" y="{margin + hdr + inner_h - 102}" width="188" height="42" rx="6" class="ui-btn-primary" />',
@@ -1920,59 +1920,62 @@ def pr_scenario_1_svg() -> str:
 
 
 def pr_scenario_2_svg() -> str:
-    """Prompt Review scenario 2: real Instagram prompt analysis report (two 16:9 fragments stacked)."""
+    """Prompt Review scenario 2: real Instagram prompt analysis report (two 16:9 fragments stacked, shared visual style)."""
     w, h = 980, 1080
     margin = 28
     panel_w = w - margin * 2  # 924
     panel_h = (h - margin * 3) // 2  # 498
-    bg = "#0a0a0f"
-    panel = "#131316"
-    text_primary = "#f5f5f7"
-    text_secondary = "#a1a1aa"
-    accent = "#14b8a6"
-    warning = "#f59e0b"
-    success = "#22c55e"
 
     svg = [
         f'<svg class="ui-illustration" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Prompt Review: структурированный отчёт об анализе промпта для Instagram">',
-        f'  <rect x="0" y="0" width="{w}" height="{h}" rx="6" fill="{bg}" />',
+        '  <defs>',
+        '    <clipPath id="pr-result-clip">',
+        f'      <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="6" />',
+        '    </clipPath>',
+        '  </defs>',
+        f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="{h - margin * 2}" rx="6" class="ui-window" />',
+        f'  <rect x="{margin}" y="{margin}" width="{w - margin * 2}" height="44" class="ui-header" clip-path="url(#pr-result-clip)" />',
+        f'  <rect x="{margin + 16}" y="{margin + 10}" width="24" height="24" rx="4" class="ui-avatar" />',
+        f'  <text x="{margin + 48}" y="{margin + 30}" class="ui-title">Prompt Review</text>',
+        f'  <text x="{w - margin - 20}" y="{margin + 30}" text-anchor="end" class="ui-subtitle" style="font-size:12px;">Backend Online</text>',
+        f'  <circle cx="{w - margin - 130}" cy="{margin + 22}" r="5" fill="#22c55e" />',
     ]
 
     # -------------------------------------------------------------------------
     # Top panel: quality report
     # -------------------------------------------------------------------------
-    lx = margin
-    ly = margin
-    svg.append(f'  <rect x="{lx}" y="{ly}" width="{panel_w}" height="{panel_h}" rx="8" fill="{panel}" />')
-    svg.append(f'  <rect x="{lx}" y="{ly}" width="4" height="{panel_h}" rx="2" fill="{warning}" />')
+    lx = margin + 12
+    ly = margin + 54
+    inner_pw = panel_w - 24
+    svg.append(f'  <rect x="{lx}" y="{ly}" width="{inner_pw}" height="{panel_h - 54}" rx="8" class="ui-msg-bot" style="fill:var(--surface-elevated);" />')
+    svg.append(f'  <rect x="{lx}" y="{ly}" width="4" height="{panel_h - 54}" rx="2" fill="var(--accent)" />')
 
     header_x = lx + 24
-    header_y = ly + 30
-    svg.append(f'  <path d="M {header_x} {header_y} L {header_x + 10} {header_y + 16} L {header_x + 20} {header_y} Z" fill="{warning}" />')
-    svg.append(f'  <text x="{header_x + 10}" y="{header_y + 11}" text-anchor="middle" style="font-size:11px; fill:#0a0a0f; font-weight:700;">!</text>')
-    svg.append(f'  <text x="{header_x + 30}" y="{header_y + 14}" style="font-size:20px; fill:{text_primary}; font-weight:700;">Анализ промпта</text>')
-    svg.append(f'  <text x="{header_x + 30}" y="{header_y + 34}" style="font-size:12px; fill:{text_secondary};">Назначение: Создание поста для Instagram о запуске нового продукта.</text>')
+    header_y = ly + 24
+    svg.append(f'  <rect x="{header_x}" y="{header_y}" width="22" height="20" rx="3" fill="#f59e0b" />')
+    svg.append(f'  <text x="{header_x + 11}" y="{header_y + 15}" text-anchor="middle" style="font-size:13px; fill:#0a0a0f; font-weight:700;">!</text>')
+    svg.append(f'  <text x="{header_x + 30}" y="{header_y + 16}" class="ui-main-title" style="font-size:19px;">Анализ промпта</text>')
 
-    badge_right = lx + panel_w - 20
-    svg.append(f'  <text x="{badge_right}" y="{header_y + 2}" text-anchor="end" style="font-size:11px; fill:{text_secondary}; letter-spacing:0.05em;">КАЧЕСТВО:</text>')
-    svg.append(f'  <text x="{badge_right}" y="{header_y + 28}" text-anchor="end" style="font-size:24px; fill:{warning}; font-weight:700;">Удовлетворительно</text>')
-    svg.append(f'  <text x="{badge_right}" y="{header_y + 50}" text-anchor="end" style="font-size:13px; fill:{text_secondary};">Общая оценка: 6.5/10</text>')
+    badge_right = lx + inner_pw - 20
+    svg.append(f'  <text x="{badge_right}" y="{header_y - 2}" text-anchor="end" class="ui-subtitle" style="font-size:11px; letter-spacing:0.05em;">КАЧЕСТВО:</text>')
+    svg.append(f'  <text x="{badge_right}" y="{header_y + 22}" text-anchor="end" style="font-size:22px; fill:#f59e0b; font-weight:700;">Удовлетворительно</text>')
+    svg.append(f'  <text x="{badge_right}" y="{header_y + 42}" text-anchor="end" class="ui-subtitle" style="font-size:12px;">Общая оценка: 6.5/10</text>')
 
-    purpose_y = ly + 98
-    svg.append(f'  <text x="{header_x}" y="{purpose_y}" style="font-size:11px; fill:{text_secondary}; font-weight:600; letter-spacing:0.05em;">НАЗНАЧЕНИЕ</text>')
-    svg.append(f'  <text x="{header_x}" y="{purpose_y + 22}" style="font-size:13px; fill:{text_primary};">Создание поста для Instagram о запуске нового продукта.</text>')
+    purpose_y = ly + 78
+    svg.append(f'  <text x="{header_x}" y="{purpose_y}" class="ui-table-header-text">НАЗНАЧЕНИЕ</text>')
+    svg.append(f'  <text x="{header_x}" y="{purpose_y + 20}" style="font-size:13px; fill:var(--text-primary);">Создание поста для Instagram о запуске нового продукта.</text>')
 
-    grid_title_y = purpose_y + 52
-    svg.append(f'  <text x="{header_x}" y="{grid_title_y}" style="font-size:11px; fill:{text_secondary}; font-weight:600; letter-spacing:0.05em;">ОЦЕНКИ ПО КРИТЕРИЯМ</text>')
+    grid_title_y = purpose_y + 50
+    svg.append(f'  <text x="{header_x}" y="{grid_title_y}" class="ui-table-header-text">ОЦЕНКИ ПО КРИТЕРИЯМ</text>')
 
     scores = [
         ("Понятность", 8), ("Полнота", 7), ("Отсутствие неоднозначностей", 7), ("Соответствие аудитории", 6),
         ("Формат результата", 6), ("Качество ограничений", 5), ("Достаточность предположений", 6), ("Структурированность", 7),
     ]
-    col_w = (panel_w - 24 - 12) // 4
-    row_h = 68
+    col_w = (inner_pw - 24 - 12) // 4
+    row_h = 70
     gap = 4
-    grid_y = grid_title_y + 18
+    grid_y = grid_title_y + 16
     for i, (label, score) in enumerate(scores):
         col = i % 4
         row = i // 4
@@ -1980,109 +1983,102 @@ def pr_scenario_2_svg() -> str:
         y = grid_y + row * (row_h + gap)
         bar_w = col_w - 16
         fill_w = int(bar_w * score / 10)
-        svg.append(f'  <rect x="{x}" y="{y}" width="{col_w}" height="{row_h}" rx="5" fill="#1a1a1e" />')
+        svg.append(f'  <rect x="{x}" y="{y}" width="{col_w}" height="{row_h}" rx="5" class="ui-source-card" style="fill:var(--surface);" />')
         words = label.split()
         if len(label) > 16 and len(words) > 1:
             mid = len(words) // 2
             line1 = " ".join(words[:mid])
             line2 = " ".join(words[mid:])
-            svg.append(f'  <text x="{x + 10}" y="{y + 18}" style="font-size:12px; fill:{text_secondary};">{escape_text(line1)}</text>')
-            svg.append(f'  <text x="{x + 10}" y="{y + 34}" style="font-size:12px; fill:{text_secondary};">{escape_text(line2)}</text>')
+            svg.append(f'  <text x="{x + 10}" y="{y + 18}" style="font-size:11px; fill:var(--text-secondary);">{escape_text(line1)}</text>')
+            svg.append(f'  <text x="{x + 10}" y="{y + 32}" style="font-size:11px; fill:var(--text-secondary);">{escape_text(line2)}</text>')
         else:
-            svg.append(f'  <text x="{x + 10}" y="{y + 22}" style="font-size:13px; fill:{text_secondary};">{escape_text(label)}</text>')
-        svg.append(f'  <text x="{x + col_w - 10}" y="{y + 22}" text-anchor="end" style="font-size:14px; fill:{accent}; font-weight:600;">{score}/10</text>')
-        svg.append(f'  <rect x="{x + 8}" y="{y + 48}" width="{bar_w}" height="6" rx="3" fill="#26262b" />')
-        svg.append(f'  <rect x="{x + 8}" y="{y + 48}" width="{fill_w}" height="6" rx="3" fill="{accent}" />')
+            svg.append(f'  <text x="{x + 10}" y="{y + 20}" style="font-size:12px; fill:var(--text-secondary);">{escape_text(label)}</text>')
+        svg.append(f'  <text x="{x + col_w - 10}" y="{y + 20}" text-anchor="end" style="font-size:13px; fill:var(--accent); font-weight:600;">{score}/10</text>')
+        svg.append(f'  <rect x="{x + 8}" y="{y + 48}" width="{bar_w}" height="6" rx="3" fill="var(--surface-elevated)" />')
+        svg.append(f'  <rect x="{x + 8}" y="{y + 48}" width="{fill_w}" height="6" rx="3" fill="var(--accent)" />')
 
-    footer_y = ly + panel_h - 30
-    svg.append(f'  <text x="{header_x}" y="{footer_y}" style="font-size:14px; fill:{text_secondary};">Общая оценка:</text>')
-    svg.append(f'  <text x="{badge_right}" y="{footer_y - 10}" text-anchor="end" style="font-size:28px; fill:{accent}; font-weight:700;">6.5/10</text>')
-    svg.append(f'  <text x="{badge_right}" y="{footer_y + 18}" text-anchor="end" style="font-size:12px; fill:{text_secondary};">Время обработки: 8624 мс</text>')
+    footer_y = ly + panel_h - 54 - 24
+    svg.append(f'  <text x="{header_x}" y="{footer_y}" style="font-size:13px; fill:var(--text-secondary);">Общая оценка:</text>')
+    svg.append(f'  <text x="{badge_right}" y="{footer_y - 10}" text-anchor="end" style="font-size:26px; fill:var(--accent); font-weight:700;">6.5/10</text>')
+    svg.append(f'  <text x="{badge_right}" y="{footer_y + 16}" text-anchor="end" style="font-size:12px; fill:var(--text-secondary);">Время обработки: 8624 мс</text>')
 
     # -------------------------------------------------------------------------
     # Bottom panel: strengths, weaknesses, recommendations, improved version
     # -------------------------------------------------------------------------
-    rx = margin
+    rx = margin + 12
     ry = margin * 2 + panel_h
 
-    svg.append(f'  <rect x="{rx}" y="{ry}" width="{panel_w}" height="{panel_h}" rx="8" fill="{panel}" />')
+    svg.append(f'  <rect x="{rx}" y="{ry}" width="{inner_pw}" height="{panel_h}" rx="8" class="ui-msg-bot" style="fill:var(--surface-elevated);" />')
 
-    box_w = (panel_w - 24) // 2
+    box_w = (inner_pw - 24) // 2
     strengths = [
-        "Четко определена роль исполнителя",
-        "(опытный маркетолог).",
-        "Указаны конкретные элементы, которые должны",
-        "быть включены в пост (заголовок,",
-        "преимущества, призыв к действию).",
-        "Задан тон сообщения (энергичный, но",
-        "профессиональный).",
+        "Четко определена роль исполнителя (опытный маркетолог).",
+        "Указаны конкретные элементы, которые должны быть включены",
+        "в пост (заголовок, преимущества, призыв к действию).",
+        "Задан тон сообщения (энергичный, но профессиональный).",
     ]
-    svg.append(f'  <rect x="{rx}" y="{ry}" width="{box_w}" height="160" rx="8" fill="{panel}" stroke="#1f1f24" stroke-width="1" />')
-    svg.append(f'  <rect x="{rx}" y="{ry}" width="4" height="160" rx="2" fill="{success}" />')
-    svg.append(f'  <rect x="{rx + 14}" y="{ry + 14}" width="20" height="20" rx="4" fill="{success}" />')
+    svg.append(f'  <rect x="{rx}" y="{ry}" width="{box_w}" height="160" rx="8" class="ui-source-card" style="fill:var(--surface);" />')
+    svg.append(f'  <rect x="{rx}" y="{ry}" width="4" height="160" rx="2" fill="#22c55e" />')
+    svg.append(f'  <rect x="{rx + 14}" y="{ry + 14}" width="20" height="20" rx="4" fill="#22c55e" />')
     svg.append(f'  <path d="M {rx + 19} {ry + 25} L {rx + 24} {ry + 30} L {rx + 31} {ry + 20}" stroke="#0a0a0f" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />')
-    svg.append(f'  <text x="{rx + 42}" y="{ry + 30}" style="font-size:15px; fill:{text_primary}; font-weight:700;">Сильные стороны</text>')
-    sy = ry + 54
+    svg.append(f'  <text x="{rx + 42}" y="{ry + 30}" style="font-size:14px; fill:var(--text-primary); font-weight:700;">Сильные стороны</text>')
+    sy = ry + 56
     for line in strengths:
-        svg.append(f'  <circle cx="{rx + 24}" cy="{sy - 4}" r="3" fill="{success}" />')
-        svg.append(f'  <text x="{rx + 38}" y="{sy}" style="font-size:12px; fill:{text_primary};">{escape_text(line)}</text>')
-        sy += 18
+        svg.append(f'  <circle cx="{rx + 24}" cy="{sy - 4}" r="3" fill="#22c55e" />')
+        svg.append(f'  <text x="{rx + 38}" y="{sy}" style="font-size:12px; fill:var(--text-primary);">{escape_text(line)}</text>')
+        sy += 22
 
     weaknesses = [
         "Не указана целевая аудитория поста.",
-        "Отсутствуют конкретные ограничения",
-        "по длине поста.",
-        "Не определен формат представления",
-        "ключевых преимуществ.",
+        "Отсутствуют конкретные ограничения по длине поста.",
+        "Не определен формат представления ключевых преимуществ.",
     ]
     wx = rx + box_w + 24
-    svg.append(f'  <rect x="{wx}" y="{ry}" width="{box_w}" height="160" rx="8" fill="{panel}" stroke="#1f1f24" stroke-width="1" />')
-    svg.append(f'  <rect x="{wx}" y="{ry}" width="4" height="160" rx="2" fill="{warning}" />')
-    svg.append(f'  <path d="M {wx + 14} {ry + 14} L {wx + 25} {ry + 32} L {wx + 36} {ry + 14} Z" fill="{warning}" />')
+    svg.append(f'  <rect x="{wx}" y="{ry}" width="{box_w}" height="160" rx="8" class="ui-source-card" style="fill:var(--surface);" />')
+    svg.append(f'  <rect x="{wx}" y="{ry}" width="4" height="160" rx="2" fill="#f59e0b" />')
+    svg.append(f'  <path d="M {wx + 14} {ry + 14} L {wx + 25} {ry + 32} L {wx + 36} {ry + 14} Z" fill="#f59e0b" />')
     svg.append(f'  <text x="{wx + 25}" y="{ry + 26}" text-anchor="middle" style="font-size:11px; fill:#0a0a0f; font-weight:700;">!</text>')
-    svg.append(f'  <text x="{wx + 44}" y="{ry + 30}" style="font-size:15px; fill:{text_primary}; font-weight:700;">Слабые стороны</text>')
-    wy = ry + 54
+    svg.append(f'  <text x="{wx + 44}" y="{ry + 30}" style="font-size:14px; fill:var(--text-primary); font-weight:700;">Слабые стороны</text>')
+    wy = ry + 56
     for line in weaknesses:
-        svg.append(f'  <circle cx="{wx + 24}" cy="{wy - 4}" r="3" fill="{warning}" />')
-        svg.append(f'  <text x="{wx + 38}" y="{wy}" style="font-size:12px; fill:{text_primary};">{escape_text(line)}</text>')
-        wy += 18
+        svg.append(f'  <circle cx="{wx + 24}" cy="{wy - 4}" r="3" fill="#f59e0b" />')
+        svg.append(f'  <text x="{wx + 38}" y="{wy}" style="font-size:12px; fill:var(--text-primary);">{escape_text(line)}</text>')
+        wy += 22
 
     rec_y = ry + 180
     rec_h = 120
-    svg.append(f'  <rect x="{rx}" y="{rec_y}" width="{panel_w}" height="{rec_h}" rx="8" fill="{panel}" stroke="#1f1f24" stroke-width="1" />')
-    svg.append(f'  <circle cx="{rx + 26}" cy="{rec_y + 24}" r="11" fill="{warning}" />')
+    svg.append(f'  <rect x="{rx}" y="{rec_y}" width="{inner_pw}" height="{rec_h}" rx="8" class="ui-source-card" style="fill:var(--surface);" />')
+    svg.append(f'  <circle cx="{rx + 26}" cy="{rec_y + 24}" r="11" fill="#f59e0b" />')
     svg.append(f'  <text x="{rx + 26}" y="{rec_y + 28}" text-anchor="middle" style="font-size:13px; fill:#0a0a0f; font-weight:700;">i</text>')
-    svg.append(f'  <text x="{rx + 48}" y="{rec_y + 28}" style="font-size:15px; fill:{text_primary}; font-weight:700;">Рекомендации</text>')
+    svg.append(f'  <text x="{rx + 48}" y="{rec_y + 28}" style="font-size:14px; fill:var(--text-primary); font-weight:700;">Рекомендации</text>')
     recs = [
-        ("Уточнить целевую аудиторию для более точного таргетинга.",),
-        ("Добавить ограничения по длине поста, чтобы соответствовать", "формату Instagram."),
-        ("Указать, как именно должны быть представлены ключевые", "преимущества (например, в виде списка или абзаца)."),
+        "Уточнить целевую аудиторию для более точного таргетинга.",
+        "Добавить ограничения по длине поста, чтобы соответствовать формату Instagram.",
+        "Указать, как именно должны быть представлены ключевые преимущества (например, в виде списка или абзаца).",
     ]
     ryy = rec_y + 54
-    for rec_lines in recs:
-        svg.append(f'  <rect x="{rx + 14}" y="{ryy - 16}" width="68" height="20" rx="3" fill="{warning}" fill-opacity="0.15" />')
-        svg.append(f'  <text x="{rx + 48}" y="{ryy - 3}" text-anchor="middle" style="font-size:11px; fill:{warning}; font-weight:600;">MEDIUM</text>')
-        for j, line in enumerate(rec_lines):
-            svg.append(f'  <text x="{rx + 92}" y="{ryy + j * 16}" style="font-size:12px; fill:{text_primary};">{escape_text(line)}</text>')
-        ryy += 36
+    for rec in recs:
+        svg.append(f'  <rect x="{rx + 14}" y="{ryy - 16}" width="68" height="20" rx="3" fill="#f59e0b" fill-opacity="0.15" />')
+        svg.append(f'  <text x="{rx + 48}" y="{ryy - 3}" text-anchor="middle" style="font-size:11px; fill:#f59e0b; font-weight:600;">MEDIUM</text>')
+        svg.append(f'  <text x="{rx + 92}" y="{ryy}" style="font-size:12px; fill:var(--text-primary);">{escape_text(rec)}</text>')
+        ryy += 26
 
     imp_y = ry + 314
     imp_h = panel_h - 314
-    svg.append(f'  <rect x="{rx}" y="{imp_y}" width="{panel_w}" height="{imp_h}" rx="8" fill="{panel}" stroke="#1f1f24" stroke-width="1" />')
-    svg.append(f'  <rect x="{rx + 14}" y="{imp_y + 14}" width="20" height="24" rx="3" fill="#3b82f6" />')
-    svg.append(f'  <text x="{rx + 44}" y="{imp_y + 32}" style="font-size:15px; fill:{text_primary}; font-weight:700;">Улучшенная редакция</text>')
-    copy_x = rx + panel_w - 36
-    svg.append(f'  <rect x="{copy_x}" y="{imp_y + 14}" width="18" height="20" rx="2" stroke="{text_secondary}" stroke-width="1.5" fill="none" />')
-    svg.append(f'  <rect x="{copy_x - 6}" y="{imp_y + 20}" width="18" height="20" rx="2" stroke="{text_secondary}" stroke-width="1.5" fill="none" />')
+    svg.append(f'  <rect x="{rx}" y="{imp_y}" width="{inner_pw}" height="{imp_h}" rx="8" class="ui-input" style="fill:var(--surface);" />')
+    svg.append(f'  <rect x="{rx + 14}" y="{imp_y + 14}" width="20" height="22" rx="3" fill="#3b82f6" />')
+    svg.append(f'  <text x="{rx + 42}" y="{imp_y + 30}" style="font-size:14px; fill:var(--text-primary); font-weight:700;">Улучшенная редакция</text>')
+    copy_x = rx + inner_pw - 36
+    svg.append(f'  <rect x="{copy_x}" y="{imp_y + 14}" width="18" height="18" rx="2" stroke="var(--text-secondary)" stroke-width="1.5" fill="none" />')
+    svg.append(f'  <rect x="{copy_x - 6}" y="{imp_y + 19}" width="18" height="18" rx="2" stroke="var(--text-secondary)" stroke-width="1.5" fill="none" />')
     improved = [
-        "Ты — опытный маркетолог. Напиши пост для Instagram о запуске нового продукта. Включи:",
-        "заголовок, 3 ключевых преимущества в виде списка, призыв к действию. Тон: энергичный, но",
-        "профессиональный. Целевая аудитория: молодые профессионалы в возрасте 25–35 лет.",
-        "Ограничение по длине: не более 150 слов.",
+        "Ты — опытный маркетолог. Напиши пост для Instagram о запуске нового продукта. Включи: заголовок,",
+        "3 ключевых преимущества в виде списка, призыв к действию. Тон: энергичный, но профессиональный.",
+        "Целевая аудитория: молодые профессионалы в возрасте 25–35 лет. Ограничение по длине: не более 150 слов.",
     ]
     imp_text_y = imp_y + 62
     for line in improved:
-        svg.append(f'  <text x="{rx + 18}" y="{imp_text_y}" style="font-size:13px; fill:{text_primary};">{escape_text(line)}</text>')
+        svg.append(f'  <text x="{rx + 18}" y="{imp_text_y}" style="font-size:13px; fill:var(--text-primary);">{escape_text(line)}</text>')
         imp_text_y += 22
 
     svg.append('</svg>')
