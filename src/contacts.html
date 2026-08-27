@@ -199,12 +199,37 @@
       padding: var(--space-xl) 0;
     }
 
-    .contact__inner {
+    .contact__hero {
       display: grid;
-      grid-template-columns: 1.15fr 1fr;
+      grid-template-columns: 0.4fr 0.6fr;
+      grid-template-areas:
+        "photo intro-top"
+        "photo intro-rest";
       gap: var(--space-xl);
       align-items: start;
     }
+
+    .contact__photo {
+      grid-area: photo;
+      max-width: 320px;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow-md);
+    }
+
+    .contact__photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .contact__intro-top { grid-area: intro-top; }
+    .contact__intro-rest { grid-area: intro-rest; }
 
     .contact__eyebrow {
       font-family: var(--font-mono);
@@ -228,7 +253,7 @@
     .contact__lead {
       font-size: 1rem;
       color: var(--text-secondary);
-      margin: 0 0 var(--space-md);
+      margin: 0;
       max-width: 520px;
       line-height: 1.5;
     }
@@ -236,7 +261,7 @@
     .contact__author {
       font-size: 0.95rem;
       color: var(--text-muted);
-      margin-bottom: var(--space-md);
+      margin: 0 0 var(--space-md);
     }
 
     .contact__actions {
@@ -271,6 +296,13 @@
       max-width: 520px;
     }
 
+    .contact__guide-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-lg);
+      margin-top: var(--space-xl);
+    }
+
     .guide-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -278,8 +310,6 @@
       padding: var(--space-lg);
       box-shadow: var(--shadow-sm);
     }
-
-    .guide-card + .guide-card { margin-top: var(--space-md); }
 
     .guide-card__title {
       font-family: var(--font-display);
@@ -501,11 +531,23 @@
       .site-header__inner { height: 56px; }
       .nav { gap: var(--space-sm); font-size: 0.85rem; }
       .contact-page { padding: var(--space-lg) 0; }
-      .contact__inner {
-        grid-template-columns: 1fr;
+      .contact__hero {
+        display: flex;
+        flex-direction: column;
         gap: var(--space-lg);
       }
+      .contact__photo {
+        max-width: 320px;
+        margin-inline: auto;
+        order: 2;
+      }
+      .contact__intro-top { order: 1; }
+      .contact__intro-rest { order: 3; }
       .contact__actions { flex-direction: column; align-items: stretch; }
+      .contact__guide-row {
+        grid-template-columns: 1fr;
+        margin-top: var(--space-lg);
+      }
       .site-footer__inner { flex-direction: column; align-items: flex-start; gap: var(--space-xs); }
     }
   </style>
@@ -526,28 +568,37 @@
 
   <main>
     <section class="contact-page">
-      <div class="container contact__inner">
-        <div class="contact__intro">
-          <p class="contact__eyebrow">Обсудить проект</p>
-          <h1 class="contact__title">Расскажите, какой процесс хотите автоматизировать</h1>
-          <p class="contact__lead">Для первого сообщения достаточно описать, что сейчас выполняется вручную, кто участвует в процессе и какой результат требуется получить.</p>
-          <p class="contact__author">Александр Гуляев, AI Automation Portfolio Lab</p>
-
-          <div class="contact__actions">
-            <a href="https://t.me/AlexLvGulyaev" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Написать в Telegram</a>
-            <a href="mailto:sbs.gulyaev.al@gmail.com" class="btn btn-ghost">Написать на email</a>
-            <a href="/" class="btn btn-ghost">Смотреть проекты</a>
+      <div class="container">
+        <div class="contact__hero">
+          <div class="contact__photo">
+            <img src="/assets/screenshots/CCM.jpg" alt="Александр Гуляев рядом со скульптурой Осипа Мандельштама" width="320" height="320" loading="eager">
           </div>
 
-          <div class="contact__addresses">
-            <a href="https://t.me/AlexLvGulyaev" target="_blank" rel="noopener noreferrer">Telegram: @AlexLvGulyaev</a>
-            <a href="mailto:sbs.gulyaev.al@gmail.com">Email: sbs.gulyaev.al@gmail.com</a>
+          <div class="contact__intro-top">
+            <p class="contact__eyebrow">Обсудить проект</p>
+            <h1 class="contact__title">Расскажите, какой процесс хотите автоматизировать</h1>
+            <p class="contact__lead">Для первого сообщения достаточно описать, что сейчас выполняется вручную, кто участвует в процессе и какой результат требуется получить.</p>
           </div>
 
-          <p class="contact__note">Можно написать в свободной форме — отдельный бриф для первого обращения не требуется.</p>
+          <div class="contact__intro-rest">
+            <p class="contact__author">Александр Гуляев, AI Automation Portfolio Lab</p>
+
+            <div class="contact__actions">
+              <a href="https://t.me/AlexLvGulyaev" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Написать в Telegram</a>
+              <a href="mailto:sbs.gulyaev.al@gmail.com" class="btn btn-ghost">Написать на email</a>
+              <a href="/" class="btn btn-ghost">Смотреть проекты</a>
+            </div>
+
+            <div class="contact__addresses">
+              <a href="https://t.me/AlexLvGulyaev" target="_blank" rel="noopener noreferrer">Telegram: @AlexLvGulyaev</a>
+              <a href="mailto:sbs.gulyaev.al@gmail.com">Email: sbs.gulyaev.al@gmail.com</a>
+            </div>
+
+            <p class="contact__note">Можно написать в свободной форме — отдельный бриф для первого обращения не требуется.</p>
+          </div>
         </div>
 
-        <div class="contact__guide">
+        <div class="contact__guide-row">
           <div class="guide-card">
             <h2 class="guide-card__title">Что указать в сообщении</h2>
             <ul class="guide-list">
