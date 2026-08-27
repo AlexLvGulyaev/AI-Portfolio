@@ -199,18 +199,14 @@
       padding: var(--space-xl) 0;
     }
 
-    .contact__hero {
+    .contact__layout {
       display: grid;
       grid-template-columns: 0.48fr 0.52fr;
-      grid-template-areas:
-        "photo intro-top"
-        "photo intro-rest";
       gap: var(--space-lg);
       align-items: start;
     }
 
     .contact__photo {
-      grid-area: photo;
       max-width: 420px;
       width: 100%;
       aspect-ratio: 1 / 1;
@@ -228,8 +224,7 @@
       display: block;
     }
 
-    .contact__intro-top { grid-area: intro-top; }
-    .contact__intro-rest { grid-area: intro-rest; }
+    .contact__intro { grid-column: 2; }
 
     .contact__eyebrow {
       font-family: var(--font-mono);
@@ -297,10 +292,11 @@
     }
 
     .contact__guide-row {
+      grid-column: 1 / -1;
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 0.48fr 0.52fr;
       gap: var(--space-lg);
-      margin-top: var(--space-lg);
+      margin-top: var(--space-md);
     }
 
     .guide-card {
@@ -531,7 +527,7 @@
       .site-header__inner { height: 56px; }
       .nav { gap: var(--space-sm); font-size: 0.85rem; }
       .contact-page { padding: var(--space-lg) 0; }
-      .contact__hero {
+      .contact__layout {
         display: flex;
         flex-direction: column;
         gap: var(--space-lg);
@@ -541,8 +537,10 @@
         margin-inline: auto;
         order: 2;
       }
-      .contact__intro-top { order: 1; }
-      .contact__intro-rest { order: 3; }
+      .contact__intro {
+        grid-column: auto;
+        order: 1;
+      }
       .contact__actions { flex-direction: column; align-items: stretch; }
       .contact__guide-row {
         grid-template-columns: 1fr;
@@ -569,18 +567,16 @@
   <main>
     <section class="contact-page">
       <div class="container">
-        <div class="contact__hero">
+        <div class="contact__layout">
           <div class="contact__photo">
             <img src="/assets/screenshots/CCM.jpg" alt="Александр Гуляев рядом со скульптурой Осипа Мандельштама" width="320" height="320" loading="eager">
           </div>
 
-          <div class="contact__intro-top">
+          <div class="contact__intro">
             <p class="contact__eyebrow">Обсудить проект</p>
             <h1 class="contact__title">Расскажите, какой процесс хотите автоматизировать</h1>
             <p class="contact__lead">Для первого сообщения достаточно описать, что сейчас выполняется вручную, кто участвует в процессе и какой результат требуется получить.</p>
-          </div>
 
-          <div class="contact__intro-rest">
             <p class="contact__author">Александр Гуляев, AI Automation Portfolio Lab</p>
 
             <div class="contact__actions">
@@ -596,26 +592,26 @@
 
             <p class="contact__note">Можно написать в свободной форме — отдельный бриф для первого обращения не требуется.</p>
           </div>
-        </div>
 
-        <div class="contact__guide-row">
-          <div class="guide-card">
-            <h2 class="guide-card__title">Что указать в сообщении</h2>
-            <ul class="guide-list">
-              <li><strong>Текущий процесс</strong> — что сейчас выполняется вручную.</li>
-              <li><strong>Проблемная точка</strong> — где теряется время, данные или клиенты.</li>
-              <li><strong>Системы и данные</strong> — какие каналы, CRM, базы знаний или документы используются.</li>
-              <li><strong>Требуемый результат</strong> — что должно происходить автоматически.</li>
-            </ul>
-          </div>
+          <div class="contact__guide-row">
+            <div class="guide-card">
+              <h2 class="guide-card__title">Что указать в сообщении</h2>
+              <ul class="guide-list">
+                <li><strong>Текущий процесс</strong> — что сейчас выполняется вручную.</li>
+                <li><strong>Проблемная точка</strong> — где теряется время, данные или клиенты.</li>
+                <li><strong>Системы и данные</strong> — какие каналы, CRM, базы знаний или документы используются.</li>
+                <li><strong>Требуемый результат</strong> — что должно происходить автоматически.</li>
+              </ul>
+            </div>
 
-          <div class="guide-card">
-            <h2 class="guide-card__title">Что будет дальше</h2>
-            <ol class="guide-list guide-list--numbered">
-              <li><strong>Разбор задачи</strong> — оценю контур и подходящие инструменты.</li>
-              <li><strong>Уточняющие вопросы</strong> — уточню детали, сроки и ожидания.</li>
-              <li><strong>Следующий шаг</strong> — предложу варианты решения и план прототипа.</li>
-            </ol>
+            <div class="guide-card">
+              <h2 class="guide-card__title">Что будет дальше</h2>
+              <ol class="guide-list guide-list--numbered">
+                <li><strong>Разбор задачи</strong> — оценю контур и подходящие инструменты.</li>
+                <li><strong>Уточняющие вопросы</strong> — уточню детали, сроки и ожидания.</li>
+                <li><strong>Следующий шаг</strong> — предложу варианты решения и план прототипа.</li>
+              </ol>
+            </div>
           </div>
         </div>
       </div>
