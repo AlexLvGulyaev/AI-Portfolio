@@ -88,3 +88,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 dist-admin/
+
+# Internal analytical artifacts (will be removed from public docs at final polish)
+docs/PEf05_RATING.md
+docs/PORTFOLIO_CORPUS_AUDIT.md
+
+# Experiments and prototypes (kept in working tree, not published)
+src/experiments/
