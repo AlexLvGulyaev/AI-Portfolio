@@ -1557,7 +1557,12 @@ def hr_scenario_2_svg() -> str:
 
 
 def retail_scenario_1_svg() -> str:
-    """Retail Group scenario 1: voice call transcript with ASR and TTS status."""
+    """Retail Group scenario 1: voice call transcript rendered as a PNG image."""
+    return '<img class="ui-illustration" src="/assets/screenshots/RG-scenario-01.png" alt="Retail Group: голосовой диалог клиента с AI-ассистентом" loading="lazy">'
+
+
+def retail_scenario_1_svg_old() -> str:
+    """Retail Group scenario 1: voice call transcript with ASR and TTS status (legacy SVG)."""
     w, h = 980, 540
     margin, hdr = 14, 64
     inner_h = h - margin * 2 - hdr
@@ -1613,7 +1618,15 @@ def retail_scenario_1_svg() -> str:
 
 
 def retail_metrics_svg() -> str:
-    """Five key pilot metrics dashboard."""
+    """Five key pilot metrics dashboard rendered as theme-aware PNG images."""
+    return (
+        '<img class="ui-illustration preview-dark" src="/assets/screenshots/RG-scenario-2-dark.png" alt="Retail Group: пять ключевых метрик пилота Voice AI" loading="lazy">\n'
+        '<img class="ui-illustration preview-light" src="/assets/screenshots/RG-scenario-2-light.png" alt="Retail Group: пять ключевых метрик пилота Voice AI" loading="lazy">'
+    )
+
+
+def retail_metrics_svg_old() -> str:
+    """Five key pilot metrics dashboard (legacy SVG)."""
     w, h = 980, 540
     metrics = [
         ("Снижение нагрузки", "40%", "на операторов 1-го уровня"),
@@ -3001,6 +3014,28 @@ TEMPLATE = r'''<!doctype html>
       max-width: 100%;
       display: block;
     }
+
+    .demo-block .preview-dark,
+    .demo-block .preview-light {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      object-position: top left;
+      border-radius: var(--radius);
+      background: var(--bg);
+      border: 1px solid var(--border);
+    }
+
+    .demo-block .preview-dark { display: block; }
+    .demo-block .preview-light { display: none; }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .demo-block .preview-dark { display: none; }
+      :root:not([data-theme="light"]) .demo-block .preview-light { display: block; }
+    }
+
+    :root[data-theme="dark"] .demo-block .preview-dark { display: none; }
+    :root[data-theme="dark"] .demo-block .preview-light { display: block; }
 
     .ui-illustration--phone {
       max-width: 440px;

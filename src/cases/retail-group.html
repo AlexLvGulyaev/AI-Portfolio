@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Голосовой ассистент закрывает типовые звонки, сложные случаи переводит на операторов с сохранением контекста, а аналитика показывает темы и точки роста.">
-  <meta property="og:title" content="Retail Group · Голосовой AI-ассистент первой линии">
-  <meta property="og:description" content="Голосовой ассистент закрывает типовые звонки, сложные случаи переводит на операторов с сохранением контекста, а аналитика показывает темы и точки роста.">
+  <meta name="description" content="На примере Retail Group демонстрируется полный цикл работы лаборатории с B2B-заказчиком: квалификация, интервью с ЛПР, архитектура, экономика и план пилота с чёткими критериями запуска.">
+  <meta property="og:title" content="Retail Group · От интервью с ЛПР до пилотного плана">
+  <meta property="og:description" content="На примере Retail Group демонстрируется полный цикл работы лаборатории с B2B-заказчиком: квалификация, интервью с ЛПР, архитектура, экономика и план пилота с чёткими критериями запуска.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ai.alex-n8n.site/cases/retail-group.html">
   <meta property="og:image" content="/assets/screenshots/RG-portfolio-light.png">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Retail Group · Голосовой AI-ассистент первой линии">
-  <meta name="twitter:description" content="Голосовой ассистент закрывает типовые звонки, сложные случаи переводит на операторов с сохранением контекста, а аналитика показывает темы и точки роста.">
+  <meta name="twitter:title" content="Retail Group · От интервью с ЛПР до пилотного плана">
+  <meta name="twitter:description" content="На примере Retail Group демонстрируется полный цикл работы лаборатории с B2B-заказчиком: квалификация, интервью с ЛПР, архитектура, экономика и план пилота с чёткими критериями запуска.">
   <meta name="twitter:image" content="/assets/screenshots/RG-portfolio-light.png">
   <link rel="canonical" href="https://ai.alex-n8n.site/cases/retail-group.html">
-  <title>Retail Group · Голосовой AI-ассистент первой линии</title>
+  <title>Retail Group · От интервью с ЛПР до пилотного плана</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -762,6 +762,28 @@
       display: block;
     }
 
+    .demo-block .preview-dark,
+    .demo-block .preview-light {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      object-position: top left;
+      border-radius: var(--radius);
+      background: var(--bg);
+      border: 1px solid var(--border);
+    }
+
+    .demo-block .preview-dark { display: block; }
+    .demo-block .preview-light { display: none; }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .demo-block .preview-dark { display: none; }
+      :root:not([data-theme="light"]) .demo-block .preview-light { display: block; }
+    }
+
+    :root[data-theme="dark"] .demo-block .preview-dark { display: none; }
+    :root[data-theme="dark"] .demo-block .preview-light { display: block; }
+
     .ui-illustration--phone {
       max-width: 440px;
       margin: 0;
@@ -1280,19 +1302,19 @@
     <section class="hero">
       <div class="container hero__inner">
         <div class="hero__body">
-          <p class="eyebrow hero__eyebrow">Голосовой AI-ассистент первой линии поддержки</p>
-          <h1 class="hero__title">Автоматизируйте первую линию голосовой поддержки ритейлера</h1>
-          <p class="hero__lead">Голосовой ассистент закрывает типовые звонки, сложные случаи переводит на операторов с сохранением контекста, а аналитика показывает темы и точки роста.</p>
+          <p class="eyebrow hero__eyebrow">Presale-кейс · голосовой AI-ассистент первой линии</p>
+          <h1 class="hero__title">От идеи до измеримого пилота: пример B2B-пресейла AI-решения</h1>
+          <p class="hero__lead">На примере Retail Group демонстрируется полный цикл работы лаборатории с B2B-заказчиком: квалификация, интервью с ЛПР, архитектура, экономика и план пилота с чёткими критериями запуска.</p>
           <div class="hero__actions">
-            <a href="https://pecb05.alex-n8n.site/case-story/case-story-retail-group-v2.html" class="btn btn-primary" target="_blank" rel="noopener">Case Story</a>
+            <a href="/contacts.html" class="btn btn-primary" target="_blank" rel="noopener">Обсудить presale</a>
+            <a href="https://rg.alex-n8n.site/" class="btn btn-ghost" target="_blank" rel="noopener">Case Story</a>
             <a href="https://pecb05.alex-n8n.site/" class="btn btn-ghost" target="_blank" rel="noopener">План пилота</a>
             <a href="https://pecb04.alex-n8n.site/" class="btn btn-ghost" target="_blank" rel="noopener">Коммерческое предложение</a>
-            <a href="/contacts.html" class="btn btn-ghost" target="_blank" rel="noopener">Обсудить проект</a>
           </div>
         </div>
         <div class="hero__media">
-          <img class="hero__screenshot preview-dark" src="/assets/screenshots/RG-portfolio-dark.png" alt="Голосовой AI-ассистент Retail Group на линии поддержки" loading="eager">
-          <img class="hero__screenshot preview-light" src="/assets/screenshots/RG-portfolio-light.png" alt="Голосовой AI-ассистент Retail Group на линии поддержки" loading="eager">
+          <img class="hero__screenshot preview-dark" src="/assets/screenshots/RG-portfolio-dark.png" alt="Retail Group: голосовой AI-ассистент первой линии поддержки" loading="eager">
+          <img class="hero__screenshot preview-light" src="/assets/screenshots/RG-portfolio-light.png" alt="Retail Group: голосовой AI-ассистент первой линии поддержки" loading="eager">
         </div>
       </div>
     </section>
@@ -1308,6 +1330,11 @@
           </div>
           
           <div class="summary__item">
+            <div class="summary__label">Тип</div>
+            <div class="summary__value">Presale / B2B-пилот</div>
+          </div>
+          
+          <div class="summary__item">
             <div class="summary__label">Клиент</div>
             <div class="summary__value">Сеть продуктовых магазинов</div>
           </div>
@@ -1318,18 +1345,13 @@
           </div>
           
           <div class="summary__item">
-            <div class="summary__label">Нагрузка</div>
-            <div class="summary__value">до 3 000 звонков/день</div>
-          </div>
-          
-          <div class="summary__item">
             <div class="summary__label">Статус</div>
-            <div class="summary__value">Пилотный план готов</div>
+            <div class="summary__value">Проектная документация и пилотный план готовы</div>
           </div>
           
           <div class="summary__item">
             <div class="summary__label">Case Story</div>
-            <div class="summary__value"><a href='https://pecb05.alex-n8n.site/case-story/case-story-retail-group-v2.html' target='_blank' rel='noopener'>pecb05.alex-n8n.site/case-story</a></div>
+            <div class="summary__value"><a href='https://rg.alex-n8n.site/' target='_blank' rel='noopener'>rg.alex-n8n.site</a></div>
           </div>
           
           <div class="summary__item">
@@ -1351,8 +1373,8 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Результат</p>
-          <h2 class="section__title">Меньше рутины на первой линии, больше внимания сложным случаям</h2>
-          <p class="section__lead">Пилот прогнозирует высвобождение 2–3 операторов и экономию около 290 000 ₽/мес при окупаемости ~0,8 месяца.</p>
+          <h2 class="section__title">Снижаем нагрузку на первую линию</h2>
+          <p class="section__lead">~60% типовых звонков уходят в голосовой ассистент, сложные обращения быстрее доходят до операторов, а пилот фиксирует, где это реально работает.</p>
         </div>
 
         <div class="ba-grid">
@@ -1360,11 +1382,11 @@
             <h3 class="ba-card__title"><span>❌</span> До</h3>
             <ul class="ba-card__list">
               
-              <li>60% звонков — типовые вопросы, на которые отвечают 8 операторов</li>
+              <li>До 3 000 звонков в день нагружают первую линию, расходы растут вместе с трафиком</li>
               
-              <li>Время обработки типового звонка ~1,3 минуты оператора</li>
+              <li>~60% звонков типовые: операторы занимаются рутиной вместо сложных обращений</li>
               
-              <li>Нет прозрачной аналитики по темам и ошибкам</li>
+              <li>Время ожидания и нагрузка на людей растут, качество сервиса под угрозой</li>
               
             </ul>
           </div>
@@ -1373,11 +1395,11 @@
             <h3 class="ba-card__title"><span>✅</span> После</h3>
             <ul class="ba-card__list">
               
-              <li>AI-ассистент закрывает типовые обращения за 15–60 секунд</li>
+              <li>Проведена квалификация клиента, интервью с ЛПР и зафиксирована архитектура voice-решения</li>
               
-              <li>Сложные и конфликтные случаи переводятся на операторов с контекстом</li>
+              <li>Пилот расписан: 2 недели, ~10% трафика, чек-лист готовности, 5 метрик и пороги отказа</li>
               
-              <li>Аналитика показывает темы, ошибки и точки роста</li>
+              <li>Коммерческое предложение и план передачи дают основу для решения о внедрении</li>
               
             </ul>
           </div>
@@ -1387,26 +1409,34 @@
         <div class="metrics-grid">
           
           <div class="metric-card">
-            <div class="metric-card__icon">⚡</div>
+            <div class="metric-card__icon">📞</div>
             <div class="metric-card__content">
-              <div class="metric-card__label">Скорость</div>
-              <div class="metric-card__value">15–60 сек<span class="metric-card__suffix"> на типовой звонок</span></div>
+              <div class="metric-card__label">Звонков</div>
+              <div class="metric-card__value">до 3 000<span class="metric-card__suffix"> в день</span></div>
             </div>
           </div>
           
           <div class="metric-card">
-            <div class="metric-card__icon">🧑‍💻</div>
+            <div class="metric-card__icon">👥</div>
             <div class="metric-card__content">
-              <div class="metric-card__label">Освобождение</div>
-              <div class="metric-card__value">2–3<span class="metric-card__suffix"> операторов</span></div>
+              <div class="metric-card__label">Операторов</div>
+              <div class="metric-card__value">8<span class="metric-card__suffix"> первой линии</span></div>
             </div>
           </div>
           
           <div class="metric-card">
-            <div class="metric-card__icon">💰</div>
+            <div class="metric-card__icon">📊</div>
             <div class="metric-card__content">
-              <div class="metric-card__label">Экономика</div>
-              <div class="metric-card__value">~290 000 ₽/мес<span class="metric-card__suffix"> прогноз пилота</span></div>
+              <div class="metric-card__label">Типовых запросов</div>
+              <div class="metric-card__value">~60%<span class="metric-card__suffix"> оценка заказчика</span></div>
+            </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-card__icon">⏱️</div>
+            <div class="metric-card__content">
+              <div class="metric-card__label">Пилот</div>
+              <div class="metric-card__value">2 недели<span class="metric-card__suffix"> ~10% трафика</span></div>
             </div>
           </div>
           
@@ -1420,8 +1450,8 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Проблема</p>
-          <h2 class="section__title">Тысячи типовых звонков грузят операторов</h2>
-          <p class="section__lead">Большая часть обращений — шаблонные вопросы, на которые отвечают люди, хотя их мог бы закрывать AI.</p>
+          <h2 class="section__title">Первая линия тонет под рутинными звонками</h2>
+          <p class="section__lead">Крупный ритейлер получает до 3 000 звонков в день, а 8 операторов первой линии занимаются рутиной: ~60% обращений типовые. Затраты растут вместе с нагрузкой, а сложные обращения и качество сервиса остаются без должного внимания.</p>
         </div>
 
         <div class="problem-grid">
@@ -1429,16 +1459,24 @@
           <div class="problem-card">
             <div class="problem-card__icon">📞</div>
             <div>
-              <h3 class="problem-card__title">Высокая нагрузка</h3>
-              <p class="problem-card__text">До 3 000 звонков в день, 60% из которых типовые.</p>
+              <h3 class="problem-card__title">Линейный рост нагрузки</h3>
+              <p class="problem-card__text">До 3 000 звонков в день, 8 операторов — расходы на первую линию растут вместе с трафиком.</p>
             </div>
           </div>
           
           <div class="problem-card">
             <div class="problem-card__icon">📉</div>
             <div>
-              <h3 class="problem-card__title">Потеря данных</h3>
-              <p class="problem-card__text">Нет системной аналитики, чтобы понять, что спрашивают и где ошибается линия.</p>
+              <h3 class="problem-card__title">Операторы занимаются рутиной</h3>
+              <p class="problem-card__text">~60% звонков типовые, и команде некогда уделять время сложным обращениям.</p>
+            </div>
+          </div>
+          
+          <div class="problem-card">
+            <div class="problem-card__icon">⏱️</div>
+            <div>
+              <h3 class="problem-card__title">Качество сервиса под угрозой</h3>
+              <p class="problem-card__text">Время ожидания и нагрузка на людей растут, повышается риск выгорания и проседания сервиса.</p>
             </div>
           </div>
           
@@ -1451,41 +1489,41 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Решение</p>
-          <h2 class="section__title">Голосовой AI-ассистент первой линии</h2>
-          <p class="section__lead">ASR/STT → n8n → классификатор → LLM+RAG / оператор → TTS → телефония, с логами и аналитикой.</p>
+          <h2 class="section__title">Решение для первой линии</h2>
+          <p class="section__lead">Архитектура voice-контура, экономика и пилотный план дают заказчику прозрачную картину: какие обращения закрывает ассистент, как измерить эффект и при каких условиях продолжать или останавливаться.</p>
         </div>
 
         <div class="solution-grid">
           
           <div class="solution-card">
-            <div class="solution-card__icon">📞</div>
+            <div class="solution-card__icon">🏗️</div>
             <div>
-              <h3 class="solution-card__title">Голосовой контур</h3>
-              <p class="solution-card__text">Телефония, ASR/STT и TTS обеспечивают естественный разговор.</p>
+              <h3 class="solution-card__title">Концепция архитектуры</h3>
+              <p class="solution-card__text">Voice-контур ASR/STT → n8n → LLM+RAG → TTS с эскалацией на оператора.</p>
             </div>
           </div>
           
           <div class="solution-card">
-            <div class="solution-card__icon">🧠</div>
+            <div class="solution-card__icon">💼</div>
             <div>
-              <h3 class="solution-card__title">n8n + LLM + RAG</h3>
-              <p class="solution-card__text">Оркестратор классифицирует запросы и генерирует ответы по базе знаний.</p>
+              <h3 class="solution-card__title">Коммерческое предложение</h3>
+              <p class="solution-card__text">Прогноз экономики, сроки MVP, риски и предложение по сотрудничеству.</p>
             </div>
           </div>
           
           <div class="solution-card">
-            <div class="solution-card__icon">👤</div>
+            <div class="solution-card__icon">📅</div>
             <div>
-              <h3 class="solution-card__title">Эскалация на оператора</h3>
-              <p class="solution-card__text">Сложные случаи переводятся с сохранением полного контекста диалога.</p>
+              <h3 class="solution-card__title">План пилота</h3>
+              <p class="solution-card__text">2 недели, ~10% трафика, 5 ключевых метрик, чек-лист готовности, матрица GO/ITERATE/STOP.</p>
             </div>
           </div>
           
           <div class="solution-card">
-            <div class="solution-card__icon">📊</div>
+            <div class="solution-card__icon">🤝</div>
             <div>
-              <h3 class="solution-card__title">Аналитика пилота</h3>
-              <p class="solution-card__text">Логи в PostgreSQL и дашборд Metabase для оценки эффекта.</p>
+              <h3 class="solution-card__title">Передача решения</h3>
+              <p class="solution-card__text">Матрица передачи artifacts, обучение операторов, runbook и SLA.</p>
             </div>
           </div>
           
@@ -1498,65 +1536,49 @@
       <div class="container">
         <div class="section__header">
           <p class="eyebrow">Как это работает</p>
-          <h2 class="section__title">Как устроен голосовой контур</h2>
-          <p class="section__lead">От звонка клиента до AI-ответа или перевода на оператора с сохранением контекста.</p>
+          <h2 class="section__title">Как устроен процесс работы с клиентом</h2>
+          <p class="section__lead">От первичной квалификации до готового плана пилота — каждый этап даёт заказчику материал для принятия решения.</p>
         </div>
 
-        <svg class="pipeline-diagram pipeline-diagram--two-row" viewBox="0 0 1088 314" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Retail Group: от входа к результату">
+        <svg class="pipeline-diagram pipeline-diagram--five" viewBox="0 0 1120 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Схема работы Retail Group: от входа к результату">
   <defs>
-    <marker id="arrow-tr-aaf206" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="arrow-5n-aaf206" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head" />
     </marker>
   </defs>
-  <g transform="translate(40, 28)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Звонок</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Телефония</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">клиент</text>
+  <g transform="translate(30, 105)">
+    <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
+    <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Квалификация</text>
+    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Портрет</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">клиента</text>
   </g>
-  <path d="M 250 75.0 L 306 75.0" class="arrow" marker-end="url(#arrow-tr-aaf206)" />
-  <g transform="translate(306, 28)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">ASR / STT</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Распознавание</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">речи</text>
+  <path d="M 210 150.0 L 250 150.0" class="arrow" marker-end="url(#arrow-5n-aaf206)" />
+  <g transform="translate(250, 105)">
+    <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
+    <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Интервью</text>
+    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">ЛПР и</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">метрики</text>
   </g>
-  <path d="M 516 75.0 L 572 75.0" class="arrow" marker-end="url(#arrow-tr-aaf206)" />
-  <g transform="translate(572, 28)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">n8n</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Оркестратор</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">запроса</text>
+  <path d="M 430 150.0 L 470 150.0" class="arrow" marker-end="url(#arrow-5n-aaf206)" />
+  <g transform="translate(470, 105)">
+    <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
+    <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">Архитектура</text>
+    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Voice AI</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">n8n / RAG</text>
   </g>
-  <path d="M 782 75.0 L 838 75.0" class="arrow" marker-end="url(#arrow-tr-aaf206)" />
-  <g transform="translate(838, 28)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Классификатор</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Типовой /</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">сложный</text>
+  <path d="M 650 150.0 L 690 150.0" class="arrow" marker-end="url(#arrow-5n-aaf206)" />
+  <g transform="translate(690, 105)">
+    <rect x="0" y="0" width="180" height="90" rx="4" class="node-accent" />
+    <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">КП</text>
+    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Экономика</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">и сроки</text>
   </g>
-  <path d="M 943.0 122 L 943.0 157.0" class="arrow" />
-  <path d="M 943.0 157.0 L 278.0 157.0" class="arrow" />
-  <path d="M 278.0 157.0 L 278.0 192" class="arrow" marker-end="url(#arrow-tr-aaf206)" />
-  <g transform="translate(173, 192)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">LLM + RAG</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">База знаний</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">CRM / API</text>
-  </g>
-  <path d="M 383 239.0 L 439 239.0" class="arrow" marker-end="url(#arrow-tr-aaf206)" />
-  <g transform="translate(439, 192)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">TTS</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Синтез</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">речи</text>
-  </g>
-  <path d="M 649 239.0 L 705 239.0" class="arrow" marker-end="url(#arrow-tr-aaf206)" />
-  <g transform="translate(705, 192)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Телефония</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Ответ</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">клиенту</text>
+  <path d="M 870 150.0 L 910 150.0" class="arrow" marker-end="url(#arrow-5n-aaf206)" />
+  <g transform="translate(910, 105)">
+    <rect x="0" y="0" width="180" height="90" rx="4" class="node-rect" />
+    <text x="90.0" y="26" text-anchor="middle" class="title-text title-text--large">План пилота</text>
+    <text x="90.0" y="50" text-anchor="middle" class="body-text body-text--large">Метрики</text>
+    <text x="90.0" y="68" text-anchor="middle" class="body-text body-text--large">GO/STOP</text>
   </g>
 </svg>
 
@@ -1564,20 +1586,20 @@
           
           <div class="pipeline-card">
             <div class="pipeline-card__number">01</div>
-            <h3 class="pipeline-card__title">Распознавание и классификация</h3>
-            <p class="pipeline-card__text">ASR/STT превращает речь в текст, n8n-классификатор определяет тип обращения.</p>
+            <h3 class="pipeline-card__title">Квалификация и интервью</h3>
+            <p class="pipeline-card__text">Собираем портрет клиента, метрики линии и ожидания ЛПР перед проектированием.</p>
           </div>
           
           <div class="pipeline-card">
             <div class="pipeline-card__number">02</div>
-            <h3 class="pipeline-card__title">AI-ответ или эскалация</h3>
-            <p class="pipeline-card__text">Типовые вопросы закрывает LLM+RAG, сложные — переводятся на оператора с контекстом.</p>
+            <h3 class="pipeline-card__title">Архитектура и КП</h3>
+            <p class="pipeline-card__text">Проектируем voice-контур, оцениваем экономику и формируем коммерческое предложение.</p>
           </div>
           
           <div class="pipeline-card">
             <div class="pipeline-card__number">03</div>
-            <h3 class="pipeline-card__title">Синтез и аналитика</h3>
-            <p class="pipeline-card__text">TTS возвращает ответ голосом, а все данные уходят в логи и дашборд.</p>
+            <h3 class="pipeline-card__title">План пилота</h3>
+            <p class="pipeline-card__text">Расписываем измеримый пилот с чёткими правилами остановки и передачи решения.</p>
           </div>
           
         </div>
@@ -1588,9 +1610,9 @@
     <section class="section" id="ux">
       <div class="container">
         <div class="section__header">
-          <p class="eyebrow">История кейса</p>
-          <h2 class="section__title">Голосовой диалог и метрики пилота</h2>
-          <p class="section__lead">Визуальная история показывает клиентский сценарий и ключевые метрики пилота.</p>
+          <p class="eyebrow">Материалы кейса</p>
+          <h2 class="section__title">Как устроено решение</h2>
+          <p class="section__lead">Диалог клиента с ассистентом и ключевые метрики пилота показывают, что решение замеряется по фактам.</p>
         </div>
 
         
@@ -1598,82 +1620,10 @@
           <div class="demo-block__header">
             <div class="demo-block__label">Сценарий 1</div>
             <h3 class="demo-block__title">Клиентский голосовой диалог</h3>
-            <p class="demo-block__text">Клиент звонит с типовым вопросом, голосовой ассистент понимает запрос и отвечает естественной речью.</p>
+            <p class="demo-block__text">Типовой звонок клиента: ассистент отвечает на вопрос или переводит на оператора, когда нужна человеческая помощь.</p>
           </div>
           
-          <svg class="ui-illustration" viewBox="0 0 980 540" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Retail Group: голосовой диалог клиента с AI-ассистентом">
-  <defs>
-    <clipPath id="rg-call-clip">
-      <rect x="14" y="14" width="952" height="512" rx="6" />
-    </clipPath>
-  </defs>
-  <rect x="14" y="14" width="952" height="512" rx="6" class="ui-window" />
-  <rect x="14" y="14" width="952" height="64" class="ui-header" clip-path="url(#rg-call-clip)" />
-  <text x="490" y="44" text-anchor="middle" class="ui-title">Voice AI · Retail Group</text>
-  <text x="490" y="66" text-anchor="middle" class="ui-subtitle" style="font-size:12px;">Входящий звонок · на линии 00:42</text>
-  <circle cx="490" cy="122" r="32" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2" />
-  <path d="M478 122 C478 110 502 110 502 122 C502 134 478 134 478 122" stroke="var(--accent)" stroke-width="3" fill="none" stroke-linecap="round" />
-  <rect x="94" y="172" width="792" height="48" rx="4" fill="var(--surface-elevated)" stroke="var(--border)" stroke-width="1" />
-  <rect x="252" y="191" width="6" height="10" rx="2" fill="var(--accent)" />
-  <rect x="262" y="185" width="6" height="22" rx="2" fill="var(--accent)" />
-  <rect x="272" y="191" width="6" height="10" rx="2" fill="var(--accent)" />
-  <rect x="282" y="190" width="6" height="12" rx="2" fill="var(--accent)" />
-  <rect x="292" y="191" width="6" height="11" rx="2" fill="var(--accent)" />
-  <rect x="302" y="191" width="6" height="10" rx="2" fill="var(--accent)" />
-  <rect x="312" y="188" width="6" height="16" rx="2" fill="var(--accent)" />
-  <rect x="322" y="189" width="6" height="14" rx="2" fill="var(--accent)" />
-  <rect x="332" y="190" width="6" height="12" rx="2" fill="var(--accent)" />
-  <rect x="342" y="184" width="6" height="24" rx="2" fill="var(--accent)" />
-  <rect x="352" y="188" width="6" height="16" rx="2" fill="var(--accent)" />
-  <rect x="362" y="181" width="6" height="30" rx="2" fill="var(--accent)" />
-  <rect x="372" y="184" width="6" height="24" rx="2" fill="var(--accent)" />
-  <rect x="382" y="186" width="6" height="21" rx="2" fill="var(--accent)" />
-  <rect x="392" y="181" width="6" height="30" rx="2" fill="var(--accent)" />
-  <rect x="402" y="190" width="6" height="12" rx="2" fill="var(--accent)" />
-  <rect x="412" y="192" width="6" height="8" rx="2" fill="var(--accent)" />
-  <rect x="422" y="188" width="6" height="16" rx="2" fill="var(--accent)" />
-  <rect x="432" y="190" width="6" height="12" rx="2" fill="var(--accent)" />
-  <rect x="442" y="183" width="6" height="26" rx="2" fill="var(--accent)" />
-  <rect x="452" y="189" width="6" height="14" rx="2" fill="var(--accent)" />
-  <rect x="462" y="188" width="6" height="16" rx="2" fill="var(--accent)" />
-  <rect x="472" y="189" width="6" height="15" rx="2" fill="var(--accent)" />
-  <rect x="482" y="184" width="6" height="25" rx="2" fill="var(--accent)" />
-  <rect x="492" y="187" width="6" height="18" rx="2" fill="var(--accent)" />
-  <rect x="502" y="185" width="6" height="23" rx="2" fill="var(--accent)" />
-  <rect x="512" y="184" width="6" height="24" rx="2" fill="var(--accent)" />
-  <rect x="522" y="186" width="6" height="20" rx="2" fill="var(--accent)" />
-  <rect x="532" y="191" width="6" height="11" rx="2" fill="var(--accent)" />
-  <rect x="542" y="182" width="6" height="28" rx="2" fill="var(--accent)" />
-  <rect x="552" y="184" width="6" height="24" rx="2" fill="var(--accent)" />
-  <rect x="562" y="190" width="6" height="12" rx="2" fill="var(--accent)" />
-  <rect x="572" y="186" width="6" height="20" rx="2" fill="var(--accent)" />
-  <rect x="582" y="191" width="6" height="11" rx="2" fill="var(--accent)" />
-  <rect x="592" y="189" width="6" height="15" rx="2" fill="var(--accent)" />
-  <rect x="602" y="189" width="6" height="14" rx="2" fill="var(--accent)" />
-  <rect x="612" y="186" width="6" height="20" rx="2" fill="var(--accent)" />
-  <rect x="622" y="186" width="6" height="20" rx="2" fill="var(--accent)" />
-  <rect x="632" y="184" width="6" height="25" rx="2" fill="var(--accent)" />
-  <rect x="642" y="186" width="6" height="21" rx="2" fill="var(--accent)" />
-  <rect x="652" y="181" width="6" height="31" rx="2" fill="var(--accent)" />
-  <rect x="662" y="182" width="6" height="29" rx="2" fill="var(--accent)" />
-  <rect x="672" y="185" width="6" height="23" rx="2" fill="var(--accent)" />
-  <rect x="682" y="180" width="6" height="32" rx="2" fill="var(--accent)" />
-  <rect x="692" y="183" width="6" height="26" rx="2" fill="var(--accent)" />
-  <rect x="702" y="184" width="6" height="24" rx="2" fill="var(--accent)" />
-  <rect x="712" y="191" width="6" height="11" rx="2" fill="var(--accent)" />
-  <rect x="722" y="187" width="6" height="18" rx="2" fill="var(--accent)" />
-  <rect x="74" y="248" width="420" height="64" rx="8" class="ui-msg-user" />
-  <text x="94" y="270" style="font-size:11px; fill:#ffffff; font-weight:500;">Клиент</text>
-  <text x="94" y="294" style="font-size:14px; fill:#ffffff;">До сколько работает магазин на Ленина?</text>
-  <rect x="486" y="332" width="420" height="80" rx="8" class="ui-msg-bot" />
-  <text x="506" y="354" style="font-size:11px; fill:var(--accent); font-weight:500;">Ассистент</text>
-  <text x="506" y="378" style="font-size:14px; fill:var(--text-primary);">Магазин на Ленина, 12 работает до 23:00.</text>
-  <text x="506" y="398" style="font-size:14px; fill:var(--text-primary);">Хотите узнать про акции?</text>
-  <rect x="74" y="472" width="220" height="34" rx="4" fill="var(--surface-elevated)" stroke="var(--border)" stroke-width="1" />
-  <text x="90" y="494" style="font-size:12px; fill:var(--text-secondary);">ASR: распознано · 94%</text>
-  <rect x="686" y="472" width="220" height="34" rx="4" fill="var(--surface-elevated)" stroke="var(--border)" stroke-width="1" />
-  <text x="702" y="494" style="font-size:12px; fill:var(--text-secondary);">TTS: ответ синтезирован · 63 мс</text>
-</svg>
+          <img class="ui-illustration" src="/assets/screenshots/RG-scenario-01.png" alt="Retail Group: голосовой диалог клиента с AI-ассистентом" loading="lazy">
           
         </div>
         
@@ -1681,34 +1631,11 @@
           <div class="demo-block__header">
             <div class="demo-block__label">Сценарий 2</div>
             <h3 class="demo-block__title">Пять ключевых метрик пилота</h3>
-            <p class="demo-block__text">Снижение нагрузки, время ответа, точность классификации, покрытие FAQ и NPS пилота — единый dashboard.</p>
+            <p class="demo-block__text">План пилота фиксирует точность, скорость, уровень автоматизации, CSAT и экономику с порогами GO/ITERATE/STOP.</p>
           </div>
           
-          <svg class="ui-illustration" viewBox="0 0 980 540" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Retail Group: пять ключевых метрик пилота Voice AI">
-  <rect x="20" y="10" width="940" height="520" rx="8" class="ui-window" />
-  <text x="50" y="60" class="ui-main-title">Пилот Voice AI: ключевые метрики</text>
-  <text x="50" y="88" class="ui-subtitle">Результаты после 30 дней работы на линии ритейлера</text>
-  <rect x="10" y="150" width="176" height="180" rx="6" class="ui-source-card" />
-  <text x="98.0" y="185" text-anchor="middle" class="ui-source-label">СНИЖЕНИЕ НАГРУЗКИ</text>
-  <text x="98.0" y="245" text-anchor="middle" class="ui-main-title" style="font-size:32px;">40%</text>
-  <text x="98.0" y="280" text-anchor="middle" class="ui-subtitle">на операторов 1-го уровня</text>
-  <rect x="206" y="150" width="176" height="180" rx="6" class="ui-source-card" />
-  <text x="294.0" y="185" text-anchor="middle" class="ui-source-label">ВРЕМЯ ОТВЕТА</text>
-  <text x="294.0" y="245" text-anchor="middle" class="ui-main-title" style="font-size:32px;">&lt; 5 сек</text>
-  <text x="294.0" y="280" text-anchor="middle" class="ui-subtitle">для типовых вопросов</text>
-  <rect x="402" y="150" width="176" height="180" rx="6" class="ui-source-card" />
-  <text x="490.0" y="185" text-anchor="middle" class="ui-source-label">ТОЧНОСТЬ КЛАССИФИКАЦИИ</text>
-  <text x="490.0" y="245" text-anchor="middle" class="ui-main-title" style="font-size:32px;">94%</text>
-  <text x="490.0" y="280" text-anchor="middle" class="ui-subtitle">ASR + n8n classifier</text>
-  <rect x="598" y="150" width="176" height="180" rx="6" class="ui-source-card" />
-  <text x="686.0" y="185" text-anchor="middle" class="ui-source-label">ПОКРЫТИЕ FAQ</text>
-  <text x="686.0" y="245" text-anchor="middle" class="ui-main-title" style="font-size:32px;">80%</text>
-  <text x="686.0" y="280" text-anchor="middle" class="ui-subtitle">без перевода на оператора</text>
-  <rect x="794" y="150" width="176" height="180" rx="6" class="ui-source-card" />
-  <text x="882.0" y="185" text-anchor="middle" class="ui-source-label">NPS ПИЛОТА</text>
-  <text x="882.0" y="245" text-anchor="middle" class="ui-main-title" style="font-size:32px;">+12</text>
-  <text x="882.0" y="280" text-anchor="middle" class="ui-subtitle">среди тестовой группы</text>
-</svg>
+          <img class="ui-illustration preview-dark" src="/assets/screenshots/RG-scenario-2-dark.png" alt="Retail Group: пять ключевых метрик пилота Voice AI" loading="lazy">
+<img class="ui-illustration preview-light" src="/assets/screenshots/RG-scenario-2-light.png" alt="Retail Group: пять ключевых метрик пилота Voice AI" loading="lazy">
           
         </div>
         
@@ -1719,7 +1646,7 @@
     <section class="section">
       <div class="container">
         <div class="quote">
-          <p class="quote__text">Retail Group — не замена операторов, а перераспределение внимания: AI берёт рутину, люди решают сложное.</p>
+          <p class="quote__text">Retail Group — пример B2B-пресейла: перегрузка и рутина первой линии получают конкретное решение с измеримым пилотом.</p>
         </div>
       </div>
     </section>
@@ -1729,13 +1656,13 @@
       <div class="container final__inner">
         <div>
           <p class="eyebrow">Следующий шаг</p>
-          <h2 class="final__title">Расскажите о вашей первой линии</h2>
-          <p class="final__lead">Мы оценим, как голосовой AI-ассистент снизит нагрузку на операторов и ускорит обработку типовых звонков.</p>
+          <h2 class="final__title">Посмотрите, как устроено решение</h2>
+          <p class="final__lead">Архитектура, пилот и экономика показывают, как снять нагрузку с первой линии и при каких условиях продолжать или останавливать внедрение.</p>
           <div class="final__actions">
-            <a href="/contacts.html" class="btn btn-primary" target="_blank" rel="noopener">Обсудить проект</a>
-            <a href="https://pecb05.alex-n8n.site/case-story/case-story-retail-group-v2.html" class="btn btn-ghost" target="_blank" rel="noopener">Case Story</a>
+            <a href="https://rg.alex-n8n.site/" class="btn btn-primary" target="_blank" rel="noopener">Открыть Case Story</a>
             <a href="https://pecb05.alex-n8n.site/" class="btn btn-ghost" target="_blank" rel="noopener">План пилота</a>
             <a href="https://pecb04.alex-n8n.site/" class="btn btn-ghost" target="_blank" rel="noopener">Коммерческое предложение</a>
+            
           </div>
         </div>
         <div class="final__links">
@@ -1751,7 +1678,7 @@
   <footer class="site-footer">
     <div class="container site-footer__inner">
       <span>© 2026 AI Automation Portfolio Lab</span>
-      <span>Голосовой AI-ассистент первой линии поддержки</span>
+      <span>Presale-кейс: голосовой AI-ассистент первой линии</span>
     </div>
   </footer>
 

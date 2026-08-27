@@ -762,6 +762,28 @@
       display: block;
     }
 
+    .demo-block .preview-dark,
+    .demo-block .preview-light {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      object-position: top left;
+      border-radius: var(--radius);
+      background: var(--bg);
+      border: 1px solid var(--border);
+    }
+
+    .demo-block .preview-dark { display: block; }
+    .demo-block .preview-light { display: none; }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .demo-block .preview-dark { display: none; }
+      :root:not([data-theme="light"]) .demo-block .preview-light { display: block; }
+    }
+
+    :root[data-theme="dark"] .demo-block .preview-dark { display: none; }
+    :root[data-theme="dark"] .demo-block .preview-light { display: block; }
+
     .ui-illustration--phone {
       max-width: 440px;
       margin: 0;

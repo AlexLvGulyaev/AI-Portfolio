@@ -1,254 +1,818 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Услуги AI-инженера: проектирование и внедрение AI-автоматизаций, интеграции Telegram и CRM, n8n, RAG, анализ звонков, контент-конвейеры.">
+  <meta name="description" content="AI-автоматизация бизнес-процессов: чат-боты, интеграции, обработка обращений, анализ документов и данных. Каждое направление подкреплено реальным кейсом из портфолио.">
   <meta property="og:title" content="Услуги — AI Portfolio">
-  <meta property="og:description" content="Услуги AI-инженера: проектирование и внедрение AI-автоматизаций, интеграции Telegram и CRM, n8n, RAG, анализ звонков, контент-конвейеры.">
+  <meta property="og:description" content="AI-автоматизация бизнес-процессов: чат-боты, интеграции, обработка обращений, анализ документов и данных. Каждое направление подкреплено реальным кейсом.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ai.alex-n8n.site/services.html">
   <meta property="og:image" content="https://ai.alex-n8n.site/assets/images/og-image.jpg">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Услуги — AI Portfolio">
-  <meta name="twitter:description" content="Услуги AI-инженера: проектирование и внедрение AI-автоматизаций, интеграции Telegram и CRM, n8n, RAG, анализ звонков, контент-конвейеры.">
+  <meta name="twitter:description" content="AI-автоматизация бизнес-процессов: чат-боты, интеграции, обработка обращений, анализ документов и данных. Каждое направление подкреплено реальным кейсом.">
   <meta name="twitter:image" content="https://ai.alex-n8n.site/assets/images/og-image.jpg">
   <link rel="canonical" href="https://ai.alex-n8n.site/services.html">
   <title>Услуги — AI Portfolio</title>
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600<link rel="stylesheet" href="css/styles.css">display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    (function() {
+      const saved = localStorage.getItem('aip-theme-teal');
+      if (saved === 'dark') document.documentElement.dataset.theme = 'dark';
+      else if (saved === 'light') document.documentElement.dataset.theme = 'light';
+    })();
+  </script>
+  <style>
+    :root {
+      --bg: #E3EAF2;
+      --surface: #FFFFFF;
+      --surface-elevated: #D8E0EA;
+      --border: #C7D0DB;
+      --text-primary: #1A1A1C;
+      --text-secondary: #5A5A62;
+      --text-muted: #7D7D85;
+      --accent: #0D9488;
+      --accent-hover: #0F766E;
+      --focus: #14B8A6;
+      --shadow-sm: 0 1px 2px rgba(13, 59, 55, 0.04);
+      --shadow-md: 0 8px 24px rgba(13, 59, 55, 0.10);
+      --shadow-lg: 0 18px 48px rgba(13, 59, 55, 0.14);
+      --radius: 2px;
+      --space-xs: 0.5rem;
+      --space-sm: 0.75rem;
+      --space-md: 1.25rem;
+      --space-lg: 2rem;
+      --space-xl: 3rem;
+      --space-2xl: 5rem;
+      --space-3xl: 7rem;
+      --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+      --font-body: "Inter", system-ui, sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0a0a0f;
+        --surface: #111118;
+        --surface-elevated: #18181f;
+        --border: rgba(255, 255, 255, 0.10);
+        --text-primary: #f5f5f7;
+        --text-secondary: #a1a1aa;
+        --text-muted: #71717a;
+        --accent: #14b8a6;
+        --accent-hover: #2dd4bf;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface-elevated: #18181f;
+      --border: rgba(255, 255, 255, 0.10);
+      --text-primary: #f5f5f7;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --accent: #14b8a6;
+      --accent-hover: #2dd4bf;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); }
+    a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+
+    .container {
+      width: min(1180px, 92vw);
+      margin-inline: auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .site-header__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .logo__mark { color: var(--accent); font-size: 1.3rem; line-height: 1; }
+
+    .nav {
+      display: flex;
+      gap: var(--space-md);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .nav a { color: var(--text-secondary); }
+    .nav a:hover { color: var(--text-primary); }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.2rem;
+      height: 2.2rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+    }
+
+    .theme-toggle:hover { color: var(--text-primary); border-color: var(--text-muted); }
+    .theme-toggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+    .hero {
+      padding: var(--space-2xl) 0 var(--space-xl);
+    }
+
+    .hero__eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: var(--space-md);
+    }
+
+    .hero__title {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 5.2vw, 4.2rem);
+      line-height: 1.08;
+      font-weight: 600;
+      margin: 0 0 var(--space-md);
+      max-width: 860px;
+      text-wrap: balance;
+    }
+
+    .hero__lead {
+      font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+      color: var(--text-secondary);
+      max-width: 620px;
+      margin: 0 0 var(--space-lg);
+    }
+
+    .hero__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      padding: 0.85rem 1.6rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 1px solid transparent;
+      transition: background 150ms ease, color 150ms ease, border-color 150ms ease, transform 150ms ease;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #fff; transform: translateY(-1px); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-primary);
+      border-color: var(--border);
+    }
+
+    .btn-ghost:hover { background: var(--surface-elevated); border-color: var(--text-muted); color: var(--text-primary); }
+
+    .section {
+      padding: var(--space-xl) 0;
+    }
+
+    .section-header {
+      margin-bottom: var(--space-xl);
+    }
+
+    .section-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin: 0 0 var(--space-sm);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+      line-height: 1.12;
+      font-weight: 600;
+      margin: 0 0 var(--space-sm);
+      max-width: 720px;
+    }
+
+    .section-lead {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      max-width: 620px;
+      margin: 0;
+    }
+
+    /* Problems grid */
+    .problems-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .problem-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .problem-card:hover { border-color: var(--text-muted); box-shadow: var(--shadow-md); }
+
+    .problem-card__icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+      background: var(--surface-elevated);
+      color: var(--accent);
+      font-size: 1.25rem;
+      margin-bottom: var(--space-md);
+      flex-shrink: 0;
+    }
+
+    .problem-card__title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0 0 var(--space-xs);
+      line-height: 1.2;
+    }
+
+    .problem-card__text {
+      color: var(--text-secondary);
+      margin: 0 0 var(--space-md);
+      flex: 1;
+    }
+
+    .case-preview {
+      display: block;
+      margin-top: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .case-preview__images {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      background: var(--surface-elevated);
+    }
+
+    .case-preview__images img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .case-preview__light { display: block; }
+    .case-preview__dark { display: none; }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .case-preview__light { display: none; }
+      :root:not([data-theme="light"]) .case-preview__dark { display: block; }
+    }
+
+    :root[data-theme="dark"] .case-preview__light { display: none; }
+    :root[data-theme="dark"] .case-preview__dark { display: block; }
+    :root[data-theme="light"] .case-preview__dark { display: none; }
+    :root[data-theme="light"] .case-preview__light { display: block; }
+
+    .case-preview__caption {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border);
+    }
+
+    .case-preview__name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .case-preview__arrow {
+      color: var(--accent);
+      transition: transform 150ms ease;
+    }
+
+    .case-preview:hover .case-preview__arrow { transform: translateX(3px); }
+
+    /* Deliverables */
+    .deliverables {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-xl);
+    }
+
+    .checklist {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md) var(--space-lg);
+    }
+
+    .checklist li {
+      position: relative;
+      padding-left: 1.7rem;
+      color: var(--text-secondary);
+    }
+
+    .checklist li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .checklist strong { color: var(--text-primary); font-weight: 600; }
+
+    /* Process */
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+    }
+
+    .process-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      position: relative;
+    }
+
+    .process-step__number {
+      font-family: var(--font-mono);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: var(--space-sm);
+    }
+
+    .process-step__title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 var(--space-xs);
+    }
+
+    .process-step__text {
+      color: var(--text-secondary);
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    /* Final CTA */
+    .cta-section {
+      padding: var(--space-2xl) 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .cta-section__inner {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: var(--space-xl);
+      align-items: center;
+    }
+
+    .cta-section__title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+      line-height: 1.12;
+      font-weight: 600;
+      margin: 0 0 var(--space-sm);
+    }
+
+    .cta-section__lead {
+      color: var(--text-secondary);
+      margin: 0 0 var(--space-lg);
+      max-width: 540px;
+    }
+
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: var(--space-md) 0;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .site-footer__inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    /* Chat widget */
+    .chat-launcher {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      z-index: 100;
+      transition: transform 150ms ease, background 150ms ease;
+    }
+
+    .chat-launcher:hover { background: var(--accent-hover); transform: scale(1.05); }
+    .chat-launcher:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+    .chat-widget {
+      position: fixed;
+      bottom: 5.5rem;
+      right: 1.5rem;
+      width: min(360px, calc(100vw - 2rem));
+      height: 500px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      display: none;
+      flex-direction: column;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .chat-widget.open { display: flex; }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-md);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-elevated);
+    }
+
+    .chat-header-left { display: flex; align-items: center; gap: var(--space-sm); }
+    .chat-avatar {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+    .chat-title { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); }
+    .chat-subtitle { font-size: 0.75rem; color: var(--text-muted); }
+    .chat-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 150ms ease;
+      padding: var(--space-xs);
+    }
+    .chat-close:hover { opacity: 1; }
+    .chat-messages {
+      flex: 1;
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      overflow-y: auto;
+      background: var(--bg);
+    }
+    .chat-message {
+      max-width: 85%;
+      border-radius: var(--radius);
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.875rem;
+      line-height: 1.5;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+    .chat-message.user {
+      margin-left: auto;
+      background: var(--accent);
+      color: #fff;
+    }
+    .chat-message.bot {
+      margin-right: auto;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+    .chat-footer {
+      padding: var(--space-sm) var(--space-md);
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      gap: var(--space-sm);
+      align-items: center;
+    }
+    .chat-input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 150ms ease;
+    }
+    .chat-input:focus { border-color: var(--accent); }
+    .chat-input::placeholder { color: var(--text-muted); }
+    .chat-send {
+      border-radius: 999px;
+      border: none;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      transition: opacity 150ms ease;
+    }
+    .chat-send:hover:not(:disabled) { opacity: 0.9; }
+    .chat-send:disabled { opacity: 0.5; cursor: default; }
+
+    @media (max-width: 900px) {
+      .site-header__inner { height: 56px; }
+      .nav { gap: var(--space-sm); font-size: 0.85rem; }
+      .hero { padding-top: var(--space-xl); }
+      .problems-grid { grid-template-columns: 1fr; }
+      .checklist { grid-template-columns: 1fr; }
+      .process-grid { grid-template-columns: 1fr; }
+      .cta-section__inner { grid-template-columns: 1fr; }
+      .deliverables { padding: var(--space-lg); }
+      .site-footer__inner { flex-direction: column; align-items: flex-start; gap: var(--space-xs); }
+    }
+
+    @media (max-width: 480px) {
+      .hero__actions { flex-direction: column; align-items: stretch; }
+      .btn { width: 100%; }
+    }
+  </style>
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
-    <div class="header__content">
-      <a href="index.html" class="header__logo">
-        <span class="logo__icon">◇</span>
-        <span>AI Portfolio</span>
-      </a>
-      <nav class="nav">
-        <a href="index.html" class="nav__link">Главная</a>
-        <a href="portfolio.html" class="nav__link">Проекты</a>
-        <a href="services.html" class="nav__link nav__link--active">Услуги</a>
-        <a href="contacts.html" class="nav__link">Контакты</a>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="/" class="logo"><span class="logo__mark">◇</span> AI Portfolio</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="/">Главная</a>
+        <a href="/portfolio.html">Проекты</a>
+        <a href="/services.html">Услуги</a>
+        <a href="/contacts.html">Контакты</a>
       </nav>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">🌙</button>
     </div>
   </header>
 
-  <!-- Main -->
-  <main class="main">
-    <div class="page">
-      <section class="section">
-        <div class="container">
-          <div class="section__header">
-            <h1 class="section__title">Услуги</h1>
-            <p class="section__subtitle">AI-автоматизация бизнес-процессов</p>
+  <main>
+    <section class="hero">
+      <div class="container">
+        <p class="hero__eyebrow">Услуги</p>
+        <h1 class="hero__title">AI-автоматизация задач, которые тратят время вашей команды</h1>
+        <p class="hero__lead">Проектирую и внедряю готовые рабочие решения: чат-боты, интеграции, обработку обращений, аналитику документов и данных. Каждое направление подкреплено реальным кейсом.</p>
+        <div class="hero__actions">
+          <a href="/contacts.html" class="btn btn-primary">Обсудить задачу</a>
+          <a href="/portfolio.html" class="btn btn-ghost">Смотреть проекты</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="problems-title">
+      <div class="container">
+        <div class="section-header">
+          <p class="section-eyebrow" id="problems-title">Направления</p>
+          <h2 class="section-title">С какими задачами можно обратиться</h2>
+        </div>
+
+        <div class="problems-grid">
+          <article class="problem-card">
+            <span class="problem-card__icon">📨</span>
+            <h3 class="problem-card__title">Обработка обращений первой линии</h3>
+            <p class="problem-card__text">Автоматический приём, классификация и маршрутизация обращений из Telegram, email, сайта. AI-ассистент отвечает на типовые вопросы, сложные — передаёт человеку.</p>
+            <a class="case-preview" href="/cases/retail-group.html">
+              <div class="case-preview__images">
+                <img class="case-preview__light" src="/assets/screenshots/RG-portfolio-light.png" alt="Retail Group: голосовой AI-ассистент первой линии поддержки">
+                <img class="case-preview__dark" src="/assets/screenshots/RG-portfolio-dark.png" alt="Retail Group: голосовой AI-ассистент первой линии поддержки">
+              </div>
+              <div class="case-preview__caption">
+                <span class="case-preview__name">Retail Group</span>
+                <span>снижение нагрузки на первую линию поддержки <span class="case-preview__arrow">→</span></span>
+              </div>
+            </a>
+          </article>
+
+          <article class="problem-card">
+            <span class="problem-card__icon">🎯</span>
+            <h3 class="problem-card__title">Работа с лидами и CRM</h3>
+            <p class="problem-card__text">Квалификация заявок, дедупликация, обогащение данных и передача в CRM. Скоринг, сегментация и напоминания для менеджеров.</p>
+            <a class="case-preview" href="/cases/lead-qualification.html">
+              <div class="case-preview__images">
+                <img class="case-preview__light" src="/assets/screenshots/LQ_portfolio_light.png" alt="Интерфейс Lead Qualification: веб-форма и dashboard">
+                <img class="case-preview__dark" src="/assets/screenshots/LQ_portfolio_dark.png" alt="Интерфейс Lead Qualification: веб-форма и dashboard">
+              </div>
+              <div class="case-preview__caption">
+                <span class="case-preview__name">Lead Qualification</span>
+                <span>автоматическая квалификация заявок из Telegram <span class="case-preview__arrow">→</span></span>
+              </div>
+            </a>
+          </article>
+
+          <article class="problem-card">
+            <span class="problem-card__icon">🎓</span>
+            <h3 class="problem-card__title">AI-ассистенты для сотрудников и клиентов</h3>
+            <p class="problem-card__text">Внутренние ассистенты по базе знаний, обучающие боты, помощники для клиентов. Ответы по документации, LMS, регламентам.</p>
+            <a class="case-preview" href="/cases/ai-curator.html">
+              <div class="case-preview__images">
+                <img class="case-preview__light" src="/assets/screenshots/AIC_portfolio_light.png" alt="Веб-интерфейс AI Curator: диалог студента с AI-ассистентом и карточками источников">
+                <img class="case-preview__dark" src="/assets/screenshots/AIC_portfolio_dark.png" alt="Веб-интерфейс AI Curator: диалог студента с AI-ассистентом и карточками источников">
+              </div>
+              <div class="case-preview__caption">
+                <span class="case-preview__name">AI Curator</span>
+                <span>AI-ассистент для образовательной платформы <span class="case-preview__arrow">→</span></span>
+              </div>
+            </a>
+          </article>
+
+          <article class="problem-card">
+            <span class="problem-card__icon">📊</span>
+            <h3 class="problem-card__title">Анализ документов и данных</h3>
+            <p class="problem-card__text">Извлечение данных из документов, сведение таблиц, построение отчётов и визуализация. Локальная обработка без произвольного кода.</p>
+            <a class="case-preview" href="/cases/ai-data-assistant.html">
+              <div class="case-preview__images">
+                <img class="case-preview__light" src="/assets/screenshots/ADA_portfolio_light.png" alt="Интерфейс Data Assistant: чат с загруженным файлом, круговой диаграммой и карточкой артефакта">
+                <img class="case-preview__dark" src="/assets/screenshots/ADA_portfolio_dark.png" alt="Интерфейс Data Assistant: чат с загруженным файлом, круговой диаграммой и карточкой артефакта">
+              </div>
+              <div class="case-preview__caption">
+                <span class="case-preview__name">AI Data Assistant</span>
+                <span>анализ файлов через чат с AI <span class="case-preview__arrow">→</span></span>
+              </div>
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="deliverables-title">
+      <div class="container">
+        <div class="section-header">
+          <p class="section-eyebrow" id="deliverables-title">Результат</p>
+          <h2 class="section-title">Что получает заказчик</h2>
+        </div>
+        <div class="deliverables">
+          <ul class="checklist">
+            <li><strong>Готовый рабочий инструмент,</strong> а не презентацию</li>
+            <li><strong>Подборка стека</strong> под ваши системы и ограничения</li>
+            <li><strong>Интеграция</strong> с уже используемыми сервисами</li>
+            <li><strong>Документацию, метрики</strong> и план поддержки</li>
+            <li><strong>n8n как базовая платформа</strong> для workflow-автоматизации</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="process-title">
+      <div class="container">
+        <div class="section-header">
+          <p class="section-eyebrow" id="process-title">Как работаем</p>
+          <h2 class="section-title">Как строится работа</h2>
+        </div>
+        <div class="process-grid">
+          <div class="process-step">
+            <div class="process-step__number">01</div>
+            <h3 class="process-step__title">Диагностика</h3>
+            <p class="process-step__text">Уточняю задачу, процесс, системы и критерии успеха.</p>
           </div>
-
-          <!-- Tabs -->
-          <div class="tabs" style="min-height: 400px;">
-            <div class="tabs__nav">
-              <button class="tabs__tab tabs__tab--active" data-tab="automation">Автоматизация</button>
-              <button class="tabs__tab" data-tab="integration">Интеграции</button>
-              <button class="tabs__tab" data-tab="design">Проектирование</button>
-              <button class="tabs__tab" data-tab="analytics">Аналитика</button>
-            </div>
-
-            <div class="tabs__content">
-              <!-- Automation Tab -->
-              <div class="tabs__panel tabs__panel--active" data-panel="automation">
-                <div class="services-content">
-                  <div class="service-card">
-                    <h3 class="service-card__title">
-                      <svg class="service-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                      </svg>
-                      Обработка обращений
-                    </h3>
-                    <p class="service-card__description">
-                      Автоматизация приёма, классификации и маршрутизации заявок.
-                    </p>
-                    <ul class="service-card__benefits">
-                      <li class="service-card__benefit">Классификация обращений</li>
-                      <li class="service-card__benefit">Маршрутизация ответственным</li>
-                      <li class="service-card__benefit">Автоответы на типовые вопросы</li>
-                      <li class="service-card__benefit">Интеграция с CRM</li>
-                    </ul>
-                  </div>
-                  <div class="service-card">
-                    <h3 class="service-card__title">
-                      <svg class="service-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                      </svg>
-                      Работа с документами
-                    </h3>
-                    <p class="service-card__description">
-                      Извлечение данных, классификация и проверка документов.
-                    </p>
-                    <ul class="service-card__benefits">
-                      <li class="service-card__benefit">Извлечение данных из документов</li>
-                      <li class="service-card__benefit">Автоматическая классификация</li>
-                      <li class="service-card__benefit">Проверка на соответствие</li>
-                      <li class="service-card__benefit">Интеграция с документооборотом</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Integration Tab -->
-              <div class="tabs__panel" data-panel="integration">
-                <div class="services-content">
-                  <div class="service-card">
-                    <h3 class="service-card__title">
-                      <svg class="service-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.714-1H5a2 2 0 01-2-2v-6a2 2 0 012-2h2V2l4 4h6a2 2 0 012 2z"/>
-                      </svg>
-                      Чат-боты и ассистенты
-                    </h3>
-                    <p class="service-card__description">
-                      Разработка Telegram-ботов и AI-ассистентов.
-                    </p>
-                    <ul class="service-card__benefits">
-                      <li class="service-card__benefit">Telegram-боты для бизнеса</li>
-                      <li class="service-card__benefit">AI-ассистенты для сайта</li>
-                      <li class="service-card__benefit">Автоматические ответы</li>
-                      <li class="service-card__benefit">Интеграция с базами знаний</li>
-                    </ul>
-                  </div>
-                  <div class="service-card">
-                    <h3 class="service-card__title">
-                      <svg class="service-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                      </svg>
-                      CRM и API интеграции
-                    </h3>
-                    <p class="service-card__description">
-                      Связывание различных систем с AI-компонентами.
-                    </p>
-                    <ul class="service-card__benefits">
-                      <li class="service-card__benefit">Интеграция с CRM-системами</li>
-                      <li class="service-card__benefit">API-интеграции</li>
-                      <li class="service-card__benefit">Связывание сервисов</li>
-                      <li class="service-card__benefit">Автоматизация процессов</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Design Tab -->
-              <div class="tabs__panel" data-panel="design">
-                <div class="services-content">
-                  <div class="service-card">
-                    <h3 class="service-card__title">
-                      <svg class="service-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                      </svg>
-                      Аудит процессов
-                    </h3>
-                    <p class="service-card__description">
-                      Анализ текущих бизнес-процессов и выявление точек автоматизации.
-                    </p>
-                    <ul class="service-card__benefits">
-                      <li class="service-card__benefit">Анализ текущих процессов</li>
-                      <li class="service-card__benefit">Выявление "узких мест"</li>
-                      <li class="service-card__benefit">Оценка потенциала автоматизации</li>
-                      <li class="service-card__benefit">Рекомендации по улучшению</li>
-                    </ul>
-                  </div>
-                  <div class="service-card">
-                    <h3 class="service-card__title">
-                      <svg class="service-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                      </svg>
-                      Архитектура решения
-                    </h3>
-                    <p class="service-card__description">
-                      Проектирование архитектуры автоматизации и выбор технологий.
-                    </p>
-                    <ul class="service-card__benefits">
-                      <li class="service-card__benefit">Проектирование архитектуры</li>
-                      <li class="service-card__benefit">Выбор технологий</li>
-                      <li class="service-card__benefit">План внедрения</li>
-                      <li class="service-card__benefit">Оценка ресурсов</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Analytics Tab -->
-              <div class="tabs__panel" data-panel="analytics">
-                <div class="services-content">
-                  <div class="service-card">
-                    <h3 class="service-card__title">
-                      <svg class="service-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                      </svg>
-                      Аналитика данных
-                    </h3>
-                    <p class="service-card__description">
-                      AI-анализ данных и автоматическое формирование отчётов.
-                    </p>
-                    <ul class="service-card__benefits">
-                      <li class="service-card__benefit">Анализ тональности</li>
-                      <li class="service-card__benefit">Автоматические отчёты</li>
-                      <li class="service-card__benefit">Мониторинг показателей</li>
-                      <li class="service-card__benefit">Визуализация данных</li>
-                    </ul>
-                  </div>
-                  <div class="service-card">
-                    <h3 class="service-card__title">
-                      <svg class="service-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                      </svg>
-                      Мониторинг
-                    </h3>
-                    <p class="service-card__description">
-                      Системы мониторинга конкурентов и рыночной аналитики.
-                    </p>
-                    <ul class="service-card__benefits">
-                      <li class="service-card__benefit">Мониторинг конкурентов</li>
-                      <li class="service-card__benefit">Отслеживание изменений</li>
-                      <li class="service-card__benefit">Автоматические уведомления</li>
-                      <li class="service-card__benefit">Аналитические отчёты</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div class="process-step">
+            <div class="process-step__number">02</div>
+            <h3 class="process-step__title">Прототип</h3>
+            <p class="process-step__text">Собираю первый рабочий поток на реальных данных.</p>
+          </div>
+          <div class="process-step">
+            <div class="process-step__number">03</div>
+            <h3 class="process-step__title">Интеграция</h3>
+            <p class="process-step__text">Подключаю CRM, мессенджеры, базы знаний, LLM-провайдеров.</p>
+          </div>
+          <div class="process-step">
+            <div class="process-step__number">04</div>
+            <h3 class="process-step__title">Передача</h3>
+            <p class="process-step__text">Документирую, обучаю команду, сдаю с метриками и планом поддержки.</p>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- CTA -->
-      <section class="section--compact">
-        <div class="container text-center">
-          <p style="margin-bottom: var(--space-md); color: var(--text-secondary);">Расскажите о вашей задаче — помогу подобрать оптимальное решение</p>
-          <a href="contacts.html" class="btn btn-primary">Связаться</a>
+    <section class="cta-section" aria-labelledby="cta-title">
+      <div class="container cta-section__inner">
+        <div>
+          <h2 class="cta-section__title" id="cta-title">Есть задача, которую хочется отдать AI?</h2>
+          <p class="cta-section__lead">Расскажите, какой процесс тратит время — подберу подход и реальный кейс под него.</p>
+          <div class="hero__actions">
+            <a href="/contacts.html" class="btn btn-primary">Обсудить задачу</a>
+            <a href="/portfolio.html" class="btn btn-ghost">Смотреть проекты</a>
+          </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   </main>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer__content">
-      <p class="footer__copyright">© 2026 AI Automation Portfolio Lab</p>
-      <nav class="footer__links">
-        <a href="portfolio.html" class="footer__link">Проекты</a>
-        <a href="services.html" class="footer__link">Услуги</a>
-        <a href="contacts.html" class="footer__link">Контакты</a>
-      </nav>
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <span>© 2026 AI Automation Portfolio Lab</span>
+      <span>13 проектов · от идеи до Deployment Validation</span>
     </div>
   </footer>
-
-  <script src="js/main.js"></script>
-  <script src="js/api-client.js"></script>
-  <script src="js/chat-widget.js"></script>
 
   <!-- Chat Launcher Button -->
   <button class="chat-launcher" id="chat-launcher" aria-label="Открыть AI-ассистента">
@@ -280,5 +844,40 @@
       </button>
     </div>
   </div>
+
+  <script src="js/api-client.js"></script>
+  <script src="js/chat-widget.js"></script>
+  <script>
+    (function() {
+      const btn = document.getElementById('theme-toggle');
+      const root = document.documentElement;
+
+      function isDark() {
+        return root.dataset.theme === 'dark' || (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      }
+
+      function updateIcon() {
+        btn.textContent = isDark() ? '☀️' : '🌙';
+        btn.setAttribute('aria-label', isDark() ? 'Переключить на светлую тему' : 'Переключить на тёмную тему');
+      }
+
+      btn.addEventListener('click', function() {
+        if (isDark()) {
+          root.dataset.theme = 'light';
+          localStorage.setItem('aip-theme-teal', 'light');
+        } else {
+          root.dataset.theme = 'dark';
+          localStorage.setItem('aip-theme-teal', 'dark');
+        }
+        updateIcon();
+      });
+
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+        if (!localStorage.getItem('aip-theme-teal')) updateIcon();
+      });
+
+      updateIcon();
+    })();
+  </script>
 </body>
 </html>
