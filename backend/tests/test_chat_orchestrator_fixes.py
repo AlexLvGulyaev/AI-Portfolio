@@ -165,8 +165,11 @@ def test_history_bypasses_cache():
     print("PASS: history bypasses cache read and write")
 
 
-def test_stateless_second_call_hits_cache():
-    """§2: тот же вопрос без истории во второй раз берётся из кеша без LLM."""
+def test_llm_answer_not_cached_registry_only_policy():
+    """Безопасная политика кеша (§3): LLM-ответы не кешируются вовсе —
+    эвристика отказа не покрывает парафразы, а структурного признака
+    cache_eligible пока нет. Детерминированные ответы реестра кешируются
+    отдельно (см. test_listing_route_cached_by_registry_version)."""
     orch, rag, cache = _make_orch(memory=[])
     calls = {"n": 0}
     provider = MagicMock()
@@ -182,9 +185,10 @@ def test_stateless_second_call_hits_cache():
         d1 = asyncio.run(orch.process_request(user_query="повтори меня"))
         assert d1.cache_hit is False and calls["n"] == 1
         d2 = asyncio.run(orch.process_request(user_query="Повтори меня"))
-        assert d2.cache_hit is True and calls["n"] == 1, "must be served from cache"
-        assert d2.answer == "Ответ 1"
-    print("PASS: stateless repeat query is served from versioned cache")
+        assert d2.cache_hit is False and calls["n"] == 2, (
+            "LLM answers must not be cached under registry-only policy")
+    assert cache.size() == 0
+    print("PASS: LLM answers are not cached (registry-only cache policy)")
 
 
 def test_same_text_different_context_no_shared_answer():
@@ -335,7 +339,8 @@ def test_filtered_route_one_best_chunk_per_repo():
 
 
 def test_refusal_answer_not_cached():
-    """Стохастический отказ LLM не должен замораживаться в кеше."""
+    """Отказ LLM не попадает в кеш (при политике registry-only не кешируется
+    ни один LLM-ответ — отказ лишь частный случай)."""
     orch, rag, cache = _make_orch(memory=[])
     rag.search.return_value = [SimpleNamespace(
         content="c", source="README.md", score=0.1,
@@ -348,7 +353,7 @@ def test_refusal_answer_not_cached():
                 orch, "В текущем портфеле и базе знаний такой информации нет.")
             asyncio.run(orch.process_request(user_query="вопрос про несуществующий факт"))
     set_mock.assert_not_called()
-    # Обычный ответ кешируется как раньше
+    # Обычный LLM-ответ тоже не кешируется (registry-only политика §3)
     orch2, rag2, cache2 = _make_orch(memory=[])
     rag2.search.return_value = rag.search.return_value
     set_mock2 = MagicMock()
@@ -356,8 +361,9 @@ def test_refusal_answer_not_cached():
         with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
             Fac.create.return_value = _fake_provider(orch2, "Обычный содержательный ответ")
             asyncio.run(orch2.process_request(user_query="другой вопрос"))
-    assert set_mock2.called
-    print("PASS: refusal answers are not cached, normal answers are")
+    assert not set_mock2.called
+    assert cache2.size() == 0
+    print("PASS: refusal and normal LLM answers are not cached (registry-only)")
 
 
 def test_is_refusal_pattern():
