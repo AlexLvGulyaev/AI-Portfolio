@@ -58,18 +58,69 @@ class KnowledgeSource(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     source_type = Column(String(50), nullable=False)  # github_repo / local_directory / local_file
     identifier = Column(String(500), nullable=False)  # owner/repo or path
+    display_name = Column(String(200))  # human-readable project name (Admission Console)
     branch = Column(String(100), default="main")
     base_path = Column(String(500))
     is_enabled = Column(Boolean, default=True, nullable=False)
     # KB admission gate (fail-closed): only "approved" sources are indexed.
     admission_status = Column(String(20), nullable=False, default="pending", server_default="pending")  # pending / approved / blocked
-    include_patterns = Column(JSON, default=list)  # explicit allowlist of repo path globs; empty = index nothing
-    exclude_patterns = Column(JSON, default=list)  # deny globs; take priority over include_patterns
+    include_patterns = Column(JSON, default=list)  # EFFECTIVE allowlist consumed by sync; changed only by approval
+    exclude_patterns = Column(JSON, default=list)  # EFFECTIVE deny globs; take priority over include_patterns
+    # Draft patterns (Admission Console working copy). NULL means the draft
+    # equals the effective patterns. Draft edits and previews NEVER touch the
+    # effective patterns — the previously approved composition stays in force
+    # until a new approval.
+    draft_include_patterns = Column(JSON)
+    draft_exclude_patterns = Column(JSON)
+    # Approval of an immutable admission preview (Admission Console).
+    approved_preview_id = Column(UUID(as_uuid=True))  # no DB-level FK: table created in the same migration
+    approved_at = Column(DateTime)
     last_sync_at = Column(DateTime)
     last_sync_status = Column(String(50), default="pending")  # pending / success / error
     last_sync_error = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class KBAdmissionPreview(Base):
+    """
+    Immutable admission-preview artifact for a knowledge source.
+
+    Built from the source's DRAFT patterns at creation time; never mutated
+    afterwards. Approval references a preview id — the approved composition
+    (patterns + commit SHA) is fixed by this row.
+    """
+
+    __tablename__ = "kb_admission_previews"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    source_id = Column(UUID(as_uuid=True), ForeignKey("knowledge_sources.id"), nullable=False, index=True)
+    status = Column(String(20), nullable=False, default="ready")  # ready / error
+    commit_sha = Column(String(100))  # repository head commit at preview time (None on error)
+    include_patterns = Column(JSON)
+    exclude_patterns = Column(JSON)
+    candidates_total = Column(Integer, default=0)
+    included_count = Column(Integer, default=0)
+    excluded_count = Column(Integer, default=0)
+    files = Column(JSON)  # [{path, decision, reason, pattern}]
+    error_code = Column(String(100))
+    error_message = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class KBAdmissionEvent(Base):
+    """
+    Admission decision history event for a knowledge source (audit log).
+    """
+
+    __tablename__ = "kb_admission_events"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    source_id = Column(UUID(as_uuid=True), ForeignKey("knowledge_sources.id"), nullable=False, index=True)
+    event_type = Column(String(50), nullable=False)  # created / preview_created / approved / blocked / unblocked / draft_updated / draft_reset / approval_rejected
+    summary = Column(String(500))
+    details = Column(JSON)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 
 class KnowledgeDocument(Base):

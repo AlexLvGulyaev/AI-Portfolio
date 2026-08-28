@@ -4,7 +4,7 @@ import { ProtectedRoute } from './auth/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProjectCardsPage } from './pages/ProjectCardsPage';
-import { KnowledgeSourcesPage } from './pages/KnowledgeSourcesPage';
+import { AdmissionConsolePage } from './pages/AdmissionConsolePage';
 import { KnowledgeSyncPage } from './pages/KnowledgeSyncPage';
 import { LogsPage } from './pages/LogsPage';
 import { ConversationsPage } from './pages/ConversationsPage';
@@ -20,7 +20,7 @@ function App() {
             <Route path="/" element={<Navigate to="/system" replace />} />
             <Route path="/system" element={<DashboardPage />} />
             <Route path="/content/cards" element={<ProjectCardsPage />} />
-            <Route path="/content/sources" element={<KnowledgeSourcesPage />} />
+            <Route path="/content/sources" element={<AdmissionConsolePage />} />
             <Route path="/content/sync" element={<KnowledgeSyncPage />} />
             <Route path="/logs" element={<LogsPage />} />
             <Route path="/conversations" element={<ConversationsPage />} />

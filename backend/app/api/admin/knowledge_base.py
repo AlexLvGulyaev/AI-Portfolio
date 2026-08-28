@@ -8,12 +8,13 @@ and manual synchronization into ChromaDB.
 import asyncio
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.api.admin.dependencies import require_admin
 from app.core.database import SessionLocal, get_db
+from app.services.admin.kb_admission_console_service import AdmissionConsoleService
 from app.services.admin.knowledge_base_service import KnowledgeBaseService
 
 router = APIRouter()
@@ -22,22 +23,36 @@ router = APIRouter()
 class KnowledgeSourceCreate(BaseModel):
     source_type: str = Field(..., pattern=r"^(github_repo|local_directory|local_file)$")
     identifier: str = Field(..., min_length=1, max_length=500)
+    display_name: str | None = Field(None, max_length=200)
     branch: str | None = Field(default="main")
     base_path: str | None = None
     is_enabled: bool = True
     include_patterns: list[str] = Field(default_factory=list)
     exclude_patterns: list[str] = Field(default_factory=list)
     # Note: admission_status is not client-settable on create; every new
-    # source starts as "pending" (fail-closed) and is approved via PATCH.
+    # source starts as "pending" (fail-closed) and must be approved through
+    # the Admission Console approval workflow (§4.5а).
 
 
 class KnowledgeSourceUpdate(BaseModel):
     source_type: str | None = Field(None, pattern=r"^(github_repo|local_directory|local_file)$")
     identifier: str | None = Field(None, min_length=1, max_length=500)
+    display_name: str | None = Field(None, max_length=200)
     branch: str | None = None
     base_path: str | None = None
     is_enabled: bool | None = None
-    admission_status: str | None = Field(None, pattern=r"^(pending|approved|blocked)$")
+    # These fields are accepted by the schema ONLY to be rejected by the
+    # endpoint with 409 + machine-readable reason (§4.5а double protection):
+    # admission state changes go through dedicated Admission Console
+    # endpoints, never through a generic PATCH. They are never applied.
+    admission_status: str | None = None
+    include_patterns: list[str] | None = None
+    exclude_patterns: list[str] | None = None
+
+
+class DraftPatternsUpdate(BaseModel):
+    """Draft selection rules (working copy; effective on approval only)."""
+
     include_patterns: list[str] | None = None
     exclude_patterns: list[str] | None = None
 
@@ -90,9 +105,9 @@ async def list_sources(
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    """List all knowledge sources."""
-    service = KnowledgeBaseService(db)
-    return {"items": service.list_sources()}
+    """List all knowledge sources with admission-console metadata."""
+    service = AdmissionConsoleService(db)
+    return {"items": service.list_sources_console()}
 
 
 @router.post("/knowledge-base/sources")
@@ -103,7 +118,11 @@ async def create_source(
 ):
     """Create a new knowledge source."""
     service = KnowledgeBaseService(db)
-    return service.create_source(data.model_dump(exclude_unset=True))
+    created = service.create_source(data.model_dump(exclude_unset=True))
+    console = AdmissionConsoleService(db)
+    console._log_event(UUID(created["id"]), "created", f"Источник добавлен: {created['identifier']}", None)
+    db.commit()
+    return created
 
 
 @router.get("/knowledge-base/sources/{source_id}")
@@ -124,9 +143,24 @@ async def update_source(
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    """Update a knowledge source."""
+    """Update a knowledge source.
+
+    Double protection (§4.5а): even if a client bypasses the console UI,
+    admission state cannot be changed through this endpoint — it is
+    rejected with 409 and a machine-readable reason.
+    """
+    payload = data.model_dump(exclude_unset=True)
+    for guarded in ("admission_status", "include_patterns", "exclude_patterns"):
+        if guarded in payload:
+            raise HTTPException(
+                409,
+                {
+                    "reason_code": "use_admission_actions",
+                    "message": "Изменение правил и статуса допуска — только через Admission Console",
+                },
+            )
     service = KnowledgeBaseService(db)
-    return service.update_source(source_id, data.model_dump(exclude_unset=True))
+    return service.update_source(source_id, payload)
 
 
 @router.delete("/knowledge-base/sources/{source_id}")
@@ -155,6 +189,107 @@ async def preview_source_admission(
     """
     service = KnowledgeBaseService(db)
     return service.preview_source_admission(source_id)
+
+
+@router.post("/knowledge-base/sources/{source_id}/admission-previews")
+async def build_admission_preview(
+    source_id: UUID,
+    admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Build and persist an immutable admission preview from the draft rules.
+
+    Networked read of GitHub (discovery + head commit): no sync, no
+    ChromaDB writes, no admission status changes.
+    """
+    service = AdmissionConsoleService(db)
+    return service.create_preview(source_id)
+
+
+@router.get("/knowledge-base/sources/{source_id}/admission-previews/latest")
+async def get_latest_admission_preview(
+    source_id: UUID,
+    admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Return the most recent admission preview (ready or error)."""
+    service = AdmissionConsoleService(db)
+    return service.get_latest_preview(source_id)
+
+
+@router.patch("/knowledge-base/sources/{source_id}/draft-patterns")
+async def update_draft_patterns(
+    source_id: UUID,
+    data: DraftPatternsUpdate,
+    admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Persist the draft selection rules (working copy, not effective)."""
+    service = AdmissionConsoleService(db)
+    return service.update_draft_patterns(
+        source_id, data.include_patterns, data.exclude_patterns
+    )
+
+
+@router.post("/knowledge-base/sources/{source_id}/draft-patterns/reset")
+async def reset_draft_patterns(
+    source_id: UUID,
+    admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Discard the draft and revert to the effective (approved) rules."""
+    service = AdmissionConsoleService(db)
+    return service.reset_draft_patterns(source_id)
+
+
+@router.post("/knowledge-base/sources/{source_id}/approve")
+async def approve_source(
+    source_id: UUID,
+    admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Approve the latest ready preview as the effective composition.
+
+    Returns 409 + machine-readable reason when the preview is missing,
+    not ready, stale (patterns or commit changed), or already approved.
+    Does NOT trigger sync/reindex.
+    """
+    service = AdmissionConsoleService(db)
+    return service.approve_source(source_id)
+
+
+@router.post("/knowledge-base/sources/{source_id}/block")
+async def block_source(
+    source_id: UUID,
+    admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Block a source: it stops being indexed on future syncs."""
+    service = AdmissionConsoleService(db)
+    return service.block_source(source_id)
+
+
+@router.post("/knowledge-base/sources/{source_id}/unblock")
+async def unblock_source(
+    source_id: UUID,
+    admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Unblock a source: restores the previous approved composition if any."""
+    service = AdmissionConsoleService(db)
+    return service.unblock_source(source_id)
+
+
+@router.get("/knowledge-base/sources/{source_id}/admission-events")
+async def list_admission_events(
+    source_id: UUID,
+    limit: int = 50,
+    admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Return the admission decision history for a source."""
+    service = AdmissionConsoleService(db)
+    return {"items": service.list_events(source_id, limit)}
 
 
 @router.post("/knowledge-base/sync")

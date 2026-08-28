@@ -111,6 +111,19 @@ class GitHubKnowledgeSourceService:
         base_path = (source.base_path or "").strip("/")
         return self._discover_markdown_paths(owner, repo, branch, base_path)
 
+    def fetch_head_commit(self, owner: str, repo: str, branch: str) -> Optional[str]:
+        """Return the current head commit SHA of a branch via the GitHub API.
+
+        Used by the Admission Console for stale-preview protection
+        (§4.5а): a preview built at commit X must not be approved after the
+        branch advanced. Raises on HTTP/network errors; callers decide how
+        to treat unreachability.
+        """
+        url = f"{self.GITHUB_API_BASE}/repos/{owner}/{repo}/commits/{branch}"
+        payload = self._api_request(url)
+        sha = payload.get("sha") if isinstance(payload, dict) else None
+        return sha or None
+
     def fetch_source(self, source: KnowledgeSource) -> GitHubFetchResult:
         """Fetch all admitted markdown files from a github_repo source.
 
