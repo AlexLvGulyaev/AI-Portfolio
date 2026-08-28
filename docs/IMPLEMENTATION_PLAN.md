@@ -115,7 +115,7 @@
 **Текущий остаточный путь:**
 
 1. Решение владельца по orphaned-файлам (§4.1, п.1.6).
-2. Формализация eval-результатов (`docs/AI_EVAL_REPORT.md`, обезличенный regression set) (§4.3, остаток).
+2. ~~Формализация eval-результатов (`docs/AI_EVAL_REPORT.md`, обезличенный regression set) (§4.3, остаток).~~ **Выполнено 28.08.2026** (`docs/AI_EVAL_REPORT.md` + `backend/tests/ai_portfolio_eval_set.json`, коммит `fe8a815`).
 3. Решение владельца по release scope Morphic (§4.4, PLANNED / OWNER DECISION GATE; Must только после отдельного решения).
 4. UI admission gate в Admin Console (§4.5а).
 5. Presale-события и аналитика (§4.5).
