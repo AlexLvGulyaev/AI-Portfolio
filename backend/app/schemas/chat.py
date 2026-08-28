@@ -58,6 +58,8 @@ class ChatResponse(BaseModel):
     answer: str
     session_id: UUID
     sources: list[str] = []
+    # Machine-readable provenance: [{repo, path, chunk_index, score}, ...]
+    sources_detail: list[dict] | None = None
     provider: str
     model: str = ""
     from_cache: bool = False

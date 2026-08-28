@@ -71,14 +71,28 @@ class ResponseCache:
     - статистика попаданий;
     - персистентность в JSON-файл.
 
+    Cache key версионируется: ключ = SHA-256(SCHEMA_VERSION + config
+    fingerprint + нормализованный запрос). Config fingerprint строит
+    оркестратор из коллекции/KB, версии системного промпта, провайдера/модели
+    и retrieval-конфигурации — смена любого компонента даёт гарантированный
+    cache miss и не выдаёт ответы, сгенерированные на старом корпусе или
+    старой конфигурации.
+
     Источник: PEcf09 (cache.py) — расширенная версия.
     """
+
+    # Версия схемы ключей: инкремент при изменении формулы ключа или
+    # политики кеширования (старые записи не могут быть прочитаны).
+    # v3: refusal-ответы не кешируются; retrieval-политика filtered-маршрута
+    # изменилась — ответы старых прогонов невалидны.
+    KEY_SCHEMA_VERSION = "v3-nocache-refusal"
 
     def __init__(
         self,
         cache_file: str = "data/cache/response_cache.json",
         ttl_seconds: int = 86400,  # 24 часа по умолчанию
         enable_persistence: bool = True,
+        config_fingerprint: str = "",
     ):
         """
         Инициализация кеша.
@@ -87,35 +101,54 @@ class ResponseCache:
             cache_file: Путь к файлу для персистентности
             ttl_seconds: Время жизни записей в секундах (0 = без ограничений)
             enable_persistence: Включить сохранение в файл
+            config_fingerprint: Версионный fingerprint конфигурации
+                (KB/prompt/model/retrieval); входит в каждый ключ
         """
         self.cache_file = Path(cache_file)
         self.ttl_seconds = ttl_seconds
         self.enable_persistence = enable_persistence
+        self.config_fingerprint = config_fingerprint or ""
         self._cache: dict[str, CacheEntry] = {}
         self._stats = CacheStats()
 
         # Загружаем существующий кеш
         self._load_cache()
 
-    def _get_cache_key(self, query: str) -> str:
+    def _get_cache_key(self, query: str, fingerprint: Optional[str] = None) -> str:
         """
-        Создаёт уникальный хеш для запроса.
+        Создаёт уникальный версионированный хеш для запроса.
 
-        Использует SHA-256 для стабильного хеша.
-        Нормализует запрос: убирает лишние пробелы, приводит к нижнему регистру.
-
-        Источник: PEcf09 _get_cache_key()
+        Ключ = SHA-256(SCHEMA_VERSION + fingerprint + нормализованный запрос).
+        Смена любого компонента fingerprint (KB, prompt, модель, retrieval)
+        даёт другой ключ — старые ответы не выдаются.
 
         Args:
             query: Пользовательский запрос
+            fingerprint: Переопределение fingerprint (например,
+                "registry:<version>" для детерминированных ответов)
 
         Returns:
             Хеш-строка для использования как ключ кеша
         """
+        fp = fingerprint if fingerprint is not None else self.config_fingerprint
         normalized_query = " ".join(query.lower().split())
-        return hashlib.sha256(normalized_query.encode("utf-8")).hexdigest()
+        payload = f"{self.KEY_SCHEMA_VERSION}|{fp}|{normalized_query}"
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
-    def get(self, query: str) -> Optional[str]:
+    def get_cache_key(self, query: str, fingerprint: Optional[str] = None) -> str:
+        """
+        Возвращает cache key запроса (публичный доступ для диагностики).
+
+        Args:
+            query: Пользовательский запрос
+            fingerprint: Переопределение fingerprint (см. _get_cache_key)
+
+        Returns:
+            Хеш-строка cache key
+        """
+        return self._get_cache_key(query, fingerprint)
+
+    def get(self, query: str, fingerprint: Optional[str] = None) -> Optional[str]:
         """
         Получает ответ из кеша, если он есть и не истёк.
 
@@ -123,11 +156,12 @@ class ResponseCache:
 
         Args:
             query: Пользовательский запрос
+            fingerprint: Переопределение fingerprint
 
         Returns:
             Закешированный ответ или None
         """
-        cache_key = self._get_cache_key(query)
+        cache_key = self._get_cache_key(query, fingerprint)
 
         if cache_key not in self._cache:
             self._stats.total_misses += 1
@@ -152,6 +186,7 @@ class ResponseCache:
         response: str,
         metadata: Optional[dict] = None,
         ttl_seconds: Optional[int] = None,
+        fingerprint: Optional[str] = None,
     ) -> str:
         """
         Сохраняет ответ в кеш.
@@ -161,11 +196,12 @@ class ResponseCache:
             response: Ответ от LLM
             metadata: Дополнительные метаданные (model, provider, etc.)
             ttl_seconds: Время жизни записи (переопределяет значение по умолчанию)
+            fingerprint: Переопределение fingerprint
 
         Returns:
             Хеш запроса
         """
-        cache_key = self._get_cache_key(query)
+        cache_key = self._get_cache_key(query, fingerprint)
         now = time.time()
 
         # Определяем время жизни
@@ -192,17 +228,18 @@ class ResponseCache:
 
         return cache_key
 
-    def invalidate(self, query: str) -> bool:
+    def invalidate(self, query: str, fingerprint: Optional[str] = None) -> bool:
         """
         Инвалидирует запись в кеше.
 
         Args:
             query: Запрос для инвалидизации
+            fingerprint: Переопределение fingerprint
 
         Returns:
             True если запись была найдена и удалена
         """
-        cache_key = self._get_cache_key(query)
+        cache_key = self._get_cache_key(query, fingerprint)
 
         if cache_key in self._cache:
             del self._cache[cache_key]
@@ -268,17 +305,18 @@ class ResponseCache:
         """
         return len(self._cache)
 
-    def get_entry(self, query: str) -> Optional[CacheEntry]:
+    def get_entry(self, query: str, fingerprint: Optional[str] = None) -> Optional[CacheEntry]:
         """
         Получает полную запись из кеша.
 
         Args:
             query: Пользовательский запрос
+            fingerprint: Переопределение fingerprint
 
         Returns:
             Запись кеша или None
         """
-        cache_key = self._get_cache_key(query)
+        cache_key = self._get_cache_key(query, fingerprint)
         return self._cache.get(cache_key)
 
     def _save_cache(self) -> None:
