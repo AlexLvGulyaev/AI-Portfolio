@@ -8,6 +8,11 @@ interface RequestOptions extends RequestInit {
   requireAuth?: boolean;
 }
 
+export interface ApiError extends Error {
+  reasonCode?: string | null;
+  statusCode?: number;
+}
+
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { requireAuth = true, headers, ...rest } = options;
 
@@ -42,7 +47,26 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   if (!response.ok) {
     const text = await response.text().catch(() => '');
-    throw new Error(`API error: ${response.status} ${response.statusText}${text ? ` - ${text}` : ''}`);
+    let message = `API error: ${response.status} ${response.statusText}${text ? ` - ${text}` : ''}`;
+    // Surface machine-readable detail (e.g. admission-console 409 reasons).
+    try {
+      const parsed = text ? JSON.parse(text) : null;
+      const detail = parsed?.detail;
+      if (detail && typeof detail === 'object' && detail.message) {
+        message = detail.message;
+        const err = new Error(message) as ApiError;
+        err.reasonCode = detail.reason_code ?? null;
+        err.statusCode = response.status;
+        throw err;
+      }
+    } catch (parseError) {
+      if ((parseError as ApiError)?.reasonCode !== undefined && (parseError as ApiError)?.statusCode) {
+        throw parseError;
+      }
+    }
+    const err = new Error(message) as ApiError;
+    err.statusCode = response.status;
+    throw err;
   }
 
   return response.json() as Promise<T>;
@@ -135,18 +159,78 @@ export interface AIProviderTestResult {
   implementation_status: string;
 }
 
+export type AdmissionDisplayStatus =
+  | 'need_preview'
+  | 'preview_ready'
+  | 'patterns_changed'
+  | 'approved'
+  | 'blocked'
+  | 'error';
+
 export interface KnowledgeSource {
   id: string;
   source_type: 'github_repo' | 'local_directory' | 'local_file';
   identifier: string;
+  display_name?: string | null;
   branch: string | null;
   base_path: string | null;
   is_enabled: boolean;
+  admission_status?: 'pending' | 'approved' | 'blocked';
+  include_patterns?: string[];
+  exclude_patterns?: string[];
+  draft_include_patterns?: string[] | null;
+  draft_exclude_patterns?: string[] | null;
+  approved_preview_id?: string | null;
+  approved_at?: string | null;
+  display_status?: AdmissionDisplayStatus;
+  preview?: AdmissionPreviewSummary | null;
   last_sync_at: string | null;
   last_sync_status: string;
   last_sync_error: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface AdmissionPreviewSummary {
+  id: string;
+  status: 'ready' | 'error';
+  commit_sha: string | null;
+  included_count: number;
+  excluded_count: number;
+  candidates_total: number;
+  created_at: string | null;
+}
+
+export interface AdmissionPreviewFile {
+  path: string;
+  decision: 'included' | 'excluded';
+  reason: string;
+  pattern: string | null;
+}
+
+export interface AdmissionPreview {
+  id: string;
+  source_id: string;
+  status: 'ready' | 'error';
+  commit_sha: string | null;
+  include_patterns: string[];
+  exclude_patterns: string[];
+  candidates_total: number;
+  included_count: number;
+  excluded_count: number;
+  files: AdmissionPreviewFile[];
+  error_code: string | null;
+  error_message: string | null;
+  created_at: string | null;
+  stale?: boolean;
+}
+
+export interface AdmissionEvent {
+  id: string;
+  event_type: string;
+  summary: string | null;
+  details: Record<string, unknown> | null;
+  created_at: string | null;
 }
 
 export interface ProjectCard {
@@ -168,7 +252,16 @@ export interface ProjectCard {
 export type ProjectCardCreate = Omit<ProjectCard, 'id' | 'created_at' | 'updated_at'>;
 export type ProjectCardUpdate = Partial<ProjectCardCreate>;
 
-export type KnowledgeSourceCreate = Omit<KnowledgeSource, 'id' | 'last_sync_at' | 'last_sync_status' | 'last_sync_error' | 'created_at' | 'updated_at'>;
+export interface KnowledgeSourceCreate {
+  source_type: 'github_repo' | 'local_directory' | 'local_file';
+  identifier: string;
+  display_name?: string | null;
+  branch?: string | null;
+  base_path?: string | null;
+  is_enabled?: boolean;
+  include_patterns?: string[];
+  exclude_patterns?: string[];
+}
 export type KnowledgeSourceUpdate = Partial<KnowledgeSourceCreate>;
 
 export interface ChromaStatus {
@@ -349,6 +442,42 @@ export function deleteSource(id: string) {
 
 export function syncKnowledgeBase() {
   return apiClient.post<SyncJob>('/knowledge-base/sync');
+}
+
+// ------------------------------------------------------------------
+// Admission Console (§4.5а)
+// ------------------------------------------------------------------
+
+export function buildAdmissionPreview(id: string) {
+  return apiClient.post<AdmissionPreview>(`/knowledge-base/sources/${id}/admission-previews`);
+}
+
+export function getLatestAdmissionPreview(id: string) {
+  return apiClient.get<AdmissionPreview>(`/knowledge-base/sources/${id}/admission-previews/latest`);
+}
+
+export function updateDraftPatterns(id: string, data: { include_patterns: string[]; exclude_patterns: string[] }) {
+  return apiClient.patch<KnowledgeSource>(`/knowledge-base/sources/${id}/draft-patterns`, data);
+}
+
+export function resetDraftPatterns(id: string) {
+  return apiClient.post<KnowledgeSource>(`/knowledge-base/sources/${id}/draft-patterns/reset`);
+}
+
+export function approveSourceComposition(id: string) {
+  return apiClient.post<KnowledgeSource>(`/knowledge-base/sources/${id}/approve`);
+}
+
+export function blockSource(id: string) {
+  return apiClient.post<KnowledgeSource>(`/knowledge-base/sources/${id}/block`);
+}
+
+export function unblockSource(id: string) {
+  return apiClient.post<KnowledgeSource>(`/knowledge-base/sources/${id}/unblock`);
+}
+
+export function listAdmissionEvents(id: string, limit = 50) {
+  return apiClient.get<{ items: AdmissionEvent[] }>(`/knowledge-base/sources/${id}/admission-events?limit=${limit}`);
 }
 
 export function getSyncJob(jobId: string) {

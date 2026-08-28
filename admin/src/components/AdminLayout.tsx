@@ -12,7 +12,7 @@ const navItems: NavItem[] = [
     label: 'Контент/база знаний',
     children: [
       { path: '/content/cards', label: 'Карточки проектов' },
-      { path: '/content/sources', label: 'Источники знаний' },
+      { path: '/content/sources', label: 'Допуск источников' },
       { path: '/content/sync', label: 'Синхронизация' },
     ],
   },

@@ -73,6 +73,7 @@ class KnowledgeBaseService:
             id=uuid4(),
             source_type=data.get("source_type", "local_file"),
             identifier=data["identifier"],
+            display_name=data.get("display_name"),
             branch=data.get("branch") or "main",
             base_path=data.get("base_path"),
             is_enabled=data.get("is_enabled", True),
