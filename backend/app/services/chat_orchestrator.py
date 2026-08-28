@@ -848,24 +848,20 @@ class ChatOrchestrator:
                     # No fallback available
                     answer = self._get_error_response(error_message)
 
-            # 9. Сохранить в кеш (только для ответов без истории).
-            # Отказные ответы не кешируются: отказ может быть стохастическим
-            # (LLM при релевантном контексте), кеш заморозил бы неудачный
-            # исход для всех последующих сессий.
+            # 9. Кеш (только для ответов без истории).
+            # Безопасная политика кеша (корректирующий проход §3): LLM-ответы
+            # НЕ кешируются. Текстовая эвристика отказа не покрывает парафразы
+            # и языки (0 FP / 3 FN на тест-наборе §3), а без структурного
+            # признака cache_eligible/result_status кеш не может отличить
+            # гарантированно-валидный ответ от стохастического отказа — кеш
+            # заморозил бы неудачный исход для всех последующих сессий.
+            # Детерминированные ответы реестра (листинг/счёт) кешируются как
+            # раньше в своём блоке (fingerprint registry-версии) — они
+            # воспроизводимы по определению и сюда не попадают (ранний
+            # return). Влияние на latency: повторные идентичные вопросы
+            # генерируются заново (~2.4s p50 вместо ~60ms cache-hit);
+            # p50/p95 cache-miss-трафика не меняются.
             _start_step("memory_save", 9)
-            if not history_present and not self._is_refusal(answer):
-                self.cache.set(
-                    query=user_query,
-                    response=answer,
-                    metadata={
-                        "provider": provider_used,
-                        "model": model_used,
-                        "sources": sources,
-                        "session_id": str(session_id),
-                    },
-                    ttl_seconds=self.cache_ttl_seconds,
-                    fingerprint=config_fingerprint,
-                )
 
             # 10. Сохранить в память
             self.memory_service.add_message(
