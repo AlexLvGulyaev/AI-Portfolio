@@ -80,6 +80,8 @@ services:
       - CHROMA_USE_HTTP=true
       - CHROMA_HOST=ai-portfolio-chroma
       - CHROMA_PORT=8000
+      # KB collection served by the assistant (v2 = dialog-admitted showcase KB)
+      - CHROMA_COLLECTION_NAME=ai_portfolio_knowledge_v2
       # CORS
       - CORS_ORIGINS=${CORS_ORIGINS}
       # Logging

@@ -25,6 +25,10 @@ class KnowledgeSourceCreate(BaseModel):
     branch: str | None = Field(default="main")
     base_path: str | None = None
     is_enabled: bool = True
+    include_patterns: list[str] = Field(default_factory=list)
+    exclude_patterns: list[str] = Field(default_factory=list)
+    # Note: admission_status is not client-settable on create; every new
+    # source starts as "pending" (fail-closed) and is approved via PATCH.
 
 
 class KnowledgeSourceUpdate(BaseModel):
@@ -33,6 +37,9 @@ class KnowledgeSourceUpdate(BaseModel):
     branch: str | None = None
     base_path: str | None = None
     is_enabled: bool | None = None
+    admission_status: str | None = Field(None, pattern=r"^(pending|approved|blocked)$")
+    include_patterns: list[str] | None = None
+    exclude_patterns: list[str] | None = None
 
 
 class ProjectCardCreate(BaseModel):
@@ -132,6 +139,22 @@ async def delete_source(
     service = KnowledgeBaseService(db)
     service.delete_source(source_id)
     return {"ok": True}
+
+
+@router.get("/knowledge-base/sources/{source_id}/admission-preview")
+async def preview_source_admission(
+    source_id: UUID,
+    admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Preview admission-gate file selection for a GitHub source.
+
+    Read-only: applies the same selection as the real sync and returns
+    per-file decisions. No chunking, embeddings, ChromaDB writes, reindex,
+    or admission status changes.
+    """
+    service = KnowledgeBaseService(db)
+    return service.preview_source_admission(source_id)
 
 
 @router.post("/knowledge-base/sync")

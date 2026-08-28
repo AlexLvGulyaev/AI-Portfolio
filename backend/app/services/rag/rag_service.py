@@ -31,6 +31,9 @@ class SearchResult:
     source: str
     score: float
     metadata: dict[str, Any]
+    # Additive provenance field (diagnostics/eval): ChromaDB chunk id.
+    # Never returned to the user; default keeps existing call sites stable.
+    chunk_id: Optional[str] = None
 
 
 @dataclass
@@ -53,7 +56,7 @@ class RAGConfig:
 
         settings = get_settings()
         return cls(
-            collection_name="ai_portfolio_knowledge",
+            collection_name=settings.chroma_collection_name,
             persist_directory="data/chroma_db",
             embedding_model="text-embedding-3-small",
             chroma_use_http=settings.chroma_use_http,
@@ -214,6 +217,7 @@ class RAGService:
                     source=source,
                     score=float(distance),
                     metadata=metadata,
+                    chunk_id=results["ids"][0][i] if results.get("ids") else None,
                 ))
 
         return formatted_results
@@ -238,7 +242,24 @@ class RAGService:
             Строка с контекстом
         """
         results = self.search(query, top_k=top_k)
+        return self.build_context(results, max_tokens=max_tokens)
 
+    def build_context(
+        self,
+        results: list[SearchResult],
+        max_tokens: Optional[int] = None,
+    ) -> str:
+        """
+        Строит контекст из УЖЕ полученных результатов поиска (без повторного
+        search — устраняет двойной retrieval).
+
+        Args:
+            results: Результаты search()
+            max_tokens: Максимальное количество токенов (приблизительно)
+
+        Returns:
+            Строка с контекстом (пустая, если результатов нет)
+        """
         if not results:
             return ""
 
@@ -246,7 +267,10 @@ class RAGService:
         current_length = 0
 
         for i, result in enumerate(results, 1):
-            part = f"\n[{i}] {result.source}:\n{result.content}\n"
+            # Понятная пользователю/модели метка источника: репозиторий · путь
+            repo = result.metadata.get("repo")
+            label = f"{repo} · {result.source}" if repo else result.source
+            part = f"\n[{i}] {label}:\n{result.content}\n"
 
             if max_tokens:
                 # Приблизительно 4 символа на токен
@@ -258,6 +282,72 @@ class RAGService:
             context_parts.append(part)
 
         return "".join(context_parts)
+
+    def search_diverse(
+        self,
+        query: str,
+        repos: list[str],
+        per_repo_k: int = 1,
+        final_top_k: int = 6,
+        max_per_repo: int = 2,
+    ) -> list[SearchResult]:
+        """
+        Поиск с диверсификацией по репозиториям для межпроектных запросов.
+
+        Один embedding-вызов на запрос; по одному Chroma-запросу на репозиторий
+        (ограниченный fan-out). Один репозиторий не может занять весь контекст.
+
+        Args:
+            query: Поисковый запрос
+            repos: Список репозиториев (metadata.repo в коллекции)
+            per_repo_k: Сколько ближайших чанков брать из каждого репозитория
+            final_top_k: Итоговое число чанков после слияния
+            max_per_repo: Максимум чанков одного репозитория в итоговой выдаче
+
+        Returns:
+            Список SearchResult, отсортированный по дистанции
+        """
+        if not query.strip() or not repos or self._collection.count() == 0:
+            return []
+
+        query_embedding = self._create_embeddings([query])[0]
+
+        merged: list[SearchResult] = []
+        for repo in repos:
+            try:
+                results = self._collection.query(
+                    query_embeddings=[query_embedding],
+                    n_results=min(per_repo_k, self._collection.count()),
+                    include=["documents", "metadatas", "distances"],
+                    where={"repo": {"$eq": repo}},
+                )
+            except Exception:
+                continue
+            if not (results.get("documents") and results["documents"][0]):
+                continue
+            for i in range(len(results["documents"][0])):
+                metadata = results["metadatas"][0][i] if results.get("metadatas") else {}
+                merged.append(SearchResult(
+                    content=results["documents"][0][i] or "",
+                    source=metadata.get("source", "unknown"),
+                    score=float(results["distances"][0][i] if results.get("distances") else 0.0),
+                    metadata=metadata,
+                    chunk_id=results["ids"][0][i] if results.get("ids") else None,
+                ))
+
+        # Слияние по дистанции с квотой на репозиторий.
+        merged.sort(key=lambda r: r.score)
+        repo_counts: dict[str, int] = {}
+        diversified: list[SearchResult] = []
+        for r in merged:
+            repo = r.metadata.get("repo") or "?"
+            if repo_counts.get(repo, 0) >= max_per_repo:
+                continue
+            repo_counts[repo] = repo_counts.get(repo, 0) + 1
+            diversified.append(r)
+            if len(diversified) >= final_top_k:
+                break
+        return diversified
 
     def get_collection_info(self) -> dict[str, Any]:
         """
