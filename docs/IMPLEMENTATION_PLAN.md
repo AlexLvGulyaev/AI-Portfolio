@@ -33,7 +33,7 @@
 - Публичная поверхность **в основном завершена**: главная `/` (одновременно витрина всех проектов), 13 полноценных лендингов кейсов по `AIP Case Landing Page Standard v1.1` (эталон — `/cases/ai-curator.html`), «Услуги», «Контакты», redirect устаревшего каталога на `/`.
 - Портфель — **13 полноценных проектов**, включая Prompt Review (finished-case с публичным репозиторием).
 - Инфраструктура: FastAPI + PostgreSQL + ChromaDB HTTP на VPS, Admin Console v1, multi-provider LLM (OpenAI + GigaChat), tracing, логи, аудит. Production: `https://ai.alex-n8n.site`.
-- KB: GitHub Sync с **7 источниками** (~5400 чанков по данным анализа от 27.08; живое состояние не перепроверено — см. §2 NEEDS VERIFICATION).
+- KB: **12 источников-репозиториев, 211 документов (PG), 5253 чанка (ChromaDB, collection `ai_portfolio_knowledge_v2`)** — перепроверено по живому состоянию 28.08.2026; старая collection удалена (см. §2).
 - Публичный репозиторий `AlexLvGulyaev/AI-Portfolio` уже опубликован и содержит проект (src, backend, admin, docs, docker-compose).
 - Оставшийся объём — ядро: документация источников и допуск, KB, AI-ассистент, Morphic, presale-аналитика, тестирование, Deployment Validation, release.
 
@@ -54,16 +54,23 @@
 - Production deploy: `https://ai.alex-n8n.site`.
 - Публичный репозиторий `AlexLvGulyaev/AI-Portfolio` (содержит проект; остаточно — ревизия поставки и актуализация документации).
 
+**Дополнение 28.08.2026 (к кампании допуска KB и диагностической eval-кампании):**
+
+- KB admission gate реализован (fail-closed): `backend/app/services/admin/kb_admission.py`, миграция 014 (`admission_status`, `include_patterns`, `exclude_patterns` на `knowledge_sources`), guard'ы sync/delete, тесты — коммит `f899f24`.
+- KB переведена на collection `ai_portfolio_knowledge_v2`: 12 источников / 211 документов / 5253 чанка; старая collection `ai_portfolio_knowledge` (5400 чанков) удалена.
+- Диагностическая eval-кампания на production (baseline + 5 re-runs, 174 теста/прогон): устранены дефекты provenance, кеша (registry-only policy, KEY_SCHEMA `v4-registry-only`), дрейфа памяти; промпт `v4-compact-multi` с детерминированным реестром 13 проектов. Финал: **159/168 = 94,6%** формально; C-класс после adjudication **68/77 = 88,3% — принят владельцем (решение 28.08, вариант «а»)**; latency production cache-miss p95 4956 мс < 5000 мс.
+- Eval-данные (visitor UUID `e7a1c0de-*`) удалены из production БД в транзакции 28.08 (163 сессии / 2284 сообщения / 1142 execution-сессии / 12562 шага); реальные пользовательские записи не затронуты.
+
 ### IN PROGRESS
 
 - Актуализация документации источников портфеля (предпосылка для KB admission gate) — фактически не у всех проектов документация доведена до стандартов APL.
 
 ### NOT STARTED
 
-- KB admission gate по каждому источнику (§4.1).
-- Расширение GitHub Sync до целевого состава (§4.2).
-- ChromaDB reindex на расширенном корпусе (§4.2).
-- Настройка retrieval/prompt и eval AI-ассистента (§4.3).
+- Остаток §4.1: решение владельца по orphaned-файлам в `src/cases/` (п.1.6) — сам admission gate реализован 28.08 (коммит `f899f24`).
+- Доподключение собственного корпуса AI Portfolio в GitHub Sync (12 проектных репозиториев уже подключены; целевой состав — 13) (§4.2).
+- Повторный ChromaDB reindex после подключения собственного корпуса (§4.2; reindex на корпусе v2 выполнен 28.08).
+- Завершение §4.3: формализация eval-артефактов (`docs/AI_EVAL_REPORT.md`, контрольный eval set в репозитории) — сама eval-кампания выполнена 28.08, результат принят владельцем.
 - Morphic: проектирование UX-контракта (§4.4, статус PLANNED / OWNER DECISION GATE).
 - Presale-события и presale-аналитика в Admin Console (§4.5).
 - Тестирование: функциональное, E2E, security, graceful degradation (§4.6).
@@ -72,16 +79,12 @@
 
 ### BLOCKED
 
-- ChromaDB reindex на расширенном корпусе — блокирован завершением KB admission gate и расширением GitHub Sync.
-- Eval ≥90% — блокирован reindex на чистом корпусе (eval по неполному корпусу не считается приёмочным).
 - Финализация публичной поставки `AI-Portfolio` — блокирована Deployment Validation (обязательный критерий готовности по правилам APL) и ревизией `.gitignore`/внутренних артефактов.
 
 ### NEEDS VERIFICATION
 
-- Фактические числа KB (7 источников / 192 документа / ~5400 чанков) — взяты из анализа 27.08.2026; по живому состоянию ChromaDB/PostgreSQL в рамках документального прохода не перепроверены.
-- Текущее качество ответов AI-ассистента на живом корпусе — свежих замеров нет; целевые значения ≥90% / <5 сек остаются обязательными.
-- Состав 7 подключённых источников GitHub Sync (реестр хранится в БД Admin Console; фактический перечень в этой сессии не проверялся).
 - Работоспособность demo-ссылок отдельных кейсов (Telegram Intake Bot, Telegram Onboarding Bot — demo после Deployment Validation; Review Flow — повторная Validation).
+- Известный риск (на рассмотрении владельца, решение 28.08 — пока не реализовывать): retrieval не имеет запасного канала — эмбеддинги ходят только в OpenAI, GigaChat-fallback покрывает только генерацию; варианты решения зафиксированы в `task_history/2026-08-28_task-aip-diagnostic-eval.md`.
 
 ---
 
@@ -298,3 +301,4 @@ Morphic не включается в DEFER CANDIDATE: перенос Morphic н�
 | 2026-08-25 | 3.2 | Корректировка после интеграции dual-theme главной страницы: 13 управляемых карточек (12 проектов + Prompt Review placeholder), актуализация ссылок на TZ v1.4 / SPEC v2.1 |
 | 2026-08-25 | 3.3 | Зафиксирован принятый шаблон лендинга кейса (`AIP Case Landing Page Standard v1.1`, эталон — AI Curator) |
 | 2026-08-27 | 4.0 | Перестроен как остаточный план от состояния на 27.08.2026: выполненные работы 19–26.08 перенесены в компактный блок COMPLETED; введены статусные разделы COMPLETED / IN PROGRESS / NOT STARTED / BLOCKED / NEEDS VERIFICATION; восстановлена критическая зависимость «готовность документации → допуск источников (KB admission gate) → GitHub Sync → ChromaDB reindex → настройка retrieval/prompt → eval → E2E → release»; целевой состав GitHub Sync — 12 проектных репозиториев + собственный корпус AI Portfolio (13 полноценных кейсов; Prompt Review — finished-case; публичное существование репозиториев `Retail-Group` и `AI-Portfolio` проверено по живому состоянию GitHub); добавлены задачи Morphic (UX-контракт → взаимодействие с главной и AI-ассистентом → поиск и представление кейсов → прямые переходы на лендинги → presale-путь → E2E) с границей: Morphic не реализован, не заменяет Narrative лендингов; зафиксирован риск сроку и перечень DEFER-кандидатов, утверждаемых только владельцем. Срок 04.09.2026 и метрики ≥90% / <5 сек сохранены. **Корректирующая сверка 27.08.2026** (без повышения версии): Morphic переведён в статус PLANNED / OWNER DECISION GATE с нумерацией MORPHIC-1…6 и зависимостями только на предшественников; исключён из DEFER CANDIDATE и из числовой оценки объёма; обязательный E2E ограничен presale-путём; уточнено решение по orphaned-файлам и роли `.gitignore`; оценка объёма пересчитана (9–13 рабочих дней суммарно; критический путь 8–11 рабочих дней) |
+| 2026-08-28 | 4.1 | **Корректирующая сверка 28.08.2026.** Реализован KB admission gate (fail-closed, миграция 014, guard'ы sync/delete, тесты; коммит `f899f24`); KB переведена на collection `ai_portfolio_knowledge_v2` (12 источников / 211 документов / 5253 чанка), старая collection удалена; проведена диагностическая eval-кампания production-ассистента (baseline + 5 re-runs): provenance-дефекты, кросс-сессионная контаминация кеша и дрейф памяти устранены (registry-only cache policy, KEY_SCHEMA `v4-registry-only`; промпт `v4-compact-multi` с детерминированным реестром 13 проектов). Итог eval: 159/168 = 94,6% формально; C-класс 68/77 = 88,3% после adjudication — принят владельцем (вариант «а»); latency p95 4956 мс < 5000 мс — критерий выполнен. Eval-данные удалены из production БД с разрешения владельца. Из §2 статусов убраны: «KB admission gate» (NOT STARTED → COMPLETED), блокировка eval; в NEEDS VERIFICATION зафиксирован риск отсутствия fallback-канала retrieval (решение владельца — пока не реализовывать) |
