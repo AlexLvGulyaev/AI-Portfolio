@@ -57,7 +57,7 @@ AI Portfolio — персональный публичный сайт AI-инж�
 - **Morphic** — согласованное направление следующего этапа ядра (поиск и выбор релевантного кейса на главной), **не реализовано**; UX-механика подлежит отдельному проектированию.
 - Presale-события и presale-аналитика в Admin Console — не добавлены.
 - **Admin Console: UI управления допуском источников KB — отсутствует** (выявлено 28.08.2026): backend admission gate готов полностью (PATCH `admission_status`/include/exclude, `admission-preview`; кампания допуска 12 источников прошла через API), но в `admin/src/` UI допуска нет — требование M6 (управление составом индексируемых материалов из консоли) выполнено наполовину. Отдельная **Must-задача §4.5а** плана, до тестирования §4.6.
-- Deployment Validation — не начата (обязательный критерий готовности публичного GitHub-проекта по правилам APL).
+- Deployment Validation — не начата (обязательный критерий готовности публичного GitHub-проекта по правилам APL). **Блокер:** `docs/DEPLOYMENT_GUIDE.md` в репозитории отсутствует — до Deployment Validation руководство требуется создать или восстановить (Source of Truth воспроизводимости по правилам APL).
 - Публичный репозиторий `AlexLvGulyaev/AI-Portfolio` уже опубликован и содержит проект (src, backend, admin, docs, docker-compose); остаточная работа — ревизия поставки (`.gitignore`, внутренние артефакты) и актуализация документации через admission gate, а не первичная публикация.
 
 **Состав GitHub Sync (реестр проверен независимо от лендингов, 27.08.2026; кампания допуска завершена 28.08.2026):**
@@ -262,8 +262,8 @@ AI Portfolio создан как публичная витрина компет�
 - [`README.md`](../README.md) — главная страница проекта.
 - [`docs/SPEC.md`](SPEC.md) — продуктовая спецификация v2.3 (as-built baseline).
 - [`docs/TZ.md`](TZ.md) — техническое задание v1.6 (утверждено).
-- [`docs/IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) — остаточный технический план v4.1 (от 28.08.2026).
+- [`docs/IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) — остаточный технический план v4.4 (от 28.08.2026).
 - [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) — архитектура.
-- [`docs/DEPLOYMENT_GUIDE.md`](DEPLOYMENT_GUIDE.md) — развёртывание.
+- `docs/DEPLOYMENT_GUIDE.md` — развёртывание. **Отсутствует в репозитории**; требуется создать или восстановить до Deployment Validation (см. §2 «Что не реализовано»).
 - [`docs/PEf05_RATING.md`](PEf05_RATING.md) — рейтинг 13 кандидатов + 12 проектов в портфеле (v2.3, утверждено как внутренний аналитический артефакт).
 - [`docs/PORTFOLIO_CORPUS_AUDIT.md`](PORTFOLIO_CORPUS_AUDIT.md) — аудит корпуса и технического долга (v1.2, утверждено как baseline).
