@@ -123,6 +123,7 @@ async def chat(
             answer=dto.answer,
             session_id=dto.session_id,
             sources=dto.sources,
+            sources_detail=dto.metadata.get("sources_detail"),
             provider=dto.provider,
             model=dto.model,
             from_cache=dto.cache_hit,
