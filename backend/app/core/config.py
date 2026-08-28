@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     chroma_use_http: bool = False
     chroma_host: str = "localhost"
     chroma_port: int = 8000
+    chroma_collection_name: str = "ai_portfolio_knowledge"
 
     # Rate Limiting
     rate_limit_requests_per_minute: int = 10

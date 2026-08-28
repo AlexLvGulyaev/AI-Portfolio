@@ -15,6 +15,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.entities import KnowledgeSource, KnowledgeSyncJob, ProjectCard
+from app.services.admin import kb_admission
 from app.services.admin.github_knowledge_source_service import GitHubKnowledgeSourceService
 from app.services.rag.knowledge_base_indexer import KnowledgeBaseIndexer, KnowledgeDocument as IndexerDocument
 from app.services.rag.rag_service import RAGConfig, RAGService
@@ -63,7 +64,11 @@ class KnowledgeBaseService:
         return self._source_to_dict(row)
 
     def create_source(self, data: dict[str, Any]) -> dict[str, Any]:
-        """Create a new knowledge source."""
+        """Create a new knowledge source.
+
+        Admission gate: a new source always starts as "pending" (fail-closed)
+        and must be explicitly approved by the owner after review.
+        """
         row = KnowledgeSource(
             id=uuid4(),
             source_type=data.get("source_type", "local_file"),
@@ -71,6 +76,9 @@ class KnowledgeBaseService:
             branch=data.get("branch") or "main",
             base_path=data.get("base_path"),
             is_enabled=data.get("is_enabled", True),
+            admission_status="pending",
+            include_patterns=list(data.get("include_patterns") or []),
+            exclude_patterns=list(data.get("exclude_patterns") or []),
             last_sync_status="pending",
         )
         self._db.add(row)
@@ -84,7 +92,16 @@ class KnowledgeBaseService:
         if not row:
             raise HTTPException(404, "Knowledge source not found")
 
-        for key in ("source_type", "identifier", "branch", "base_path", "is_enabled"):
+        for key in (
+            "source_type",
+            "identifier",
+            "branch",
+            "base_path",
+            "is_enabled",
+            "admission_status",
+            "include_patterns",
+            "exclude_patterns",
+        ):
             if key in data:
                 setattr(row, key, data[key])
         row.updated_at = datetime.now(timezone.utc)
@@ -199,6 +216,62 @@ class KnowledgeBaseService:
         self._db.commit()
 
     # ------------------------------------------------------------------
+    # Admission preview (read-only; no KB writes)
+    # ------------------------------------------------------------------
+
+    def preview_source_admission(
+        self,
+        source_id: UUID,
+        github_service: Optional[GitHubKnowledgeSourceService] = None,
+    ) -> dict[str, Any]:
+        """Preview the admission-gate file selection for a GitHub source.
+
+        Read-only operation: lists the actual repository files, applies the
+        same selection mechanism used by the real sync, and returns per-file
+        decisions. Performs no chunking, no embeddings, no ChromaDB writes,
+        no reindex, and no admission status changes.
+        """
+        row = self._db.get(KnowledgeSource, source_id)
+        if not row:
+            raise HTTPException(404, "Knowledge source not found")
+
+        owns_service = github_service is None
+        service = github_service or GitHubKnowledgeSourceService(self._db)
+        try:
+            try:
+                paths = service.discover_paths(row)
+            except Exception as exc:
+                raise HTTPException(502, f"Failed to list files from GitHub source: {type(exc).__name__}: {exc}")
+
+            decisions = kb_admission.select_files(
+                paths,
+                row.admission_status,
+                row.include_patterns,
+                row.exclude_patterns,
+            )
+        finally:
+            if owns_service:
+                service.close()
+
+        included = [d for d in decisions if d.included]
+        excluded = [d for d in decisions if not d.included]
+
+        return {
+            "source_id": str(row.id),
+            "identifier": row.identifier,
+            "admission_status": row.admission_status,
+            "include_patterns": row.include_patterns or [],
+            "exclude_patterns": row.exclude_patterns or [],
+            "candidates_total": len(decisions),
+            "included_count": len(included),
+            "excluded_count": len(excluded),
+            "files": [
+                {"path": d.path, "decision": "included" if d.included else "excluded", "reason": d.reason}
+                for d in decisions
+            ],
+        }
+
+    # ------------------------------------------------------------------
     # Sync
     # ------------------------------------------------------------------
 
@@ -209,7 +282,14 @@ class KnowledgeBaseService:
             triggered_by="manual",
             status="running",
             started_at=datetime.now(timezone.utc),
-            stats={"documents_processed": 0, "chunks_created": 0, "sources_processed": 0, "errors": []},
+            stats={
+                "documents_processed": 0,
+                "chunks_created": 0,
+                "sources_processed": 0,
+                "sources_skipped": [],
+                "skipped_files": [],
+                "errors": [],
+            },
         )
         self._db.add(job)
         self._db.commit()
@@ -233,6 +313,8 @@ class KnowledgeBaseService:
             "documents_processed": 0,
             "chunks_created": 0,
             "sources_processed": 0,
+            "sources_skipped": [],
+            "skipped_files": [],
             "errors": [],
         }
 
@@ -256,10 +338,25 @@ class KnowledgeBaseService:
             ).all()
 
             for source in enabled_sources:
+                # Admission gate (source level): pending/blocked/unknown sources
+                # are not processed at all. A managed skip is not a sync failure.
+                admission_ok, admission_reason = kb_admission.source_indexable(source)
+                if not admission_ok:
+                    overall_stats["sources_skipped"].append({
+                        "identifier": source.identifier,
+                        "reason": admission_reason,
+                    })
+                    continue
+
                 overall_stats["sources_processed"] += 1
                 try:
                     fetch_result = github_service.fetch_source(source)
                     github_service.save_fetched_files(source.id, fetch_result.files, fetch_result.errors)
+
+                    for skip in fetch_result.skipped:
+                        overall_stats["skipped_files"].append(
+                            f"github_{source.identifier}_{skip.get('path', '')}: {skip.get('reason')}"
+                        )
 
                     for file in fetch_result.files:
                         doc = IndexerDocument(
@@ -403,6 +500,9 @@ class KnowledgeBaseService:
             "branch": row.branch,
             "base_path": row.base_path,
             "is_enabled": row.is_enabled,
+            "admission_status": row.admission_status,
+            "include_patterns": row.include_patterns or [],
+            "exclude_patterns": row.exclude_patterns or [],
             "last_sync_at": row.last_sync_at.isoformat() if row.last_sync_at else None,
             "last_sync_status": row.last_sync_status,
             "last_sync_error": row.last_sync_error,

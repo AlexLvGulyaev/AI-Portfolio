@@ -15,6 +15,10 @@ Ignores:
 - node_modules/
 - .git/
 - non-markdown files
+
+Admission gate: files are additionally filtered by the shared kb_admission
+selection (source admission_status + include/exclude path patterns) before
+any download; excluded files never reach chunking/embeddings/ChromaDB.
 """
 
 from __future__ import annotations
@@ -31,6 +35,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.models.entities import KnowledgeDocument, KnowledgeSource, KnowledgeSyncError
+from app.services.admin import kb_admission
 
 
 @dataclass
@@ -50,6 +55,24 @@ class GitHubFetchResult:
 
     files: list[GitHubFile] = field(default_factory=list)
     errors: list[dict[str, Any]] = field(default_factory=list)
+    # Structured admission-gate skips: files excluded before download.
+    skipped: list[dict[str, Any]] = field(default_factory=list)
+
+
+# Error types emitted when the file listing itself could not be produced
+# (repo discovery failed, or the source identifier/branch is unusable).
+# In these cases the fetch never saw a valid file set, so existing
+# documents for the source must be preserved, not replaced.
+DISCOVERY_FAILURE_TYPES = frozenset({
+    "discovery_failed",
+    "invalid_identifier",
+    "invalid_source_type",
+})
+
+
+def has_discovery_failure(errors: list[dict[str, Any]]) -> bool:
+    """True when discovery did not complete, so existing documents must be kept."""
+    return any(e.get("error_type") in DISCOVERY_FAILURE_TYPES for e in errors)
 
 
 class GitHubKnowledgeSourceService:
@@ -75,32 +98,43 @@ class GitHubKnowledgeSourceService:
     def close(self) -> None:
         self._client.close()
 
-    def fetch_source(self, source: KnowledgeSource) -> GitHubFetchResult:
-        """Fetch all markdown files from a github_repo source."""
-        result = GitHubFetchResult()
-
+    def discover_paths(self, source: KnowledgeSource) -> list[str]:
+        """Return markdown file paths of a github_repo source without downloading content."""
         if source.source_type != "github_repo":
-            result.errors.append({
-                "path": source.identifier,
-                "error_type": "invalid_source_type",
-                "error_message": f"Expected github_repo, got {source.source_type}",
-            })
-            return result
+            raise ValueError(f"Expected github_repo, got {source.source_type}")
 
         owner, repo = self._parse_identifier(source.identifier)
         if not owner or not repo:
-            result.errors.append({
-                "path": source.identifier,
-                "error_type": "invalid_identifier",
-                "error_message": "Identifier must be in format owner/repo",
-            })
-            return result
+            raise ValueError("Identifier must be in format owner/repo")
 
         branch = source.branch or "main"
         base_path = (source.base_path or "").strip("/")
+        return self._discover_markdown_paths(owner, repo, branch, base_path)
+
+    def fetch_source(self, source: KnowledgeSource) -> GitHubFetchResult:
+        """Fetch all admitted markdown files from a github_repo source.
+
+        Admission gate enforcement: only files admitted by the shared
+        kb_admission selection are downloaded and ingested. Excluded files
+        are recorded as structured skips and never reach chunking,
+        embeddings, or ChromaDB.
+        """
+        result = GitHubFetchResult()
 
         try:
-            paths = self._discover_markdown_paths(owner, repo, branch, base_path)
+            paths = self.discover_paths(source)
+        except ValueError as exc:
+            error_type = (
+                "invalid_source_type"
+                if str(exc).startswith("Expected github_repo")
+                else "invalid_identifier"
+            )
+            result.errors.append({
+                "path": source.identifier,
+                "error_type": error_type,
+                "error_message": str(exc),
+            })
+            return result
         except Exception as exc:
             result.errors.append({
                 "path": source.identifier,
@@ -109,13 +143,30 @@ class GitHubKnowledgeSourceService:
             })
             return result
 
-        for path in paths:
+        owner, repo = self._parse_identifier(source.identifier)
+        branch = source.branch or "main"
+
+        decisions = kb_admission.select_files(
+            paths,
+            source.admission_status,
+            source.include_patterns,
+            source.exclude_patterns,
+        )
+
+        for decision in decisions:
+            if not decision.included:
+                result.skipped.append({
+                    "path": decision.path,
+                    "skip_type": "admission_excluded",
+                    "reason": decision.reason,
+                })
+                continue
             try:
-                file = self._fetch_file(owner, repo, branch, path)
+                file = self._fetch_file(owner, repo, branch, decision.path)
                 result.files.append(file)
             except Exception as exc:
                 result.errors.append({
-                    "path": path,
+                    "path": decision.path,
                     "error_type": "fetch_failed",
                     "error_message": f"{type(exc).__name__}: {exc}",
                 })
@@ -129,6 +180,22 @@ class GitHubKnowledgeSourceService:
         errors: list[dict[str, Any]],
     ) -> None:
         """Persist fetched files and errors to PostgreSQL."""
+        # Fail-closed: if discovery itself failed we cannot know the current
+        # file set, so existing documents must be kept. Deleting first and
+        # failing later would lose PostgreSQL data while ChromaDB chunks
+        # (removed only incrementally during re-indexing) survive.
+        if has_discovery_failure(errors):
+            for error in errors:
+                err = KnowledgeSyncError(
+                    source_id=source_id,
+                    path=error.get("path"),
+                    error_type=error.get("error_type"),
+                    error_message=error.get("error_message"),
+                )
+                self._db.add(err)
+            self._db.commit()
+            return
+
         # Delete old documents for this source
         self._db.query(KnowledgeDocument).filter(
             KnowledgeDocument.source_id == source_id
@@ -181,15 +248,21 @@ class GitHubKnowledgeSourceService:
         branch: str,
         base_path: str,
     ) -> list[str]:
-        """Recursively discover README.md and docs/**/*.md."""
+        """Recursively discover all markdown files in the repository.
+
+        Discovery covers the whole repository tree (not only docs/);
+        the admission gate selects from this universe by include/exclude
+        patterns. Internal directories (task_history, attachments,
+        screenshots, ...) are filtered by IGNORED_PATHS.
+        """
         paths: list[str] = []
 
         # Always include README.md at the root
         root_readme = f"{base_path}/README.md" if base_path else "README.md"
         paths.append(root_readme)
 
-        docs_path = f"{base_path}/docs" if base_path else "docs"
-        self._collect_tree_paths(owner, repo, branch, docs_path, paths)
+        root = base_path if base_path else ""
+        self._collect_tree_paths(owner, repo, branch, root, paths)
 
         # Deduplicate and sort
         return sorted(set(paths))
@@ -203,7 +276,9 @@ class GitHubKnowledgeSourceService:
         paths: list[str],
     ) -> None:
         """Recursively collect markdown file paths from a GitHub tree."""
-        url = f"{self.GITHUB_API_BASE}/repos/{owner}/{repo}/contents/{path}?ref={branch}"
+        clean_path = path.strip("/")
+        suffix = f"/{clean_path}" if clean_path else ""
+        url = f"{self.GITHUB_API_BASE}/repos/{owner}/{repo}/contents{suffix}?ref={branch}"
 
         try:
             items = self._api_request(url)

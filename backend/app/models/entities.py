@@ -61,6 +61,10 @@ class KnowledgeSource(Base):
     branch = Column(String(100), default="main")
     base_path = Column(String(500))
     is_enabled = Column(Boolean, default=True, nullable=False)
+    # KB admission gate (fail-closed): only "approved" sources are indexed.
+    admission_status = Column(String(20), nullable=False, default="pending", server_default="pending")  # pending / approved / blocked
+    include_patterns = Column(JSON, default=list)  # explicit allowlist of repo path globs; empty = index nothing
+    exclude_patterns = Column(JSON, default=list)  # deny globs; take priority over include_patterns
     last_sync_at = Column(DateTime)
     last_sync_status = Column(String(50), default="pending")  # pending / success / error
     last_sync_error = Column(Text)
