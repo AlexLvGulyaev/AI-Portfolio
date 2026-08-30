@@ -5,7 +5,8 @@ import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProjectCardsPage } from './pages/ProjectCardsPage';
 import { AdmissionConsolePage } from './pages/AdmissionConsolePage';
-import { KnowledgeSyncPage } from './pages/KnowledgeSyncPage';
+import { RetrievalSettingsPage } from './pages/RetrievalSettingsPage';
+import { AiSettingsPage } from './pages/AiSettingsPage';
 import { LogsPage } from './pages/LogsPage';
 import { ConversationsPage } from './pages/ConversationsPage';
 import { AdminLayout } from './components/AdminLayout';
@@ -21,7 +22,10 @@ function App() {
             <Route path="/system" element={<DashboardPage />} />
             <Route path="/content/cards" element={<ProjectCardsPage />} />
             <Route path="/content/sources" element={<AdmissionConsolePage />} />
-            <Route path="/content/sync" element={<KnowledgeSyncPage />} />
+            <Route path="/system/retrieval" element={<RetrievalSettingsPage />} />
+            <Route path="/system/ai" element={<AiSettingsPage />} />
+            {/* Легаси-роут страницы «Синхронизация»: синк переехал в консоль допуска. */}
+            <Route path="/content/sync" element={<Navigate to="/content/sources" replace />} />
             <Route path="/logs" element={<LogsPage />} />
             <Route path="/conversations" element={<ConversationsPage />} />
           </Route>

@@ -26,6 +26,7 @@ Pipeline:
 
 from __future__ import annotations
 
+import concurrent.futures
 import re
 import time
 import uuid
@@ -75,6 +76,7 @@ class ChatOrchestrator:
         tracing_service: ExecutionTracingService | None = None,
         cache_ttl_seconds: int = 86400,  # 24 часа
         rag_top_k: int = 6,
+        include_hidden: bool = False,
     ):
         """
         Инициализация ChatOrchestrator.
@@ -86,6 +88,8 @@ class ChatOrchestrator:
             tracing_service: Опциональный сервис execution tracing
             cache_ttl_seconds: Время жизни кеша
             rag_top_k: Количество чанков для retrieval (scoped/global)
+            include_hidden: канал владельца (admin chat-preview) — retrieval
+                guard скрытых проектов не применяется (следствие §5.1 п. 9)
         """
         self.db = db
         self.cache = cache
@@ -93,6 +97,7 @@ class ChatOrchestrator:
         self.tracing_service = tracing_service
         self.cache_ttl_seconds = cache_ttl_seconds
         self.rag_top_k = rag_top_k
+        self.include_hidden = include_hidden
 
         # Инициализируем сервисы
         self.session_service = ChatSessionService(db)
@@ -100,14 +105,74 @@ class ChatOrchestrator:
         self.provider_settings = AIProviderSettingsService(db)
         self.log_service = OperationalLogService(db)
         self.prompt_assembly = PromptAssembly()
-        # Детерминированный реестр портфеля (SOT — project_cards).
+        # Управляемый системный промпт (консоль AI-настройки, migration 021):
+        # активная версия из system_prompts, иначе вшитый дефолт
+        # (load_active_prompt сам fail-open при недоступности таблицы).
+        from app.services.admin.system_prompt_service import load_active_prompt
+
+        prompt_body, prompt_version = load_active_prompt(db)
+        if prompt_body:
+            self.prompt_assembly = PromptAssembly(
+                system_prompt=prompt_body, version=prompt_version
+            )
+        # Детерминированный реестр портфеля (SOT — project_cards). Канал
+        # владельца (include_hidden) видит скрытые карточки как обычные —
+        # иначе prompt-реестр не знает скрытый проект и LLM детерминированно
+        # отказывает даже при найденных KB-чанках (проверено live 29.08).
         from app.services.portfolio_registry import PortfolioRegistry
 
-        self.registry = PortfolioRegistry(db)
+        self.registry = PortfolioRegistry(db, include_hidden=include_hidden)
 
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+
+    def _runtime_top_k(self) -> int:
+        """top_k из ретривал-консоли (runtime tuning), fallback — init-значение."""
+        try:
+            from app.services.rag.retrieval_manager import get_retrieval_manager
+
+            return int(get_retrieval_manager().effective_tuning()["rag_top_k"])
+        except Exception:
+            return self.rag_top_k
+
+    def _runtime_tuning_value(self, key: str, fallback):
+        """Значение runtime-tuning из ретривал-консоли, fallback при недоступности."""
+        try:
+            from app.services.rag.retrieval_manager import get_retrieval_manager
+
+            v = get_retrieval_manager().effective_tuning()[key]
+            return fallback if v is None else v
+        except Exception:
+            return fallback
+
+    def _runtime_answer_max_tokens(self, provider_max_tokens: int) -> int:
+        """Кап генерации (AF WH-2): min(конфиг провайдера, лимит консоли Retrieval)."""
+        cap = self._runtime_tuning_value("rag_answer_max_tokens", None)
+        try:
+            return max(1, min(int(provider_max_tokens), int(cap)))
+        except (TypeError, ValueError):
+            return provider_max_tokens
+
+    def _runtime_retrieval_timeout(self) -> int:
+        """Жёсткий таймаут retrieval-шага в секундах (AF WH-2)."""
+        try:
+            return max(5, int(self._runtime_tuning_value("rag_retrieval_timeout", 30)))
+        except (TypeError, ValueError):
+            return 30
+
+    def _admissible_repos(self, repos: list[str] | None = None) -> list[str]:
+        """
+        Список репозиториев, допустимых к выдаче в этом канале.
+
+        Публичный чат: registry.public_repos (без скрытых). Канал владельца
+        (include_hidden, admin chat-preview): скрытые репозитории отдаются
+        как обычные — скрытость регулирует публичную витрину, а не допуск
+        источника в KB (§5.1 п. 4 и п. 9).
+        """
+        if self.include_hidden:
+            return list(repos) if repos is not None else list(self.registry.repos)
+        return self.registry.public_repos(repos)
 
     def _config_fingerprint(self, provider_key: str, model_name: str) -> str:
         """
@@ -119,7 +184,7 @@ class ChatOrchestrator:
         collection = getattr(self.rag_service.config, "collection_name", "?")
         return (
             f"col:{collection}"
-            f"|{PromptAssembly.fingerprint()}"
+            f"|{self.prompt_assembly.fingerprint()}"
             f"|retrieval:top_k={self.rag_top_k}"
             f"|{provider_key}/{model_name}"
         )
@@ -464,8 +529,18 @@ class ChatOrchestrator:
             intent = self.registry.classify(user_query)
             if intent in ("listing", "count"):
                 registry_fp = f"registry:{self.registry.version}"
+                # Явное отрицание для названной скрытой карточки (класс H,
+                # owner decision 29.08.2026): вопрос существования «есть ли
+                # в портфолио проект X?» о скрытой карточке не деградирует
+                # в перечисление витрины.
+                hidden_title = self.registry.resolve_hidden(user_query)
+                route = (
+                    "registry_hidden_absent"
+                    if hidden_title
+                    else f"registry_{intent}"
+                )
                 if _tr is not None:
-                    _tr.set("route", f"registry_{intent}")
+                    _tr.set("route", route)
                     _tr.set("registry_version", self.registry.version)
                 _skip_step("rag_search", 5, {"reason": f"deterministic_{intent}", "query": user_query})
                 _skip_step("prompt_build", 6, {"reason": f"deterministic_{intent}", "query": user_query})
@@ -478,11 +553,14 @@ class ChatOrchestrator:
                     answer = cached
                     cache_hit = True
                 else:
-                    answer = (
-                        self.registry.render_list()
-                        if intent == "listing"
-                        else self.registry.render_count()
-                    )
+                    if hidden_title is not None:
+                        answer = self.registry.render_hidden_absent(hidden_title)
+                    else:
+                        answer = (
+                            self.registry.render_list()
+                            if intent == "listing"
+                            else self.registry.render_count()
+                        )
                     self.cache.set(
                         query=user_query,
                         response=answer,
@@ -490,7 +568,7 @@ class ChatOrchestrator:
                             "provider": provider_key,
                             "model": model_name,
                             "sources": [],
-                            "route": f"registry_{intent}",
+                            "route": route,
                         },
                         ttl_seconds=self.cache_ttl_seconds,
                         fingerprint=registry_fp,
@@ -510,10 +588,10 @@ class ChatOrchestrator:
                     user_id=str(visitor_id),
                     role="assistant",
                     content=answer,
-                    metadata={"route": f"registry_{intent}", "from_cache": cache_hit},
+                    metadata={"route": route, "from_cache": cache_hit},
                 )
                 _finish_step("memory_save", "ok", {
-                    "route": f"registry_{intent}",
+                    "route": route,
                     "response": answer,
                 })
 
@@ -521,7 +599,7 @@ class ChatOrchestrator:
                 _start_step("log_write", 10)
                 _finish_step("log_write", "ok", {
                     "query": user_query,
-                    "route": f"registry_{intent}",
+                    "route": route,
                     "response": answer,
                     "response_time_ms": response_time_ms,
                     "cache_hit": cache_hit,
@@ -537,14 +615,14 @@ class ChatOrchestrator:
                         execution_id, "ok",
                         {
                             "query": user_query,
-                            "route": f"registry_{intent}",
+                            "route": route,
                             "response": answer,
                             "response_time_ms": response_time_ms,
                         },
                     )
                 _finish_step("response_return", "ok", {
                     "query": user_query,
-                    "route": f"registry_{intent}",
+                    "route": route,
                     "response": answer,
                     "response_time_ms": response_time_ms,
                 })
@@ -570,7 +648,7 @@ class ChatOrchestrator:
                     sources=[],
                     latency_ms=response_time_ms,
                     metadata={
-                        "route": f"registry_{intent}",
+                        "route": route,
                         "registry_version": self.registry.version,
                     },
                 )
@@ -613,53 +691,82 @@ class ChatOrchestrator:
             if self.rag_service.count_documents() > 0:
                 _start_step("rag_search", 5)
                 _t0 = time.monotonic()
-                if len(resolved_cards) >= 2:
-                    # Проект уже сужает корпус — поиск по исходному запросу.
-                    retrieval_mode = "diverse"
-                    repos = [
-                        self.registry.repo_for_card(c) for c in resolved_cards
-                    ]
-                    repos = [r for r in repos if r] or self.registry.repos
-                    rag_results = self.rag_service.search_diverse(
-                        user_query,
-                        repos=repos,
-                        per_repo_k=2,
-                        final_top_k=6,
-                        max_per_repo=2,
-                    )
-                elif intent == "filtered":
-                    # Подмножество проектов: ограниченный fan-out по всем
-                    # допущенным репозиториям — каждый репозиторий гарантированно
-                    # даёт свой лучший чанк (иначе сильные репозитории
-                    # вытесняют остальные из контекста целиком).
-                    retrieval_mode = "diverse_all"
-                    rag_results = self.rag_service.search_diverse(
-                        user_query,
-                        repos=self.registry.repos,
-                        per_repo_k=2,
-                        final_top_k=12,
-                        max_per_repo=1,
-                    )
-                elif len(resolved_cards) == 1:
-                    retrieval_mode = "project_scoped"
-                    repo = self.registry.repo_for_card(resolved_cards[0])
-                    if repo:
-                        rag_results = self.rag_service.search(
+                # Visibility guard (owner decision 29.08.2026, variant B1):
+                # документы скрытых карточек лежат в KB, но публичному чату
+                # не отдаются — ни через fan-out по репо, ни через глобальный
+                # поиск. Реестр — источник скрытых идентификаторов. Канал
+                # владельца (include_hidden, admin chat-preview) смотрит без
+                # гварда — это его назначение: проверить скрытый проект
+                # до публикации.
+                def _do_retrieval() -> list:
+                    nonlocal retrieval_mode
+                    if self.include_hidden:
+                        _guard = None
+                    else:
+                        _guard = self.registry.public_guard()
+                    if len(resolved_cards) >= 2:
+                        # Проект уже сужает корпус — поиск по исходному запросу.
+                        retrieval_mode = "diverse"
+                        repos = [
+                            self.registry.repo_for_card(c) for c in resolved_cards
+                        ]
+                        repos = [r for r in repos if r] or self._admissible_repos()
+                        return self.rag_service.search_diverse(
                             user_query,
-                            top_k=self.rag_top_k,
-                            where={"repo": {"$eq": repo}},
+                            repos=repos,
+                            per_repo_k=2,
+                            final_top_k=6,
+                            max_per_repo=2,
                         )
-                    if not rag_results:
+                    if intent == "filtered":
+                        # Подмножество проектов: ограниченный fan-out по всем
+                        # допущенным репозиториям — каждый репозиторий гарантированно
+                        # даёт свой лучший чанк (иначе сильные репозитории
+                        # вытесняют остальные из контекста целиком).
+                        retrieval_mode = "diverse_all"
+                        return self.rag_service.search_diverse(
+                            user_query,
+                            repos=self._admissible_repos(),
+                            per_repo_k=2,
+                            final_top_k=12,
+                            max_per_repo=1,
+                        )
+                    if len(resolved_cards) == 1:
+                        retrieval_mode = "project_scoped"
+                        repo = self.registry.repo_for_card(resolved_cards[0])
+                        if repo:
+                            results = self.rag_service.search(
+                                user_query,
+                                top_k=self._runtime_top_k(),
+                                where={"repo": {"$eq": repo}},
+                            )
+                            if results:
+                                return results
                         # Проект найден в реестре, но в его KB нет релевантных
                         # чанков — честный fallback в глобальный поиск.
                         retrieval_mode = "global_fallback"
-                        rag_results = self.rag_service.search(
-                            retrieval_query, top_k=self.rag_top_k
+                        return self.rag_service.search(
+                            retrieval_query, top_k=self._runtime_top_k(), where=_guard
                         )
-                else:
-                    rag_results = self.rag_service.search(
-                        retrieval_query, top_k=self.rag_top_k
+                    return self.rag_service.search(
+                        retrieval_query, top_k=self._runtime_top_k(), where=_guard
                     )
+
+                # Жёсткий таймаут retrieval-шага (AF WH-2): worker-поток,
+                # graceful fallback на пустые результаты, трейс-метка.
+                retrieval_timeout_s = self._runtime_retrieval_timeout()
+                _pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+                try:
+                    rag_results = _pool.submit(_do_retrieval).result(
+                        timeout=retrieval_timeout_s
+                    )
+                except concurrent.futures.TimeoutError:
+                    rag_results = []
+                    retrieval_mode = "timeout"
+                    if _tr is not None:
+                        _tr.set("retrieval_timeout_s", retrieval_timeout_s)
+                finally:
+                    _pool.shutdown(wait=False)
                 _t_retrieval_ms.append(int((time.monotonic() - _t0) * 1000))
                 if rag_results:
                     # Контекст строится из УЖЕ полученных результатов —
@@ -755,7 +862,7 @@ class ChatOrchestrator:
                 answer = await provider.generate(
                     prompt,
                     temperature=active_config.temperature,
-                    max_tokens=active_config.max_tokens,
+                    max_tokens=self._runtime_answer_max_tokens(active_config.max_tokens),
                 )
                 llm_latency_ms = int((time.monotonic() - llm_start) * 1000)
                 _t_llm_ms.append(llm_latency_ms)
@@ -794,7 +901,9 @@ class ChatOrchestrator:
                         answer = await provider.generate(
                             prompt,
                             temperature=fallback_config.temperature,
-                            max_tokens=fallback_config.max_tokens,
+                            max_tokens=self._runtime_answer_max_tokens(
+                                fallback_config.max_tokens
+                            ),
                         )
                         llm_latency_ms = int((time.monotonic() - llm_start) * 1000)
 

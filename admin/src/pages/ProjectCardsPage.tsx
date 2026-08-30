@@ -59,6 +59,7 @@ function ProjectCardForm({
     display_order: initial?.display_order ?? 0,
     show_on_homepage: initial?.show_on_homepage ?? 0,
     is_visible: initial?.is_visible ?? true,
+    is_child_project: initial?.is_child_project ?? false,
     knowledge_content: initial?.knowledge_content || '',
     external_url: initial?.external_url || '',
   });
@@ -155,6 +156,17 @@ function ProjectCardForm({
         />
         <span>Видна на сайте</span>
       </label>
+      <label className="admin-form__field admin-form__field--inline">
+        <input
+          type="checkbox"
+          checked={form.is_child_project ?? false}
+          onChange={(e) => update('is_child_project', e.target.checked)}
+        />
+        {/* Признак «дочерний проект» (решение 29.08): производная карточка
+            (например hr-assistant-lora) не является кандидатом на репозиторий
+            и не показывается в селекторе подключения источников KB. */}
+        <span>Дочерний проект</span>
+      </label>
       <label className="admin-form__field">
         <span>Внешний URL</span>
         <input
@@ -222,6 +234,7 @@ function OperationPanel({ card }: { card: ProjectCard }) {
     <Panel title="Эксплуатация">
       <MetadataRow label="Внешний URL" value={card.external_url || '—'} />
       <MetadataRow label="Видимость" value={card.is_visible ? 'Видна на сайте' : 'Скрыта'} />
+      <MetadataRow label="Дочерний проект" value={card.is_child_project ? 'Да' : 'нет'} />
       <MetadataRow label="На главной" value={card.show_on_homepage > 0 ? `позиция ${card.show_on_homepage}` : 'нет'} />
       <MetadataRow label="Порядок" value={card.display_order} />
       <MetadataRow label="Изменена" value={formatDate(card.updated_at)} />

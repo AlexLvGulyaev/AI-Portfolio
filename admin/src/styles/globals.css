@@ -572,6 +572,93 @@ body {
   border-radius: 3px;
 }
 
+/* Системный промпт (консоль AI-настроек, task 2026-08-30) */
+.dashboard-section--prompt {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.prompt-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.prompt-editor textarea {
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  resize: vertical;
+  font-family: var(--font-mono, 'SFMono-Regular', Consolas, monospace);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.prompt-editor--dirty textarea {
+  border-color: var(--admin-warning-border, #b58a2a);
+}
+
+.prompt-history {
+  margin-top: 14px;
+  border-top: 1px solid var(--admin-border);
+  padding-top: 10px;
+}
+
+.prompt-history__title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--admin-text-muted);
+  margin-bottom: 8px;
+}
+
+.prompt-history__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.prompt-history__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8125rem;
+}
+
+.prompt-history__version {
+  font-family: var(--font-mono, 'SFMono-Regular', Consolas, monospace);
+  font-weight: 600;
+}
+
+.prompt-history__date {
+  color: var(--admin-text-muted);
+  margin-right: auto;
+}
+
+.prompt-panel__notice {
+  font-size: 0.8125rem;
+  color: var(--admin-success);
+  margin: 0;
+}
+
+.prompt-history__item--active {
+  color: var(--admin-text);
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border: 1px solid var(--admin-success);
+  border-radius: 6px;
+  background-color: rgba(34, 197, 94, 0.06);
+}
+
+.prompt-history__item--active .prompt-history__version {
+  color: var(--admin-success);
+}
+
 .dashboard-metric {
   padding: 12px;
   background-color: rgba(255, 255, 255, 0.02);
@@ -1342,7 +1429,7 @@ body {
 .project-cards-panels {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 12px;
   align-content: start;
 }
 
@@ -1375,7 +1462,7 @@ body {
   background-color: var(--admin-bg);
   border: 1px solid var(--admin-border);
   border-radius: var(--admin-radius);
-  padding: 16px;
+  padding: 12px;
 }
 
 .op-panel--wide {
@@ -1383,7 +1470,7 @@ body {
 }
 
 .op-panel__title {
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   font-size: 0.8125rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -1394,12 +1481,12 @@ body {
 .op-panel__body {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .op-meta-row {
   display: flex;
-  gap: 16px;
+  gap: 10px;
   font-size: 0.875rem;
 }
 
@@ -2414,23 +2501,187 @@ body {
   flex-direction: column;
   flex: 1;
   min-height: 560px;
+  /* Канон.admin-content держит нижнюю «духовку» 70px. Консоли источников
+     разрешаем уйти в неё на 54px: три макропанели становятся выше,
+     снизу остаётся 16px — симметрично верхнему inset. */
+  margin-bottom: -54px;
+  /* Заголовок с подписи - выше, к разделителю верхнего хидера
+     (верхний inset admin-content 16px ужимается до 8px). */
+  margin-top: -8px;
+}
+
+/* Workspace header pair (title + lead + management actions) with the
+   canonical divider. Grid mirrors the split below so the action buttons
+   align with the panel edges (APL standard: actions sit in the workspace
+   descriptor row — add above the center panel edge, refresh above the
+   right panel edge). */
+.ac-page__head {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: minmax(340px, 420px) minmax(0, 1fr) minmax(340px, 420px);
+  gap: 12px;
+  align-items: center;
+  /* No horizontal padding of its own: .admin-content already insets the
+     workspace (24px), same as the Logs/Dialogs consoles. No divider under
+     the descriptor: the surfaced macro panels already separate it. */
+  padding: 0 0 2px;
+}
+
+.ac-head__id {
+  min-width: 0;
+}
+
+/* Management buttons live in the KB strip below the descriptor row; the
+   header row carries only the title + lead now. */
+
+.ac-page__head .page__title {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.ac-page__lead {
+  margin: 0;
+}
+
+.ac-page__lead code {
+  margin-left: 4px;
+  font-size: 0.72rem;
+}
+
+/* KB toolbar strip (canon: AIC Console «Документы», KbDocumentToolbar).
+   Grid mirrors .ac-layout columns so the divider after the corpus summary
+   lands exactly on the right edge of the left macro panel, the actions sit
+   at the center panel's left edge and «Обновить» at its right edge. */
+.ac-strip {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: minmax(340px, 420px) minmax(0, 1fr) minmax(340px, 420px);
+  gap: 12px;
+  align-items: stretch;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  padding: 8px 0;
+  margin: 0 0 6px;
+  min-height: 48px;
+}
+
+.ac-strip__info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-left: 12px;
+  border-right: 1px solid var(--admin-border);
+  min-width: 0;
+}
+
+.ac-strip__backend {
+  flex-shrink: 0;
+}
+
+.ac-strip__label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--admin-text-muted);
+}
+
+.ac-strip__value {
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ac-strip__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 10px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: inherit;
+  background: rgba(34, 197, 94, 0.14);
+  color: #4ade80;
+}
+
+.ac-strip__badge--err {
+  background: rgba(239, 68, 68, 0.14);
+  color: #f87171;
+}
+
+.ac-strip__stats {
+  min-width: 0;
+}
+
+.ac-strip__collection {
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ac-strip__counts {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+  white-space: nowrap;
+}
+
+.ac-strip__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 2px;
+}
+
+.ac-strip__refresh {
+  justify-self: end;
+  align-self: center;
+  padding-right: 2px;
+}
+
+.ac-strip__actions .admin-btn--small,
+.ac-strip__refresh .ops-refresh-btn {
+  padding: 6px 14px;
+  font-size: 0.875rem;
 }
 
 .ac-layout {
   display: grid;
-  grid-template-columns: minmax(280px, 25%) minmax(0, 50%) minmax(280px, 25%);
+  /* Canonical operational split: left/right macro panels ~420px fixed */
+  grid-template-columns: minmax(340px, 420px) minmax(0, 1fr) minmax(340px, 420px);
+  /* Row height must be bounded to the layout height: otherwise the row is
+     auto-sized by the tallest column's content and the whole panel overflows
+     (clipped by .admin-content) instead of scrolling internally. */
+  grid-auto-rows: minmax(0, 1fr);
   gap: 12px;
   flex: 1;
   min-height: 0;
-  padding: 12px 16px 16px;
+  /* Same viewport inset as Logs/Dialogs: only .admin-content's 24px */
+  padding: 2px 0 0;
 }
 
+/* Macro panels follow the logs-left card: surface background, border,
+   rounded corners, own padding — not the dark page ground. */
 .ac-col {
   min-height: 0;
-  overflow-y: auto;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  padding: 12px;
+}
+
+.ac-col--detail {
+  overflow-y: auto;
 }
 
 .ac-col__head {
@@ -2470,31 +2721,132 @@ body {
   border-color: var(--admin-primary);
 }
 
-.ac-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+/* Filter row: two compact selects in one grid line (canonical logs-select) */
+.ac-filters-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.ac-filter {
-  padding: 4px 10px;
+/* Center panel: summary title at the panel level, then the canonical
+   APL two-column item card layout (passport / operation). */
+.ac-summary-title {
+  margin: 0;
   font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--admin-text-muted);
-  background-color: transparent;
+}
+
+.ac-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-content: start;
+}
+
+/* Composition panel: title row with actions, then two full-width zones
+   (included / excluded). The panel consumes the remaining column height;
+   each zone scrolls internally. */
+.ac-comp {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ac-col--detail > .ac-section--summary {
+  flex: 0 0 auto;
+}
+
+.ac-comp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ac-comp-head__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ac-comp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.ac-zone {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ac-zone__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--admin-text-muted);
+}
+
+.ac-zone__list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  background-color: var(--admin-bg);
   border: 1px solid var(--admin-border);
-  border-radius: 999px;
+  border-radius: var(--admin-radius);
+  /* Ограниченное окно обзора: ~7 файлов, дальше — внутренняя прокрутка
+     (резонанс со стандартом пагинации APL «7 айтемов на страницу»). */
+  max-height: 228px;
+}
+
+.ac-zone__empty {
+  flex-shrink: 0;
+  padding: 6px 8px;
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+}
+
+.ac-file {
+  /* Внутри flex-колонки списковой зоны нельзя позволять строчкам сжиматься:
+     иначе вместо прокрутки ряды сплющиваются до нечитаемости. */
+  flex-shrink: 0;
+  padding: 5px 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  color: var(--admin-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-radius: 6px;
   cursor: pointer;
 }
 
-.ac-filter:hover {
-  color: var(--admin-text);
+.ac-file:hover {
   background-color: var(--admin-surface-hover);
 }
 
-.ac-filter--active {
-  color: #ffffff;
-  background-color: var(--admin-primary);
-  border-color: var(--admin-primary);
+.ac-file--warm:hover {
+  background-color: rgba(245, 158, 11, 0.12);
+}
+
+.ac-comp-foot {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
 }
 
 .ac-source-list {
@@ -2505,19 +2857,25 @@ body {
   flex-direction: column;
   gap: 6px;
   padding-right: 2px;
+  margin-top: 8px;
 }
 
 .ac-source-item {
+  /* Айтем — <button>: без явного наследования браузер даёт ему Arial вместо
+     шрифта приложения, и левая панель рендерится иначе остальных. */
+  font-family: inherit;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   width: 100%;
-  padding: 8px 10px;
+  padding: 8px 12px;
   text-align: left;
-  background-color: var(--admin-surface);
+  background-color: var(--admin-bg);
   border: 1px solid var(--admin-border);
   border-radius: var(--admin-radius);
   cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+  color: var(--admin-text);
 }
 
 .ac-source-item:hover {
@@ -2526,37 +2884,105 @@ body {
 
 .ac-source-item--selected {
   border-color: var(--admin-primary);
-  background-color: var(--admin-surface-hover);
+  background-color: rgba(47, 123, 255, 0.08);
 }
 
-.ac-source-item__meta {
+.ac-source-item:focus {
+  outline: none;
+  border-color: var(--admin-primary);
+}
+
+/* Line 1: datetime (left) + status (right), canonical logs telemetry row
+   (.logs-item__row — 0.75rem) */
+.ac-source-item__line1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 11px;
+  margin-bottom: 4px;
+  font-size: 0.75rem;
   color: var(--admin-text-muted);
 }
 
 .ac-source-item__date {
+  flex-shrink: 0;
   white-space: nowrap;
+  color: var(--admin-text-muted);
 }
 
-.ac-source-item__title {
-  font-size: 14px;
+.ac-source-item__status {
+  text-transform: uppercase;
   font-weight: 600;
-  color: var(--admin-primary);
+  margin-left: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
+  color: var(--admin-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ac-source-item__status--patterns_changed {
+  color: var(--admin-warning);
+}
+
+.ac-source-item__status--error {
+  color: var(--admin-danger);
+}
+
+.ac-source-item__status--preview_ready {
+  color: var(--admin-success);
+}
+
+/* Line 2: main descriptor, canonical logs preview size (0.875rem) */
+.ac-source-item__title {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  font-weight: 600;
+  color: var(--admin-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.ac-source-item__line3 {
+/* Line 3: item parameters (incoming + acquired), canonical logs meta row
+   (0.75rem, muted, wraps) */
+.ac-source-item__params {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
-  font-size: 12px;
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+}
+
+.ac-source-item__params .ac-mono {
+  font-size: 0.75rem;
+}
+
+/* Pagination, AIC canon: row 1 [← Назад | Страница X из Y | Вперёд →],
+   row 2 [Всего N | Сброс] */
+.ac-pagination {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ac-pagination__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.8125rem;
+}
+
+.ac-pagination__counter {
   color: var(--admin-text-muted);
   white-space: nowrap;
+}
+
+.ac-pagination__total {
+  color: var(--admin-text-muted);
 }
 
 .ac-badge {
@@ -2584,10 +3010,6 @@ body {
 
 .ac-badge--approved {
   background-color: var(--admin-success);
-}
-
-.ac-badge--blocked {
-  background-color: var(--admin-danger);
 }
 
 .ac-badge--error {
@@ -2836,14 +3258,17 @@ body {
 }
 
 .ac-history-item {
-  padding: 8px 10px;
+  /* Плотность строки как у айтемов левой панели: те же паддинги и шаг
+     между строками — иначе текст «выглядит» мельче при тех же кеглях. */
+  flex-shrink: 0;
+  padding: 10px 12px;
   background-color: var(--admin-bg);
   border: 1px solid var(--admin-border);
   border-left: 3px solid var(--admin-border);
   border-radius: var(--admin-radius);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .ac-history-item--approved {
@@ -2864,7 +3289,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: 0.75rem;
+  line-height: 1.4;
   color: var(--admin-text-muted);
 }
 
@@ -2873,12 +3299,14 @@ body {
 }
 
 .ac-history-line2 {
-  font-size: 13px;
+  font-size: 0.875rem;
   font-weight: 600;
+  line-height: 1.4;
 }
 
 .ac-history-line3 {
-  font-size: 12px;
+  font-size: 0.75rem;
+  line-height: 1.4;
   color: var(--admin-text-muted);
 }
 
@@ -2890,6 +3318,35 @@ body {
 
 .ac-hint--error {
   color: var(--admin-danger);
+}
+
+/* Живой прогресс синхронизации KB (handleSync → опрос job.stats.progress) */
+.ac-sync-progress {
+  padding: 8px 20px 12px;
+}
+
+.ac-sync-progress__text {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  margin-bottom: 6px;
+}
+
+.ac-sync-progress__current {
+  color: var(--admin-text);
+}
+
+.ac-sync-progress__bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--admin-border);
+  overflow: hidden;
+}
+
+.ac-sync-progress__fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--admin-primary);
+  transition: width 0.6s ease;
 }
 
 .ac-notice {
@@ -2912,6 +3369,7 @@ body {
 @media (max-width: 1200px) {
   .ac-layout {
     grid-template-columns: 1fr;
+    grid-auto-rows: auto;
     overflow-y: auto;
     height: auto;
   }
@@ -2923,4 +3381,409 @@ body {
   .ac-page {
     height: auto;
   }
+}
+
+/* ==========================================================
+   Retrieval console (task 2026-08-29, recreated from AF)
+   ========================================================== */
+/* Retrieval console — визуальный канон «Системных настроек» (dashboard): */
+/* Page-обёртка, секции dashboard-section--compact, admin-status, admin-btn */
+
+.ret-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.ret-stack::-webkit-scrollbar {
+  width: 8px;
+}
+/* Явная метка скроллируемости: контента может быть больше видимой области
+   (раскрытая панель путей), скроллбар на тёмной теме должен быть заметен. */
+.ret-stack {
+  scrollbar-width: thin;
+  scrollbar-color: var(--admin-surface-hover) transparent;
+}
+
+.ret-stack::-webkit-scrollbar-thumb {
+  background-color: var(--admin-border);
+  border-radius: 3px;
+}
+
+.ret-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  /* Выравнивание нижних границ панелей в ряду (шлифовка 29.08: панель пары
+     тянется до высоты самой высокой — верхние границы и так совпадают). */
+  align-items: stretch;
+}
+
+@media (max-width: 1000px) {
+  .ret-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ret-cols .dashboard-section {
+  min-width: 0;
+}
+
+/* Ключ-значение: метка как у метрик (uppercase, muted), значение светлее */
+.rc-kv {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.875rem;
+}
+
+.rc-kv > div {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.rc-kv > div > span:first-child {
+  min-width: 140px;
+  font-size: 0.6875rem;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rc-kv code {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  color: var(--admin-text);
+}
+
+.rc-kv-paths {
+  max-height: 220px;
+  overflow: auto;
+}
+
+.rc-kv-paths > div > span:first-child {
+  min-width: 0;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 0.75rem;
+}
+
+/* Строка переключения бэкенда — как provider-routing */
+.rc-switch-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  padding: 12px;
+}
+
+.rc-switch-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rc-switch-field span {
+  font-size: 0.6875rem;
+  color: var(--admin-text-muted);
+}
+
+.rc-switch-field select {
+  background-color: var(--admin-bg);
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  padding: 6px 8px;
+  font-size: 0.8125rem;
+}
+
+.rc-switch-field select:disabled {
+  opacity: 0.6;
+}
+
+.rc-switch-row .admin-btn {
+  flex-shrink: 0;
+}
+
+/* Поля тюнинга — как provider-card controls */
+.rc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+}
+
+.rc-field-label {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 0.6875rem;
+  color: var(--admin-text-muted);
+}
+
+.rc-field-label code {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.6875rem;
+  color: var(--admin-text);
+}
+
+.rc-field-title {
+  color: var(--admin-text-muted);
+}
+
+.rc-field input {
+  background-color: var(--admin-bg);
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  padding: 5px 8px;
+  font-size: 0.8125rem;
+  font-family: inherit;
+}
+
+.rc-field input:focus {
+  outline: none;
+  border-color: var(--admin-primary);
+}
+
+.rc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 1000px) {
+  .rc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Чип источника значения (db / env) */
+.rc-source {
+  font-size: 0.625rem;
+  line-height: 1;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  padding: 2px 6px;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.rc-muted {
+  color: var(--admin-text-muted);
+  font-size: 0.75rem;
+}
+
+.rc-hint {
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+}
+
+.rc-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.rc-inline {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+}
+
+/* Алерты — палитра admin-status */
+.rc-alert {
+  font-size: 0.75rem;
+  padding: 8px 10px;
+  border-radius: var(--admin-radius);
+}
+
+.rc-alert--warn {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: var(--admin-warning);
+}
+
+.rc-alert--err {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: var(--admin-danger);
+}
+
+/* Таблица — admin-table, активная строка — primary-тинт как у admin-tab */
+.rc-row-active .admin-table__cell {
+  background-color: rgba(47, 123, 255, 0.08);
+}
+
+.rc-detail {
+  font-size: 0.6875rem;
+  color: var(--admin-text-muted);
+  max-width: 220px;
+  word-break: break-word;
+}
+
+/* Collapsed read-only panel (owner decision 29.08.2026: переопределения и
+   пути уходят вниз в details по AF retrieval-settings__details образцу). */
+.ret-details {
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  background: var(--admin-surface);
+  overflow: hidden;
+}
+.ret-details > summary {
+  cursor: pointer;
+  padding: 10px 14px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--admin-text-muted);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+.ret-details > summary::-webkit-details-marker {
+  display: none;
+}
+.ret-details > summary::before {
+  content: '▸';
+  color: var(--admin-text-muted);
+  transition: transform 0.15s ease;
+}
+.ret-details[open] > summary::before {
+  content: '▾';
+}
+.ret-details__body {
+  padding: 0 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  /* Панель не уезжает за нижнюю границу экрана при раскрытии:
+     ограниченная высота + собственный скролл (шлифовка 29.08). */
+  max-height: 38vh;
+  overflow-y: auto;
+}
+
+/* Панель Retrieval cache: строка диагностики из мелких пар (AF CacheStats). */
+.rc-kv-diag {
+  font-size: 0.8125rem;
+}
+
+/* Шлифовка Retrieval-консоли 29.08.2026 (решения владельца):
+   Активный бэкенд — три параметра в одну строку; Retrieval cache — 5+5. */
+.rc-kv-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+}
+.rc-kv-inline > div {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.rc-kv-inline > div > span:first-child {
+  font-size: 0.6875rem;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.rc-kv-inline code {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  color: var(--admin-text);
+}
+
+.rc-kv-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(5, auto);
+  grid-auto-flow: column;
+  gap: 6px 22px;
+  /* Тянемся до низа панели и распределяем строки равномерно —
+     значения не «прилипают» друг к другу (шлифовка 29.08). */
+  flex: 1;
+  align-content: space-between;
+}
+.rc-kv-cols > div {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  min-width: 0;
+}
+.rc-kv-cols > div > span:first-child {
+  /* Фиксированная ширина метки: значения в колонке начинаются с одной
+     вертикали, а не прилипают к разной длине наименований (шлифовка 29.08). */
+  width: 112px;
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.rc-kv-cols > div > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rc-kv-cols code {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  color: var(--admin-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Шлифовка №3 (29.08.2026): раскрытая панель «Переопределения и пути» —
+   убрать двойной внутренний скролл и сделать усечение безопасным. */
+.ret-details .rc-kv-paths {
+  max-height: none;
+  overflow: visible;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 22px;
+}
+.ret-details .rc-kv-paths > div {
+  min-width: 0;
+}
+.ret-details .rc-kv-paths > div > span:first-child {
+  text-transform: none;
+  letter-spacing: normal;
+}
+.ret-details .rc-kv-paths code {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+.ret-details__body {
+  max-height: 30vh;
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--admin-border) transparent;
+}
+.ret-details__body::-webkit-scrollbar {
+  width: 8px;
+}
+.ret-details__body::-webkit-scrollbar-thumb {
+  background-color: var(--admin-border);
+  border-radius: 4px;
+}
+
+/* Шлифовка №5 (29.08.2026): корень — flex-колонка .ret-stack сжимала
+   последнего ребёнка (collapsed-панели) до пары пикселей (замер DOM:
+   scrollH 34px при фактической высоте 2px). Ничего в ней не сжимаем:
+   не помещается — прокручивается (overflow-y есть), а не сплющивается. */
+.ret-stack > * {
+  flex-shrink: 0;
+}
+.ret-details {
+  flex-shrink: 0;
 }

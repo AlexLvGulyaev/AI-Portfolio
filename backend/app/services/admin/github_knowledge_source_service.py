@@ -111,6 +111,59 @@ class GitHubKnowledgeSourceService:
         base_path = (source.base_path or "").strip("/")
         return self._discover_markdown_paths(owner, repo, branch, base_path)
 
+    def probe_repo(self, owner: str, repo: str) -> Optional[bool]:
+        """Cheap existence probe for the source-creation guard (owner decision
+        29.08.2026, model "A", variant В2).
+
+        Returns:
+            True  - repository exists (GET /repos/{owner}/{repo} → 200);
+            False - GitHub confirms the repository is missing (404);
+            None  - GitHub unreachable or unexpected status; the caller
+                    (KB source admission) fails closed on None.
+        """
+        url = f"{self.GITHUB_API_BASE}/repos/{owner}/{repo}"
+        try:
+            response = self._client.get(url)
+        except httpx.HTTPError:
+            return None
+        if response.status_code == 200:
+            return True
+        if response.status_code == 404:
+            return False
+        return None
+
+    def list_owner_repos(self, owner: str) -> Optional[list[dict[str, Any]]]:
+        """List public repositories of the KB registry owner (owner decision
+        29.08.2026: after the namespace guard the add-source select is fed
+        straight from GitHub instead of free-text input).
+
+        Returns:
+            list of dicts on success (identifier/name/description/updated_at),
+            None on unreachable GitHub or unexpected status — the caller
+            (KB admission UI endpoint) fails closed with 503.
+        """
+        url = f"{self.GITHUB_API_BASE}/users/{owner}/repos"
+        params = {"type": "owner", "sort": "updated", "per_page": 100}
+        try:
+            response = self._client.get(url, params=params)
+        except httpx.HTTPError:
+            return None
+        if response.status_code != 200 or not isinstance(response.json(), list):
+            return None
+        repos: list[dict[str, Any]] = []
+        for item in response.json():
+            name = item.get("name", "")
+            if not name:
+                continue
+            repos.append({
+                "identifier": f"{owner}/{name}",
+                "name": name,
+                "description": item.get("description"),
+                "updated_at": item.get("updated_at"),
+                "archived": bool(item.get("archived", False)),
+            })
+        return repos
+
     def fetch_head_commit(self, owner: str, repo: str, branch: str) -> Optional[str]:
         """Return the current head commit SHA of a branch via the GitHub API.
 

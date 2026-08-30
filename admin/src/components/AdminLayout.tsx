@@ -6,14 +6,21 @@ type NavItem =
   | { type: 'group'; label: string; children: { path: string; label: string }[] };
 
 const navItems: NavItem[] = [
-  { type: 'link', path: '/system', label: 'Системные настройки' },
+  {
+    type: 'group',
+    label: 'Система',
+    children: [
+      { path: '/system', label: 'Обзор' },
+      { path: '/system/retrieval', label: 'Retrieval' },
+      { path: '/system/ai', label: 'AI-настройки' },
+    ],
+  },
   {
     type: 'group',
     label: 'Контент/база знаний',
     children: [
       { path: '/content/cards', label: 'Карточки проектов' },
-      { path: '/content/sources', label: 'Допуск источников' },
-      { path: '/content/sync', label: 'Синхронизация' },
+      { path: '/content/sources', label: 'Источники и синхронизация' },
     ],
   },
   { type: 'link', path: '/logs', label: 'Логи' },
@@ -38,6 +45,9 @@ export function AdminLayout() {
               <NavLink
                 key={item.path}
                 to={item.path}
+                // /system не должен подсвечиваться на вложенных путях
+                // (например, /system/retrieval) — только на самом /system.
+                end={item.path === '/system'}
                 className={({ isActive }) =>
                   `admin-nav__link${isActive ? ' admin-nav__link--active' : ''}`
                 }
@@ -55,6 +65,9 @@ export function AdminLayout() {
                     <NavLink
                       key={child.path}
                       to={child.path}
+                      end
+                      // end: «Обзор» (/system) не должен подсвечиваться на
+                      // вложенных путях типа /system/retrieval и /system/ai.
                       className={({ isActive }) =>
                         `admin-nav__link admin-nav__link--child${isActive ? ' admin-nav__link--active' : ''}`
                       }

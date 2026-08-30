@@ -128,22 +128,30 @@ def norm_text(s: str) -> str:
 class PortfolioRegistry:
     """Реестр портфеля из project_cards с детерминированной маршрутизацией."""
 
-    def __init__(self, db):
+    def __init__(self, db, include_hidden: bool = False):
+        """
+        include_hidden=False — публичный канал: видимые карточки, скрытые
+        не резолвятся. include_hidden=True — канал владельца (admin
+        chat-preview): скрытые карточки отдаются как обычные, чтобы владелец
+        видел, как ассистент ответит после публикации (следствие §5.1 п. 9).
+        """
         self._db = db
+        self._include_hidden = include_hidden
         self._cards: list[RegistryCard] = []
         self._version: str = ""
         self._repos: list[str] = []
         self.load()
 
     def load(self) -> None:
-        """Загружает видимые карточки из project_cards (SOT)."""
+        """Загружает карточки из project_cards (SOT)."""
         from sqlalchemy import text
 
+        visibility = "" if self._include_hidden else " WHERE is_visible = true "
         rows = self._db.execute(
             text(
                 "SELECT slug, title, short_description, category, tags, "
                 "display_order, external_url "
-                "FROM project_cards WHERE is_visible = true "
+                f"FROM project_cards{visibility} "
                 "ORDER BY display_order"
             )
         ).fetchall()
@@ -173,6 +181,49 @@ class PortfolioRegistry:
             self._repos = [r.identifier for r in source_rows if r.identifier]
         except Exception:
             self._repos = []
+        # Репозитории скрытых карточек (owner decision 29.08.2026, variant B1):
+        # документы этих источников лежат в KB, но публичному чату не
+        # отдаются — retrieval guard убирает их из выборки. Скрытость
+        # карточки = отсутствие на витрине И отсутствие в ассистенте для
+        # клиента; админ-канал (позже: /admin chat-preview) смотрит без
+        # этого фильтра.
+        try:
+            hidden_rows = self._db.execute(
+                text(
+                    "SELECT ks.identifier FROM knowledge_sources ks "
+                    "JOIN project_cards pc ON pc.id = ks.project_card_id "
+                    "WHERE pc.is_visible = false "
+                    "AND ks.source_type = 'github_repo' AND ks.is_enabled = true "
+                    "AND ks.admission_status = 'approved'"
+                )
+            ).fetchall()
+            self._hidden_repos = [r.identifier for r in hidden_rows if r.identifier]
+        except Exception:
+            self._hidden_repos = []
+        # Скрытые карточки (owner decision 29.08.2026): названия для явного
+        # отрицания «есть ли в портфолио проект X?» — вопрос существования по
+        # скрытой карточке не должен деградировать в перечисление витрины.
+        try:
+            hidden_card_rows = self._db.execute(
+                text(
+                    "SELECT slug, title, display_order FROM project_cards "
+                    "WHERE is_visible = false ORDER BY display_order"
+                )
+            ).fetchall()
+            self._hidden_cards = [
+                RegistryCard(
+                    slug=row.slug,
+                    title=row.title,
+                    short_description="",
+                    category="",
+                    tags=[],
+                    display_order=int(row.display_order or 0),
+                )
+                for row in hidden_card_rows
+                if row.slug not in {c.slug for c in cards}
+            ]
+        except Exception:
+            self._hidden_cards = []
         # Уникальные аббревиатуры (initialisms) ≥3 букв: неоднозначные
         # (совпадающие у нескольких карточек) не регистрируются.
         # Два механических вывода: заглавные буквы заголовка («HR Assistant»
@@ -198,9 +249,12 @@ class PortfolioRegistry:
             for ini, card in variants:
                 if init_counts.get(ini) == 1:
                     self._initialisms.setdefault(ini, card)
-        # Стабильная версия реестра: состав + порядок + описания.
+        # Стабильная версия реестра: состав + порядок + описания (+ скрытые
+        # карточки — они меняют ответы об отсутствующих проектах).
         payload = "\n".join(
             f"{c.display_order}|{c.slug}|{c.title}|{c.short_description}" for c in cards
+        ) + "\n" + "\n".join(
+            f"hidden|{c.slug}|{c.title}" for c in self._hidden_cards
         )
         self._version = hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
 
@@ -220,6 +274,31 @@ class PortfolioRegistry:
     def repos(self) -> list[str]:
         """Допущенные KB-источники (identifier = repo в метаданных чанков)."""
         return self._repos
+
+    @property
+    def hidden_repos(self) -> list[str]:
+        """Репозитории скрытых карточек — публичному retrieval не отдаются."""
+        return self._hidden_repos
+
+    def public_repos(self, repos: Optional[list[str]] = None) -> list[str]:
+        """Список репо для public-поиска: без hidden-репозиториев.
+
+        Без аргумента фильтрует self.repos; по умолчанию удаляет из
+        переданного. Для админ-канала (когда появится) фильтр не
+        применяется — тот список собирает сам вызывающий.
+        """
+        hidden = set(self._hidden_repos)
+        base = repos if repos is not None else self._repos
+        return [r for r in base if r not in hidden]
+
+    def public_guard(self) -> Optional[dict]:
+        """Chroma where-фильтр для не-реестровых (глобальных) поисков.
+
+        None когда скрывать нечего — where не добавляется вовсе.
+        """
+        if not self._hidden_repos:
+            return None
+        return {"repo": {"$nin": list(self._hidden_repos)}}
 
     @staticmethod
     def _repo_name(identifier: str) -> str:
@@ -272,6 +351,18 @@ class PortfolioRegistry:
     def render_count(self) -> str:
         return (f"В портфолио {len(self._cards)} проектов: {self.render_names()}.")
 
+    def render_hidden_absent(self, title: str) -> str:
+        """Явное отрицание для названной скрытой карточки (класс H).
+
+        Маркеры отказа согласованы с refusal_markers публичного eval-сета
+        («не найден», «не представлен», «не входит в состав»).
+        """
+        return (
+            f"Проект «{title}» не найден в составе портфолио — "
+            f"он не представлен в списке {len(self._cards)} проектов, "
+            f"входящих в состав портфолио."
+        )
+
     # ---------- classification ----------
 
     def classify(self, query: str) -> str:
@@ -316,6 +407,30 @@ class PortfolioRegistry:
         if len(alias) < 4:
             return bool(re.search(r"(?<!\w)" + re.escape(alias) + r"(?!\w)", q))
         return alias in q
+
+    def resolve_hidden(self, query: str) -> Optional[str]:
+        """
+        Скрытая карточка, названная в запросе (поверхность узкая: только
+        алиасы скрытых карточек — title/slug, без общих эвристик).
+
+        Возвращает title для явного отрицания. На админ-канале
+        (include_hidden=True) скрытые карточки попадают в _cards и здесь
+        отбрасываются — предпросмотр не должен превращаться в отказ.
+        """
+        if not self._hidden_cards:
+            return None
+        q = norm_text(query)
+        best: Optional[RegistryCard] = None
+        best_key: tuple[int, int] | None = None
+        for card in self._hidden_cards:
+            for alias, pr in card.alias_variants():
+                if not self._alias_match(alias, q):
+                    continue
+                key = (len(alias), -pr)
+                if best_key is None or key > best_key:
+                    best = card
+                    best_key = key
+        return best.title if best else None
 
     def resolve(self, query: str) -> Optional[RegistryCard]:
         """

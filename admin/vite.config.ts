@@ -6,6 +6,11 @@ import { resolve } from 'path';
 export default defineConfig({
   plugins: [react()],
   base: '/admin/',
+  // Метка сборки: прошивается в bundle при каждой сборке и выводится в Title
+  // вкладки — однозначно идентифицирует, какой build загружен в браузере.
+  define: {
+    __BUILD_STAMP__: JSON.stringify(new Date().toISOString()),
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

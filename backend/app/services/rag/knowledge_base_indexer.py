@@ -17,9 +17,171 @@ import json
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Protocol
 
 from app.services.rag.rag_service import RAGConfig, RAGService
+
+
+class IndexStore(Protocol):
+    """Minimal write contract for the KB indexer's target index.
+
+    KB indexing follows the effective-active retrieval backend (owner
+    decision 29.08.2026): the store is resolved from the backend returned
+    by ``retrieval_manager.get_backend()``, not hardwired to Chroma.
+    """
+
+    backend_name: str
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        """Compute embeddings for chunks."""
+        ...
+
+    def delete_document_chunks(self, document_id: str) -> int:
+        """Delete all chunks of a document before re-indexing it."""
+        ...
+
+    def add_chunks(
+        self,
+        ids: list[str],
+        documents: list[str],
+        embeddings: list[list[float]],
+        metadatas: list[dict[str, Any]],
+    ) -> None:
+        """Insert pre-embedded chunks."""
+        ...
+
+    def clear_by_source_type(self, source_type: str) -> int:
+        """Delete all chunks of a source type. Returns deleted count."""
+        ...
+
+    def clear_collection(self) -> None:
+        """Delete every chunk of the index."""
+        ...
+
+    def all_document_ids(self) -> set[str]:
+        """Distinct document_ids currently in the store (post-sync verify)."""
+        ...
+
+
+class ChromaIndexStore:
+    """Chroma-backed IndexStore — delegates to the legacy RAGService methods."""
+
+    backend_name = "chroma"
+
+    def __init__(self, rag_service: RAGService):
+        self.rag_service = rag_service
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        return self.rag_service._create_embeddings(texts)
+
+    def delete_document_chunks(self, document_id: str) -> int:
+        try:
+            results = self.rag_service._collection.get(
+                where={"document_id": document_id},
+                include=[],
+            )
+            ids = results.get("ids", [])
+            if ids:
+                self.rag_service._collection.delete(ids=ids)
+            return len(ids)
+        except Exception:
+            return 0
+
+    def add_chunks(
+        self,
+        ids: list[str],
+        documents: list[str],
+        embeddings: list[list[float]],
+        metadatas: list[dict[str, Any]],
+    ) -> None:
+        self.rag_service._collection.add(
+            ids=ids,
+            documents=documents,
+            embeddings=embeddings,
+            metadatas=metadatas,
+        )
+
+    def clear_by_source_type(self, source_type: str) -> int:
+        return self.rag_service.clear_by_source_type(source_type)
+
+    def clear_collection(self) -> None:
+        self.rag_service.clear_collection()
+
+    def all_document_ids(self) -> set[str]:
+        try:
+            results = self.rag_service._collection.get(include=["metadatas"])
+            return {
+                str(m.get("document_id"))
+                for m in (results.get("metadatas") or [])
+                if isinstance(m, dict) and m.get("document_id")
+            }
+        except Exception:
+            return set()
+
+
+class WeaviateIndexStore:
+    """Weaviate-backed IndexStore — delegates to WeaviateBackend write methods."""
+
+    backend_name = "weaviate"
+
+    def __init__(self, backend: Any):
+        self._backend = backend
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        return self._backend._embeddings_fn(texts)
+
+    def delete_document_chunks(self, document_id: str) -> int:
+        return self._backend.delete_document_chunks(document_id)
+
+    def add_chunks(
+        self,
+        ids: list[str],
+        documents: list[str],
+        embeddings: list[list[float]],
+        metadatas: list[dict[str, Any]],
+    ) -> None:
+        self._backend.add_chunks(ids, documents, embeddings, metadatas)
+
+    def clear_by_source_type(self, source_type: str) -> int:
+        return self._backend.clear_by_source_type(source_type)
+
+    def clear_collection(self) -> None:
+        self._backend.clear_collection()
+
+    def all_document_ids(self) -> set[str]:
+        coll = self._backend._collection()
+        ids: set[str] = set()
+        after: str | None = None
+        # QUERY_MAXIMUM_RESULTS caps a single fetch (10000 here) — paginate
+        # by after-cursor instead of raising the limit.
+        while True:
+            resp = coll.query.fetch_objects(
+                limit=500, after=after, return_properties=["document_id"]
+            )
+            objs = getattr(resp, "objects", None) or []
+            for obj in objs:
+                doc_id = (obj.properties or {}).get("document_id")
+                if doc_id:
+                    ids.add(str(doc_id))
+            if len(objs) < 500:
+                break
+            after = getattr(objs[-1], "uuid", None)
+            if after is None:
+                break
+        return ids
+
+
+def index_store_for(backend: Any) -> IndexStore:
+    """Resolve the IndexStore for a (base, unwrapped) retrieval backend."""
+    name = str(getattr(backend, "backend_name", "") or "")
+    if not hasattr(backend, "add_chunks"):
+        raise ValueError(
+            f"backend '{name or type(backend).__name__}' does not support "
+            "KB indexing (no index_store write contract)"
+        )
+    if name == "weaviate":
+        return WeaviateIndexStore(backend)
+    return ChromaIndexStore(backend)
 
 
 @dataclass
@@ -46,13 +208,13 @@ class IndexerStats:
 
 class KnowledgeBaseIndexer:
     """
-    Сервис индексации базы знаний в ChromaDB.
+    Сервис индексации базы знаний (запись через IndexStore).
 
     Функции:
     - загрузка JSON-документов;
     - чанкинг документов;
     - построение embeddings;
-    - запись в ChromaDB;
+    - запись в индекс активного retrieval-бэкенда (Chroma | Weaviate);
     - переиндексация;
     - удаление документов.
 
@@ -61,17 +223,27 @@ class KnowledgeBaseIndexer:
 
     def __init__(
         self,
-        rag_service: RAGService,
+        rag_service: RAGService | None = None,
         knowledge_base_path: str = "knowledge_base",
+        store: IndexStore | None = None,
     ):
         """
         Инициализация индексатора.
 
         Args:
-            rag_service: RAG-сервис для работы с ChromaDB
+            rag_service: RAG-сервис для работы с ChromaDB (legacy-путь;
+                формирует ChromaIndexStore, если store не передан)
             knowledge_base_path: Путь к JSON-файлам базы знаний
+            store: Целевое хранилище IndexStore; KB indexing следует за
+                effective-активным retrieval-бэкендом (владелец, 29.08.2026)
         """
         self.rag_service = rag_service
+        if store is not None:
+            self.store = store
+        elif rag_service is not None:
+            self.store = ChromaIndexStore(rag_service)
+        else:
+            raise ValueError("KnowledgeBaseIndexer requires a store or rag_service")
         self.knowledge_base_path = Path(knowledge_base_path)
 
     def _create_chunks(
@@ -135,18 +307,8 @@ class KnowledgeBaseIndexer:
         return result
 
     def _delete_document_chunks(self, document_id: str) -> int:
-        """Удаляет все чанки документа из коллекции перед переиндексацией."""
-        try:
-            results = self.rag_service._collection.get(
-                where={"document_id": document_id},
-                include=[],
-            )
-            ids = results.get("ids", [])
-            if ids:
-                self.rag_service._collection.delete(ids=ids)
-            return len(ids)
-        except Exception:
-            return 0
+        """Удаляет все чанки документа из индекса перед переиндексацией."""
+        return self.store.delete_document_chunks(document_id)
 
     def load_json_documents(self, file_path: Path) -> list[KnowledgeDocument]:
         """
@@ -255,8 +417,8 @@ class KnowledgeBaseIndexer:
         if not chunks:
             return 0
 
-        # Создаём эмбеддинги
-        embeddings = self.rag_service._create_embeddings(chunks)
+        # Создаём эмбеддинги (бэкенд-функция эффективного бэкенда)
+        embeddings = self.store.embed(chunks)
 
         # Формируем метаданные для каждого чанка
         metadatas: list[dict[str, Any]] = []
@@ -269,6 +431,7 @@ class KnowledgeBaseIndexer:
                 "document_id": document.id,
                 "category": document.category,
                 "chunk_index": i,
+                "total_chunks": len(chunks),
                 "chunk_length": len(chunk),
                 **document.metadata,
             })
@@ -279,8 +442,8 @@ class KnowledgeBaseIndexer:
             metadatas.append(metadata)
             ids.append(chunk_id)
 
-        # Добавляем в коллекцию
-        self.rag_service._collection.add(
+        # Добавляем в индекс активного бэкенда
+        self.store.add_chunks(
             ids=ids,
             documents=chunks,
             embeddings=embeddings,
@@ -309,9 +472,9 @@ class KnowledgeBaseIndexer:
         stats = IndexerStats()
         start_time = time.time()
 
-        # Очищаем коллекцию, если требуется
+        # Очищаем индекс, если требуется
         if clear_existing:
-            self.rag_service.clear_collection()
+            self.store.clear_collection()
 
         # Индексируем каждый документ
         for doc in documents:
@@ -363,9 +526,9 @@ class KnowledgeBaseIndexer:
         stats = IndexerStats()
         start_time = time.time()
 
-        # Очищаем коллекцию, если требуется
+        # Очищаем индекс, если требуется
         if clear_existing:
-            self.rag_service.clear_collection()
+            self.store.clear_collection()
 
         # Находим все JSON-файлы
         if not self.knowledge_base_path.exists():
@@ -404,17 +567,7 @@ class KnowledgeBaseIndexer:
             Количество удалённых чанков
         """
         try:
-            # Получаем все чанки документа
-            results = self.rag_service._collection.get(
-                where={"document_id": document_id},
-            )
-
-            ids = results.get("ids", [])
-            if ids:
-                self.rag_service._collection.delete(ids=ids)
-
-            return len(ids)
-
+            return self.store.delete_document_chunks(document_id)
         except Exception:
             return 0
 
@@ -425,6 +578,13 @@ class KnowledgeBaseIndexer:
         Returns:
             Словарь с количеством документов по категориям
         """
+        if self.rag_service is None:
+            # Не-chroma store: сводки по категориям из индексатора не отдаём.
+            return {
+                "total_documents": 0,
+                "total_chunks": 0,
+                "by_category": {},
+            }
         try:
             # Получаем все чанки
             results = self.rag_service._collection.get(

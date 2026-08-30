@@ -48,10 +48,9 @@ def get_orchestrator(
     from dotenv import load_dotenv
     load_dotenv()
 
-    from app.services.rag.rag_service import RAGService, RAGConfig
+    from app.services.rag.retrieval_manager import get_retrieval_manager
 
-    config = RAGConfig.from_settings()
-    rag_service = RAGService(config=config)
+    rag_service = get_retrieval_manager().get_backend()
     tracing_service = ExecutionTracingService(db=db)
 
     return ChatOrchestrator(
