@@ -307,3 +307,63 @@ def test_card_delete_restricted_by_fk():
           if f.column.table.name == "project_cards"]
     assert len(fk) == 1, "KnowledgeSource must reference project_cards"
     assert fk[0].constraint.ondelete == "RESTRICT"
+
+# ---------- Ветка источника: авто-детект дефолтной ветки ----------
+
+def test_create_source_resolves_main_placeholder_to_default_branch():
+    """UI префилл branch='main' + репозиторий на master → берём default_branch репо.
+
+    Симптом-источник: 422 /commits/main при построении состава допуска
+    (AI-Portfolio живёт на master)."""
+    card = SimpleNamespace(id="0c0ffe-br1", title="AI Portfolio")
+    service, db = _service(card=card)
+    service._probe_repo = lambda owner, repo: True
+    service._probe_default_branch = lambda owner, repo: "master"
+    created = service.create_source({
+        "source_type": "github_repo",
+        "identifier": f"{ALLOWED_OWNER}/AI-Portfolio",
+        "project_card_id": "0c0ffe-br1",
+        "branch": "main",
+    })
+    assert created["branch"] == "master"
+    assert db.add.call_args[0][0].branch == "master"
+    print("PASS: branch 'main' placeholder resolved to repo default branch")
+
+
+def test_create_source_respects_explicit_branch():
+    """Ветка, выбранная пользователем явным образом, детектом не перезаписывается."""
+    card = SimpleNamespace(id="0c0ffe-br2", title="Some Project")
+    service, db = _service(card=card)
+    service._probe_repo = lambda owner, repo: True
+    service._probe_default_branch = lambda owner, repo: "master"
+    created = service.create_source({
+        "source_type": "github_repo",
+        "identifier": f"{ALLOWED_OWNER}/some-repo",
+        "project_card_id": "0c0ffe-br2",
+        "branch": "dev",
+    })
+    assert created["branch"] == "dev"
+    print("PASS: explicit branch respected")
+
+
+def test_create_source_without_branch_keeps_old_default():
+    """Без branch в payload (прямой API-вызов) — прежнее значение 'main',
+    детект не выполняется (контракт обратной совместимости)."""
+    card = SimpleNamespace(id="0c0ffe-br3", title="Some Project")
+    service, db = _service(card=card)
+    service._probe_repo = lambda owner, repo: True
+    probe_calls = []
+
+    def _deny(owner, repo):
+        probe_calls.append((owner, repo))
+        return "master"
+
+    service._probe_default_branch = _deny
+    created = service.create_source({
+        "source_type": "github_repo",
+        "identifier": f"{ALLOWED_OWNER}/some-repo",
+        "project_card_id": "0c0ffe-br3",
+    })
+    assert created["branch"] == "main"
+    assert probe_calls == []
+    print("PASS: no branch in payload keeps 'main', no probe")
