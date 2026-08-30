@@ -139,6 +139,14 @@ class KnowledgeBaseService:
                                    "Источник не создан (fail-closed), повторите попытку",
                     },
                 )
+            # Ветка-плейсхолдер «main» (префилл UI) — не гарантия того, что
+            # репозиторий ею живёт (AI-Portfolio: master). 422 на
+            # /commits/main при построении состава — симптом именно этого.
+            # Явно выбранные пользователем ветки не трогаем.
+            if data.get("branch") == "main":
+                detected = self._probe_default_branch(owner, repo)
+                if detected:
+                    data["branch"] = detected
         # One repository = one source (owner decision 29.08.2026, variant 1):
         # admitting the same identifier twice would duplicate documents and
         # Chroma chunks once approved. The unique index on identifier (017)
@@ -186,6 +194,14 @@ class KnowledgeBaseService:
         gh = GitHubKnowledgeSourceService(self._db)
         try:
             return gh.probe_repo(owner, repo)
+        finally:
+            gh.close()
+
+    def _probe_default_branch(self, owner: str, repo: str) -> Optional[str]:
+        """Live GitHub default-branch probe (indirection for tests, as _probe_repo)."""
+        gh = GitHubKnowledgeSourceService(self._db)
+        try:
+            return gh.default_branch(owner, repo)
         finally:
             gh.close()
 
