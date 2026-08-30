@@ -522,3 +522,61 @@ class RAGService:
                 })
 
         return chunks
+
+    def chunk_counts_by_document(self) -> dict[str, int]:
+        """Chunk count per document_id — documents console list badges.
+
+        Chroma has no server-side group_by aggregate, so metadata is pulled
+        once and counted client-side (parity with WeaviateBackend; the legacy
+        chroma copy of the corpus is bounded — this only runs when chroma is
+        the active backend).
+        """
+        if self._collection.count() == 0:
+            return {}
+        results = self._collection.get(include=["metadatas"], limit=100000)
+        counts: dict[str, int] = {}
+        for meta in results.get("metadatas") or []:
+            doc_id = (meta or {}).get("document_id") if isinstance(meta, dict) else None
+            if doc_id:
+                counts[str(doc_id)] = counts.get(str(doc_id), 0) + 1
+        return counts
+
+    def list_document_chunks(
+        self, document_id: str, limit: int = 2000
+    ) -> list[dict[str, Any]]:
+        """All chunks of a document ordered by chunk_index (documents console).
+
+        Same response shape as WeaviateBackend.list_document_chunks.
+        """
+        if self._collection.count() == 0:
+            return []
+        results = self._collection.get(
+            where={"document_id": {"$eq": document_id}},
+            limit=max(1, int(limit)),
+            include=["documents", "metadatas"],
+        )
+        chunks: list[dict[str, Any]] = []
+        if results.get("documents") and len(results["documents"]) > 0:
+            for i in range(len(results["documents"])):
+                chunks.append({
+                    "id": results["ids"][i] if results.get("ids") else None,
+                    "content": results["documents"][i] or "",
+                    "metadata": results["metadatas"][i] if results.get("metadatas") else {},
+                })
+        chunks.sort(key=lambda c: (c["metadata"].get("chunk_index") is None,
+                                   c["metadata"].get("chunk_index") or 0))
+        return chunks
+
+    def count_document_chunks(self, document_id: str) -> int:
+        """Chunk count for one document (light: ids only, no content)."""
+        if self._collection.count() == 0:
+            return 0
+        try:
+            results = self._collection.get(
+                where={"document_id": {"$eq": document_id}},
+                include=[],
+                limit=100000,
+            )
+        except Exception:
+            return 0
+        return len(results.get("ids") or [])

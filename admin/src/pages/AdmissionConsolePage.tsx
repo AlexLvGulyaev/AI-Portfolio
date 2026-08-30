@@ -27,6 +27,11 @@ import {
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { Modal } from '../components/Modal';
 import { OperationalRefreshButton } from '../components/OperationalRefreshButton';
+import {
+  formatDateLocal,
+  formatShortDateTimeLocal,
+  formatTimestampLocal,
+} from '../utils/operationalLabels';
 
 const STATUS_FILTERS = [
   { key: 'all', label: 'Все' },
@@ -100,23 +105,13 @@ function fileHint(path: string): FileHint | null {
 }
 
 function formatDate(iso: string | null | undefined): string {
-  if (!iso) return '—';
-  try {
-    return new Date(iso).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  } catch {
-    return iso.slice(0, 10);
-  }
+  return formatDateLocal(iso);
 }
 
 function formatShortDateTime(iso: string | null | undefined): string {
   if (!iso) return '';
-  try {
-    return new Date(iso).toLocaleString('ru-RU', {
-      day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
-    });
-  } catch {
-    return iso.slice(0, 16);
-  }
+  const out = formatShortDateTimeLocal(iso);
+  return out === '—' ? '' : out;
 }
 
 type SyncState = 'ok' | 'error' | 'never';
@@ -138,14 +133,7 @@ function syncLabel(s: KnowledgeSource): string {
 }
 
 function formatDateTime(iso: string | null | undefined): string {
-  if (!iso) return '—';
-  try {
-    return new Date(iso).toLocaleString('ru-RU', {
-      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
-    });
-  } catch {
-    return iso.slice(0, 16);
-  }
+  return formatTimestampLocal(iso);
 }
 
 function eventIcon(type: string): string {

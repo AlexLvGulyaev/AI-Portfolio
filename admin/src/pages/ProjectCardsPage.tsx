@@ -5,6 +5,7 @@ import { ErrorState } from '../components/ErrorState';
 import { EmptyState } from '../components/EmptyState';
 import { Modal } from '../components/Modal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { formatDateLocal, formatTimestampLocal } from '../utils/operationalLabels';
 import {
   listProjectCards,
   createProjectCard,
@@ -22,8 +23,7 @@ type VisibilityFilter = 'all' | 'visible' | 'hidden';
 type HomepageFilter = 'all' | 'homepage' | 'no';
 
 function formatDate(iso: string | null) {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleString('ru-RU');
+  return formatTimestampLocal(iso);
 }
 
 function TagsList({ tags }: { tags: string[] }) {
@@ -43,10 +43,12 @@ function TagsList({ tags }: { tags: string[] }) {
 
 function ProjectCardForm({
   initial,
+  isMeta = false,
   onSubmit,
   onCancel,
 }: {
   initial?: ProjectCard;
+  isMeta?: boolean;
   onSubmit: (data: ProjectCardCreate) => void;
   onCancel: () => void;
 }) {
@@ -72,6 +74,10 @@ function ProjectCardForm({
     e.preventDefault();
     const data: ProjectCardCreate = {
       ...form,
+      ...(initial?.is_meta
+        ? { slug: initial.slug, display_order: initial.display_order,
+            show_on_homepage: initial.show_on_homepage, is_visible: initial.is_visible }
+        : {}),
       tags: typeof form.tags === 'string'
         ? (form.tags as unknown as string).split(',').map((t) => t.trim()).filter(Boolean)
         : form.tags,
@@ -88,6 +94,7 @@ function ProjectCardForm({
             type="text"
             value={form.slug}
             onChange={(e) => update('slug', e.target.value)}
+            disabled={isMeta}
             required
           />
         </label>
@@ -128,7 +135,14 @@ function ProjectCardForm({
           />
         </label>
       </div>
-      <div className="admin-form__grid">
+      {/* Мета-карточка платформы («Это Я», решение 30.08): параметры вывода
+          на лендинг закреплены — бэкенд отклоняет их изменение с 400. */}
+      {isMeta && (
+        <p className="op-text op-text--muted">
+          Мета-карточка платформы: параметры вывода на лендинг закреплены и не редактируются.
+        </p>
+      )}
+      {!isMeta && (<div className="admin-form__grid">
         <label className="admin-form__field">
           <span>Порядок отображения</span>
           <input
@@ -147,15 +161,15 @@ function ProjectCardForm({
             onChange={(e) => update('show_on_homepage', Number(e.target.value))}
           />
         </label>
-      </div>
-      <label className="admin-form__field admin-form__field--inline">
+      </div>)}
+      {!isMeta && (<label className="admin-form__field admin-form__field--inline">
         <input
           type="checkbox"
           checked={form.is_visible}
           onChange={(e) => update('is_visible', e.target.checked)}
         />
         <span>Видна на сайте</span>
-      </label>
+      </label>)}
       <label className="admin-form__field admin-form__field--inline">
         <input
           type="checkbox"
@@ -235,6 +249,7 @@ function OperationPanel({ card }: { card: ProjectCard }) {
       <MetadataRow label="Внешний URL" value={card.external_url || '—'} />
       <MetadataRow label="Видимость" value={card.is_visible ? 'Видна на сайте' : 'Скрыта'} />
       <MetadataRow label="Дочерний проект" value={card.is_child_project ? 'Да' : 'нет'} />
+      {card.is_meta && <MetadataRow label="Статус" value="Мета-карточка платформы" />}
       <MetadataRow label="На главной" value={card.show_on_homepage > 0 ? `позиция ${card.show_on_homepage}` : 'нет'} />
       <MetadataRow label="Порядок" value={card.display_order} />
       <MetadataRow label="Изменена" value={formatDate(card.updated_at)} />
@@ -427,6 +442,8 @@ export function ProjectCardsPage() {
               <button
                 className="admin-btn admin-btn--danger"
                 type="button"
+                disabled={selected.is_meta}
+                title={selected.is_meta ? 'Мета-карточка платформы не подлежит удалению' : undefined}
                 onClick={() => setDeleteCardId(selected.id)}
               >
                 Удалить
@@ -500,7 +517,7 @@ export function ProjectCardsPage() {
                 >
                   <div className="project-cards-item__top">
                     <span className="project-cards-item__date">
-                      {card.created_at ? new Date(card.created_at).toLocaleDateString('ru-RU') : '—'}
+                      {formatDateLocal(card.created_at)}
                     </span>
                     <div className="project-cards-item__tags-inline">
                       <TagsList tags={card.tags} />
@@ -508,6 +525,7 @@ export function ProjectCardsPage() {
                     <span className={`project-cards-item__status${card.is_visible ? '' : ' project-cards-item__status--inactive'}`}>
                       {card.is_visible ? 'ВИДНА' : 'СКРЫТА'}
                     </span>
+                    {card.is_meta && <span className="project-cards-item__meta">МЕТА-КАРТОЧКА</span>}
                   </div>
                   <div className="project-cards-item__title">{card.title}</div>
                   <div className="project-cards-item__meta">
@@ -554,6 +572,7 @@ export function ProjectCardsPage() {
                   <span className={`project-cards-detail__status${selected.is_visible ? '' : ' project-cards-detail__status--inactive'}`}>
                     {selected.is_visible ? 'ВИДНА' : 'СКРЫТА'}
                   </span>
+                  {selected.is_meta && <span className="project-cards-item__meta">Мета-карточка платформы</span>}
                 </div>
                 <div className="project-cards-panels">
                   <PassportPanel card={selected} />
@@ -574,6 +593,7 @@ export function ProjectCardsPage() {
         >
           <ProjectCardForm
             initial={modalMode === 'edit' ? selected || undefined : undefined}
+            isMeta={modalMode === 'edit' ? !!selected?.is_meta : false}
             onSubmit={handleSubmit}
             onCancel={() => setModalMode(null)}
           />

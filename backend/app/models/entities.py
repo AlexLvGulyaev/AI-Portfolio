@@ -44,6 +44,12 @@ class ProjectCard(Base):
     # hr-assistant-lora) is not a repo-admission candidate — the Admission
     # Console selector subtracts flagged cards from the candidate list.
     is_child_project = Column(Boolean, default=False, nullable=False, server_default="false")
+    # Meta-card ("Это Я", owner decision 30.08.2026): the AI Portfolio
+    # platform's own card — a management anchor for its documentation and KB
+    # inclusion. Never rendered on the landing, never in the chat registry
+    # (incl. admin include_hidden preview), protected from deletion and from
+    # display-parameter changes.
+    is_meta = Column(Boolean, default=False, nullable=False, server_default="false")
     knowledge_content = Column(Text)
     external_url = Column(String(500))
     created_at = Column(DateTime, default=datetime.utcnow)

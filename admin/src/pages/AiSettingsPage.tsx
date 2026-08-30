@@ -3,6 +3,7 @@ import { Page } from '../components/Page';
 import { Card } from '../components/Card';
 import { Loading } from '../components/Loading';
 import { ErrorState } from '../components/ErrorState';
+import { formatTimestampLocal } from '../utils/operationalLabels';
 import {
   activateAIProvider,
   activateSystemPrompt,
@@ -293,7 +294,7 @@ function SystemPromptPanel({ state, saving, apiError, notice, onSave, onActivate
                 {item.is_active && <span className="admin-status admin-status--ok">ACTIVE</span>}
                 {item.is_builtin && !item.is_active && <span className="admin-status admin-status--info">Вшитый</span>}
                 <span className="prompt-history__date">
-                  {item.created_at ? new Date(item.created_at).toLocaleString('ru-RU') : '—'}
+                  {item.created_at ? formatTimestampLocal(item.created_at) : '—'}
                 </span>
                 {!item.is_active && (
                   <button

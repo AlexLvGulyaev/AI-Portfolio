@@ -146,7 +146,11 @@ class PortfolioRegistry:
         """Загружает карточки из project_cards (SOT)."""
         from sqlalchemy import text
 
+        # Мета-карточка платформы ("Это Я", 022) не входит в чат-реестр
+        # ни в одном режиме: её назначение — управление документацией и
+        # включением в KB, а не знание ассистента о проектах.
         visibility = "" if self._include_hidden else " WHERE is_visible = true "
+        visibility += " AND is_meta = false " if visibility else " WHERE is_meta = false "
         rows = self._db.execute(
             text(
                 "SELECT slug, title, short_description, category, tags, "
@@ -193,6 +197,10 @@ class PortfolioRegistry:
                     "SELECT ks.identifier FROM knowledge_sources ks "
                     "JOIN project_cards pc ON pc.id = ks.project_card_id "
                     "WHERE pc.is_visible = false "
+                    # Мета-карточка ("Это Я", 022) — исключение из B1: она
+                    # невидима на витрине, но её документы (метапак) —
+                    # публичные знания для зрителя, не отложенный релиз.
+                    "AND pc.is_meta = false "
                     "AND ks.source_type = 'github_repo' AND ks.is_enabled = true "
                     "AND ks.admission_status = 'approved'"
                 )
@@ -207,7 +215,8 @@ class PortfolioRegistry:
             hidden_card_rows = self._db.execute(
                 text(
                     "SELECT slug, title, display_order FROM project_cards "
-                    "WHERE is_visible = false ORDER BY display_order"
+                    "WHERE is_visible = false AND is_meta = false "
+                    "ORDER BY display_order"
                 )
             ).fetchall()
             self._hidden_cards = [

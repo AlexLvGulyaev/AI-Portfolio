@@ -27,7 +27,7 @@ import {
 } from '../utils/operationalConsoleUi';
 import {
   formatDurationMs,
-  formatTimestampMsk,
+  formatTimestampLocal,
   normalizeRouteKey,
   stageToActionRu,
   statusLabelRu,
@@ -184,7 +184,7 @@ function ConversationDetailPanel({
               label="Обновлена"
               value={
                 detail.updated_at ? (
-                  <span className="mono">{formatTimestampMsk(detail.updated_at)}</span>
+                  <span className="mono">{formatTimestampLocal(detail.updated_at)}</span>
                 ) : (
                   '—'
                 )
@@ -314,7 +314,7 @@ function ConversationDetailPanel({
                 >
                   <div className="logs-stage__top">
                     <span className="mono logs-stage__time">
-                      {formatTimestampMsk(step.created_at)}
+                      {formatTimestampLocal(step.created_at)}
                     </span>
                     <span className="logs-stage__label af-logs-stage-label-with-icon">
                       <OperationalPipelineStageIcon
@@ -702,7 +702,7 @@ export function ConversationsPage() {
                       <div className="logs-item__row logs-item__row--tight">
                         <span className="mono logs-item__ts">
                           {row.updated_at
-                            ? formatTimestampMsk(row.updated_at)
+                            ? formatTimestampLocal(row.updated_at)
                             : '—'}
                         </span>
                         <OperationalModalityBadge modality={operationalModalityFromRouteKey(routeKey)} />

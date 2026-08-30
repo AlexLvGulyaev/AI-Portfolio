@@ -2,7 +2,61 @@
  * Operational display labels for logs / lifecycle.
  */
 
-export const MSK_TIMEZONE = "Europe/Moscow";
+export const LOCAL_TIME_NOTE = "время: местное";
+
+/* Форматтеры времени в местной зоне зрителя (решение владельца 30.08.2026 —
+   «местное, а не московское принудительно»). Бэкенд отдаёт наивные UTC-строки
+   (PG Etc/UTC, без суффикса зоны), поэтому перед форматированием строка
+   нормализуется: время без смещения считается UTC (суффикс «Z»), иначе
+   браузер вне UTC прочитал бы время неверно. */
+
+const LOCAL_FORMAT_FULL = new Intl.DateTimeFormat("ru-RU", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+});
+
+const LOCAL_FORMAT_DATE = new Intl.DateTimeFormat("ru-RU", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+const LOCAL_FORMAT_SHORT = new Intl.DateTimeFormat("ru-RU", {
+  day: "2-digit",
+  month: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
+const NAIVE_DATETIME_RE = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/;
+const DATE_ONLY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function normalizeIsoTimestamp(raw: string): string {
+  let s = raw.trim().replace(" ", "T").toUpperCase();
+  if (NAIVE_DATETIME_RE.test(s)) {
+    // микросекунды усекаем до миллисекунд: Date.parse надёжен на 3 знаках
+    s = s.replace(/(\.\d{3})\d+$/, "$1");
+    return s + "Z";
+  }
+  return s;
+}
+
+function parseTimestampMs(isoOrMs: string | number | null | undefined): number | null {
+  if (isoOrMs == null) return null;
+  if (typeof isoOrMs === "number") {
+    return Number.isFinite(isoOrMs) ? isoOrMs : null;
+  }
+  const raw = isoOrMs.trim();
+  if (!raw || DATE_ONLY_RE.test(raw)) return null; // дата без времени — не момент
+  const ms = Date.parse(normalizeIsoTimestamp(raw));
+  return Number.isFinite(ms) ? ms : null;
+}
 
 const STAGE_NAME_RU: Record<string, string> = {
   session_resolve: "Получен запрос",
@@ -50,6 +104,7 @@ const EVENT_TYPE_RU: Record<string, string> = {
   provider_switch: "Переключение провайдера",
   admin_login: "Вход в админку",
   site_visit: "Посещение сайта",
+  admin_action: "Админ-действие",
 };
 
 export function normalizeMachineStage(stage: string | null | undefined): string {
@@ -101,22 +156,36 @@ export function stageToActionRu(stage: string | null | undefined, _details?: unk
   return raw.replace(/_/g, " ");
 }
 
-export function formatTimestampMsk(isoOrMs: string | number | null | undefined): string {
-  if (isoOrMs == null) return "—";
-  const ms = typeof isoOrMs === "number" ? isoOrMs : new Date(isoOrMs).getTime();
-  if (!Number.isFinite(ms)) return "—";
-  return new Intl.DateTimeFormat("ru-RU", {
-    timeZone: MSK_TIMEZONE,
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  })
-    .format(new Date(ms))
-    .replace(",", "");
+/** Полная метка времени в местной зоне зрителя: «30.08.2026 10:40:59». */
+export function formatTimestampLocal(isoOrMs: string | number | null | undefined): string {
+  const ms = parseTimestampMs(isoOrMs);
+  if (ms != null) {
+    return LOCAL_FORMAT_FULL.format(new Date(ms)).replace(",", "");
+  }
+  // дата без времени — не момент: показываем день как есть (dd.mm.yyyy)
+  if (typeof isoOrMs === "string" && DATE_ONLY_RE.test(isoOrMs.trim())) {
+    return isoOrMs.trim().split("-").reverse().join(".");
+  }
+  return "—";
+}
+
+/** Дата (день) в местной зоне зрителя: «30.08.2026». */
+export function formatDateLocal(isoOrMs: string | number | null | undefined): string {
+  const ms = parseTimestampMs(isoOrMs);
+  if (ms != null) {
+    return LOCAL_FORMAT_DATE.format(new Date(ms));
+  }
+  if (typeof isoOrMs === "string" && DATE_ONLY_RE.test(isoOrMs.trim())) {
+    return isoOrMs.trim().split("-").reverse().join(".");
+  }
+  return "—";
+}
+
+/** Короткая метка «день · часы:минуты» в местной зоне: «30.08 · 10:40». */
+export function formatShortDateTimeLocal(isoOrMs: string | number | null | undefined): string {
+  const ms = parseTimestampMs(isoOrMs);
+  if (ms == null) return "—";
+  return LOCAL_FORMAT_SHORT.format(new Date(ms)).replace(",", "");
 }
 
 export function formatDurationMs(ms: number | null | undefined): string {

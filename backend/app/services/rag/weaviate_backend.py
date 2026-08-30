@@ -404,6 +404,83 @@ class WeaviateBackend:
         except (TypeError, ValueError):
             return 0
 
+    def chunk_counts_by_document(self) -> dict[str, int]:
+        """Chunk count per document_id via a single group_by aggregate
+        (documents console list badges; one query for all documents)."""
+        from weaviate.classes.aggregate import GroupByAggregate
+
+        coll = self._collection()
+        # Строковый group_by упирается в серверный лимит групп (100):
+        # часть документов получает NULL-счётчик. Задаём явный limit.
+        agg = coll.aggregate.over_all(
+            group_by=GroupByAggregate(prop="document_id", limit=10_000),
+            total_count=True,
+        )
+        counts: dict[str, int] = {}
+        for group in getattr(agg, "groups", None) or []:
+            value = getattr(getattr(group, "grouped_by", None), "value", None)
+            if value is None:
+                continue
+            try:
+                counts[str(value)] = int(getattr(group, "total_count", 0) or 0)
+            except (TypeError, ValueError):
+                continue
+        return counts
+
+    def list_document_chunks(
+        self, document_id: str, limit: int = 2000
+    ) -> list[dict[str, Any]]:
+        """All chunks of a document ordered by chunk_index (documents console).
+
+        Same response shape as RAGService.list_document_chunks — the documents
+        console is backend-agnostic (active backend from retrieval_manager).
+        """
+        from weaviate.classes.query import Filter
+
+        if not document_id:
+            return []
+        coll = self._collection()
+        resp = coll.query.fetch_objects(
+            filters=Filter.by_property("document_id").equal(document_id),
+            limit=max(1, int(limit)),
+            return_properties=[
+                "text", "chunk_id", "document_id", "chunk_index",
+                "total_chunks", "chunk_length", "source", "source_type",
+                "category", "repo", "path", "url", "slug", "visibility",
+            ],
+        )
+        chunks: list[dict[str, Any]] = []
+        for obj in resp.objects:
+            props = dict(obj.properties or {})
+            chunks.append({
+                "id": str(getattr(obj, "uuid", "")) or None,
+                "content": props.get("text") or "",
+                "metadata": {k: v for k, v in props.items() if k != "text"},
+            })
+        chunks.sort(key=lambda c: (c["metadata"].get("chunk_index") is None,
+                                   c["metadata"].get("chunk_index") or 0))
+        return chunks
+
+    def count_document_chunks(self, document_id: str) -> int:
+        """Chunk count for one document (server-side aggregate; no content transfer)."""
+        from weaviate.classes.query import Filter
+
+        if not document_id:
+            return 0
+        coll = self._collection()
+        agg = coll.aggregate.over_all(
+            group_by="document_id",
+            total_count=True,
+            filters=Filter.by_property("document_id").equal(document_id),
+        )
+        groups = getattr(agg, "groups", None) or []
+        if not groups:
+            return 0
+        try:
+            return int(getattr(groups[0], "total_count", 0) or 0)
+        except (TypeError, ValueError):
+            return 0
+
     def clear_by_source_type(self, source_type: str) -> int:
         """Delete all chunks whose source_type equals the given value."""
         from weaviate.classes.query import Filter

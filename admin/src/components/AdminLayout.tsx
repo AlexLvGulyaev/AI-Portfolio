@@ -21,10 +21,18 @@ const navItems: NavItem[] = [
     children: [
       { path: '/content/cards', label: 'Карточки проектов' },
       { path: '/content/sources', label: 'Источники и синхронизация' },
+      { path: '/content/documents', label: 'Документы' },
     ],
   },
-  { type: 'link', path: '/logs', label: 'Логи' },
-  { type: 'link', path: '/conversations', label: 'Диалоги' },
+  {
+    type: 'group',
+    label: 'Операционная консоль',
+    children: [
+      { path: '/logs', label: 'Логи' },
+      { path: '/conversations', label: 'Диалоги' },
+      { path: '/audit', label: 'Аудит' },
+    ],
+  },
 ];
 
 function isGroupActive(children: { path: string }[], pathname: string): boolean {

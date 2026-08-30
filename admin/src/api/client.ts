@@ -273,6 +273,7 @@ export interface ProjectCard {
   show_on_homepage: number;
   is_visible: boolean;
   is_child_project?: boolean;
+  is_meta?: boolean;
   knowledge_content: string | null;
   external_url: string | null;
   created_at: string;
@@ -557,6 +558,94 @@ export function deleteProjectCard(id: string) {
 
 export function getProjectCardChunks(id: string) {
   return apiClient.get<{ items: KnowledgeChunk[] }>(`/knowledge-base/project-cards/${id}/chunks`);
+}
+
+// ------------------------------------------------------------------
+// Documents console (§4.5б, поз. 3)
+// ------------------------------------------------------------------
+
+export interface DocumentsBackendInfo {
+  backend: string;
+  state: 'ok' | 'error' | 'unknown';
+  chunks: number | null;
+}
+
+export interface DocumentListItem {
+  id: string;
+  source_id: string;
+  source_identifier: string;
+  path: string;
+  title: string;
+  commit_sha: string | null;
+  fetched_at: string | null;
+  updated_at: string | null;
+  content_length: number;
+  chunk_count: number | null;
+}
+
+export interface DocumentCard {
+  id: string;
+  passport: {
+    title: string;
+    path: string;
+    source_id: string;
+    source_identifier: string | null;
+    source_display_name: string | null;
+    raw_url: string | null;
+    content_length: number;
+  };
+  operation: {
+    backend_chunks: number | null;
+    in_active_index: boolean;
+    commit_sha: string | null;
+    fetched_at: string | null;
+    updated_at: string | null;
+  };
+  text_preview: string;
+  text_preview_length: number;
+  text_truncated: boolean;
+  backend: DocumentsBackendInfo;
+}
+
+export interface DocumentText {
+  id: string;
+  title: string;
+  path: string;
+  raw_url: string | null;
+  text: string;
+  content_length: number;
+}
+
+export interface DocumentChunk {
+  id: string | null;
+  chunk_index: number | null;
+  total_chunks: number | null;
+  chunk_length: number | null;
+  preview: string;
+}
+
+export function listDocuments(params?: { source_id?: string; search?: string }) {
+  const query = new URLSearchParams();
+  if (params?.source_id) query.set('source_id', params.source_id);
+  if (params?.search) query.set('search', params.search);
+  const qs = query.toString();
+  return apiClient.get<{ items: DocumentListItem[]; total_documents: number; backend: DocumentsBackendInfo }>(
+    `/knowledge-base/documents${qs ? `?${qs}` : ''}`,
+  );
+}
+
+export function getDocument(id: string) {
+  return apiClient.get<DocumentCard>(`/knowledge-base/documents/${id}`);
+}
+
+export function getDocumentText(id: string) {
+  return apiClient.get<DocumentText>(`/knowledge-base/documents/${id}/text`);
+}
+
+export function getDocumentChunks(id: string) {
+  return apiClient.get<{ items: DocumentChunk[]; total: number; backend: DocumentsBackendInfo }>(
+    `/knowledge-base/documents/${id}/chunks`,
+  );
 }
 
 export function listLogs(params?: {
