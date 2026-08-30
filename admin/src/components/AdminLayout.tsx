@@ -2,35 +2,39 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 
 type NavItem =
-  | { type: 'link'; path: string; label: string }
-  | { type: 'group'; label: string; children: { path: string; label: string }[] };
+  | { type: 'link'; path: string; label: string; icon: string }
+  | { type: 'group'; label: string; children: { path: string; label: string; icon: string }[] };
 
+// Эмодзи-иконки пунктов — канон AIC (Sidebar.jsx): прямые аналоги пунктов
+// AIC берут ту же иконку (Обзор=📊 «Панель состояния», Retrieval=🧭
+// «Оркестратор», Документы=📚 «База знаний», Логи 📜, Диалоги 💬,
+// Аудит 📋, Выйти 🚪).
 const navItems: NavItem[] = [
   {
     type: 'group',
     label: 'Система',
     children: [
-      { path: '/system', label: 'Обзор' },
-      { path: '/system/retrieval', label: 'Retrieval' },
-      { path: '/system/ai', label: 'AI-настройки' },
+      { path: '/system', label: 'Обзор', icon: '📊' },
+      { path: '/system/retrieval', label: 'Retrieval', icon: '🧭' },
+      { path: '/system/ai', label: 'AI-настройки', icon: '⚙️' },
     ],
   },
   {
     type: 'group',
     label: 'Контент/база знаний',
     children: [
-      { path: '/content/cards', label: 'Карточки проектов' },
-      { path: '/content/sources', label: 'Источники и синхронизация' },
-      { path: '/content/documents', label: 'Документы' },
+      { path: '/content/cards', label: 'Карточки проектов', icon: '🗂️' },
+      { path: '/content/sources', label: 'Источники и синхронизация', icon: '🔄' },
+      { path: '/content/documents', label: 'Документы', icon: '📚' },
     ],
   },
   {
     type: 'group',
     label: 'Операционная консоль',
     children: [
-      { path: '/logs', label: 'Логи' },
-      { path: '/conversations', label: 'Диалоги' },
-      { path: '/audit', label: 'Аудит' },
+      { path: '/logs', label: 'Логи', icon: '📜' },
+      { path: '/conversations', label: 'Диалоги', icon: '💬' },
+      { path: '/audit', label: 'Аудит', icon: '📋' },
     ],
   },
 ];
@@ -46,7 +50,13 @@ export function AdminLayout() {
   return (
     <div className="admin-layout">
       <aside className="admin-sidebar">
-        <div className="admin-sidebar__brand">AI Portfolio</div>
+        <div className="admin-sidebar__brand">
+          {/* Бренд-марка APL — как в презентациях (apl-brand-lockup,
+              круг #7C3AED с белой надписью APL, AIP Dark Visual Language:
+              purple = бренд). */}
+          <span className="apl-brand-mark" aria-label="APL">APL</span>
+          <span>AI Portfolio</span>
+        </div>
         <nav className="admin-nav">
           {navItems.map((item) =>
             item.type === 'link' ? (
@@ -80,7 +90,8 @@ export function AdminLayout() {
                         `admin-nav__link admin-nav__link--child${isActive ? ' admin-nav__link--active' : ''}`
                       }
                     >
-                      {child.label}
+                      <span className="admin-nav__icon" aria-hidden="true">{child.icon}</span>
+                      <span>{child.label}</span>
                     </NavLink>
                   ))}
                 </div>
@@ -90,7 +101,8 @@ export function AdminLayout() {
         </nav>
         <div className="admin-sidebar__footer">
           <button className="admin-sidebar__logout" onClick={logout} type="button">
-            Выход
+            <span className="admin-nav__icon" aria-hidden="true">🚪</span>
+            <span>Выход</span>
           </button>
         </div>
       </aside>
