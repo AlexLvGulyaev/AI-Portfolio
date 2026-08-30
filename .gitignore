@@ -95,3 +95,5 @@ docs/PORTFOLIO_CORPUS_AUDIT.md
 
 # Experiments and prototypes (kept in working tree, not published)
 src/experiments/
+admin/tsconfig.tsbuildinfo
+admin/tsconfig.node.tsbuildinfo
