@@ -284,6 +284,15 @@ export function AuditPage() {
                       <dd className="mono">{selectedAuditLog.source ?? "—"}</dd>
                       <dt>status</dt>
                       <dd className="mono">{selectedAuditLog.status}</dd>
+                      {/* AIC-канон «Параметры пользователя»: IP — первоклассное
+                          поле аудита, а не запись внутри JSON-metadata. */}
+                      <dt>IP-адрес</dt>
+                      <dd className="mono">
+                        {typeof selectedAuditLog.metadata?.ip === "string" &&
+                        (selectedAuditLog.metadata.ip as string)
+                          ? (selectedAuditLog.metadata.ip as string)
+                          : "—"}
+                      </dd>
                     </dl>
                   </div>
                   <div className="logs-summary-col">
