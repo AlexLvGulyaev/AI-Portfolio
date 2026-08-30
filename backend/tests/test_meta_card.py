@@ -216,3 +216,33 @@ def test_create_card_persists_is_meta_flag():
     added = db.add.call_args[0][0]
     assert added.is_meta is True
     print("PASS: create persists is_meta flag")
+
+# ---------- index_store_for: chroma-активный путь записи KB ----------
+
+def test_index_store_for_wraps_legacy_ragservice():
+    """Активный chroma-бэкенд (RAGService, только поиск) оборачивается в ChromaIndexStore.
+
+    До фикса sync падал ValueError: backend 'RAGService' does not support
+    KB indexing — фолбэк в sync был недостижим."""
+    from unittest.mock import MagicMock as _MagicMock
+    from app.services.rag.knowledge_base_indexer import ChromaIndexStore, index_store_for
+
+    from app.services.rag.rag_service import RAGService
+    fake_rag = _MagicMock(spec=RAGService)  # spec=True: isinstance проходит
+    store = index_store_for(fake_rag)
+    assert store.backend_name == "chroma"
+    print("PASS: legacy RAGService wrapped into ChromaIndexStore")
+
+
+def test_index_store_for_still_rejects_unsupported_backend():
+    from app.services.rag.knowledge_base_indexer import index_store_for
+
+    foreign = SimpleNamespace()  # нет add_chunks и не RAGService
+    try:
+        index_store_for(foreign)
+        raised = None
+    except ValueError as exc:
+        raised = exc
+    assert raised is not None
+    assert "does not support" in str(raised)
+    print("PASS: unsupported backend still rejected")
