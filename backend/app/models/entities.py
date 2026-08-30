@@ -40,6 +40,10 @@ class ProjectCard(Base):
     display_order = Column(Integer, default=0, nullable=False)
     show_on_homepage = Column(Integer, default=0, nullable=False)
     is_visible = Column(Boolean, default=True, nullable=False)
+    # Child project (owner decision 29.08.2026): a derived card (e.g.
+    # hr-assistant-lora) is not a repo-admission candidate — the Admission
+    # Console selector subtracts flagged cards from the candidate list.
+    is_child_project = Column(Boolean, default=False, nullable=False, server_default="false")
     knowledge_content = Column(Text)
     external_url = Column(String(500))
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -59,6 +63,15 @@ class KnowledgeSource(Base):
     source_type = Column(String(50), nullable=False)  # github_repo / local_directory / local_file
     identifier = Column(String(500), nullable=False)  # owner/repo or path
     display_name = Column(String(200))  # human-readable project name (Admission Console)
+    # Registry-only KB policy (owner decision 29.08.2026, model "A"):
+    # a source is only admissible for a registry project. Binding at the
+    # point of entry; the FK (RESTRICT) guarantees approve/sync integrity.
+    project_card_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("project_cards.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
     branch = Column(String(100), default="main")
     base_path = Column(String(500))
     is_enabled = Column(Boolean, default=True, nullable=False)
@@ -329,3 +342,35 @@ class OperationalLog(Base):
     error_message = Column(Text)  # From Review Flow
     log_metadata = Column(JSON)  # From Assistant Flow (renamed from 'metadata')
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+class PlatformSetting(Base):
+    """Key-value store for platform-level overrides (retrieval console)."""
+
+    __tablename__ = "platform_settings"
+
+    key = Column(String(100), primary_key=True)
+    value = Column(JSON, nullable=False)
+    updated_at = Column(DateTime, server_default="now()")
+
+
+class SystemPrompt(Base):
+    """
+    Managed system prompt version (AI settings console, migration 021).
+
+    Body is a full prompt template with the assembly placeholders
+    ({registry_block}, {registry_list}, {rag_context},
+    {conversation_history}, {user_query}). An empty table means "use the
+    builtin prompt" from prompt_assembly.py, which also serves as the
+    reset source. Single active row enforced by a partial unique index.
+    """
+
+    __tablename__ = "system_prompts"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    version = Column(String(100), nullable=False)
+    body = Column(Text, nullable=False)
+    body_hash = Column(String(16), nullable=False)  # sha256[:16] — дедупликация версий
+    note = Column(Text)
+    is_active = Column(Boolean, nullable=False, default=False, index=True)
+    is_builtin = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)

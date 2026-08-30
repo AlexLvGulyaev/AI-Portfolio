@@ -10,12 +10,13 @@ alembic==1.14.1
 
 # AI/ML
 openai==1.59.5
-chromadb==0.5.23
+chromadb==1.5.9
+weaviate-client==4.23.0
 tiktoken==0.8.0
 
 # Data
-pydantic==2.10.5
-pydantic-settings==2.7.0
+pydantic==2.13.5
+pydantic-settings==2.15.0
 
 # HTTP
 httpx==0.28.1
@@ -26,4 +27,3 @@ markdown==3.7
 
 # Utilities
 python-dotenv==1.0.1
-pydantic-core==2.27.2

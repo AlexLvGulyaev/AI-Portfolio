@@ -87,6 +87,12 @@ export const apiClient = {
       method: 'PATCH',
       body: body ? JSON.stringify(body) : undefined,
     }),
+  put: <T,>(path: string, body?: unknown, options?: RequestOptions) =>
+    request<T>(path, {
+      ...options,
+      method: 'PUT',
+      body: body ? JSON.stringify(body) : undefined,
+    }),
   delete: <T,>(path: string, options?: RequestOptions) =>
     request<T>(path, { ...options, method: 'DELETE' }),
 };
@@ -101,6 +107,7 @@ export interface DashboardData {
     backend: string;
     postgresql: string;
     chromadb: string;
+    weaviate: string;
   };
   ai_providers: {
     total: number;
@@ -112,13 +119,34 @@ export interface DashboardData {
   project_cards: { total: number; visible: number; homepage: number };
   knowledge_base: {
     sources: number;
+    documents: number;
+    chunks: number | null;
+    chroma_chunks: number | null;
     last_sync_at: string | null;
     last_sync_status: string;
     last_sync_stats: Record<string, unknown> | null;
   };
+  audit: { total: number };
   logs: { total: number };
   conversations: { total: number; active: number };
   timestamp: string;
+}
+
+export interface SystemPromptVersion {
+  id: string;
+  version: string;
+  body: string;
+  body_hash: string;
+  note: string | null;
+  is_active: boolean;
+  is_builtin: boolean;
+  created_at: string | null;
+}
+
+export interface SystemPromptState {
+  active: SystemPromptVersion | null;
+  items: SystemPromptVersion[];
+  builtin: { version: string; body: string; body_hash: string };
 }
 
 export interface AIProvider {
@@ -171,6 +199,7 @@ export interface KnowledgeSource {
   id: string;
   source_type: 'github_repo' | 'local_directory' | 'local_file';
   identifier: string;
+  project_card_id?: string | null;
   display_name?: string | null;
   branch: string | null;
   base_path: string | null;
@@ -243,6 +272,7 @@ export interface ProjectCard {
   display_order: number;
   show_on_homepage: number;
   is_visible: boolean;
+  is_child_project?: boolean;
   knowledge_content: string | null;
   external_url: string | null;
   created_at: string;
@@ -255,6 +285,9 @@ export type ProjectCardUpdate = Partial<ProjectCardCreate>;
 export interface KnowledgeSourceCreate {
   source_type: 'github_repo' | 'local_directory' | 'local_file';
   identifier: string;
+  // Registry-only KB policy (owner decision 29.08.2026, model "A"):
+  // a source is bound to an existing registry card at creation.
+  project_card_id: string;
   display_name?: string | null;
   branch?: string | null;
   base_path?: string | null;
@@ -269,6 +302,7 @@ export interface ChromaStatus {
   collection_name?: string;
   embedding_model?: string;
   chunks?: number;
+  documents?: number;
   error?: string;
 }
 
@@ -288,6 +322,14 @@ export interface SyncJob {
     chunks_created: number;
     sources_processed: number;
     errors: string[];
+    // Живой прогресс синхронизации (только у запущенных job'ов):
+    // stage github|cards|done, done/total, current — обрабатываемая единица.
+    progress?: {
+      stage: string;
+      total: number;
+      done: number;
+      current: string | null;
+    };
   };
   error_message: string | null;
 }
@@ -428,6 +470,19 @@ export function listSources() {
   return apiClient.get<{ items: KnowledgeSource[] }>('/knowledge-base/sources');
 }
 
+export interface GitHubRepoOption {
+  identifier: string;
+  name: string;
+  description: string | null;
+  updated_at: string | null;
+  archived: boolean;
+  connected: boolean;
+}
+
+export function listOwnerRepos() {
+  return apiClient.get<{ owner: string; repos: GitHubRepoOption[] }>('/knowledge-base/github-repos');
+}
+
 export function createSource(data: KnowledgeSourceCreate) {
   return apiClient.post<KnowledgeSource>('/knowledge-base/sources', data);
 }
@@ -468,13 +523,9 @@ export function approveSourceComposition(id: string) {
   return apiClient.post<KnowledgeSource>(`/knowledge-base/sources/${id}/approve`);
 }
 
-export function blockSource(id: string) {
-  return apiClient.post<KnowledgeSource>(`/knowledge-base/sources/${id}/block`);
-}
-
-export function unblockSource(id: string) {
-  return apiClient.post<KnowledgeSource>(`/knowledge-base/sources/${id}/unblock`);
-}
+// Блокировка/разблокировка сознательно не имеет UI-обёрток (решение владельца
+// 29.08: статус «заблокирован» выведен из консоли как немотивированное
+// усложнение). Backend-эндпойнты block/unblock остаются спящими.
 
 export function listAdmissionEvents(id: string, limit = 50) {
   return apiClient.get<{ items: AdmissionEvent[] }>(`/knowledge-base/sources/${id}/admission-events?limit=${limit}`);
@@ -482,6 +533,10 @@ export function listAdmissionEvents(id: string, limit = 50) {
 
 export function getSyncJob(jobId: string) {
   return apiClient.get<SyncJob>(`/knowledge-base/sync/${jobId}`);
+}
+
+export function getRunningSyncJob() {
+  return apiClient.get<SyncJob | null>('/knowledge-base/sync/running');
 }
 
 export function listProjectCards() {
@@ -598,3 +653,109 @@ export function setFallbackAIProvider(providerKey: string) {
 export function testAIProvider(providerKey: string) {
   return apiClient.post<AIProviderTestResult>(`/ai-providers/${providerKey}/test`);
 }
+
+// ------------------------------------------------------------------
+// System prompt (AI settings console, task 2026-08-30)
+// ------------------------------------------------------------------
+
+export function getSystemPrompt() {
+  return apiClient.get<SystemPromptState>('/system-prompt');
+}
+
+export function saveSystemPrompt(data: { version: string; body: string; note?: string | null }) {
+  return apiClient.put<SystemPromptVersion>('/system-prompt', data);
+}
+
+export function activateSystemPrompt(promptId: string) {
+  return apiClient.post<SystemPromptVersion>(`/system-prompt/${promptId}/activate`);
+}
+
+export function resetSystemPrompt() {
+  return apiClient.post<SystemPromptVersion>('/system-prompt/reset');
+}
+
+// ------------------------------------------------------------------
+// Retrieval console (recreated from Assistant Flow, task 2026-08-29)
+// ------------------------------------------------------------------
+
+export interface RetrievalBackendHealth {
+  ok: boolean;
+  detail: string;
+  count: number | null;
+}
+
+export interface RetrievalOverview {
+  env_default_backend: string;
+  db_active_backend: string | null;
+  effective_backend: string;
+  allowed_backends: string[];
+  backends: Record<string, RetrievalBackendHealth>;
+  active_backend_health: RetrievalBackendHealth;
+  warnings: string[];
+  tuning: {
+    runtime_keys: string[];
+    all_keys: string[];
+    requires_resync_keys: string[];
+    effective: Record<string, number>;
+    env_defaults: Record<string, number>;
+    db_overrides: Record<string, number>;
+    field_sources: Record<string, string>;
+  };
+  paths: Record<string, string | number | boolean>;
+  cache: RetrievalCacheSection;
+}
+
+export interface RetrievalCacheSection {
+  enabled: boolean;
+  enabled_env_default: boolean;
+  ttl_seconds: number;
+  generation: number;
+  enable_answer_cache: boolean;
+  store_path: string;
+  entry_count: number;
+  stats: {
+    hits: number;
+    misses: number;
+    writes: number;
+    evictions: number;
+    total: number;
+    hit_rate: number;
+  };
+}
+
+export interface RetrievalTuningSection {
+  effective: Record<string, number>;
+  env_defaults: Record<string, number>;
+  db_overrides: Record<string, number>;
+  field_sources: Record<string, string>;
+  requires_resync_keys?: string[];
+  resync_required?: boolean;
+  note?: string;
+}
+
+export const RETRIEVAL_LABELS: Record<string, string> = {
+  rag_top_k: 'top_k чанков (runtime)',
+  rag_max_distance: 'макс. дистанция (runtime)',
+  retrieval_recall_margin: 'запас recall (runtime)',
+  rag_answer_max_tokens: 'лимит токенов ответа',
+  rag_retrieval_timeout: 'таймаут поиска, сек',
+  rag_embedding_request_timeout: 'таймаут эмбеддингов, сек',
+  chroma_ef_search: 'ef_search (build-time)',
+  chroma_ef_construction: 'ef_construction (build-time)',
+  rag_chunk_size: 'размер чанка (реиндексация)',
+  rag_chunk_overlap: 'перекрытие чанков (реиндексация)',
+};
+
+export const retrievalApi = {
+  overview: () => apiClient.get<RetrievalOverview>('/retrieval/overview'),
+  tuning: () => apiClient.get<RetrievalTuningSection>('/retrieval/tuning'),
+  saveTuning: (patch: Record<string, number>) =>
+    apiClient.put<RetrievalTuningSection & { resync_required?: boolean }>('/retrieval/tuning', patch),
+  clearTuning: () => apiClient.delete<RetrievalTuningSection>('/retrieval/tuning'),
+  switchBackend: (backend: string) =>
+    apiClient.put<{ effective_backend: string; warnings: string[] }>('/retrieval/active-backend', { backend }),
+  setCacheEnabled: (enabled: boolean) =>
+    apiClient.put<{ cache: RetrievalCacheSection }>('/retrieval/cache/toggle', { enabled }),
+  clearCache: () =>
+    apiClient.post<{ removed: number; cache: RetrievalCacheSection }>('/retrieval/cache/clear'),
+};

@@ -36,6 +36,13 @@ class SearchResult:
     chunk_id: Optional[str] = None
 
 
+# Аппроксимированный HNSW-поиск Chroma на малом n_results теряет истинных
+# ближайших соседей (обнаружено live 29.08.2026: топ-1 чанк с дистанцией
+# 1.166 отсутствовал в выдаче при n_results=3/6/10, при 15 — ранг 1).
+# Запрос выполняется с запасом, вызывающему отдаётся запрошенный top_k.
+RECALL_MARGIN = 3
+
+
 @dataclass
 class RAGConfig:
     """Конфигурация RAG-сервиса."""
@@ -48,6 +55,14 @@ class RAGConfig:
     chroma_use_http: bool = False
     chroma_host: str = "localhost"
     chroma_port: int = 8000
+    # Tunable via the retrieval console (PG overrides over env defaults):
+    recall_margin: int = RECALL_MARGIN  # query oversample window (runtime tuning)
+    max_distance: float = 10.0  # drop results with score above (runtime tuning)
+    ef_search: int = 100  # HNSW graph search depth at collection creation (build-time)
+    ef_construction: int = 100
+    # OpenAI embeddings client timeout in seconds (runtime tuning, AF WH-2);
+    # None keeps the SDK default.
+    embedding_request_timeout: float | None = None
 
     @classmethod
     def from_settings(cls) -> "RAGConfig":
@@ -59,9 +74,16 @@ class RAGConfig:
             collection_name=settings.chroma_collection_name,
             persist_directory="data/chroma_db",
             embedding_model="text-embedding-3-small",
+            chunk_size=settings.rag_chunk_size,
+            chunk_overlap=settings.rag_chunk_overlap,
             chroma_use_http=settings.chroma_use_http,
             chroma_host=settings.chroma_host,
             chroma_port=settings.chroma_port,
+            recall_margin=settings.retrieval_recall_margin,
+            max_distance=settings.rag_max_distance,
+            ef_search=settings.chroma_ef_search,
+            ef_construction=settings.chroma_ef_construction,
+            embedding_request_timeout=settings.rag_embedding_request_timeout,
         )
 
 
@@ -97,7 +119,13 @@ class RAGService:
         self.config = config or RAGConfig()
         # Если api_key не передан, берём из переменной окружения
         effective_api_key = api_key or os.environ.get("OPENAI_API_KEY")
-        self._openai_client = OpenAI(api_key=effective_api_key)
+        if self.config.embedding_request_timeout is not None:
+            self._openai_client = OpenAI(
+                api_key=effective_api_key,
+                timeout=self.config.embedding_request_timeout,
+            )
+        else:
+            self._openai_client = OpenAI(api_key=effective_api_key)
 
         # Инициализируем ChromaDB клиент
         self._client = self._create_chroma_client()
@@ -128,6 +156,30 @@ class RAGService:
             settings=Settings(anonymized_telemetry=False),
         )
 
+    def _creation_configuration(self) -> Optional[Any]:
+        """
+        Конфигурация HNSW при создании коллекции (значения — из tuning-консоли).
+
+        chromadb 0.5.23 создаёт коллекции с дефолтным ef_search=10 — узкое
+        окно аппроксимированного поиска теряет истинный ближайший сосед
+        (live 29.08.2026: точный топ-1 отсутствовал в выдаче даже при
+        n_results=18). Значения управляются полями chroma_ef_search /
+        chroma_ef_construction (ретривал-консоль, build-time). Официальный
+        dict-API конфигурации применим с chromadb 1.x; на несовместимых
+        версиях endpoints может отвергнуть ключ — тогда коллекция создаётся
+        с дефолтами сервера.
+        """
+        try:
+            return {
+                "hnsw": {
+                    "space": "l2",
+                    "ef_search": self.config.ef_search,
+                    "ef_construction": self.config.ef_construction,
+                }
+            }
+        except Exception:
+            return None
+
     def _get_or_create_collection(self):
         """
         Получает или создаёт коллекцию.
@@ -137,10 +189,14 @@ class RAGService:
         try:
             return self._client.get_collection(self.config.collection_name)
         except Exception:
-            return self._client.create_collection(
-                name=self.config.collection_name,
-                metadata={"description": "AI Portfolio Knowledge Base"},
-            )
+            create_kwargs: dict[str, Any] = {
+                "name": self.config.collection_name,
+                "metadata": {"description": "AI Portfolio Knowledge Base"},
+            }
+            configuration = self._creation_configuration()
+            if configuration is not None:
+                create_kwargs["configuration"] = configuration
+            return self._client.create_collection(**create_kwargs)
 
     def _create_embeddings(self, texts: list[str]) -> list[list[float]]:
         """
@@ -191,10 +247,11 @@ class RAGService:
         query_embeddings = self._create_embeddings([query])
         query_embedding = query_embeddings[0]
 
-        # Выполняем поиск
+        # Выполняем поиск: с запасом против HNSW-выпадения истинного top-1,
+        # вызывающему — ровно top_k (см. комментарий к RECALL_MARGIN).
         kwargs: dict[str, Any] = {
             "query_embeddings": [query_embedding],
-            "n_results": min(top_k, self._collection.count()),
+            "n_results": min(top_k * self.config.recall_margin, self._collection.count()),
             "include": ["documents", "metadatas", "distances"],
         }
         if where:
@@ -220,7 +277,8 @@ class RAGService:
                     chunk_id=results["ids"][0][i] if results.get("ids") else None,
                 ))
 
-        return formatted_results
+        # rag_max_distance (runtime tuning): честный порог вместо молчаливой выдачи дальнего.
+        return [r for r in formatted_results if r.score <= self.config.max_distance][: top_k]
 
     def get_context(
         self,
@@ -317,7 +375,9 @@ class RAGService:
             try:
                 results = self._collection.query(
                     query_embeddings=[query_embedding],
-                    n_results=min(per_repo_k, self._collection.count()),
+                    # С запасом против HNSW-выпадения (см. RECALL_MARGIN);
+                    # квоты max_per_repo/final_top_k отсекают лишнее ниже.
+                    n_results=min(per_repo_k * self.config.recall_margin, self._collection.count()),
                     include=["documents", "metadatas", "distances"],
                     where={"repo": {"$eq": repo}},
                 )
@@ -383,10 +443,14 @@ class RAGService:
         except Exception:
             pass
 
-        self._collection = self._client.create_collection(
-            name=self.config.collection_name,
-            metadata={"description": "AI Portfolio Knowledge Base"},
-        )
+        create_kwargs: dict[str, Any] = {
+            "name": self.config.collection_name,
+            "metadata": {"description": "AI Portfolio Knowledge Base"},
+        }
+        configuration = self._creation_configuration()
+        if configuration is not None:
+            create_kwargs["configuration"] = configuration
+        self._collection = self._client.create_collection(**create_kwargs)
 
     def clear_by_source_type(self, source_type: str) -> int:
         """

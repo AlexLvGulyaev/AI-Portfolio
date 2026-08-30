@@ -80,6 +80,7 @@ class AdmissionConsoleService:
             "id": str(row.id),
             "source_type": row.source_type,
             "identifier": row.identifier,
+            "project_card_id": str(row.project_card_id) if row.project_card_id else None,
             "display_name": row.display_name,
             "branch": row.branch,
             "base_path": row.base_path,

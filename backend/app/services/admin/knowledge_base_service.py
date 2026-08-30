@@ -12,12 +12,19 @@ from uuid import UUID, uuid4
 
 from fastapi import HTTPException
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models.entities import KnowledgeSource, KnowledgeSyncJob, ProjectCard
+from app.core.config import get_settings
+from app.models.entities import KnowledgeDocument, KnowledgeSource, KnowledgeSyncJob, ProjectCard
 from app.services.admin import kb_admission
 from app.services.admin.github_knowledge_source_service import GitHubKnowledgeSourceService
-from app.services.rag.knowledge_base_indexer import KnowledgeBaseIndexer, KnowledgeDocument as IndexerDocument
+from app.services.rag.knowledge_base_indexer import (
+    ChromaIndexStore,
+    KnowledgeBaseIndexer,
+    KnowledgeDocument as IndexerDocument,
+    index_store_for,
+)
 from app.services.rag.rag_service import RAGConfig, RAGService
 
 
@@ -35,11 +42,13 @@ class KnowledgeBaseService:
         """Return current ChromaDB collection status."""
         try:
             rag = RAGService(config=RAGConfig.from_settings())
+            documents_count = self._db.query(KnowledgeDocument).count()
             return {
                 "status": "ok",
                 "collection_name": rag.config.collection_name,
                 "embedding_model": rag.config.embedding_model,
                 "chunks": rag.count_documents(),
+                "documents": documents_count,
             }
         except Exception as exc:
             return {
@@ -68,12 +77,93 @@ class KnowledgeBaseService:
 
         Admission gate: a new source always starts as "pending" (fail-closed)
         and must be explicitly approved by the owner after review.
+
+        Registry-only KB policy (owner decision 29.08.2026, model "A"):
+        a source MUST reference an existing registry project. The point of
+        entry is the only enforced checkpoint — downstream, the FK
+        (NOT NULL, RESTRICT) guarantees approve/sync always see a bound
+        source. The binding key is the card id, never the mutable title.
         """
+        card_id = data.get("project_card_id")
+        card = self._db.get(ProjectCard, card_id) if card_id else None
+        if card is None:
+            raise HTTPException(
+                409,
+                {
+                    "reason_code": "project_not_in_registry",
+                    "message": "Источник запрещён: KB содержит знания только о проектах реестра "
+                               "(выберите карточку проекта из реестра)",
+                },
+            )
+        identifier = data["identifier"]
+        # Condition 3 of the registry policy (owner decisions 29.08.2026,
+        # model "A", variant В2): a repository must be an authorized
+        # representation of the registry project — i.e. it must live in the
+        # owner's namespace and actually exist. A foreign repository is
+        # "a repository by itself": fine engineering, no KB ticket.
+        if data.get("source_type", "github_repo") == "github_repo":
+            owner, repo = GitHubKnowledgeSourceService._parse_identifier(identifier)
+            if not owner or not repo:
+                raise HTTPException(
+                    409,
+                    {
+                        "reason_code": "invalid_identifier",
+                        "message": "Идентификатор должен быть вида owner/repo",
+                    },
+                )
+            allowed_owner = get_settings().kb_repo_owner
+            if owner != allowed_owner:
+                raise HTTPException(
+                    409,
+                    {
+                        "reason_code": "repo_not_owned",
+                        "message": f"Источник запрещён: репозиторий вне namespace владельца "
+                                   f"реестра («{allowed_owner}/»)",
+                    },
+                )
+            probe = self._probe_repo(owner, repo)
+            if probe is False:
+                raise HTTPException(
+                    409,
+                    {
+                        "reason_code": "repo_not_found",
+                        "message": f"Репозиторий «{identifier}» не найден на GitHub",
+                    },
+                )
+            if probe is None:
+                raise HTTPException(
+                    503,
+                    {
+                        "reason_code": "repo_check_unavailable",
+                        "message": "GitHub недоступен: нельзя проверить репозиторий. "
+                                   "Источник не создан (fail-closed), повторите попытку",
+                    },
+                )
+        # One repository = one source (owner decision 29.08.2026, variant 1):
+        # admitting the same identifier twice would duplicate documents and
+        # Chroma chunks once approved. The unique index on identifier (017)
+        # is the last line of defense behind this guard.
+        existing = self._db.scalars(
+            select(KnowledgeSource).where(KnowledgeSource.identifier == identifier)
+        ).first()
+        if existing is not None:
+            raise HTTPException(
+                409,
+                {
+                    "reason_code": "source_already_exists",
+                    "message": f"Этот репозиторий уже подключён как источник "
+                               f"«{existing.display_name or existing.identifier}» "
+                               "(один репозиторий — один источник)",
+                },
+            )
         row = KnowledgeSource(
             id=uuid4(),
             source_type=data.get("source_type", "local_file"),
             identifier=data["identifier"],
-            display_name=data.get("display_name"),
+            project_card_id=card.id,
+            # The card title is the canonical caption; an explicit
+            # display_name only overrides it deliberately.
+            display_name=data.get("display_name") or card.title,
             branch=data.get("branch") or "main",
             base_path=data.get("base_path"),
             is_enabled=data.get("is_enabled", True),
@@ -86,6 +176,52 @@ class KnowledgeBaseService:
         self._db.commit()
         self._db.refresh(row)
         return self._source_to_dict(row)
+
+    def _probe_repo(self, owner: str, repo: str) -> Optional[bool]:
+        """Live GitHub existence probe for the admission guard (variant В2).
+
+        Indirection exists for testability: unit tests monkeypatch this
+        method instead of hitting the real GitHub API.
+        """
+        gh = GitHubKnowledgeSourceService(self._db)
+        try:
+            return gh.probe_repo(owner, repo)
+        finally:
+            gh.close()
+
+    def list_owner_repos(self) -> dict[str, Any]:
+        """Repos of the KB registry owner for the add-source select.
+
+        Companion of the namespace guard (§5.1 п. 7, variant В2): the UI
+        offers only repos from KB_REPO_OWNER's namespace, already-connected
+        identifiers flagged so the select can hide them (same UX rule as
+        the card selector). GitHub unreachable → fail-closed 503.
+        """
+        owner = get_settings().kb_repo_owner
+        repos = self._fetch_owner_repos(owner)
+        if repos is None:
+            raise HTTPException(
+                503,
+                {
+                    "reason_code": "repo_list_unavailable",
+                    "message": "GitHub недоступен: список репозиториев получить нельзя, "
+                               "повторите попытку",
+                },
+            )
+        connected = set(
+            self._db.scalars(select(KnowledgeSource.identifier)).all()
+        )
+        for repo in repos:
+            repo["connected"] = repo["identifier"] in connected
+        return {"owner": owner, "repos": repos}
+
+    def _fetch_owner_repos(self, owner: str) -> Optional[list[dict[str, Any]]]:
+        """Indirection for testability (same pattern as _probe_repo)."""
+        gh = GitHubKnowledgeSourceService(self._db)
+        try:
+            return gh.list_owner_repos(owner)
+        finally:
+            gh.close()
 
     def update_source(self, source_id: UUID, data: dict[str, Any]) -> dict[str, Any]:
         """Update an existing knowledge source."""
@@ -174,6 +310,7 @@ class KnowledgeBaseService:
             display_order=data.get("display_order", 0),
             show_on_homepage=data.get("show_on_homepage", 0),
             is_visible=data.get("is_visible", True),
+            is_child_project=data.get("is_child_project", False),
             knowledge_content=data.get("knowledge_content"),
             external_url=data.get("external_url"),
         )
@@ -197,6 +334,7 @@ class KnowledgeBaseService:
             "display_order",
             "show_on_homepage",
             "is_visible",
+            "is_child_project",
             "knowledge_content",
             "external_url",
         ):
@@ -276,8 +414,48 @@ class KnowledgeBaseService:
     # Sync
     # ------------------------------------------------------------------
 
+    # A running job older than this is considered a zombie left by a
+    # backend restart; a new sync may reanimate past it (migration 019
+    # closes such zombies itself).
+    STALE_RUNNING_SYNC_SECONDS = 30 * 60
+
     def start_sync_job(self) -> dict[str, Any]:
-        """Create and persist a new pending sync job."""
+        """Create and persist a new sync job.
+
+        Single-flight guard (owner decision 29.08.2026, variant "A"): only
+        one sync may be 'running' — the UI button lock alone cannot keep
+        out a second tab or a direct API call, and two concurrent syncs
+        would interleave document deletion/insertion for the same sources.
+        A job stuck 'running' past the staleness window is a zombie from
+        a backend restart: it is marked error here so syncs unblock.
+        Migration 019's partial unique index is the last line of defense
+        against two simultaneous POSTs (IntegrityError → same 409).
+        """
+        now = datetime.now(timezone.utc)
+        running = self._db.scalars(
+            select(KnowledgeSyncJob).where(KnowledgeSyncJob.status == "running")
+        ).first()
+        if running is not None:
+            started = running.started_at
+            if started is not None and started.tzinfo is None:
+                started = started.replace(tzinfo=timezone.utc)
+            age = (now - started).total_seconds() if started is not None else 0
+            if age < self.STALE_RUNNING_SYNC_SECONDS:
+                raise HTTPException(
+                    409,
+                    {
+                        "reason_code": "sync_already_running",
+                        "message": "Синхронизация уже выполняется — дождитесь завершения",
+                    },
+                )
+            running.status = "error"
+            running.error_message = (
+                "Закрыт гардом single-flight: задание оставалось в 'running' дольше "
+                "окна свежести — рестарт бэкенда прервал синхронизацию"
+            )
+            running.finished_at = now
+            self._db.commit()
+
         job = KnowledgeSyncJob(
             id=uuid4(),
             triggered_by="manual",
@@ -293,9 +471,28 @@ class KnowledgeBaseService:
             },
         )
         self._db.add(job)
-        self._db.commit()
+        try:
+            self._db.commit()
+        except IntegrityError:
+            self._db.rollback()
+            raise HTTPException(
+                409,
+                {
+                    "reason_code": "sync_already_running",
+                    "message": "Синхронизация уже выполняется — слишком частый запрос",
+                },
+            )
         self._db.refresh(job)
         return self._job_to_dict(job)
+
+    def get_running_job(self) -> Optional[dict[str, Any]]:
+        """Return the running sync job dict, or None — for UI re-attach."""
+        row = self._db.scalars(
+            select(KnowledgeSyncJob).where(KnowledgeSyncJob.status == "running")
+        ).first()
+        if row is None:
+            return None
+        return self._job_to_dict(row)
 
     def get_sync_job(self, job_id: UUID) -> dict[str, Any]:
         """Return a single sync job by ID."""
@@ -320,14 +517,49 @@ class KnowledgeBaseService:
         }
 
         github_service: Optional[GitHubKnowledgeSourceService] = None
+        # Live progress for the console progress bar (owner request
+        # 29.08.2026): stats.progress is committed per processed unit, the
+        # polling UI reads it between requests. No dedicated columns —
+        # old jobs without progress stay readable.
+        progress = {"stage": "github", "total": 0, "done": 0, "current": None}
+        overall_stats["progress"] = progress
+
+        def _commit_progress() -> None:
+            job.stats = overall_stats
+            self._db.commit()
 
         try:
-            rag = RAGService(config=RAGConfig.from_settings())
-            indexer = KnowledgeBaseIndexer(rag_service=rag)
+            # KB indexing follows the effective-active retrieval backend
+            # (owner decision 29.08.2026): whichever backend the console
+            # serves chat from is the one KB-sync (re)indexes into. Chunk
+            # parameters likewise come from effective tuning (env + PG
+            # overrides), not bare env config.
+            from app.services.rag.retrieval_manager import get_retrieval_manager
+
+            mgr = get_retrieval_manager()
+            backend = getattr(mgr.get_backend(), "_base", mgr.get_backend())
+            tuning = mgr.effective_tuning()
+            env_config = RAGConfig.from_settings()
+            chunk_size = int(tuning.get("rag_chunk_size") or env_config.chunk_size)
+            chunk_overlap = int(
+                tuning.get("rag_chunk_overlap") or env_config.chunk_overlap
+            )
+
+            store = index_store_for(backend)
+            rag = None
+            if store.backend_name == "chroma":
+                rag = RAGService(config=env_config)
+                store = ChromaIndexStore(rag)
+            indexer = KnowledgeBaseIndexer(store=store)
+            overall_stats["index_backend"] = store.backend_name
+            overall_stats["index_chunking"] = {
+                "rag_chunk_size": chunk_size,
+                "rag_chunk_overlap": chunk_overlap,
+            }
 
             # Clear legacy knowledge_json chunks. GitHub chunks are removed
             # incrementally by index_document via document_id.
-            rag.clear_by_source_type("knowledge_json")
+            store.clear_by_source_type("knowledge_json")
 
             # 1. Index enabled GitHub sources
             github_service = GitHubKnowledgeSourceService(self._db)
@@ -338,6 +570,10 @@ class KnowledgeBaseService:
                 )
             ).all()
 
+            # Live progress: total known now that the source list is loaded.
+            progress["total"] = len(enabled_sources)
+            _commit_progress()
+
             for source in enabled_sources:
                 # Admission gate (source level): pending/blocked/unknown sources
                 # are not processed at all. A managed skip is not a sync failure.
@@ -347,8 +583,13 @@ class KnowledgeBaseService:
                         "identifier": source.identifier,
                         "reason": admission_reason,
                     })
+                    progress["done"] += 1
+                    progress["current"] = None
+                    _commit_progress()
                     continue
 
+                progress["current"] = source.identifier
+                _commit_progress()
                 overall_stats["sources_processed"] += 1
                 try:
                     fetch_result = github_service.fetch_source(source)
@@ -374,7 +615,9 @@ class KnowledgeBaseService:
                             },
                         )
                         try:
-                            chunks = indexer.index_document(doc)
+                            chunks = indexer.index_document(
+                                doc, chunk_size=chunk_size, chunk_overlap=chunk_overlap
+                            )
                             overall_stats["documents_processed"] += 1
                             overall_stats["chunks_created"] += chunks
                         except Exception as exc:
@@ -394,6 +637,10 @@ class KnowledgeBaseService:
                     error_msg = f"source_{source.identifier}: {type(exc).__name__}: {exc}"
                     overall_stats["errors"].append(error_msg)
                     self._update_source_sync_status(source.id, "error", str(exc))
+                finally:
+                    progress["done"] += 1
+                    progress["current"] = None
+                    _commit_progress()
 
             # 2. Index enabled project cards
             cards = self._db.scalars(
@@ -402,11 +649,17 @@ class KnowledgeBaseService:
                     ProjectCard.knowledge_content.isnot(None),
                 )
             ).all()
+            progress["stage"] = "cards"
+            progress["total"] = len(enabled_sources) + len(cards)
+            progress["current"] = None
+            _commit_progress()
 
             for card in cards:
                 content = card.knowledge_content or ""
                 if not content.strip():
                     continue
+                progress["current"] = card.title
+                _commit_progress()
                 doc = IndexerDocument(
                     id=f"project_card_{card.slug}",
                     title=card.title,
@@ -420,12 +673,18 @@ class KnowledgeBaseService:
                     },
                 )
                 try:
-                    chunks = indexer.index_document(doc)
+                    chunks = indexer.index_document(
+                        doc, chunk_size=chunk_size, chunk_overlap=chunk_overlap
+                    )
                     overall_stats["documents_processed"] += 1
                     overall_stats["chunks_created"] += chunks
                 except Exception as exc:
                     error_msg = f"project_card_{card.slug}: {str(exc)}"
                     overall_stats["errors"].append(error_msg)
+                finally:
+                    progress["done"] += 1
+                    progress["current"] = None
+                    _commit_progress()
 
             # 3. Mark disabled/idle sources
             self._db.query(KnowledgeSource).filter(
@@ -439,11 +698,58 @@ class KnowledgeBaseService:
             )
 
             job.status = "success" if not overall_stats["errors"] else "error"
+            progress["stage"] = "done"
+            progress["current"] = None
+
+            # Post-sync verification (29.08.2026): a live full sync lost 6 docs
+            # to silent per-object batch failures. Now: (a) insert errors raise
+            # (see WeaviateBackend.add_chunks), (b) job stats carry an explicit
+            # store-vs-registry diff so silent loss cannot happen unnoticed.
+            try:
+                store_ids = store.all_document_ids()
+                expected_set = set()
+                srcmap = {s.id: s.identifier for s in self._db.query(KnowledgeSource).all()}
+                for d in self._db.query(KnowledgeDocument).all():
+                    ident2 = srcmap.get(d.source_id)
+                    if ident2 and (d.content or "").strip():
+                        expected_set.add(f"github_{ident2}_{d.path}")
+                for card in self._db.query(ProjectCard).filter(
+                    ProjectCard.is_visible.is_(True),
+                    ProjectCard.knowledge_content.isnot(None),
+                ).all():
+                    if (card.knowledge_content or "").strip():
+                        expected_set.add(f"project_card_{card.slug}")
+                missing = sorted(expected_set - store_ids)
+                overall_stats["verify"] = {
+                    "store_documents": len(store_ids),
+                    "expected_documents": len(expected_set),
+                    "missing_in_store": missing[:20],
+                    "missing_count": len(missing),
+                }
+            except Exception as verify_exc:
+                overall_stats["verify"] = {"error": f"{type(verify_exc).__name__}: {verify_exc}"}
+
             job.stats = overall_stats
             job.finished_at = datetime.now(timezone.utc)
             job.error_message = "\n".join(overall_stats["errors"]) if overall_stats["errors"] else None
 
+            # WH-1 инвалидация кеша поиска: успешный sync может изменить
+            # содержимое KB — счётчик generation растёт, все Entries кеша
+            # устаревают (закрывает известную дыру AF: env-generation не
+            # поднимался при reindex). Дополнительно сбрасываем бэкенд,
+            # если изменились chunk-параметры по умолчанию.
+            try:
+                from app.services.cache import retrieval_cache
+                from app.services.rag.retrieval_manager import get_retrieval_manager
+
+                retrieval_cache.bump_generation(reason="kb_sync_success")
+                get_retrieval_manager().refresh(reason="kb_sync_success")
+            except Exception:
+                pass  # инвалидация — best effort, sync не должен упасть на ней
+
         except Exception as exc:
+            progress["stage"] = "done"
+            progress["current"] = None
             job.status = "error"
             job.error_message = f"{type(exc).__name__}: {exc}"
             job.stats = overall_stats
@@ -498,6 +804,7 @@ class KnowledgeBaseService:
             "id": str(row.id),
             "source_type": row.source_type,
             "identifier": row.identifier,
+            "project_card_id": str(row.project_card_id) if row.project_card_id else None,
             "branch": row.branch,
             "base_path": row.base_path,
             "is_enabled": row.is_enabled,
@@ -522,6 +829,7 @@ class KnowledgeBaseService:
             "display_order": row.display_order,
             "show_on_homepage": row.show_on_homepage,
             "is_visible": row.is_visible,
+            "is_child_project": bool(row.is_child_project),
             "knowledge_content": row.knowledge_content,
             "external_url": row.external_url,
             "created_at": row.created_at.isoformat() if row.created_at else None,

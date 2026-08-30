@@ -23,6 +23,9 @@ router = APIRouter()
 class KnowledgeSourceCreate(BaseModel):
     source_type: str = Field(..., pattern=r"^(github_repo|local_directory|local_file)$")
     identifier: str = Field(..., min_length=1, max_length=500)
+    # Registry-only KB policy (owner decision 29.08.2026, model "A"):
+    # a source MUST be bound to an existing registry project at creation.
+    project_card_id: UUID
     display_name: str | None = Field(None, max_length=200)
     branch: str | None = Field(default="main")
     base_path: str | None = None
@@ -66,6 +69,9 @@ class ProjectCardCreate(BaseModel):
     display_order: int = 0
     show_on_homepage: int = Field(default=0, ge=0, le=4)
     is_visible: bool = True
+    # Child project (owner decision 29.08.2026): excluded from the
+    # Admission Console repo-admission selector.
+    is_child_project: bool = False
     knowledge_content: str | None = None
     external_url: str | None = None
 
@@ -86,6 +92,7 @@ class ProjectCardUpdate(BaseModel):
     display_order: int | None = None
     show_on_homepage: int | None = Field(None, ge=0, le=4)
     is_visible: bool | None = None
+    is_child_project: bool | None = None
     knowledge_content: str | None = None
     external_url: str | None = None
 
@@ -98,6 +105,17 @@ async def get_kb_status(
     """Return ChromaDB status."""
     service = KnowledgeBaseService(db)
     return service.get_chromadb_status()
+
+
+@router.get("/knowledge-base/github-repos")
+async def list_github_repos(
+    admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Repositories of the KB registry owner (KB_REPO_OWNER) for the
+    add-source select; connected identifiers flagged for the UI."""
+    service = KnowledgeBaseService(db)
+    return service.list_owner_repos()
 
 
 @router.get("/knowledge-base/sources")
@@ -312,6 +330,17 @@ async def sync_knowledge_base(
 
     asyncio.create_task(asyncio.to_thread(_run_sync, job_id))
     return job
+
+
+@router.get("/knowledge-base/sync/running")
+async def get_running_sync_job(
+    admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Return the currently running sync job (or null) — the console
+    re-attaches its progress polling to it after navigation."""
+    service = KnowledgeBaseService(db)
+    return service.get_running_job()
 
 
 @router.get("/knowledge-base/sync/{job_id}")

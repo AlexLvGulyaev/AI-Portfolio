@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app.services.cache.response_cache import ResponseCache
 
 
-def _make_orch(memory, *, registry=None, cache=None):
+def _make_orch(memory, *, registry=None, cache=None, include_hidden=False):
     """Собирает ChatOrchestrator с замоканными внешними сервисами."""
     with patch("app.services.chat_orchestrator.ChatSessionService") as SessCls, \
          patch("app.services.chat_orchestrator.ConversationMemoryService") as MemCls, \
@@ -47,6 +47,16 @@ def _make_orch(memory, *, registry=None, cache=None):
         reg = RegCls.return_value
         reg.version = "testregver1"
         reg.repos = ["o/Repo-A", "o/Repo-B", "o/Repo-C"]
+        # B1 visibility guard: по умолчанию скрывать нечего — фильтр
+        # прозрачен; тесты с hidden-репозиториями переопределяют ниже.
+        reg.public_repos.side_effect = (
+            lambda repos=None: list(repos) if repos is not None else list(reg.repos)
+        )
+        reg.public_guard.return_value = None
+        # Скрытая карточка в listing/count-интенте (класс H): по умолчанию
+        # мок-реестр скрывать нечего — resolve_hidden обязан возвращать None
+        # (иначе MagicMock отвечает правдивым Mock и ломает маршрут).
+        reg.resolve_hidden.side_effect = lambda q: None
         if registry:
             reg.classify.side_effect = registry.get("classify", lambda q: "unknown")
             reg.resolve_all.side_effect = registry.get(
@@ -77,6 +87,7 @@ def _make_orch(memory, *, registry=None, cache=None):
             cache=cache,
             rag_service=rag,
             rag_top_k=3,
+            include_hidden=include_hidden,
         )
         return orch, rag, cache
 
@@ -336,6 +347,118 @@ def test_filtered_route_one_best_chunk_per_repo():
     assert kwargs["max_per_repo"] == 1, "each repo must contribute its best chunk"
     assert kwargs["final_top_k"] == 12
     print("PASS: filtered route gives each repo its best chunk")
+
+
+# ---------- §10: visibility guard (owner decision 29.08.2026, variant B1) ----------
+
+HIDDEN_REPOS = ["o/Repo-B"]
+
+
+def _orch_with_hidden(**registry_extra):
+    """Оркестратор с реестром, скрывающим o/Repo-B от публичного retrieval."""
+    include_hidden = registry_extra.pop("include_hidden", False)
+    orch, rag, _ = _make_orch(
+        memory=[],
+        registry=registry_extra or None,
+        include_hidden=include_hidden,
+    )
+    reg = orch.registry
+    reg.hidden_repos = HIDDEN_REPOS
+    reg.public_repos.side_effect = lambda repos=None: [
+        r for r in (repos if repos is not None else reg.repos) if r not in HIDDEN_REPOS
+    ]
+    reg.public_guard.return_value = {"repo": {"$nin": HIDDEN_REPOS}}
+    return orch, rag
+
+
+def test_hidden_repo_excluded_from_global_search():
+    """Обычный (глобальный) поиск скрытого контента получает $nin-фильтр."""
+    orch, rag = _orch_with_hidden()
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(user_query="какой-нибудь обычный вопрос"))
+    kwargs = rag.search.call_args.kwargs
+    assert kwargs.get("where") == {"repo": {"$nin": HIDDEN_REPOS}}
+    print("PASS: global search carries the hidden-repo $nin guard")
+
+
+def test_hidden_repo_excluded_from_global_fallback():
+    """global_fallback после project_scoped miss тоже фильтруется."""
+    card = SimpleNamespace(slug="hr-assistant", display_order=1)
+    orch, rag = _orch_with_hidden(
+        resolve_all=lambda q: [card],
+        repo_for_card=lambda c: "o/HR-Assistant",
+    )
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(user_query="расскажи про HR Assistant"))
+    fallback_kwargs = rag.search.call_args.kwargs
+    assert fallback_kwargs.get("where") == {"repo": {"$nin": HIDDEN_REPOS}}
+    print("PASS: global fallback carries the hidden-repo $nin guard")
+
+
+def test_hidden_repo_excluded_from_filtered_fanout():
+    """diverse_all: скрытый репозиторий не входит в fan-out вовсе."""
+    orch, rag = _orch_with_hidden(
+        classify=lambda q: "filtered",
+        resolve_all=lambda q: [],
+    )
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(user_query="Какие проекты используют n8n?"))
+    kwargs = rag.search_diverse.call_args.kwargs
+    assert "o/Repo-B" not in kwargs["repos"], "hidden repo must not be fanned out"
+    assert set(kwargs["repos"]) == {"o/Repo-A", "o/Repo-C"}
+    print("PASS: filtered fan-out excludes hidden repos")
+
+
+def test_no_hidden_repos_means_no_where_filter():
+    """Когда скрывать нечего, where не добавляется вовсе (None)."""
+    orch, rag, _ = _make_orch(memory=[])
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(user_query="обычный вопрос"))
+    kwargs = rag.search.call_args.kwargs
+    assert kwargs.get("where") is None
+    print("PASS: no hidden repos → no where filter on global search")
+
+
+# ---------- include_hidden (admin chat-preview, канал владельца) ----------
+
+def test_include_hidden_global_search_without_guard():
+    """Канал владельца: глобальный поиск без $nin-гварда."""
+    orch, rag = _orch_with_hidden(include_hidden=True)
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(user_query="какой-нибудь обычный вопрос"))
+    kwargs = rag.search.call_args.kwargs
+    assert kwargs.get("where") is None, "owner channel must not apply the guard"
+    print("PASS: include_hidden removes the guard from global search")
+
+
+def test_include_hidden_fanout_keeps_hidden_repo():
+    """Канал владельца: скрытый репозиторий участвует в fan-out как обычный."""
+    orch, rag, _ = _make_orch(
+        memory=[],
+        registry={"classify": lambda q: "filtered", "resolve_all": lambda q: []},
+        include_hidden=True,
+    )
+    reg = orch.registry
+    reg.hidden_repos = HIDDEN_REPOS
+    reg.public_guard.return_value = {"repo": {"$nin": HIDDEN_REPOS}}
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(user_query="Какие проекты используют n8n?"))
+    kwargs = rag.search_diverse.call_args.kwargs
+    assert "o/Repo-B" in kwargs["repos"], "owner channel must fan out to hidden repo too"
+    assert set(kwargs["repos"]) == {"o/Repo-A", "o/Repo-B", "o/Repo-C"}
+    print("PASS: include_hidden fan-out keeps hidden repos")
 
 
 def test_refusal_answer_not_cached():

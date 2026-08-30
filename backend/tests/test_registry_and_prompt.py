@@ -42,23 +42,32 @@ class FakeResult:
 
 
 class FakeDB:
-    """Подменяет SQL: первая выборка — карточки, вторая — источники."""
+    """Подменяет SQL: карточки (видимые/все), источники, скрытые репозитории."""
 
-    def __init__(self, cards, repos):
+    def __init__(self, cards, repos, hidden=None, hidden_cards=None):
         self._cards = cards
         self._repos = repos
+        self._hidden = hidden or []
+        self._hidden_cards = hidden_cards or []
 
     def execute(self, query, *a, **kw):
         q = str(query)
-        if "project_cards" in q:
+        if "JOIN project_cards" in q:
+            return FakeResult(self._hidden)
+        if "FROM project_cards WHERE is_visible = true" in q:
             return FakeResult(self._cards)
+        if "FROM project_cards" in q:
+            return FakeResult(self._cards + self._hidden_cards)
         if "knowledge_sources" in q:
             return FakeResult(self._repos)
         raise AssertionError("unexpected query: " + q[:80])
 
 
-def make_registry(cards=CARDS, repos=REPOS):
-    return PortfolioRegistry(FakeDB(cards, repos))
+def make_registry(cards=CARDS, repos=REPOS, hidden=None, include_hidden=False,
+                  hidden_cards=None):
+    return PortfolioRegistry(
+        FakeDB(cards, repos, hidden, hidden_cards), include_hidden=include_hidden
+    )
 
 
 # ---------- §3: реестр ----------
@@ -187,6 +196,105 @@ def test_initialism_collision_not_registered():
     print("PASS: colliding initialism is not registered")
 
 
+# ---------- visibility guard (owner decision 29.08.2026, variant B1) ----------
+
+def test_hidden_repos_loaded_from_sources_join():
+    """Репозитории скрытых карточек загружаются отдельно от видимых repos."""
+    hidden = [namedtuple("S", ["identifier"])("AlexLvGulyaev/Telegram-AI-Gateway")]
+    r = make_registry(hidden=hidden)
+    assert r.repos == ["AlexLvGulyaev/HR-Assistant", "AlexLvGulyaev/AI-Curator"]
+    assert r.hidden_repos == ["AlexLvGulyaev/Telegram-AI-Gateway"]
+    print("PASS: hidden repos loaded via knowledge_sources→project_cards join")
+
+
+def test_public_repos_filters_hidden():
+    hidden = [namedtuple("S", ["identifier"])("AlexLvGulyaev/AI-Curator")]
+    r = make_registry(hidden=hidden)
+    # из дефолтного списка
+    assert r.public_repos() == ["AlexLvGulyaev/HR-Assistant"]
+    # из переданного списка (в т.ч. дубля и неизвестных)
+    given = ["AlexLvGulyaev/AI-Curator", "AlexLvGulyaev/HR-Assistant"]
+    assert r.public_repos(given) == ["AlexLvGulyaev/HR-Assistant"]
+    print("PASS: public_repos filters hidden repos from default and passed lists")
+
+
+def test_public_guard_nin_and_none_when_empty():
+    hidden = [namedtuple("S", ["identifier"])("AlexLvGulyaev/AI-Curator")]
+    r = make_registry(hidden=hidden)
+    assert r.public_guard() == {"repo": {"$nin": ["AlexLvGulyaev/AI-Curator"]}}
+    r2 = make_registry()
+    assert r2.public_guard() is None
+    print("PASS: guard is $nin when hiding, None when nothing to hide")
+
+
+def test_include_hidden_registry_resolves_hidden_card():
+    """Канал владельца: скрытая карточка резолвится как обычная."""
+    hidden_card = Row("telegram-ai-gateway", "Telegram AI Gateway",
+                      "Шлюз", "cases", ["Telegram"], 14, None)
+    r2 = make_registry(cards=CARDS, hidden_cards=[hidden_card], include_hidden=True)
+    assert r2.resolve("Расскажи про Telegram AI Gateway") is not None
+    r3 = make_registry(cards=CARDS, hidden_cards=[hidden_card])  # публичный канал
+    assert r3.resolve("Расскажи про Telegram AI Gateway") is None
+
+
+def test_include_hidden_registry_lists_hidden_card():
+    """render_list канала владельца включает скрытые карточки."""
+    hidden_card = Row("telegram-ai-gateway", "Telegram AI Gateway",
+                      "Шлюз", "cases", ["Telegram"], 14, None)
+    r = make_registry(cards=CARDS, hidden_cards=[hidden_card], include_hidden=True)
+    assert "Telegram AI Gateway" in r.render_list()
+    r2 = make_registry(cards=CARDS, hidden_cards=[hidden_card])
+    assert "Telegram AI Gateway" not in r2.render_list()
+
+
+def test_resolve_hidden_on_public_channel():
+    """Публичный канал: названная скрытая карточка возвращает title."""
+    hidden_card = Row("competitor-monitor", "Competitor Monitor AI",
+                      "Монитор", "cases", ["Competitor"], 15, None)
+    r = make_registry(cards=CARDS, hidden_cards=[hidden_card])
+    assert r.resolve_hidden(
+        "Есть ли в портфолио проект Competitor Monitor?"
+    ) == "Competitor Monitor AI"
+    # slug-алиас тоже матчится
+    assert r.resolve_hidden("расскажи про competitor monitor") == "Competitor Monitor AI"
+
+
+def test_resolve_hidden_none_for_visible_and_empty():
+    """Видимые карточки скрытыми не числятся; без скрытых — None."""
+    r = make_registry()
+    assert r.resolve_hidden("Есть ли в портфолио проект Competitor Monitor?") is None
+    assert r.resolve_hidden("Есть ли в портфолио проект HR Assistant?") is None
+
+
+def test_resolve_hidden_suppressed_on_admin_channel():
+    """Канал владельца: предпросмотр скрытой карточки не превращается в отказ."""
+    hidden_card = Row("competitor-monitor", "Competitor Monitor AI",
+                      "Монитор", "cases", ["Competitor"], 15, None)
+    r = make_registry(cards=CARDS, hidden_cards=[hidden_card], include_hidden=True)
+    assert r.resolve_hidden("Есть ли в портфолио проект Competitor Monitor?") is None
+
+
+def test_render_hidden_absent_contains_refusal_markers():
+    """Отказ согласован с refusal_markers публичного eval-сета."""
+    r = make_registry()
+    text = r.render_hidden_absent("Competitor Monitor AI")
+    assert "не найден" in text and "не представлен" in text
+    assert len(text) >= 20
+    # отказ НЕ перечисляет портфель
+    assert "HR Assistant" not in text
+
+
+def test_registry_version_includes_hidden_cards():
+    v1 = make_registry().version
+    hidden_card = Row("competitor-monitor", "Competitor Monitor AI",
+                      "Монитор", "cases", ["Competitor"], 15, None)
+    v2 = make_registry(hidden_cards=[hidden_card]).version
+    assert v1 != v2
+    # изменение набора скрытых карточек инвалидирует кеш детерминированных ответов
+    v3 = make_registry(hidden_cards=[hidden_card]).version
+    assert v2 == v3
+
+
 # ---------- §6/§7: prompt-гигиена ----------
 
 def _build(**kw):
@@ -251,10 +359,26 @@ def test_registry_block_inside_trusted_rules():
 
 
 def test_system_prompt_fingerprint_stable_and_versioned():
-    from app.services.prompt_assembly import PromptAssembly, SYSTEM_PROMPT_VERSION
-    fp = PromptAssembly.fingerprint()
+    from app.services.prompt_assembly import (
+        PromptAssembly,
+        SYSTEM_PROMPT,
+        SYSTEM_PROMPT_VERSION,
+    )
+    # Б 30.08.2026: fingerprint — инстансный (body + version), т.к. промпт
+    # приходит из управляемого хранилища (system_prompts).
+    pa = PromptAssembly()
+    fp = pa.fingerprint()
     assert fp.startswith(SYSTEM_PROMPT_VERSION)
-    assert fp == PromptAssembly.fingerprint()
+    assert fp == PromptAssembly().fingerprint()
+    # Управляемая версия с другим телом даёт другой fingerprint
+    # (валидный шаблон — со всеми обязательными плейсхолдерами).
+    custom = PromptAssembly(system_prompt=SYSTEM_PROMPT, version="v9-test")
+    assert custom.fingerprint() != fp
+    custom_body = PromptAssembly(
+        system_prompt="ВЕРСИЯ {registry_block} {registry_list} {rag_context} "
+        "{conversation_history} {user_query}",
+    )
+    assert custom_body.fingerprint() != fp
     print("PASS: prompt fingerprint is versioned and stable")
 
 

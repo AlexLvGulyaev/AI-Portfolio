@@ -69,12 +69,18 @@ class PromptAssembly:
 
     Prompt НЕ должен собираться внутри AI Provider.
     PromptAssembly — единственная точка сборки prompt.
+
+    С 30.08.2026 промпт может приходить из управляемого хранилища
+    (system_prompts, консоль AI-настроек): system_prompt + version из БД;
+    None — вшитый дефолт SYSTEM_PROMPT / SYSTEM_PROMPT_VERSION (fallback и
+    источник сброса).
     """
 
     def __init__(
         self,
         system_prompt: str | None = None,
         max_context_tokens: int = 3000,
+        version: str | None = None,
     ):
         """
         Инициализация.
@@ -82,8 +88,10 @@ class PromptAssembly:
         Args:
             system_prompt: Системный промпт (если None, используется дефолтный)
             max_context_tokens: Максимальное количество токенов контекста
+            version: Метка версии промпта (None — вшитая SYSTEM_PROMPT_VERSION)
         """
         self.system_prompt = system_prompt or SYSTEM_PROMPT
+        self.version = version or SYSTEM_PROMPT_VERSION
         self.max_context_tokens = max_context_tokens
 
     def build(
@@ -192,7 +200,9 @@ class PromptAssembly:
 
         return messages
 
-    @staticmethod
-    def fingerprint() -> str:
-        """Версионный fingerprint промпта для cache key."""
-        return f"{SYSTEM_PROMPT_VERSION}:{hashlib.sha256(SYSTEM_PROMPT.encode('utf-8')).hexdigest()[:16]}"
+    def fingerprint(self) -> str:
+        """Версионный fingerprint конкретного промпта для cache key."""
+        return (
+            f"{self.version}:"
+            f"{hashlib.sha256(self.system_prompt.encode('utf-8')).hexdigest()[:16]}"
+        )

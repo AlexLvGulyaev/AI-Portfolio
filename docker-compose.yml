@@ -76,12 +76,22 @@ services:
       - ADMIN_API_TOKEN=${ADMIN_API_TOKEN}
       # GitHub (optional, increases API rate limit)
       - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      # KB registry owner (REQUIRED, registry-only KB policy): compose fails
+      # hard if unset — mirrors the required pydantic setting backend-side
+      - KB_REPO_OWNER=${KB_REPO_OWNER:?KB_REPO_OWNER is required (GitHub namespace admissible as KB sources)}
       # ChromaDB
       - CHROMA_USE_HTTP=true
       - CHROMA_HOST=ai-portfolio-chroma
       - CHROMA_PORT=8000
       # KB collection served by the assistant (v2 = dialog-admitted showcase KB)
       - CHROMA_COLLECTION_NAME=ai_portfolio_knowledge_v2
+      # Retrieval console (AF pattern): env bootstrap; PG overrides at runtime
+      - RAG_BACKEND=${RAG_BACKEND:-chroma}
+      # Weaviate secondary backend (BYOV)
+      - WEAVIATE_HOST=ai-portfolio-weaviate
+      - WEAVIATE_HTTP_PORT=8080
+      - WEAVIATE_GRPC_PORT=50051
+      - WEAVIATE_CLASS_NAME=AiPortfolioChunk
       # CORS
       - CORS_ORIGINS=${CORS_ORIGINS}
       # Logging
@@ -106,7 +116,7 @@ services:
 
   # ChromaDB (HTTP server for thread-safe RAG access)
   ai-portfolio-chroma:
-    image: chromadb/chroma:0.5.23
+    image: chromadb/chroma:1.5.9
     restart: always
     container_name: ai-portfolio-chroma
     environment:
@@ -117,14 +127,41 @@ services:
       - ai-portfolio-chroma-data:/chroma/chroma
     networks:
       - ai-portfolio-network
+    # chroma 1.5.9 images ship the Rust binary only (no curl/python) — raw
+    # bash /dev/tcp HTTP probe of the v2 heartbeat endpoint instead.
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/8000 && printf 'GET /api/v2/heartbeat HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '200 OK' <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # Weaviate (secondary retrieval backend, BYOV vectors; v1: retrieval only,
+  # indexing stays on Chroma). Internal network only — no published ports.
+  ai-portfolio-weaviate:
+    image: cr.weaviate.io/semitechnologies/weaviate:1.39.2
+    restart: always
+    container_name: ai-portfolio-weaviate
+    environment:
+      - QUERY_DEFAULTS_LIMIT=25
+      - AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true
+      - PERSISTENCE_DATA_PATH=/var/lib/weaviate
+      - DEFAULT_VECTORIZER_MODULE=none
+      - CLUSTER_HOSTNAME=node1
+    volumes:
+      - ai-portfolio-weaviate-data:/var/lib/weaviate
+    networks:
+      - ai-portfolio-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/v1/.well-known/ready"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 30s
 
 volumes:
+  ai-portfolio-weaviate-data:
+    name: ai-portfolio-weaviate-data
   ai-portfolio-data:
     name: ai-portfolio-data
   ai-portfolio-postgres-data:
