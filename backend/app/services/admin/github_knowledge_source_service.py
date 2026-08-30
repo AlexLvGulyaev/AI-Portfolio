@@ -111,6 +111,25 @@ class GitHubKnowledgeSourceService:
         base_path = (source.base_path or "").strip("/")
         return self._discover_markdown_paths(owner, repo, branch, base_path)
 
+    def default_branch(self, owner: str, repo: str) -> Optional[str]:
+        """Default branch of a repository (GET /repos/{owner}/{repo}).
+
+        Returns None when GitHub is unreachable or answers unexpectedly —
+        the caller keeps the client-supplied value (old behaviour), not a
+        silent rewrite.
+        """
+        url = f"{self.GITHUB_API_BASE}/repos/{owner}/{repo}"
+        try:
+            response = self._client.get(url)
+        except httpx.HTTPError:
+            return None
+        if response.status_code != 200:
+            return None
+        try:
+            return response.json().get("default_branch") or None
+        except ValueError:
+            return None
+
     def probe_repo(self, owner: str, repo: str) -> Optional[bool]:
         """Cheap existence probe for the source-creation guard (owner decision
         29.08.2026, model "A", variant В2).
@@ -392,12 +411,31 @@ class GitHubKnowledgeSourceService:
 
     @staticmethod
     def _markdown_to_plain_text(md_content: str) -> str:
-        """Convert markdown to plain text suitable for embeddings."""
+        """Convert markdown to plain text suitable for embeddings.
+
+        Heading levels survive as `#`-prefixed lines (`## n8n`): they are
+        the semantic boundaries the KB chunker splits on and the term the
+        viewer queries matches («Что такое n8n?» → glossary entry `## n8n`).
+        """
         # Convert markdown to HTML
         html = markdown.markdown(md_content)
 
-        # Strip HTML tags
-        text = re.sub(r"<[^>]+", "", html)
+        # Render headings back as "#" lines before stripping tags
+        def _heading(m: "re.Match[str]") -> str:
+            level = int(m.group(1))
+            return f"\n{'#' * level} {m.group(2).strip()}\n"
+
+        html = re.sub(
+            r"<h([1-6])[^>]*>(.*?)</h\1>",
+            _heading,
+            html,
+            flags=re.S | re.I,
+        )
+
+        # Strip HTML tags — "<[^>]*>" consumes the closing bracket too;
+        # the old "<[^>]+" left a stray ">" behind every tag in the plain
+        # text (visible as ">>Telegram: >@user>>" debris inside chunks)
+        text = re.sub(r"<[^>]*>", "", html)
 
         # Decode common HTML entities
         text = text.replace("&nbsp;", " ")

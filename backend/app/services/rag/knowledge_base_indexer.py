@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -255,6 +256,10 @@ class KnowledgeBaseIndexer:
             raise ValueError("KnowledgeBaseIndexer requires a store or rag_service")
         self.knowledge_base_path = Path(knowledge_base_path)
 
+    # Строка-заголовок в тексте документа (конвертер md→plain сохраняет
+    # уровни: "## n8n"). Заголовки — semantic-границы для чанкования.
+    _HEADING_RE = re.compile(r"^\s{0,3}#{1,6}\s", re.MULTILINE)
+
     def _create_chunks(
         self,
         text: str,
@@ -262,29 +267,61 @@ class KnowledgeBaseIndexer:
         overlap: int = 50,
     ) -> list[str]:
         """
-        Разбивает текст на чанки с перекрытием.
+        Разбивает текст на чанки: сначала по заголовкам, затем окном.
 
-        Источник: PEcf09 _create_chunks()
+        Заголовок открывает semantic-секцию и сам несёт смысл запроса
+        («## n8n» vs «Что такое n8n?»). Окно фиксированной длины режет
+        секцию посередине и разбавляет её соседними блоками: узкая секция
+        FAQ «Как связаться?» (4 строки, cosine 0.65 изолированно) внутри
+        900-символьного чанка опускается до 0.33 и проигрывает топ-6 чата
+        (решение владельца 30.08.2026: документы-источники — SOT, чанкование
+        устранить). Поэтому:
+
+        - секция целиком помещается в chunk_size → её собственный чанк
+          (склейки двух секций нет — разбавление вернулось бы);
+        - секция-переросток → скользящее окно c overlap, как раньше;
+        - заголовков нет (JSON/прочие не-markdown документы) → прежнее
+          поведение окна без изменений.
+
+        Источник: PEcf09 _create_chunks() (окно)
 
         Args:
             text: Исходный текст
             chunk_size: Размер чанка в символах
-            overlap: Размер перекрытия между чанками
+            overlap: Размер перекрытия между чанками (для секций-переростков)
 
         Returns:
             Список чанков
         """
+        boundaries = [m.start() for m in self._HEADING_RE.finditer(text)]
+        # Текст до первого заголовка — шапка/интро; без заголовков в тексте
+        # boundaries пуст и ниже остаётся один блок = прежнее окно.
+        starts = boundaries if boundaries else [0]
+
         chunks: list[str] = []
-        start = 0
+        for i, sec_start in enumerate(starts):
+            sec_end = (
+                starts[i + 1]
+                if i + 1 < len(starts)
+                else len(text)
+            )
+            section = text[sec_start:sec_end].strip()
+            if not section:
+                continue
 
-        while start < len(text):
-            end = start + chunk_size
-            chunk = text[start:end].strip()
+            if len(section) <= chunk_size:
+                chunks.append(section)
+                continue
 
-            if chunk:
-                chunks.append(chunk)
-
-            start = end - overlap
+            # Секция больше окна: скользящее окно с перекрытием.
+            pos = 0
+            while pos < len(section):
+                piece = section[pos : pos + chunk_size].strip()
+                if piece:
+                    chunks.append(piece)
+                if pos + chunk_size >= len(section):
+                    break
+                pos += chunk_size - overlap
 
         return chunks
 
