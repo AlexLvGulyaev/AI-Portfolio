@@ -172,9 +172,18 @@ class WeaviateIndexStore:
 
 
 def index_store_for(backend: Any) -> IndexStore:
-    """Resolve the IndexStore for a (base, unwrapped) retrieval backend."""
+    """Resolve the IndexStore for a (base, unwrapped) retrieval backend.
+
+    Chroma keeps two forms: legacy RAGService (search-only surface: no
+    add_chunks/delete_document_chunks) and any backend already exposing the
+    write contract. RAGService is wrapped into ChromaIndexStore, which
+    drives the collection through RAGService methods (sync code then
+    re-wraps with a fresh RAGService built from effective tuning).
+    """
     name = str(getattr(backend, "backend_name", "") or "")
     if not hasattr(backend, "add_chunks"):
+        if isinstance(backend, RAGService):
+            return ChromaIndexStore(backend)
         raise ValueError(
             f"backend '{name or type(backend).__name__}' does not support "
             "KB indexing (no index_store write contract)"
