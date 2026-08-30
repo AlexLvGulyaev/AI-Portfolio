@@ -12,10 +12,11 @@ Routes (all behind require_admin):
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from app.api.admin.audit import log_admin_action
 from app.api.admin.dependencies import require_admin
 from app.core.database import get_db
 from app.services.admin.system_prompt_service import (
@@ -57,6 +58,7 @@ async def get_builtin_prompt(
 @router.put("/system-prompt")
 async def save_system_prompt(
     payload: SystemPromptUpdate,
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -65,26 +67,36 @@ async def save_system_prompt(
         row = _service(db).create_version(payload.version, payload.body, payload.note)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail={"code": "invalid_prompt", "message": str(exc)})
+    log_admin_action(request, db, action="create", resource_type="system_prompt",
+                     resource_id=str(row["id"]) if isinstance(row, dict) else str(row.id),
+                     details={"version": payload.version})
     return row
 
 
 @router.post("/system-prompt/reset")
 async def reset_system_prompt(
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Вернуть вшитый системный промпт (v4-compact-multi) как активный."""
-    return _service(db).reset_to_builtin()
+    result = _service(db).reset_to_builtin()
+    log_admin_action(request, db, action="reset", resource_type="system_prompt")
+    return result
 
 
 @router.post("/system-prompt/{prompt_id}/activate")
 async def activate_system_prompt(
     prompt_id: uuid.UUID,
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Активировать существующую версию (откат к ней)."""
     try:
-        return _service(db).activate(prompt_id)
+        result = _service(db).activate(prompt_id)
     except LookupError:
         raise HTTPException(status_code=404, detail={"code": "system_prompt_not_found"})
+    log_admin_action(request, db, action="activate", resource_type="system_prompt",
+                     resource_id=str(prompt_id))
+    return result

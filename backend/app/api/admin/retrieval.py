@@ -8,10 +8,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, ConfigDict
+from sqlalchemy.orm import Session
 
+from app.api.admin.audit import log_admin_action
 from app.api.admin.dependencies import require_admin
+from app.core.database import get_db
 from app.core.config import get_settings
 from app.services.rag import platform_settings_store as store
 from app.services.rag.retrieval_manager import get_retrieval_manager
@@ -136,7 +139,10 @@ def _paths_snapshot() -> dict[str, Any]:
 
 @router.put("/active-backend")
 def api_retrieval_active_backend(
-    body: ActiveBackendBody, _admin: None = Depends(require_admin)
+    body: ActiveBackendBody,
+    request: Request,
+    _admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
 ) -> dict[str, Any]:
     """Persist the active backend to PG; switching is allowed even if unhealthy (warning returned)."""
     name = normalize_backend(body.backend)
@@ -155,6 +161,8 @@ def api_retrieval_active_backend(
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     mgr.refresh(reason="active_backend_switch")
+    log_admin_action(request, db, action="set_active_backend", resource_type="retrieval_tuning",
+                     details={"backend": name, "warnings": warnings})
     return {
         "effective_backend": get_retrieval_manager().effective_backend(),
         "warnings": warnings,
@@ -195,6 +203,9 @@ def api_retrieval_tuning_put(
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     mgr = get_retrieval_manager()
     mgr.refresh(reason="tuning_update")
+    log_admin_action(request, db, action="update", resource_type="retrieval_tuning",
+                     changed_fields=sorted(normalized),
+                     details={"resync_required": any(k in normalized for k in REQUIRES_RESYNC_KEYS)})
     return {
         "effective": mgr.effective_tuning(),
         "env_defaults": env_defaults(),
@@ -206,17 +217,25 @@ def api_retrieval_tuning_put(
 
 
 @router.delete("/tuning")
-def api_retrieval_tuning_delete(_admin: None = Depends(require_admin)) -> dict[str, Any]:
+def api_retrieval_tuning_delete(
+    request: Request,
+    _admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
     try:
         store.delete_setting(KEY_RETRIEVAL_TUNING)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     get_retrieval_manager().refresh(reason="tuning_clear")
+    log_admin_action(request, db, action="tuning_reset", resource_type="retrieval_tuning")
     return {"effective": get_retrieval_manager().effective_tuning(), "db_overrides": {}}
 
 @router.put("/cache/toggle")
 def api_retrieval_cache_toggle(
-    body: RetrievalCacheToggleBody, _admin: None = Depends(require_admin)
+    body: RetrievalCacheToggleBody,
+    request: Request,
+    _admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
 ) -> dict[str, Any]:
     """WH-1: persist the retrieval-cache on/off switch to PG and rewrap the backend."""
     from app.services.cache import retrieval_cache
@@ -226,13 +245,21 @@ def api_retrieval_cache_toggle(
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     get_retrieval_manager().refresh(reason="retrieval_cache_toggle")
+    log_admin_action(request, db, action="cache_toggle", resource_type="retrieval_tuning",
+                     details={"enabled": body.enabled})
     return {"cache": _cache_snapshot()}
 
 
 @router.post("/cache/clear")
-def api_retrieval_cache_clear(_admin: None = Depends(require_admin)) -> dict[str, Any]:
+def api_retrieval_cache_clear(
+    request: Request,
+    _admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
     """WH-1: drop all cached retrieval entries (diagnostics action)."""
     from app.services.cache import retrieval_cache
 
     removed = retrieval_cache.clear()
+    log_admin_action(request, db, action="cache_clear", resource_type="retrieval_tuning",
+                     details={"removed": removed})
     return {"removed": removed, "cache": _cache_snapshot()}

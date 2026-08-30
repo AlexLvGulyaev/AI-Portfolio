@@ -8,10 +8,11 @@ and manual synchronization into ChromaDB.
 import asyncio
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
+from app.api.admin.audit import log_admin_action
 from app.api.admin.dependencies import require_admin
 from app.core.database import SessionLocal, get_db
 from app.services.admin.kb_admission_console_service import AdmissionConsoleService
@@ -72,6 +73,10 @@ class ProjectCardCreate(BaseModel):
     # Child project (owner decision 29.08.2026): excluded from the
     # Admission Console repo-admission selector.
     is_child_project: bool = False
+    # Meta-card flag (owner decision 30.08.2026): reserved for the AI
+    # Portfolio platform's own "Это Я" card. Not patchable afterwards —
+    # the flag is set at creation only.
+    is_meta: bool = False
     knowledge_content: str | None = None
     external_url: str | None = None
 
@@ -131,6 +136,7 @@ async def list_sources(
 @router.post("/knowledge-base/sources")
 async def create_source(
     data: KnowledgeSourceCreate,
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -140,6 +146,7 @@ async def create_source(
     console = AdmissionConsoleService(db)
     console._log_event(UUID(created["id"]), "created", f"Источник добавлен: {created['identifier']}", None)
     db.commit()
+    log_admin_action(request, db, action="create", resource_type="kb", resource_id=created["id"])
     return created
 
 
@@ -158,6 +165,7 @@ async def get_source(
 async def update_source(
     source_id: UUID,
     data: KnowledgeSourceUpdate,
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -178,18 +186,23 @@ async def update_source(
                 },
             )
     service = KnowledgeBaseService(db)
-    return service.update_source(source_id, payload)
+    result = service.update_source(source_id, payload)
+    log_admin_action(request, db, action="update", resource_type="kb", resource_id=source_id,
+                     changed_fields=sorted(payload))
+    return result
 
 
 @router.delete("/knowledge-base/sources/{source_id}")
 async def delete_source(
     source_id: UUID,
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Delete a knowledge source."""
     service = KnowledgeBaseService(db)
     service.delete_source(source_id)
+    log_admin_action(request, db, action="delete", resource_type="kb", resource_id=source_id)
     return {"ok": True}
 
 
@@ -212,6 +225,7 @@ async def preview_source_admission(
 @router.post("/knowledge-base/sources/{source_id}/admission-previews")
 async def build_admission_preview(
     source_id: UUID,
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -221,7 +235,10 @@ async def build_admission_preview(
     ChromaDB writes, no admission status changes.
     """
     service = AdmissionConsoleService(db)
-    return service.create_preview(source_id)
+    result = service.create_preview(source_id)
+    log_admin_action(request, db, action="admission_preview", resource_type="kb",
+                     resource_id=source_id)
+    return result
 
 
 @router.get("/knowledge-base/sources/{source_id}/admission-previews/latest")
@@ -239,30 +256,41 @@ async def get_latest_admission_preview(
 async def update_draft_patterns(
     source_id: UUID,
     data: DraftPatternsUpdate,
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Persist the draft selection rules (working copy, not effective)."""
     service = AdmissionConsoleService(db)
-    return service.update_draft_patterns(
+    result = service.update_draft_patterns(
         source_id, data.include_patterns, data.exclude_patterns
     )
+    log_admin_action(request, db, action="draft_patterns_update", resource_type="kb",
+                     resource_id=source_id,
+                     changed_fields=[k for k in ("include_patterns", "exclude_patterns")
+                                     if getattr(data, k) is not None])
+    return result
 
 
 @router.post("/knowledge-base/sources/{source_id}/draft-patterns/reset")
 async def reset_draft_patterns(
     source_id: UUID,
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Discard the draft and revert to the effective (approved) rules."""
     service = AdmissionConsoleService(db)
-    return service.reset_draft_patterns(source_id)
+    result = service.reset_draft_patterns(source_id)
+    log_admin_action(request, db, action="draft_patterns_reset", resource_type="kb",
+                     resource_id=source_id)
+    return result
 
 
 @router.post("/knowledge-base/sources/{source_id}/approve")
 async def approve_source(
     source_id: UUID,
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -273,29 +301,40 @@ async def approve_source(
     Does NOT trigger sync/reindex.
     """
     service = AdmissionConsoleService(db)
-    return service.approve_source(source_id)
+    result = service.approve_source(source_id)
+    log_admin_action(request, db, action="approve", resource_type="kb",
+                     resource_id=source_id)
+    return result
 
 
 @router.post("/knowledge-base/sources/{source_id}/block")
 async def block_source(
     source_id: UUID,
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Block a source: it stops being indexed on future syncs."""
     service = AdmissionConsoleService(db)
-    return service.block_source(source_id)
+    result = service.block_source(source_id)
+    log_admin_action(request, db, action="block", resource_type="kb",
+                     resource_id=source_id)
+    return result
 
 
 @router.post("/knowledge-base/sources/{source_id}/unblock")
 async def unblock_source(
     source_id: UUID,
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Unblock a source: restores the previous approved composition if any."""
     service = AdmissionConsoleService(db)
-    return service.unblock_source(source_id)
+    result = service.unblock_source(source_id)
+    log_admin_action(request, db, action="unblock", resource_type="kb",
+                     resource_id=source_id)
+    return result
 
 
 @router.get("/knowledge-base/sources/{source_id}/admission-events")
@@ -312,6 +351,7 @@ async def list_admission_events(
 
 @router.post("/knowledge-base/sync")
 async def sync_knowledge_base(
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -329,6 +369,8 @@ async def sync_knowledge_base(
             sync_db.close()
 
     asyncio.create_task(asyncio.to_thread(_run_sync, job_id))
+    log_admin_action(request, db, action="sync", resource_type="kb",
+                     details={"job_id": str(job_id)})
     return job
 
 
@@ -367,12 +409,16 @@ async def list_project_cards(
 @router.post("/knowledge-base/project-cards")
 async def create_project_card(
     data: ProjectCardCreate,
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Create a new project card."""
     service = KnowledgeBaseService(db)
-    return service.create_project_card(data.model_dump(exclude_unset=True))
+    result = service.create_project_card(data.model_dump(exclude_unset=True))
+    log_admin_action(request, db, action="create", resource_type="project_card",
+                     resource_id=result.get("id"))
+    return result
 
 
 @router.get("/knowledge-base/project-cards/{card_id}")
@@ -390,23 +436,31 @@ async def get_project_card(
 async def update_project_card(
     card_id: UUID,
     data: ProjectCardUpdate,
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Update a project card."""
+    payload = data.model_dump(exclude_unset=True)
     service = KnowledgeBaseService(db)
-    return service.update_project_card(card_id, data.model_dump(exclude_unset=True))
+    result = service.update_project_card(card_id, payload)
+    log_admin_action(request, db, action="update", resource_type="project_card",
+                     resource_id=card_id, changed_fields=sorted(payload))
+    return result
 
 
 @router.delete("/knowledge-base/project-cards/{card_id}")
 async def delete_project_card(
     card_id: UUID,
+    request: Request,
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Delete a project card."""
     service = KnowledgeBaseService(db)
     service.delete_project_card(card_id)
+    log_admin_action(request, db, action="delete", resource_type="project_card",
+                     resource_id=card_id)
     return {"ok": True}
 
 

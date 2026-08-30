@@ -4,6 +4,7 @@ import { Card } from '../components/Card';
 import { Loading } from '../components/Loading';
 import { ErrorState } from '../components/ErrorState';
 import { getDashboard, type DashboardData } from '../api/client';
+import { formatTimestampLocal } from '../utils/operationalLabels';
 
 function StatusBadge({ status }: { status: string }) {
   const normalized = status.toLowerCase();
@@ -100,7 +101,7 @@ export function DashboardPage() {
                   label="Last Sync"
                   value={
                     data.knowledge_base.last_sync_at
-                      ? new Date(data.knowledge_base.last_sync_at).toLocaleString('ru-RU')
+                      ? formatTimestampLocal(data.knowledge_base.last_sync_at)
                       : '—'
                   }
                   note={data.knowledge_base.last_sync_status}
@@ -116,7 +117,7 @@ export function DashboardPage() {
                 <MetricCard label="Аудит" value={data.audit.total} />
                 <MetricCard label="Диалоги" value={data.conversations.total} />
                 <MetricCard label="Активные диалоги" value={data.conversations.active} />
-                <MetricCard label="Updated" value={new Date(data.timestamp).toLocaleString('ru-RU')} />
+                <MetricCard label="Updated" value={formatTimestampLocal(data.timestamp)} />
               </div>
             </Card>
           </div>

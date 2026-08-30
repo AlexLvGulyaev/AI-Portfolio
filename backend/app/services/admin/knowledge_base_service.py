@@ -311,6 +311,7 @@ class KnowledgeBaseService:
             show_on_homepage=data.get("show_on_homepage", 0),
             is_visible=data.get("is_visible", True),
             is_child_project=data.get("is_child_project", False),
+            is_meta=data.get("is_meta", False),
             knowledge_content=data.get("knowledge_content"),
             external_url=data.get("external_url"),
         )
@@ -319,11 +320,31 @@ class KnowledgeBaseService:
         self._db.refresh(row)
         return self._card_to_dict(row)
 
+    # Display parameters of a meta-card are owned by the platform itself
+    # (owner decision 30.08.2026: "не удалять и параметры вывода на лендинг
+    # не настраивать") — hard 400, explicit over silent.
+    META_CARD_PROTECTED_KEYS = ("is_visible", "show_on_homepage", "display_order", "slug")
+
     def update_project_card(self, card_id: UUID, data: dict[str, Any]) -> dict[str, Any]:
         """Update an existing project card."""
         row = self._db.get(ProjectCard, card_id)
         if not row:
             raise HTTPException(404, "Project card not found")
+
+        if row.is_meta:
+            blocked = sorted(set(data) & set(self.META_CARD_PROTECTED_KEYS))
+            if blocked:
+                raise HTTPException(
+                    400,
+                    {
+                        "code": "meta_card_display_locked",
+                        "message": (
+                            "Мета-карточка платформы: параметры вывода на лендинг "
+                            "(is_visible, show_on_homepage, display_order, slug) не настраиваются."
+                        ),
+                        "fields": blocked,
+                    },
+                )
 
         for key in (
             "slug",
@@ -351,6 +372,16 @@ class KnowledgeBaseService:
         row = self._db.get(ProjectCard, card_id)
         if not row:
             raise HTTPException(404, "Project card not found")
+        if row.is_meta:
+            # "Это Я": the platform's own card is the KB/documentation
+            # management anchor and must not be deleted (owner, 30.08.2026).
+            raise HTTPException(
+                409,
+                {
+                    "code": "meta_card_protected",
+                    "message": "Мета-карточка платформы ('Это Я') не подлежит удалению.",
+                },
+            )
         self._db.delete(row)
         self._db.commit()
 
@@ -830,6 +861,7 @@ class KnowledgeBaseService:
             "show_on_homepage": row.show_on_homepage,
             "is_visible": row.is_visible,
             "is_child_project": bool(row.is_child_project),
+            "is_meta": bool(row.is_meta),
             "knowledge_content": row.knowledge_content,
             "external_url": row.external_url,
             "created_at": row.created_at.isoformat() if row.created_at else None,

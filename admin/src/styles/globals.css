@@ -714,6 +714,21 @@ body {
   color: var(--admin-success);
 }
 
+/* Documents console: «не в индексе» / счётчик недоступен */
+.admin-status--muted {
+  background-color: rgba(148, 163, 184, 0.12);
+  color: var(--admin-text-muted);
+}
+
+.admin-status--muted::before {
+  display: none;
+}
+
+.admin-status--unknown {
+  background-color: transparent;
+  color: var(--admin-text-muted);
+}
+
 .admin-status--error {
   background-color: rgba(239, 68, 68, 0.12);
   color: var(--admin-danger);
@@ -3786,4 +3801,183 @@ body {
 }
 .ret-details {
   flex-shrink: 0;
+}
+
+/* ==================================================================
+   Documents console (§4.5б поз. 3): 2 macro columns — document items
+   on the left, document card on the right + a narrow active-backend
+   panel. Reuses the admission console ac-* canon.
+   ================================================================== */
+
+.ac-layout--docs {
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+}
+
+/* Card body: two section columns (Passport | Operation) */
+.dc-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+/* CompactRow по канону AIC KbDocumentSummary: узкая muted-метка + значение */
+.dc-rows {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.dc-row {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 8px;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.dc-row dt {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+}
+
+.dc-row dd {
+  margin: 0;
+  font-size: 12px;
+  color: var(--admin-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dc-counter {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.dc-empty {
+  margin: 0;
+  padding: 12px;
+  font-size: 13px;
+  color: var(--admin-text-muted);
+}
+
+.dc-url {
+  font-size: 12px;
+  color: var(--admin-primary);
+  overflow-wrap: anywhere;
+}
+
+/* Text preview: bounded height, scrolls internally */
+.dc-text-preview {
+  max-height: 180px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--admin-text);
+  background-color: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+}
+
+.dc-text-full {
+  max-height: 60vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--admin-text);
+  background-color: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+}
+
+/* Chunks section: the history-like section owns the rest of the column */
+.ac-section--history .dc-chunk-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dc-chunk {
+  background-color: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.dc-chunk__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dc-chunk__index {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--admin-primary);
+}
+
+.dc-chunk__preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--admin-text-muted);
+}
+
+.dc-chunk__preview--open {
+  display: block;
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: unset;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+.dc-chunk__toggle {
+  flex-shrink: 0;
+  padding: 0;
+  font-size: 12px;
+  color: var(--admin-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.dc-chunk__toggle:hover {
+  text-decoration: underline;
+}
+
+.project-cards-item__meta {
+  color: var(--admin-info);
+  font-weight: 600;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
