@@ -59,6 +59,48 @@ def merge_diverse(
     return diversified
 
 
+# Properties consumed by exact-match filters (delete/list by document_id,
+# per-repo filters, clear_by_source_type). Identity-style fields MUST NOT be
+# word-tokenized: on a word-tokenized text field `equal` matches any object
+# whose token set covers the query tokens — inserting a shorter-named sibling
+# (USER_GUIDE.md) silently deleted chunks of longer-named documents
+# (ORCHESTRATOR_USER_GUIDE.md); root-caused 31.08.2026, ~3% corpus loss.
+_FIELD_TOKENIZED_PROPERTIES = ("chunk_id", "document_id", "repo", "source_type")
+
+_TEXT_PROPERTIES = (
+    "text", "chunk_id", "document_id", "source", "repo", "path",
+    "source_type", "category", "url", "commit_sha", "slug", "visibility",
+)
+
+
+def kb_class_properties() -> list["Any"]:
+    """Property list for the KB chunk class (create + upgrade path).
+
+    Identity/filter properties carry tokenization=field so that exact-match
+    filters (``document_id equal``, per-repo, source_type) never fall back to
+    word tokenization on Weaviate's side.
+    """
+    from weaviate.classes.config import DataType, Property, Tokenization
+
+    text_props = [
+        Property(
+            name=name,
+            data_type=DataType.TEXT,
+            tokenization=(
+                Tokenization.FIELD
+                if name in _FIELD_TOKENIZED_PROPERTIES
+                else Tokenization.WORD
+            ),
+        )
+        for name in _TEXT_PROPERTIES
+    ]
+    int_props = [
+        Property(name=name, data_type=DataType.INT)
+        for name in ("chunk_index", "total_chunks", "chunk_length")
+    ]
+    return text_props + int_props
+
+
 class WeaviateBackend:
     """Operational Weaviate: schema ensure, near_vector search over BYOV vectors."""
 
@@ -119,47 +161,21 @@ class WeaviateBackend:
 
     def _ensure_schema(self) -> None:
         """Idempotent class creation; adds missing properties to older schemas."""
-        from weaviate.classes.config import Configure, DataType, Property
+        from weaviate.classes.config import Configure, Property
 
         if not self._client.collections.exists(self.class_name):
             self._client.collections.create(
                 name=self.class_name,
                 vectorizer_config=Configure.Vectorizer.none(),
                 vector_index_config=Configure.VectorIndex.hnsw(),
-                properties=[
-                    Property(name="text", data_type=DataType.TEXT),
-                    Property(name="chunk_id", data_type=DataType.TEXT),
-                    Property(name="document_id", data_type=DataType.TEXT),
-                    Property(name="source", data_type=DataType.TEXT),
-                    Property(name="repo", data_type=DataType.TEXT),
-                    Property(name="path", data_type=DataType.TEXT),
-                    Property(name="source_type", data_type=DataType.TEXT),
-                    Property(name="category", data_type=DataType.TEXT),
-                    Property(name="url", data_type=DataType.TEXT),
-                    Property(name="commit_sha", data_type=DataType.TEXT),
-                    Property(name="slug", data_type=DataType.TEXT),
-                    Property(name="visibility", data_type=DataType.TEXT),
-                    Property(name="chunk_index", data_type=DataType.INT),
-                    Property(name="total_chunks", data_type=DataType.INT),
-                    Property(name="chunk_length", data_type=DataType.INT),
-                ],
+                properties=kb_class_properties(),
             )
         try:
             coll = self._client.collections.get(self.class_name)
             names = {p.name for p in (coll.config.get().properties or [])}
-            missing = [
-                name
-                for name in (
-                    "repo", "path", "source_type", "category", "url",
-                    "commit_sha", "slug", "visibility", "chunk_length",
-                )
-                if name not in names
-            ]
-            if missing:
-                for name in missing:
-                    coll.config.add_property(
-                        Property(name=name, data_type=DataType.TEXT)
-                    )
+            missing = [p for p in kb_class_properties() if p.name not in names]
+            for prop in missing:
+                coll.config.add_property(prop)
         except Exception:
             pass
 
