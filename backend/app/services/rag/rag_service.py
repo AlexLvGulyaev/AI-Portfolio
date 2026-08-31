@@ -18,6 +18,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
 
+import re
+
 import chromadb
 from chromadb.config import Settings
 from openai import OpenAI
@@ -41,6 +43,46 @@ class SearchResult:
 # 1.166 отсутствовал в выдаче при n_results=3/6/10, при 15 — ранг 1).
 # Запрос выполняется с запасом, вызывающему отдаётся запрошенный top_k.
 RECALL_MARGIN = 3
+
+# Мягкий буст чанка 0 корневого README репозитория (document_id вида
+# "github_<owner>/<repo>_README.md") при ранжировании: верхний саммари-блок
+# файла содержит ответы на вопросы «кто/что/как» уровня проекта, но
+# проигрывает ранжирование докам-секциям (BUSINESS_VALUE/USER_GUIDE и т.п.)
+# и не доезжает до top-k (разбор 5 стабильных провалов класса C,
+# c_fails_analysis 31.08.2026: telegram-intake-bot, PromptReview,
+# lead-qualification). Применяется ТОЛЬКО внутри recall-окна до отсечения
+# top_k — новых кандидатов не добавляет; вложенные README-чанки
+# (docs/.../README.md) и chunk_index != 0 не бустим (инструкции/usage).
+# Регэксп: ровно один «/» в идентификаторе после source-prefix, имя файла —
+# "<что-угодно без «/»>_README.md".
+ROOT_README_RE = re.compile(r"^[^/\s]+/[^/\s]+_README\.md$")
+ROOT_README_BOOST = 0.8  # множитель дистанции (меньше — выше ранг)
+
+
+def is_root_readme_chunk(metadata: Optional[dict[str, Any]]) -> bool:
+    """True для чанка 0 корневого README репозитория (по метаданным)."""
+    meta = metadata or {}
+    doc = str(meta.get("document_id") or "")
+    if not ROOT_README_RE.match(doc):
+        return False
+    try:
+        return int(meta.get("chunk_index")) == 0
+    except (TypeError, ValueError):
+        return False
+
+
+def apply_root_readme_boost(results: list[SearchResult]) -> list[SearchResult]:
+    """Переупорядочивает recall-окно, поднимая корневые README-чанки.
+
+    Стабильно: буст меняет score до сортировки; кандидаты не добавляются,
+    честный порог max_distance вызывающая сторона уже применила (или
+    применит к бустнутым дистанциям — тогда окно лишь сжимается).
+    """
+    for r in results:
+        if is_root_readme_chunk(r.metadata):
+            r.score = r.score * ROOT_README_BOOST
+    results.sort(key=lambda r: r.score)
+    return results
 
 
 @dataclass
@@ -278,7 +320,8 @@ class RAGService:
                 ))
 
         # rag_max_distance (runtime tuning): честный порог вместо молчаливой выдачи дальнего.
-        return [r for r in formatted_results if r.score <= self.config.max_distance][: top_k]
+        filtered = [r for r in formatted_results if r.score <= self.config.max_distance]
+        return apply_root_readme_boost(filtered)[: top_k]
 
     def get_context(
         self,
@@ -395,8 +438,10 @@ class RAGService:
                     chunk_id=results["ids"][0][i] if results.get("ids") else None,
                 ))
 
-        # Слияние по дистанции с квотой на репозиторий.
-        merged.sort(key=lambda r: r.score)
+        # Слияние по дистанции с квотой на репозиторий
+        # (буст корневых README-чанков применяется до сортировки —
+        # иначе они снова теряются на фоне док-секций).
+        apply_root_readme_boost(merged)
         repo_counts: dict[str, int] = {}
         diversified: list[SearchResult] = []
         for r in merged:

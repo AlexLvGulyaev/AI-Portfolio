@@ -16,7 +16,11 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import Any, Callable, Optional
 
-from app.services.rag.rag_service import RECALL_MARGIN, SearchResult
+from app.services.rag.rag_service import (
+    RECALL_MARGIN,
+    SearchResult,
+    apply_root_readme_boost,
+)
 
 
 def build_context(results: list[SearchResult], max_tokens: Optional[int] = None) -> str:
@@ -296,7 +300,12 @@ class WeaviateBackend:
                     r for r in results
                     if str(r.metadata.get("repo") or "") not in excluded
                 ]
-        return [r for r in results if r.score <= self._max_distance][:top_k]
+        # Boost root-README chunks after the honest max_distance filter,
+        # inside the margin window (mirrors ChromaBackend.search semantics):
+        # anchor blocks of top-level overviews otherwise lose ranking to
+        # BUSINESS_VALUE/USER_GUIDE docs of the same repo.
+        filtered = [r for r in results if r.score <= self._max_distance]
+        return apply_root_readme_boost(filtered)[:top_k]
 
     def search_diverse(
         self,
@@ -323,7 +332,9 @@ class WeaviateBackend:
                 resp = self._query(vector, limit, repo_filter)
             except Exception:
                 continue
-            per_repo.append(self._to_results(resp))
+            # Boost before merging: root-README chunk must become the repo's
+            # best candidate, or merge_diverse never picks it.
+            per_repo.append(apply_root_readme_boost(self._to_results(resp)))
         return merge_diverse(per_repo, final_top_k, max_per_repo)
 
     # ------------------------------------------------------------------
