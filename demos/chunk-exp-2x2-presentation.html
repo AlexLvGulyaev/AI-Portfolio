@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Чанк-эксперимент 2×2 — итоги</title>
+<style>
+  :root {
+    --bg: #faf9f7;
+    --paper: #ffffff;
+    --ink: #1c2a33;
+    --muted: #5b6b75;
+    --line: #e3e0da;
+    --accent: #0e7490;      /* глубокий сине-бирюзовый */
+    --accent-soft: #e0f2f7;
+    --warn: #b45309;
+    --good: #15803d;
+    --bad: #b91c1c;
+    --c900: #0e7490;
+    --c1400: #6b7fb3;
+    --w900: #d08b3c;
+    --w600: #c9794f;
+    --w1400: #a3556e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.6 "Georgia", "Times New Roman", serif;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 48px 24px 96px; }
+  header.kicker {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 34px; line-height: 1.2; margin: 0 0 6px;
+    font-weight: 700; letter-spacing: -0.01em;
+  }
+  .subtitle { color: var(--muted); font-size: 17px; font-style: italic; margin-bottom: 40px; }
+  h2 {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); margin: 56px 0 16px; font-weight: 700;
+  }
+  p { margin: 0 0 14px; }
+  .card {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 6px; padding: 22px 26px; margin: 18px 0;
+  }
+  .verdict {
+    border-left: 4px solid var(--accent); background: var(--accent-soft);
+    padding: 18px 24px; margin: 26px 0; border-radius: 0 6px 6px 0;
+  }
+  .verdict strong { font-family: "Helvetica Neue", Arial, sans-serif; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+  th { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 12px;
+       letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.base td { background: #f3f9fa; }
+  .bar-row { display: flex; align-items: center; gap: 12px; margin: 7px 0; }
+  .bar-label { flex: 0 0 250px; font-size: 14px; }
+  .bar-track { flex: 1; background: var(--line); border-radius: 3px; height: 14px; position: relative; }
+  .bar-fill { height: 100%; border-radius: 3px; }
+  .bar-val { flex: 0 0 52px; text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin: 10px 0 0;
+            font-size: 13px; color: var(--muted);
+            font-family: "Helvetica Neue", Arial, sans-serif; }
+  .legend span::before {
+    content: ""; display: inline-block; width: 10px; height: 10px;
+    border-radius: 2px; margin-right: 5px; vertical-align: -1px;
+  }
+  .sw-c900::before { background: var(--c900); }
+  .sw-c1400::before { background: var(--c1400); }
+  .sw-w900::before { background: var(--w900); }
+  .sw-w1400::before { background: var(--w1400); }
+  .pill {
+    display: inline-block; font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 12px; padding: 2px 10px; border-radius: 999px; margin-left: 8px;
+    vertical-align: 2px;
+  }
+  .pill.ok { background: #e7f4ec; color: var(--good); }
+  .pill.same { background: #eef1f4; color: var(--muted); }
+  .pill.warn { background: #fdf0e3; color: var(--warn); }
+  .pill.bad { background: #fbeaea; color: var(--bad); }
+  .mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 13px;
+          background: #f4f2ee; padding: 1px 6px; border-radius: 3px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+  .note { font-size: 13.5px; color: var(--muted); }
+  footer { margin-top: 72px; border-top: 1px solid var(--line); padding-top: 16px;
+           font-size: 13px; color: var(--muted); }
+  .matrix { font-family: "Helvetica Neue", Arial, sans-serif; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">AI Portfolio · KB-эксперимент · 31.08.2026</div>
+  <h1>Чанк 900 или 1400? Chroma или Weaviate?</h1>
+  <div class="subtitle">Матрица размеров чанка 500–1400 × два бэкенда на боевом корпусе (heading-aware, 230 документов) + класс «грязных» вопросов</div>
+</header>
+
+<p>Вопрос пришёл из ревью Антона: поэкспериментировать с размером чанка <span class="mono">1200–1600 знаков</span> и проверочными «грязными» вопросами. Мы прогнали <b>8 изолированных</b> хранилищ (500/50, 600/100, 900/120, 1400/250 × Chroma/Weaviate) — прод-база, конфиг и коллекции не тронуты. Каждый прогон: <b>176 тестов</b>, всего 8 прогонов через живой пайплайн (оркестратор → retrieval → генерация), свежий кэш, отдельный eval-визитор.</p>
+
+<div class="verdict">
+  <strong>Короткий ответ (8 ячеек, 1408 тестов):</strong> вилка 500–1400 знаков качество не меняет — всё в пределах шума одиночного прогона. Лучшие ячейки — малый чанк (Chroma 600/100 = 161, Weaviate 500/50 = 160) против базы Chroma 900/120 = 160; лёгкий перевес «мельче» на классе C есть на обоих бэкендах, но статистически не отделяется. Рекомендация: рабочую конфигурацию пока не менять; настоящий прирост — вне чанкинга: полнота корпуса (9 устойчивых провалов C) и «грязные» формулировки (класс X). Бонус: Chroma систематично быстрее Weaviate на p95, оба далеко внутри критерия.
+</div>
+
+<h2>Почему цифры ниже прошлых прогонов? Корпус изменился — heading-aware нарезка</h2>
+<div class="card">
+  <p><b>30.08 чанковка корпуса была переведена на heading-aware</b>, и в прошлых приёмочных прогонах её ещё не было — поэтому абсолютные цифры этого эксперимента нельзя сравнивать с приёмочными прогонами 28–29.08 (93,5% и 24/24). Внутри эксперимента все 8 ячеек идут на одном и том же новом корпусе, так что их сравнение корректно.</p>
+  <p><b>Что сломалось и зачем изменение.</b> Старая нарезка резала документы скользящим окном 900/120 без учёта структуры: узкая секция «Контакты» из FAQ (254 символа) валилась внутри 900-символьного чанка вместе с посторонним текстом. Такой «разбавленный» чанк проигрывал косинусную близость (0,33 против 0,45 у лидеров выборки; изолированная секция давала бы 0,65) — ассистент честно отказывался отвечать на вопросы, ответы на которые в документах были. Теперь документ режется по заголовкам: атомарная секция становится самостоятельным чанком, окно остаётся только для секций-«переростков».</p>
+  <p><b>Цена изменения:</b> тот же корпус нарезан мельче и точнее — 3285 → 7656 чанков; после перевода контрольные вопросы («контакты», «что такое n8n», «что такое RAG»), ранее дававшие ложный отказ, отвечаются корректно. Эксперимент этого окна и проверял: не потеряет ли новая, более мелкая нарезка качество на остальных классах — и не выйдет ли крупный чанк 1400/250 лучше.</p>
+  <p class="note">Побочно при переезде исправлен дефект конвертера markdown→plain: мусорные <span class="mono">&gt;</span>-хвосты HTML-тегов не попадают в тексты чанков.</p>
+</div>
+
+<h2>Итог по прогонам (8 ячеек: 500 · 600 · 900 · 1400)</h2>
+<div class="card">
+  <div class="bar-row"><span class="bar-label">Chroma 600/100</span><div class="bar-track"><div class="bar-fill" style="width:91.5%; background:var(--c1400)"></div></div><span class="bar-val">161/176</span></div>
+  <div class="bar-row"><span class="bar-label">Chroma 900/120 <b>(база)</b></span><div class="bar-track"><div class="bar-fill" style="width:90.9%; background:var(--c900)"></div></div><span class="bar-val">160/176</span></div>
+  <div class="bar-row"><span class="bar-label">Weaviate 500/50</span><div class="bar-track"><div class="bar-fill" style="width:90.9%; background:var(--w900)"></div></div><span class="bar-val">160/176</span></div>
+  <div class="bar-row"><span class="bar-label">Weaviate 1400/250</span><div class="bar-track"><div class="bar-fill" style="width:89.8%; background:var(--w1400)"></div></div><span class="bar-val">158/176</span></div>
+  <div class="bar-row"><span class="bar-label">Chroma 500/50</span><div class="bar-track"><div class="bar-fill" style="width:90.3%; background:var(--c900)"></div></div><span class="bar-val">159/176</span></div>
+  <div class="bar-row"><span class="bar-label">Weaviate 600/100</span><div class="bar-track"><div class="bar-fill" style="width:90.3%; background:var(--w600)"></div></div><span class="bar-val">159/176</span></div>
+  <div class="bar-row"><span class="bar-label">Chroma 1400/250</span><div class="bar-track"><div class="bar-fill" style="width:89.2%; background:var(--c1400)"></div></div><span class="bar-val">157/176</span></div>
+  <div class="bar-row"><span class="bar-label">Weaviate 900/120</span><div class="bar-track"><div class="bar-fill" style="width:88.1%; background:var(--w900)"></div></div><span class="bar-val">155/176</span></div>
+  <div class="legend"><span class="sw-c900">Chroma</span><span class="sw-w900">Weaviate</span></div>
+  <p class="note" style="margin-top:12px">Разброс 6 тестов между крайними ячейками — на границе шума одиночного прогона. Средние по размерам чанка (2 бэкенда): <b>500 → 159.5 · 600 → 160 · 900 → 157.5 · 1400 → 157.5</b> — лёгкий перевес малого чанка, одинаково на обоих бэкендах, но для утверждения нужны повторные прогоны. Ядро проверок — идентичность проектов, алиасы, anti-hallucination, отказы на фейках, инъекции, краевые формулировки — <b>устойчиво во всех восьми ячейках</b>.</p>
+</div>
+
+<h2>Класс C — содержательные вопросы о проектах (77 тестов)</h2>
+<p>Главный интерес: влияет ли размер чанка на детали о проектах. По 8 ячейкам — почти нет.</p>
+<div class="card">
+  <table>
+    <tr><th>Прогон</th><th class="num">C — верно</th><th class="num">%</th><th class="num">p95, мс</th></tr>
+    <tr><td>Chroma 500/50</td><td class="num">65/77</td><td class="num">84.4</td><td class="num">2159</td></tr>
+    <tr><td>Weaviate 500/50</td><td class="num">66/77</td><td class="num">85.7</td><td class="num">2412</td></tr>
+    <tr><td>Chroma 600/100</td><td class="num">66/77</td><td class="num">85.7</td><td class="num">2234</td></tr>
+    <tr><td>Weaviate 600/100</td><td class="num">63/77</td><td class="num">81.8</td><td class="num">2661</td></tr>
+    <tr class="base"><td>Chroma 900/120 <span class="pill ok">база</span></td><td class="num">64/77</td><td class="num">83.1</td><td class="num">2212</td></tr>
+    <tr><td>Weaviate 900/120</td><td class="num">61/77</td><td class="num">79.2</td><td class="num">2380</td></tr>
+    <tr><td>Chroma 1400/250</td><td class="num">61/77</td><td class="num">79.2</td><td class="num">2290</td></tr>
+    <tr><td>Weaviate 1400/250</td><td class="num">64/77</td><td class="num">83.1</td><td class="num">2515</td></tr>
+  </table>
+  <p class="note" style="margin-top:12px">Ключевое наблюдение (по 8 прогонам): <b>9 тестов падают в 7–8 ячейках из 8</b> (assistant-flow, hr-assistant-speed, telegram-intake, prompt-review и др.) — это не чанкинг, а места, где нужный якорный текст физически недостижим или отсутствует в корпусе. Ещё 11 переключаются стохастически. Средний C по размерам чанка: 500 → 65.5, 600 → 64.5, 900 → 62.5, 1400 → 62.5 — перевес малого чанка в 2–3 теста, однонаправленно на обоих бэкендах, но статистически на границе шума.</p>
+</div>
+
+<h2>Класс X — «грязные» вопросы (новый, 8 тестов)</h2>
+<div class="grid2">
+  <div class="card">
+    <p><b>5/8 · 4/8 · 5/8 · 5/8 (500) · 5/8 · 5/8 · 4/8 · 5/8 (500–1400)</b> — 4–5 из 8 во всех ячейках, без влияния размера чанка. Формулировки без пунктуации, с опечатками, транслитом, два-в-одном — ассистент справляется.</p>
+    <p><b>Стабильные 3 отказа:</b> размытый бизнес-вопрос, «срочно нужно!», «а кто вообще это делает?» — на эмоциональных/размытых фразах ассистент уходит в уточнение вместо полезного ответа.</p>
+  </div>
+  <div class="card">
+    <p><b>Это отдельная, честная зона роста</b>, не зависящая от чанков: обработка «грязных» формулировок живёт в понимании запроса (системный промпт, переформулировка вопроса), а не в нарезке документов.</p>
+    <p class="note">alias-распознавание в грязных формулировках: 4/8 — ожидаемо слабое, это и есть материал для следующей итерации промпта.</p>
+  </div>
+</div>
+
+<h2>Латенси: что реально влияет, а что нет</h2>
+<div class="card">
+  <p>По каждому из 8 прогонов пайплайн размечен по стадиям (retrieval / generation) на 176 запросах, без кеш-попаданий:</p>
+  <table>
+    <tr><th></th><th class="num">retrieval p50</th><th class="num">retrieval p95</th><th class="num">generation p50</th><th class="num">total p95</th></tr>
+    <tr><td>Chroma (4 размера чанка)</td><td class="num">167–177 мс</td><td class="num">218–243 мс</td><td class="num">1150–1260 мс</td><td class="num">2677–2972 мс</td></tr>
+    <tr><td>Weaviate (4 размера чанка)</td><td class="num">136–151 мс</td><td class="num">174–297 мс</td><td class="num">1258–1295 мс</td><td class="num">3049–3370 мс</td></tr>
+  </table>
+  <p style="margin-top:10px"><b>Размер чанка на латенси не влияет.</b> Retrieval — 2–11% общего времени, его p50 почти одинаков в диапазоне 500–1400 знаков; объём генерации тоже не растёт (средняя длина ответа 485–501 знак, источников в контексте ~4 — всюду одинаково).</p>
+  <p><b>Доминирует генерация</b> (85–90% времени): p50 ~1.2 с — это скорость LLM, а не retrieval. Разброс total p95 между прогонами одного конфига — до 700 мс, отдельные выбросы класса M до 9 с — стохастика модели.</p>
+  <p><b>Систематичный фактор другой — бэкенд:</b> Chroma стабильно быстрее Weaviate на p95 на ~100–450 мс во всех четырёх парах (пример: класс C p95 — 2159–2290 против 2380–2661 мс). Оба с запасом внутри критерия 5000 мс.</p>
+</div>
+
+<h2>Побочный результат: найден латентный дефект Weaviate</h2>
+<div class="card">
+  <p><b>Что случилось.</b> Первая заливка в экспериментальные Weaviate-классы молча потеряла ~3% корпуса (6 из 230 документов, включая крупнейшие гайды) — без единой ошибки в логах.</p>
+  <p><b>Root cause.</b> Text-свойство <span class="mono">document_id</span> создаётся с дефолтной токенизацией <span class="mono">word</span>: на таком поле фильтр удаления матчит чужие документы, чьи имена файлов распадаются на тот же набор токенов (например, вставка <span class="mono">USER_GUIDE.md</span> стирала <span class="mono">ORCHESTRATOR_USER_GUIDE.md</span>).</p>
+  <p><b>Масштаб риска.</b> Для нынешнего прода — ноль (активен Chroma, там удаление точное). Но при будущем переключении бэкенда на Weaviate первый же ресинк KB потерял бы эти документы. Зафиксировано как отдельная задача на фикс токенизации.</p>
+</div>
+
+<h2>Что именно стабильно падает — карта работ по корпусу</h2>
+<div class="card">
+  <p>Из 77 тестов класса C <b>9 падают в 7–8 из 8 ячеек</b> — инвариантно к размеру чанка и бэкенду. Это не статистика, это адрес конкретных текстов:</p>
+  <table>
+    <tr><th>Падает в</th><th>Тесты (проект → пробел)</th></tr>
+    <tr><td class="num">8/8</td><td>assistant-flow: принцип работы · hr-assistant: скорость ответа · telegram-intake-bot: сценарий, используемый LLM · telegram-onboarding-bot: ценность · prompt-review: назначение, решаемая проблема</td></tr>
+    <tr><td class="num">7/8</td><td>assistant-flow: консоль · lead-qualification: назначение</td></tr>
+    <tr><td class="num">6/8</td><td>review-flow: принцип · meeting-audit-bot: каналы · telegram-onboarding-bot: сценарий</td></tr>
+  </table>
+  <p class="note" style="margin-top:10px">Проверка на всех ячейках отфильтровала стохастику: остальное переключается прогонами (11 тестов), и его не стоит чинить точечно — это подгонка под бенчмарк. Содержательная работа — найти в корпусах репозиториев разделы, отвечающие на девять перечисленных вопросов, или добавить их; после правки — один контрольный ресинк.</p>
+</div>
+
+<h2>Рекомендация</h2>
+<div class="card">
+  <ul style="margin:0; padding-left:20px">
+    <li><b>Конфиг не менять:</b> вилка 500–1400 на качество не влияет (разброс ≤6 тестов); при heading-aware нарезке 900 ограничивает только секции-переростки. Если подтверждать перевес малого чанка — нужны повторные прогоны, это отдельное решение.</li>
+    <li><b>Бэкенд-паритет подтверждён на полном контуре:</b> Weaviate с собственной индексацией даёт то же качество; на латенси Chroma систематично быстрее на p95, но оба далеко внутри критерия 5 с. Резервный бэкенд готов (после дефект-фикса удаления).</li>
+    <li><b>Следующие итерации — не про размер чанка:</b><br>
+      1) закрыть 9 устойчивых пробелов класса C (см. таблицу выше) — правки корпуса + один контрольный ресинк;<br>
+      2) научить ассистента не отмалчиваться на «грязных» формулировках (X-vague-business, X-urgency, X-casual-who) — системный промпт;<br>
+      3) зафиксить токенизацию свойств в Weaviate до какого-либо бэкенд-переключения.</li>
+  </ul>
+</div>
+
+<h2>Метод (для воспроизводимости)</h2>
+<p class="note">Корпус: 230 документов / 14 GitHub-источников, строго read-only из прод-синка 30.08 (heading-aware нарезка). Хранилища: 8 изолированных — chroma-коллекции <span class="mono">ai_portfolio_knowledge_exp500/_exp600/_exp900/_exp1400</span> и weaviate-классы <span class="mono">AiPortfolioChunkExp500…Exp1400</span> в тех же контейнерах, прод-коллекции не затронуты. Чанков: 9282 (500/50) · 8645 (600/100) · 7656 (900/120) · 7279 (1400/250); сверка «создано vs сохранено» и постатейная сверка с эталоном — 0 расхождений. Тест-план: полный план eval-регресса (классы A–M, 168 тестов) + 6 инъекций + класс X (8 «грязных» вопросов); свежий кэш в памяти, отдельные eval-визиторы на каждый прогон. Ограничение: один прогон на ячейку без повторных заходов — различия в 1–6 тестов статистически не отделяются от LLM-шума; цифры ячеек сравнимы напрямую между собой, но не с eval-отчётом 28–29.08 (другой корпус и режим кеша).</p>
+
+<footer>
+  AI Automation Portfolio Lab · кейс AI Portfolio · эксперимент по запросу Антона Хапинского (ревью 29.08) · сырые данные: eval/chunkexp-2026-08-31/ · 8 × 176 тестов → 1408 вызовов живого пайплайна
+</footer>
+
+</div>
+</body>
+</html>
