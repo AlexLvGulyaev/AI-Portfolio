@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Portfolio Admin</title>
+    <script>
+      // Бутстрап темы до первой отрисовки (без вспышки светлого фона):
+      // тёмная — дефолт, светлая применяется синхронно по data-theme.
+      try {
+        if (localStorage.getItem('ai-theme') === 'light') {
+          document.documentElement.dataset.theme = 'light';
+        }
+      } catch (e) {
+        /* приватный режим / отключённый storage — остаёмся в тёмной */
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

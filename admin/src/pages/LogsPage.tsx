@@ -10,6 +10,8 @@ import { Loading } from "../components/Loading";
 import { OperationalRefreshButton } from "../components/OperationalRefreshButton";
 import { OperationalModalityBadge } from "../components/OperationalModalityBadge";
 import { OperationalPipelineStageIcon } from "../components/OperationalPipelineStageIcon";
+import { StatusChip } from "../components/StatusChip";
+import { chipOption } from "../utils/chipContract";
 import { SessionJsonSnapshot } from "../components/SessionJsonSnapshot";
 import {
   detailsJsonPreview,
@@ -237,7 +239,6 @@ export function LogsPage() {
 
   const selected = sessions.find((s) => s.id === selectedId) ?? null;
   const selectedRouteKey = selected ? normalizeRouteKey(selected.route) : "unknown";
-  const selectedStatus = selected ? normalizeStatus(selected.status) : "other";
 
   return (
     <div className="page logs-page">
@@ -283,12 +284,15 @@ export function LogsPage() {
                   }}
                   aria-label="Фильтр маршрута"
                 >
+                  {/* Опции фильтра — эмодзи из chipContract: значок
+                      совпадает с чипом той же модальности. Агрегат
+                      («все маршруты») — без значка. */}
                   <option value="all">все маршруты</option>
-                  <option value="text">text</option>
-                  <option value="rag">rag</option>
-                  <option value="image">image</option>
-                  <option value="audio">audio</option>
-                  <option value="document">документ</option>
+                  <option value="text">{chipOption("text", "текст")}</option>
+                  <option value="rag">{chipOption("rag", "RAG")}</option>
+                  <option value="image">{chipOption("image", "изображения")}</option>
+                  <option value="audio">{chipOption("audio", "аудио")}</option>
+                  <option value="document">{chipOption("doc", "документы")}</option>
                   <option value="other">прочее</option>
                 </select>
                 <select
@@ -301,8 +305,8 @@ export function LogsPage() {
                   aria-label="Фильтр статуса"
                 >
                   <option value="all">все статусы</option>
-                  <option value="ok">ok</option>
-                  <option value="error">error</option>
+                  <option value="ok">{chipOption("ok", "успешно")}</option>
+                  <option value="error">{chipOption("error", "ошибка")}</option>
                   <option value="other">прочие</option>
                 </select>
               </div>
@@ -377,13 +381,15 @@ export function LogsPage() {
                       <div className="logs-item__row logs-item__row--tight">
                         <span className="mono logs-item__ts">{formatTimestampLocal(s.created_at)}</span>
                         <OperationalModalityBadge modality={operationalModalityFromRouteKey(routeKey)} />
+                        {/* Подписи sentence case — UPPERCASE в чипах
+                            запрещён контрактом. */}
                         <span className="logs-item__route-status">
                           {showLogsRouteLabelBesideModalityBadge(routeKey) ? (
                             <>
-                              {routeLabelRu(routeKey).toUpperCase()} ·{" "}
+                              {routeLabelRu(routeKey)} ·{" "}
                             </>
                           ) : null}
-                          {statusLabelRu(status).toUpperCase()}
+                          {statusLabelRu(status)}
                         </span>
                       </div>
                       <div className="logs-item__preview">{preview || "—"}</div>
@@ -416,9 +422,7 @@ export function LogsPage() {
                   <div>
                     <h2 className="card__title logs-detail__title">Трассировка execution-сессии</h2>
                   </div>
-                  <span className={`logs-status logs-status--${selectedStatus}`}>
-                    {statusLabelRu(selected.status).toUpperCase()}
-                  </span>
+                  <StatusChip status={selected.status} label={statusLabelRu(selected.status)} />
                 </div>
 
                 <div className="logs-summary-grid">
@@ -442,9 +446,7 @@ export function LogsPage() {
                     <dl className="kv logs-detail-kv">
                       <dt>Статус</dt>
                       <dd>
-                        <span className={`logs-status logs-status--${selectedStatus}`}>
-                          {statusLabelRu(selected.status)}
-                        </span>
+                        <StatusChip status={selected.status} label={statusLabelRu(selected.status)} />
                       </dd>
                       <dt>provider / model</dt>
                       <dd className="mono">
@@ -512,7 +514,6 @@ export function LogsPage() {
                     const delta = prev != null && cur != null ? Math.max(0, cur - prev) : null;
                     const stageRaw = String(step.stage_name ?? "").trim();
                     const label = stageToActionRu(step.stage_name);
-                    const status = normalizeStatus(step.status);
                     return (
                       <div
                         key={step.id}
@@ -529,9 +530,7 @@ export function LogsPage() {
                             />
                             {label}
                           </span>
-                          <span className={`logs-status logs-status--${status}`}>
-                            {statusLabelRu(step.status)}
-                          </span>
+                          <StatusChip status={step.status} label={statusLabelRu(step.status)} />
                           {step.duration_ms != null ? (
                             <span className="muted mono" title="Длительность выполнения шага">
                               {formatDurationMs(step.duration_ms)}

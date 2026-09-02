@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
+import { useTheme } from '../hooks/useTheme';
 
 type NavItem =
   | { type: 'link'; path: string; label: string; icon: string }
@@ -46,6 +47,14 @@ const navItems: NavItem[] = [
       { path: '/audit', label: 'Аудит', icon: '📋' },
     ],
   },
+  {
+    // Канон меню APL: замыкающая группа «Справка» — экран «Обозначения».
+    type: 'group',
+    label: 'Справка',
+    children: [
+      { path: '/help/legend', label: 'Обозначения', icon: '🔣' },
+    ],
+  },
 ];
 
 function isGroupActive(children: { path: string }[], pathname: string): boolean {
@@ -54,6 +63,7 @@ function isGroupActive(children: { path: string }[], pathname: string): boolean 
 
 export function AdminLayout() {
   const { logout } = useAuth();
+  const { toggleTheme, toggleLabel } = useTheme();
   const { pathname } = useLocation();
 
   return (
@@ -109,6 +119,14 @@ export function AdminLayout() {
           )}
         </nav>
         <div className="admin-sidebar__footer">
+          {/* Переключатель темы — канон: в футере сайдбара, над «Выход»;
+              подпись показывает тему, в которую переключаемся. */}
+          <button className="admin-sidebar__logout" onClick={toggleTheme} type="button">
+            <span className="admin-nav__icon" aria-hidden="true">
+              {toggleLabel.split(' ')[0]}
+            </span>
+            <span>{toggleLabel.split(' ').slice(1).join(' ')}</span>
+          </button>
           <button className="admin-sidebar__logout" onClick={logout} type="button">
             <span className="admin-nav__icon" aria-hidden="true">🚪</span>
             <span>Выход</span>
