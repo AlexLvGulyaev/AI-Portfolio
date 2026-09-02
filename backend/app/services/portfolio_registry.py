@@ -393,6 +393,13 @@ class PortfolioRegistry:
         ))
         if not is_listing and not is_plural_project_q:
             return "unknown"
+        # Тематический квалификатор: «какие кейсы про мониторинг конкурентов»,
+        # «решения для HR» — вопрос о теме, а не запрос полного списка.
+        # Детерминированный listing/count по всей витрине здесь — неверный
+        # ответ (кейс 02.09: вопрос про мониторинг конкурентов получал
+        # дамп всех 13 проектов). Тему решают retrieval + честный ответ LLM.
+        if re.search(r"\b(про|об|о|для|под)\s+[\w-]{3,}", q):
+            return "filtered" if is_plural_project_q else "unknown"
         # «сколько»-вопросы
         if re.search(r"\bсколько\b", q):
             return "count"

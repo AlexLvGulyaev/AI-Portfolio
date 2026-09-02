@@ -132,6 +132,28 @@ def test_classify_filtered_questions_not_listing():
     print("PASS: filtered portfolio questions are not full listings")
 
 
+def test_classify_topic_qualified_questions_not_listing():
+    """Регрессия 02.09: «какие кейсы про X» — тематический вопрос, а не
+    запрос полного списка (раньше детерминированный listing выдавал дамп
+    всех 13 проектов на вопрос про мониторинг конкурентов)."""
+    r = make_registry()
+    for q in [
+        "Какие кейсы у вас про мониторинг конкурентов?",
+        "Какие проекты есть про автоматизацию закупок?",
+        "Какие решения для бронирования столиков вы делаете?",
+        "Сколько проектов про маркетплейсы?",  # тематический «сколько» — не count
+        "Расскажи про AI Curator.",  # одиночный проект — не listing
+    ]:
+        assert r.classify(q) != "listing", q
+        assert r.classify(q) != "count", q
+    # тематический «какие …» уходит в filtered (диверсифицированный retrieval)
+    assert r.classify("Какие кейсы у вас про мониторинг конкурентов?") == "filtered"
+    # явный запрос полного списка по-прежнему listing
+    assert r.classify("Какие проекты представлены в портфолио?") == "listing"
+    assert r.classify("Сколько проектов в портфеле?") == "count"
+    print("PASS: topic-qualified questions never deterministic listing/count")
+
+
 def test_classify_single_project_questions_stay_unknown():
     r = make_registry()
     for q in ["Расскажи про AI Curator.", "Какой у него стек?", "Чем HR Assistant отличается от LoRA-версии?"]:
