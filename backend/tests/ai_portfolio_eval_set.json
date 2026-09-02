@@ -1,5 +1,5 @@
 {
-  "description": "Публичный regression set AI-ассистента AI Portfolio: 24 контрольных вопроса, покрывающих ключевые классы поведения. Обезличен: не содержит production-данных, traces и adversarial-кейсов. Ожидаемые факты — публичная информация витрины и реестра проектов.",
+  "description": "Публичный regression set AI-ассистента AI Portfolio: 27 контрольных вопросов, покрывающих ключевые классы поведения. Обезличен: не содержит production-данных, traces и adversarial-кейсов. Ожидаемые факты — публичная информация витрины и реестра проектов.",
   "api": {
     "endpoint": "/chat",
     "method": "POST",
@@ -15,7 +15,8 @@
     "not_mentions": "ни одна подстрока не должна встретиться в ответе",
     "refusal": "true — ответ должен указывать на отсутствие проекта/информации",
     "min_chars": "минимальная длина ответа",
-    "citations_within_sources": "true — все маркеры цитат [N] в ответе должны быть в пределах числа источников, возвращённых для этого вопроса (дефект «[N] за пределами топ-5», задача 2026-09-02; проверяется по sources из ответа /chat)"
+    "citations_within_sources": "true — все маркеры цитат [N] в ответе должны быть в пределах числа источников, возвращённых для этого вопроса (дефект «[N] за пределами топ-5», задача 2026-09-02; проверяется по sources из ответа /chat)",
+    "max_project_mentions": "максимальное число РАЗЛИЧНЫХ названий проектов портфеля, упомянутых в ответе (защита от дампа всего реестра вместо ответа по существу)"
   },
   "tests": [
     {
@@ -311,6 +312,45 @@
         "min_chars": 50,
         "citations_within_sources": true
       }
+    },
+    {
+      "id": "N-no-match-competitors",
+      "class": "N",
+      "question": "Какие кейсы у вас про мониторинг конкурентов?",
+      "check": {
+        "refusal": true,
+        "mentions_any_min": 1,
+        "mentions_any": [
+          "Review Flow",
+          "Meeting Audit Bot",
+          "Review Auto Responder",
+          "Assistant Flow",
+          "AI Curator",
+          "AI Data Assistant"
+        ],
+        "max_project_mentions": 4,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "N-no-match-procurement",
+      "class": "N",
+      "question": "Есть ли у вас решение для автоматизации закупок?",
+      "check": {
+        "refusal": true,
+        "max_project_mentions": 4,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "N-no-match-booking",
+      "class": "N",
+      "question": "Делаете ли вы чат-ботов для бронирования столиков в ресторане?",
+      "check": {
+        "refusal": true,
+        "max_project_mentions": 4,
+        "citations_within_sources": true
+      }
     }
   ],
   "refusal_markers": [
@@ -318,6 +358,9 @@
     "не найдено",
     "такой информации нет",
     "не входит в состав",
-    "не представлен"
+    "не представлен",
+    "прямого кейса",
+    "нет решения",
+    "нет кейсов"
   ]
 }
