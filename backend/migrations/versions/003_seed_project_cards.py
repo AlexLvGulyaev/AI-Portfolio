@@ -27,7 +27,6 @@ PROJECT_CARDS = [
         "category": "cases",
         "tags": ["n8n", "OpenAI", "Telegram"],
         "display_order": 1,
-        "show_on_homepage": 1,
         "external_url": "/cases/assistant-flow.html",
     },
     {
@@ -37,7 +36,6 @@ PROJECT_CARDS = [
         "category": "cases",
         "tags": ["n8n", "AI Analysis", "Sentiment"],
         "display_order": 2,
-        "show_on_homepage": 0,
         "external_url": "/cases/review-flow.html",
     },
     {
@@ -47,7 +45,6 @@ PROJECT_CARDS = [
         "category": "cases",
         "tags": ["AI", "CRM", "Sales"],
         "display_order": 3,
-        "show_on_homepage": 2,
         "external_url": "/cases/lead-qualification.html",
     },
     {
@@ -57,7 +54,6 @@ PROJECT_CARDS = [
         "category": "cases",
         "tags": ["Telegram Bot", "HR", "CRM"],
         "display_order": 4,
-        "show_on_homepage": 3,
         "external_url": "/cases/hr-assistant.html",
     },
     {
@@ -67,7 +63,6 @@ PROJECT_CARDS = [
         "category": "cases",
         "tags": ["LoRA", "Qwen", "Fine-Tuning", "ML"],
         "display_order": 8,
-        "show_on_homepage": 0,
         "external_url": "/cases/hr-assistant-lora.html",
     },
     {
@@ -77,7 +72,6 @@ PROJECT_CARDS = [
         "category": "cases",
         "tags": ["AI", "Prompts", "Quality"],
         "display_order": 5,
-        "show_on_homepage": 4,
         "external_url": "/cases/prompt-review.html",
     },
     {
@@ -87,7 +81,6 @@ PROJECT_CARDS = [
         "category": "cases",
         "tags": ["Telegram", "AI Gateway", "API"],
         "display_order": 6,
-        "show_on_homepage": 0,
         "external_url": "/cases/telegram-ai-gateway.html",
     },
     {
@@ -97,7 +90,6 @@ PROJECT_CARDS = [
         "category": "cases",
         "tags": ["AI", "Monitoring", "Analytics"],
         "display_order": 7,
-        "show_on_homepage": 0,
         "external_url": "/cases/competitor-monitor.html",
     },
 ]
@@ -116,10 +108,10 @@ def upgrade() -> None:
             sa.text("""
                 INSERT INTO project_cards (
                     id, slug, title, short_description, category, tags,
-                    display_order, show_on_homepage, is_visible, external_url
+                    display_order, is_visible, external_url
                 ) VALUES (
                     gen_random_uuid(), :slug, :title, :short_description, :category, CAST(:tags AS json),
-                    :display_order, :show_on_homepage, true, :external_url
+                    :display_order, true, :external_url
                 )
             """),
             {
@@ -129,7 +121,6 @@ def upgrade() -> None:
                 "category": card["category"],
                 "tags": json.dumps(card["tags"]),
                 "display_order": card["display_order"],
-                "show_on_homepage": card["show_on_homepage"],
                 "external_url": card["external_url"],
             },
         )
