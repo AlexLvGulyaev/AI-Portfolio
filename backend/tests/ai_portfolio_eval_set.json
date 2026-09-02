@@ -3,40 +3,321 @@
   "api": {
     "endpoint": "/chat",
     "method": "POST",
-    "body": {"message": "str", "session_id": "uuid|null", "visitor_id": "str|null"}
+    "body": {
+      "message": "str",
+      "session_id": "uuid|null",
+      "visitor_id": "str|null"
+    }
   },
   "check_fields": {
     "mentions_all": "все подстроки (без регистра) должны встретиться в ответе",
     "mentions_any_min": "минимальное число строк из mentions_any, которые должны встретиться",
     "not_mentions": "ни одна подстрока не должна встретиться в ответе",
     "refusal": "true — ответ должен указывать на отсутствие проекта/информации",
-    "min_chars": "минимальная длина ответа"
+    "min_chars": "минимальная длина ответа",
+    "citations_within_sources": "true — все маркеры цитат [N] в ответе должны быть в пределах числа источников, возвращённых для этого вопроса (дефект «[N] за пределами топ-5», задача 2026-09-02; проверяется по sources из ответа /chat)"
   },
   "tests": [
-    {"id": "A-registry-list", "class": "A", "question": "Какие проекты представлены в портфолио?", "check": {"mentions_any_min": 10, "mentions_any": ["AI Curator", "AI Data Assistant", "Review Flow", "Review Auto Responder", "Assistant Flow", "Meeting Audit Bot", "Lead Qualification", "HR Assistant", "Intake", "Onboarding", "Retail Group", "Prompt Review"], "not_mentions": ["gateway", "competitor"], "min_chars": 200}},
-    {"id": "A-registry-count", "class": "A", "question": "Сколько проектов в портфолио?", "check": {"mentions_all": ["13"], "min_chars": 10}},
-    {"id": "B-identify-review-flow", "class": "B", "question": "Что за проект Review Flow?", "check": {"mentions_all": ["Review Flow"], "min_chars": 50}},
-    {"id": "B-identify-rar", "class": "B", "question": "Что такое Review Auto Responder?", "check": {"mentions_all": ["Auto Responder"], "min_chars": 50}},
-    {"id": "B-alias-hra", "class": "B", "question": "Расскажи про HRA", "check": {"mentions_all": ["HR Assistant"], "min_chars": 50}},
-    {"id": "B-lora-distinct", "class": "B", "question": "Чем LoRA-версия HR-ассистента отличается от основной?", "check": {"mentions_all": ["LoRA"], "min_chars": 50}},
-    {"id": "C-curator-purpose", "class": "C", "question": "Для чего нужен AI Curator?", "check": {"mentions_all": ["Curator"], "min_chars": 80}},
-    {"id": "C-data-assistant-user", "class": "C", "question": "Кто целевой пользователь AI Data Assistant?", "check": {"mentions_all": ["Data Assistant"], "min_chars": 50}},
-    {"id": "C-lead-crm", "class": "C", "question": "С какой CRM работает Lead Qualification?", "check": {"mentions_all": ["Kommo"], "min_chars": 30}},
-    {"id": "C-meeting-channels", "class": "C", "question": "Какие каналы поддерживает Meeting Audit Bot?", "check": {"mentions_all": ["Meeting Audit Bot"], "min_chars": 50}},
-    {"id": "C-intake-purpose", "class": "C", "question": "Что делает Telegram Intake Bot?", "check": {"mentions_all": ["ntake"], "min_chars": 50}},
-    {"id": "C-onboarding-purpose", "class": "C", "question": "Что делает Telegram Onboarding Bot?", "check": {"mentions_all": ["nboarding"], "min_chars": 50}},
-    {"id": "C-retail-status", "class": "C", "question": "Каков статус проекта Retail Group?", "check": {"mentions_all": ["Retail Group"], "min_chars": 50}},
-    {"id": "C-prompt-review", "class": "C", "question": "Что такое Prompt Review?", "check": {"mentions_all": ["Prompt Review"], "min_chars": 50}},
-    {"id": "D-compare-review", "class": "D", "question": "Сравни Review Flow и Review Auto Responder", "check": {"mentions_all": ["Review Flow", "Auto Responder"], "min_chars": 100}},
-    {"id": "D-telegram-family", "class": "D", "question": "Какие проекты портфолио связаны с Telegram?", "check": {"mentions_all": ["ntake", "nboarding"], "min_chars": 50}},
-    {"id": "E-repeat-1", "class": "E", "question": "Какие проекты представлены в портфолио?", "session_group": "e-repeat", "check": {"min_chars": 200}},
-    {"id": "E-repeat-2", "class": "E", "question": "Какие проекты представлены в портфолио?", "session_group": "e-repeat", "check": {"min_chars": 200}},
-    {"id": "F-curator-1", "class": "F", "question": "Расскажи про AI Curator", "session_group": "f-curator", "check": {"mentions_all": ["Curator"], "min_chars": 50}},
-    {"id": "F-curator-2", "class": "F", "question": "Какие у него основные возможности?", "session_group": "f-curator", "check": {"mentions_all": ["Curator"], "min_chars": 50}},
-    {"id": "H-fake-project", "class": "H", "question": "Расскажи про проект Neural Stock Predictor", "check": {"refusal": true, "min_chars": 20}},
-    {"id": "H-hidden-card", "class": "H", "question": "Есть ли в портфолио проект Competitor Monitor?", "check": {"refusal": true, "min_chars": 20}},
-    {"id": "M-typo", "class": "M", "question": "расскажи про ai kurator", "check": {"mentions_all": ["Curator"], "min_chars": 50}},
-    {"id": "M-lowercase", "class": "M", "question": "ЧТО ТАКОЕ HR ASSISTANT?", "check": {"mentions_all": ["HR Assistant"], "min_chars": 50}}
+    {
+      "id": "A-registry-list",
+      "class": "A",
+      "question": "Какие проекты представлены в портфолио?",
+      "check": {
+        "mentions_any_min": 10,
+        "mentions_any": [
+          "AI Curator",
+          "AI Data Assistant",
+          "Review Flow",
+          "Review Auto Responder",
+          "Assistant Flow",
+          "Meeting Audit Bot",
+          "Lead Qualification",
+          "HR Assistant",
+          "Intake",
+          "Onboarding",
+          "Retail Group",
+          "Prompt Review"
+        ],
+        "not_mentions": [
+          "gateway",
+          "competitor"
+        ],
+        "min_chars": 200
+      }
+    },
+    {
+      "id": "A-registry-count",
+      "class": "A",
+      "question": "Сколько проектов в портфолио?",
+      "check": {
+        "mentions_all": [
+          "13"
+        ],
+        "min_chars": 10
+      }
+    },
+    {
+      "id": "B-identify-review-flow",
+      "class": "B",
+      "question": "Что за проект Review Flow?",
+      "check": {
+        "mentions_all": [
+          "Review Flow"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "B-identify-rar",
+      "class": "B",
+      "question": "Что такое Review Auto Responder?",
+      "check": {
+        "mentions_all": [
+          "Auto Responder"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "B-alias-hra",
+      "class": "B",
+      "question": "Расскажи про HRA",
+      "check": {
+        "mentions_all": [
+          "HR Assistant"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "B-lora-distinct",
+      "class": "B",
+      "question": "Чем LoRA-версия HR-ассистента отличается от основной?",
+      "check": {
+        "mentions_all": [
+          "LoRA"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "C-curator-purpose",
+      "class": "C",
+      "question": "Для чего нужен AI Curator?",
+      "check": {
+        "mentions_all": [
+          "Curator"
+        ],
+        "min_chars": 80,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "C-data-assistant-user",
+      "class": "C",
+      "question": "Кто целевой пользователь AI Data Assistant?",
+      "check": {
+        "mentions_all": [
+          "Data Assistant"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "C-lead-crm",
+      "class": "C",
+      "question": "С какой CRM работает Lead Qualification?",
+      "check": {
+        "mentions_all": [
+          "Kommo"
+        ],
+        "min_chars": 30,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "C-meeting-channels",
+      "class": "C",
+      "question": "Какие каналы поддерживает Meeting Audit Bot?",
+      "check": {
+        "mentions_all": [
+          "Meeting Audit Bot"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "C-intake-purpose",
+      "class": "C",
+      "question": "Что делает Telegram Intake Bot?",
+      "check": {
+        "mentions_all": [
+          "ntake"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "C-onboarding-purpose",
+      "class": "C",
+      "question": "Что делает Telegram Onboarding Bot?",
+      "check": {
+        "mentions_all": [
+          "nboarding"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "C-retail-status",
+      "class": "C",
+      "question": "Каков статус проекта Retail Group?",
+      "check": {
+        "mentions_all": [
+          "Retail Group"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "C-prompt-review",
+      "class": "C",
+      "question": "Что такое Prompt Review?",
+      "check": {
+        "mentions_all": [
+          "Prompt Review"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "D-compare-review",
+      "class": "D",
+      "question": "Сравни Review Flow и Review Auto Responder",
+      "check": {
+        "mentions_all": [
+          "Review Flow",
+          "Auto Responder"
+        ],
+        "min_chars": 100,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "D-telegram-family",
+      "class": "D",
+      "question": "Какие проекты портфолио связаны с Telegram?",
+      "check": {
+        "mentions_all": [
+          "ntake",
+          "nboarding"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "E-repeat-1",
+      "class": "E",
+      "question": "Какие проекты представлены в портфолио?",
+      "session_group": "e-repeat",
+      "check": {
+        "min_chars": 200
+      }
+    },
+    {
+      "id": "E-repeat-2",
+      "class": "E",
+      "question": "Какие проекты представлены в портфолио?",
+      "session_group": "e-repeat",
+      "check": {
+        "min_chars": 200
+      }
+    },
+    {
+      "id": "F-curator-1",
+      "class": "F",
+      "question": "Расскажи про AI Curator",
+      "session_group": "f-curator",
+      "check": {
+        "mentions_all": [
+          "Curator"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "F-curator-2",
+      "class": "F",
+      "question": "Какие у него основные возможности?",
+      "session_group": "f-curator",
+      "check": {
+        "mentions_all": [
+          "Curator"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "H-fake-project",
+      "class": "H",
+      "question": "Расскажи про проект Neural Stock Predictor",
+      "check": {
+        "refusal": true,
+        "min_chars": 20
+      }
+    },
+    {
+      "id": "H-hidden-card",
+      "class": "H",
+      "question": "Есть ли в портфолио проект Competitor Monitor?",
+      "check": {
+        "refusal": true,
+        "min_chars": 20
+      }
+    },
+    {
+      "id": "M-typo",
+      "class": "M",
+      "question": "расскажи про ai kurator",
+      "check": {
+        "mentions_all": [
+          "Curator"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    },
+    {
+      "id": "M-lowercase",
+      "class": "M",
+      "question": "ЧТО ТАКОЕ HR ASSISTANT?",
+      "check": {
+        "mentions_all": [
+          "HR Assistant"
+        ],
+        "min_chars": 50,
+        "citations_within_sources": true
+      }
+    }
   ],
-  "refusal_markers": ["не найден", "не найдено", "такой информации нет", "не входит в состав", "не представлен"]
+  "refusal_markers": [
+    "не найден",
+    "не найдено",
+    "такой информации нет",
+    "не входит в состав",
+    "не представлен"
+  ]
 }
