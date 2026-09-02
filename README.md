@@ -104,7 +104,9 @@ cp .env.example .env
 # - POSTGRES_PASSWORD      (обязательно)
 # - DATABASE_URL           (обязательно, формируется из POSTGRES_*)
 # - CORS_ORIGINS           (обязательно)
+# - KB_REPO_OWNER          (обязательно — GitHub-namespace источников KB; compose падает без него)
 # - GIGACHAT_AUTH_KEY      (опционально — API key fallback-провайдера)
+# - GITHUB_TOKEN           (опционально — повышает лимиты GitHub API при синхронизации KB)
 # Параметры провайдеров (model, temperature, max_tokens, base_url)
 # задаются через админку после запуска, а не в .env.
 ```
@@ -193,7 +195,7 @@ python -m http.server 8000
 
 ## Развёртывание
 
-Краткий запуск production-like окружения описан в разделе **Быстрый старт**. Полная инструкция по развёртыванию поддерживается в актуальном состоянии по решению владельца проекта.
+Краткий запуск production-like окружения описан в разделе **Быстрый старт**. Полная инструкция по воспроизводимому развёртыванию с нуля — [`docs/DEPLOYMENT_GUIDE.md`](docs/DEPLOYMENT_GUIDE.md).
 
 ## Статус
 
