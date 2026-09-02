@@ -13,6 +13,7 @@ from app.api.admin.knowledge_base import router as knowledge_base_router
 from app.api.admin.logs import router as logs_router
 from app.api.admin.conversations import router as conversations_router
 from app.api.admin.execution_sessions import router as execution_sessions_router
+from app.api.admin.presale import router as presale_router
 from app.api.admin.prompt import router as prompt_router
 from app.api.admin.retrieval import router as retrieval_router
 
@@ -29,3 +30,4 @@ admin_router.include_router(ai_providers_router, tags=["admin:ai_providers"])
 admin_router.include_router(execution_sessions_router, tags=["admin:execution_sessions"])
 admin_router.include_router(retrieval_router, tags=["admin:retrieval"])
 admin_router.include_router(prompt_router, tags=["admin:system_prompt"])
+admin_router.include_router(presale_router, tags=["admin:presale"])

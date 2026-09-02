@@ -4015,3 +4015,351 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
+
+/* ==================================================================
+   Presale funnel (§4.5, консоль «Пресейл»)
+   ================================================================== */
+
+.ps-section {
+  margin-bottom: 24px;
+}
+
+/* --- KPI: четыре больших числа периода --- */
+.ps-kpi {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ps-kpi__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 16px 18px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+
+.ps-kpi__card:hover {
+  border-color: var(--admin-primary);
+}
+
+.ps-kpi__value {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--admin-text);
+}
+
+.ps-kpi__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.ps-kpi__sub {
+  font-size: 11px;
+  color: var(--admin-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ps-kpi__delta {
+  margin-top: 4px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ps-kpi__delta--up {
+  color: var(--admin-success);
+}
+
+.ps-kpi__delta--down {
+  color: var(--admin-danger, #d64545);
+}
+
+/* --- Сводка конверсий между соседними шагами --- */
+.ps-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 18px;
+  margin-bottom: 24px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+}
+
+.ps-flow__item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-right: 18px;
+  border-right: 1px solid var(--admin-border);
+}
+
+.ps-flow__item:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+.ps-flow__value {
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--admin-text);
+}
+
+.ps-flow__label {
+  font-size: 11px;
+  color: var(--admin-text-muted);
+}
+
+.ps-flow__note {
+  font-size: 10px;
+  color: var(--admin-text-muted);
+  font-style: italic;
+}
+
+/* --- Брейкдауны --- */
+.ps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ps-list__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+}
+
+.ps-list__row--click {
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: border-color 150ms ease;
+}
+
+.ps-list__row--click:hover {
+  border-color: var(--admin-primary);
+}
+
+.ps-list__title {
+  font-weight: 600;
+}
+
+.ps-list__meta {
+  font-size: 11px;
+  color: var(--admin-text-muted);
+}
+
+.ps-list__numbers {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ps-list__bar {
+  flex-basis: 100%;
+  height: 5px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgba(47, 123, 255, 0.3), rgba(47, 123, 255, 0.65));
+}
+
+/* --- Провал вглубь: панель уровня 2/3 --- */
+.ps-drill {
+  margin-bottom: 24px;
+  padding: 16px 18px;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-primary);
+  border-radius: var(--admin-radius);
+}
+
+.ps-drill__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.ps-drill__title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.ps-drill__tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.ps-drill__tab {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+  background: transparent;
+  border: 1px solid var(--admin-border);
+  border-radius: 9999px;
+  cursor: pointer;
+}
+
+.ps-drill__tab--active {
+  color: #fff;
+  background: var(--admin-primary);
+  border-color: var(--admin-primary);
+}
+
+.ps-drill__tab:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ps-drill__count {
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Уровень 2: список гостей --- */
+.ps-visitor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.ps-visitor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 150ms ease;
+}
+
+.ps-visitor:hover {
+  border-color: var(--admin-primary);
+}
+
+.ps-visitor__id {
+  font-size: 11px;
+  color: var(--admin-text-muted);
+}
+
+.ps-visitor__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ps-chip {
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--admin-text);
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 9999px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ps-visitor__cases {
+  font-size: 12px;
+  color: var(--admin-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ps-visitor__seen {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--admin-text-muted);
+  white-space: nowrap;
+}
+
+/* --- Уровень 3: путь гостя --- */
+.ps-journey {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ps-journey__summary {
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ps-journey__row {
+  display: grid;
+  grid-template-columns: minmax(140px, 170px) minmax(140px, 200px) 1fr;
+  gap: 12px;
+  align-items: baseline;
+  padding: 8px 12px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+}
+
+.ps-journey__time {
+  font-size: 11px;
+  color: var(--admin-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ps-journey__kind {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ps-journey__kind--inquiry {
+  color: var(--admin-success);
+}
+
+.ps-journey__kind--case_view {
+  color: var(--admin-primary);
+}
+
+.ps-journey__kind--chat {
+  color: var(--admin-primary);
+}
+
+.ps-journey__detail {
+  font-size: 12px;
+  color: var(--admin-text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ps-journey__link {
+  color: var(--admin-primary);
+  text-decoration: underline;
+}

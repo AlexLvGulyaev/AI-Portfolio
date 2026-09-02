@@ -284,6 +284,48 @@
     },
 
     /**
+     * Track one presale funnel event (case_view / inquiry, §4.5).
+     *
+     * Fire-and-forget: sendBeacon when available (event survives
+     * navigation to an external case/telegram), fetch keepalive fallback.
+     * @param {string} eventType 'case_view' | 'inquiry'
+     * @param {Object} metadata Event context { card_slug, card_title,
+     *   external_url, channel, label } — server keeps only whitelist
+     * @returns {boolean} true when the event was queued
+     */
+    trackEvent(eventType, metadata) {
+      const payload = {
+        event_type: eventType,
+        visitor_id: this.getVisitorId(),
+        path: window.location.pathname,
+        metadata: metadata || {},
+      };
+
+      try {
+        if (typeof navigator.sendBeacon === 'function') {
+          const blob = new Blob([JSON.stringify(payload)], {
+            type: 'application/json',
+          });
+          if (navigator.sendBeacon(`${CONFIG.API_BASE}/track-event`, blob)) {
+            return true;
+          }
+        }
+        // Fallback: keepalive request survives page navigation
+        fetch(`${CONFIG.API_BASE}/track-event`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          keepalive: true,
+        }).catch(function() {
+          // Silently ignore tracking errors to not break UX
+        });
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+
+    /**
      * Clear session
      */
     clearSession() {
@@ -301,5 +343,50 @@
 
   // Make APIClient available globally
   window.APIClient = APIClient;
+
+  // ============================================
+  // Presale funnel auto-instrumentation (§4.5)
+  // ============================================
+  // Один делегированный capture-обработчик на всех страницах витрины
+  // (api-client.js загружен везде, включая главную с инлайн-рендерером
+  // карточек). sendBeacon внутри trackEvent переживает уход со страницы.
+  function initPresaleTracking() {
+    if (window.__presaleTrackingBound) return;
+    window.__presaleTrackingBound = true;
+    document.addEventListener('click', function(event) {
+      const link = event.target.closest('a[href]');
+      if (!link) return;
+      const href = link.getAttribute('href');
+      if (!href || href === '#') return;
+
+      // 1) Касание кейса: ссылки внутри карточки проекта (главная:
+      //    project-card / featured-card — «Узнать больше», external_url)
+      if (link.closest('.project-card, .featured-card')) {
+        const article = link.closest('article');
+        const heading = article ? article.querySelector('h2, h3') : null;
+        const slugMatch = href.match(/\/cases\/([a-z0-9-]+)\.html/);
+        APIClient.trackEvent('case_view', {
+          card_slug: slugMatch ? slugMatch[1] : null,
+          card_title: heading ? heading.textContent.trim() : null,
+          external_url: href,
+        });
+        return;
+      }
+
+      // 2) Обращение: контактные ссылки Telegram / email
+      if (href.indexOf('https://t.me') === 0 || href.indexOf('mailto:') === 0) {
+        APIClient.trackEvent('inquiry', {
+          channel: href.indexOf('mailto:') === 0 ? 'email' : 'telegram',
+          label: (link.textContent || '').trim(),
+        });
+      }
+    }, true);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPresaleTracking);
+  } else {
+    initPresaleTracking();
+  }
 
 })();
