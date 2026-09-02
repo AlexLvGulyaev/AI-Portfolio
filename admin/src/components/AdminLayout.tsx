@@ -30,6 +30,13 @@ const navItems: NavItem[] = [
   },
   {
     type: 'group',
+    label: 'Аналитика',
+    children: [
+      { path: '/analytics/presale', label: 'Пресейл', icon: '📈' },
+    ],
+  },
+  {
+    type: 'group',
     label: 'Операционная консоль',
     children: [
       { path: '/logs', label: 'Логи', icon: '📜' },

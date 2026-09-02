@@ -5,6 +5,8 @@ Records anonymous site visits in operational_logs with a stable visitor_id
 stored in the browser's localStorage. No personal data is collected.
 """
 
+from typing import Any, Literal
+
 import uuid
 
 from fastapi import APIRouter, Request
@@ -27,6 +29,48 @@ class TrackVisitRequest(BaseModel):
 
 class TrackVisitResponse(BaseModel):
     visitor_id: str
+
+
+# Presale funnel event types (§4.5, решение о хранилище — ARCHITECTURE.md §8.4).
+# Whitelist: произвольные типы не принимаются, чтобы не засорять воронку.
+ALLOWED_PRESALE_EVENT_TYPES: tuple[str, ...] = ("case_view", "inquiry")
+
+# Разрешённые ключи метаданных события (visitor_id проставляется сервером).
+ALLOWED_PRESALE_METADATA_KEYS: tuple[str, ...] = (
+    "card_slug",
+    "card_title",
+    "external_url",
+    "channel",
+    "label",
+)
+
+
+class TrackEventRequest(BaseModel):
+    event_type: Literal["case_view", "inquiry"] = Field(
+        description="Presale funnel event type"
+    )
+    visitor_id: str | None = Field(None, description="Stable anonymous visitor id")
+    path: str | None = Field(None, description="Current page path")
+    metadata: dict[str, Any] | None = Field(
+        None, description="Event context (card/channel info)"
+    )
+
+
+class TrackEventResponse(BaseModel):
+    event_type: str
+    visitor_id: str
+
+
+def _filter_presale_metadata(metadata: dict[str, Any] | None) -> dict[str, Any]:
+    """Keep only whitelisted, scalar metadata keys."""
+    if not metadata:
+        return {}
+    return {
+        key: value
+        for key, value in metadata.items()
+        if key in ALLOWED_PRESALE_METADATA_KEYS
+        and isinstance(value, (str, int, float, bool))
+    }
 
 
 def _get_client_ip(request: Request) -> str:
@@ -71,3 +115,34 @@ async def track_visit(
     )
 
     return TrackVisitResponse(visitor_id=visitor_id)
+
+
+@router.post("/track-event", response_model=TrackEventResponse)
+async def track_event(
+    request: Request,
+    payload: TrackEventRequest,
+    db: Session = Depends(get_db),
+):
+    """
+    Record one presale funnel event (case_view / inquiry) in operational_logs.
+
+    visitor_id is attached server-side (stable anonymous id from localStorage).
+    Unknown event types and non-whitelisted metadata keys are rejected/filtered.
+    """
+    visitor_id = payload.visitor_id or str(uuid.uuid4())
+    logger = OperationalLogService(db)
+
+    metadata: dict[str, Any] = {
+        "visitor_id": visitor_id,
+        **_filter_presale_metadata(payload.metadata),
+    }
+
+    logger.log_event(
+        event_type=payload.event_type,
+        source="web",
+        query=payload.path or "/",
+        status="ok",
+        metadata=metadata,
+    )
+
+    return TrackEventResponse(event_type=payload.event_type, visitor_id=visitor_id)

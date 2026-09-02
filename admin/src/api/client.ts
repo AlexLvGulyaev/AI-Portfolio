@@ -463,6 +463,110 @@ export function getDashboard() {
   return apiClient.get<DashboardData>('/dashboard');
 }
 
+// ------------------------------------------------------------------
+// Presale funnel (§4.5)
+// ------------------------------------------------------------------
+
+export interface PresaleFunnelStep {
+  key: "visit" | "case_view" | "chat" | "inquiry";
+  label: string;
+  events: number;
+  visitors: number;
+}
+
+export interface TopCaseView {
+  card_slug: string;
+  card_title: string;
+  views: number;
+  visitors: number;
+}
+
+export interface InquiryChannel {
+  channel: string;
+  events: number;
+  visitors: number;
+}
+
+export interface PresaleFunnel {
+  period_days: number;
+  since: string | null;
+  until: string;
+  steps: PresaleFunnelStep[];
+  steps_prev: PresaleFunnelStep[] | null;
+  top_cases: TopCaseView[];
+  inquiry_channels: InquiryChannel[];
+}
+
+export function getPresaleFunnel(days: number) {
+  return apiClient.get<PresaleFunnel>(`/presale/funnel?days=${days}`);
+}
+
+// Уровень 2 — посетители шага воронки
+export interface PresaleVisitorRow {
+  visitor_id: string;
+  visits: number;
+  case_views: number;
+  chats: number;
+  inquiries: number;
+  cases: string[];
+  channels: string[];
+  touches: number;
+  first_seen: string;
+  last_seen: string;
+}
+
+export interface PresaleStepVisitors {
+  step: PresaleFunnelStep["key"];
+  days: number;
+  lost: boolean;
+  total: number;
+  visitors: PresaleVisitorRow[];
+}
+
+export function getPresaleVisitors(params: {
+  step: string;
+  days: number;
+  lost?: boolean;
+  card_slug?: string;
+  channel?: string;
+}) {
+  const q = new URLSearchParams({
+    step: params.step,
+    days: String(params.days),
+    lost: String(params.lost ?? false),
+  });
+  if (params.card_slug) q.set("card_slug", params.card_slug);
+  if (params.channel) q.set("channel", params.channel);
+  return apiClient.get<PresaleStepVisitors>(`/presale/visitors?${q.toString()}`);
+}
+
+// Уровень 3 — путь одного гостя
+export interface PresaleJourneyTouch {
+  kind: "visit" | "case_view" | "chat" | "inquiry";
+  ts: string;
+  visitor: string;
+  path: string | null;
+  slug: string | null;
+  title: string | null;
+  channel: string | null;
+  label: string | null;
+  session_id: string | null;
+}
+
+export interface PresaleJourney {
+  visitor_id: string;
+  days: number;
+  touches: PresaleJourneyTouch[];
+  first_seen: string | null;
+  last_seen: string | null;
+}
+
+export function getPresaleVisitorJourney(visitorId: string, days: number) {
+  return apiClient.get<PresaleJourney>(
+    `/presale/visitors/${encodeURIComponent(visitorId)}?days=${days}`,
+  );
+}
+
 export function getChromaStatus() {
   return apiClient.get<ChromaStatus>('/knowledge-base/status');
 }
