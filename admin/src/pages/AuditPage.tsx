@@ -3,6 +3,7 @@ import { listLogs, type OperationalLog } from "../api/client";
 import { EmptyState } from "../components/EmptyState";
 import { Loading } from "../components/Loading";
 import { OperationalRefreshButton } from "../components/OperationalRefreshButton";
+import { StatusChip } from "../components/StatusChip";
 import { formatDetailsJson } from "../utils/operationalConsoleUi";
 import {
   eventTypeLabelRu,
@@ -268,9 +269,10 @@ export function AuditPage() {
                     <h2 className="card__title logs-detail__title">Audit-запись</h2>
                     <p className="logs-detail__sub muted">{selectedAuditLog.id}</p>
                   </div>
-                  <span className={`logs-status logs-status--${normalizeStatus(selectedAuditLog.status)}`}>
-                    {statusLabelRu(selectedAuditLog.status).toUpperCase()}
-                  </span>
+                  <StatusChip
+                    status={selectedAuditLog.status}
+                    label={statusLabelRu(selectedAuditLog.status)}
+                  />
                 </div>
 
                 <div className="logs-summary-grid">

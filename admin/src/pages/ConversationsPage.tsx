@@ -18,6 +18,7 @@ import { Loading } from '../components/Loading';
 import { OperationalModalityBadge } from '../components/OperationalModalityBadge';
 import { OperationalPipelineStageIcon } from '../components/OperationalPipelineStageIcon';
 import { OperationalRefreshButton } from '../components/OperationalRefreshButton';
+import { StatusChip } from '../components/StatusChip';
 import { SessionJsonSnapshot } from '../components/SessionJsonSnapshot';
 import {
   detailsJsonPreview,
@@ -55,10 +56,6 @@ function toTs(iso: string | null | undefined): number | null {
   if (!iso) return null;
   const n = new Date(iso).getTime();
   return Number.isFinite(n) ? n : null;
-}
-
-function normalizeStatus(s: string): string {
-  return s.trim().toLowerCase();
 }
 
 function pairDialogRows(
@@ -305,7 +302,6 @@ function ConversationDetailPanel({
               const delta = prev != null && cur != null ? Math.max(0, cur - prev) : null;
               const stageRaw = String(step.stage_name ?? '').trim();
               const label = stageToActionRu(step.stage_name);
-              const status = normalizeStatus(step.status);
               return (
                 <div
                   key={step.id}
@@ -322,9 +318,7 @@ function ConversationDetailPanel({
                       />
                       {label}
                     </span>
-                    <span className={`logs-status logs-status--${status}`}>
-                      {statusLabelRu(step.status)}
-                    </span>
+                    <StatusChip status={step.status} label={statusLabelRu(step.status)} />
                     {step.duration_ms != null ? (
                       <span className="muted mono" title="Длительность выполнения шага">
                         {formatDurationMs(step.duration_ms)}

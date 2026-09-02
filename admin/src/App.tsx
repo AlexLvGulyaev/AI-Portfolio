@@ -12,6 +12,7 @@ import { PresalePage } from './pages/PresalePage';
 import { LogsPage } from './pages/LogsPage';
 import { AuditPage } from './pages/AuditPage';
 import { ConversationsPage } from './pages/ConversationsPage';
+import { LegendPage } from './pages/LegendPage';
 import { AdminLayout } from './components/AdminLayout';
 
 function App() {
@@ -34,6 +35,8 @@ function App() {
             <Route path="/logs" element={<LogsPage />} />
             <Route path="/conversations" element={<ConversationsPage />} />
             <Route path="/audit" element={<AuditPage />} />
+            {/* Канон меню: группа «Справка» — экран «Обозначения». */}
+            <Route path="/help/legend" element={<LegendPage />} />
           </Route>
         </Route>
       </Routes>
