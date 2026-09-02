@@ -113,8 +113,8 @@ def _service_with_events(log_counts, chat_visitors, top_cases=None, channels=Non
     Per operational-log step the service issues two count queries
     (events, visitors); the chat step issues one count. The funnel for a
     bounded period issues the same round once more for the previous
-    period (KPI deltas), then two selects fetch rows for top_cases /
-    inquiry_channels.
+    period (KPI deltas), then four selects fetch rows for top_cases /
+    inquiry_channels / geo_countries / geo_inquiries.
     """
     db = MagicMock()
     results = []
@@ -140,6 +140,10 @@ def _service_with_events(log_counts, chat_visitors, top_cases=None, channels=Non
     ]
     results.append(SimpleNamespace(fetchall=lambda rows=top_rows: rows))
     results.append(SimpleNamespace(fetchall=lambda rows=ch_rows: rows))
+    # Geo-агрегаты (02.09): два select'а (site_visit и inquiry) — пустые
+    # выборки означают «география не определена», что не влияет на шаги.
+    results.append(SimpleNamespace(fetchall=lambda: []))
+    results.append(SimpleNamespace(fetchall=lambda: []))
     db.execute.side_effect = results
     return PresaleService(db)
 
@@ -239,13 +243,15 @@ def test_presale_step_visitors_reached_and_lost():
     # v1: visit + case_view (дошёл до шага 2)
     # v2: только visit (потерян между шагами 1 → 2)
     # v3: только chat (пришёл без визита — немонотонность)
+    # Форма строки лога: (event_type, ts, visitor, path, ip, slug, title,
+    # channel, label) — ip добавлен задачей гео-обогащения 02.09.
     log_rows = [
-        ("site_visit", _ts(20), "v1", "/", None, None, None, None),
-        ("case_view", _ts(20, 13), "v1", "/", "ai-curator", "AI Curator", None, None),
-        ("site_visit", _ts(25), "v2", "/contacts.html", None, None, None, None),
-        ("inquiry", _ts(26), "v3", "/", None, None, "telegram", "@guest"),
+        ("site_visit", _ts(20), "v1", "/", "88.99.10.1", None, None, None, None),
+        ("case_view", _ts(20, 13), "v1", "/", "88.99.10.1", "ai-curator", "AI Curator", None, None),
+        ("site_visit", _ts(25), "v2", "/contacts.html", "88.99.10.2", None, None, None, None),
+        ("inquiry", _ts(26), "v3", "/", None, None, None, "telegram", "@guest"),
     ]
-    chat_rows = [("s-1", _ts(21), "v3")]
+    chat_rows = [("s-1", _ts(21), "v3", "88.99.10.3")]
     svc = _service_with_touches(log_rows, chat_rows)
 
     reached = svc.get_step_visitors("case_view", days=30, lost=False)
@@ -282,17 +288,41 @@ def test_presale_step_visitors_reached_and_lost():
     except ValueError:
         bad = True
     ok &= check("unknown step rejected", bad)
+
+    # Сортировки (задача 02.09, вариант 2): на шаге visit все трое.
+    # Ценность: v1 = визит 1 + кейс 3 = 4; v2 = 1; v3 = обращение 100 + диалог 10 = 110.
+    visit = svc.get_step_visitors("visit", days=30, sort="value")
+    ok &= check("sort=value: v3 (обращение+диалог) выше v1 (кейс+визит)",
+                [r["visitor_id"] for r in visit["visitors"]] == ["v3", "v1", "v2"],
+                repr([r["visitor_id"] for r in visit["visitors"]]))
+    ok &= check("value weights: v1=4, v2=1, v3=110",
+                {r["visitor_id"]: r["value"] for r in visit["visitors"]}
+                == {"v1": 4, "v2": 1, "v3": 110},
+                repr({r["visitor_id"]: r["value"] for r in visit["visitors"]}))
+    by_touches = svc.get_step_visitors("visit", days=30, sort="touches")
+    ok &= check("sort=touches: v1 (2 касания) первый",
+                [r["visitor_id"] for r in by_touches["visitors"]][0] == "v1")
+    recent = svc.get_step_visitors("visit", days=30, sort="recent")
+    ok &= check("sort=recent: самый свежий — v3 (26-е число)",
+                [r["visitor_id"] for r in recent["visitors"]][0] == "v3",
+                repr([r["visitor_id"] for r in recent["visitors"]]))
+    bad_sort = False
+    try:
+        svc.get_step_visitors("visit", days=30, sort="nonsense")
+    except ValueError:
+        bad_sort = True
+    ok &= check("unknown sort rejected", bad_sort)
     return ok
 
 
 def test_presale_visitor_journey_chronology():
     log_rows = [
-        ("case_view", _ts(21, 10), "v9", "/", "ai-curator", "AI Curator", None, None),
-        ("site_visit", _ts(20), "v9", "/", None, None, None, None),
-        ("inquiry", _ts(22), "v9", "/", None, None, "telegram", "@guest"),
-        ("inquiry", _ts(23), "other-guest", "/", None, None, "email", "hi"),
+        ("case_view", _ts(21, 10), "v9", "/", "88.99.10.1", "ai-curator", "AI Curator", None, None),
+        ("site_visit", _ts(20), "v9", "/", "88.99.10.1", None, None, None, None),
+        ("inquiry", _ts(22), "v9", "/", None, None, None, "telegram", "@guest"),
+        ("inquiry", _ts(23), "other-guest", "/", None, None, None, "email", "hi"),
     ]
-    chat_rows = [("s-9", _ts(21, 14), "v9")]
+    chat_rows = [("s-9", _ts(21, 14), "v9", "88.99.10.1")]
     svc = _service_with_touches(log_rows, chat_rows)
 
     journey = svc.get_visitor_journey("v9")

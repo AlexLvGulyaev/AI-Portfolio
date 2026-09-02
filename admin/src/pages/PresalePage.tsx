@@ -4,7 +4,9 @@ import {
   getPresaleVisitorJourney,
   getPresaleVisitors,
   type PresaleFunnel,
+  type GeoCountry,
   type PresaleFunnelStep,
+  type PresaleVisitorSort,
   type PresaleJourney,
   type PresaleStepVisitors,
 } from "../api/client";
@@ -87,6 +89,29 @@ function stepTitle(key: string): string {
   );
 }
 
+// Человекочитаемый номер гостя: стабильный детерминированный номер из
+// хвоста UUID (задача 02.09). Полный id — в title строки.
+function guestNumber(visitorId: string | null | undefined): string {
+  if (!visitorId) return "—";
+  const tail = visitorId.replace(/-/g, "").slice(-8);
+  const n = parseInt(tail, 16) % 1_000_000;
+  return `№${String(n).padStart(6, "0")}`;
+}
+
+// Флаг страны из ISO-кода (regional indicator symbols).
+function countryFlag(code: string | null | undefined): string {
+  if (!code || !/^[A-Z]{2}$/.test(code)) return "🏳️";
+  return String.fromCodePoint(
+    ...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
+  );
+}
+
+// Итоговая строка geo_countries от бэкенда (без code/country).
+interface GeoTotalsRow {
+  total_visitors: number;
+  total_visits: number;
+}
+
 export function PresalePage() {
   const [funnel, setFunnel] = useState<PresaleFunnel | null>(null);
   const [loading, setLoading] = useState(true);
@@ -97,10 +122,23 @@ export function PresalePage() {
   const [cluster, setCluster] = useState<PresaleStepVisitors | null>(null);
   const [clusterLoading, setClusterLoading] = useState(false);
   const [clusterError, setClusterError] = useState<string | null>(null);
+  // Порядок списка гостей (задача 02.09, вариант 2): ценность — дефолт
+  const [sortMode, setSortMode] = useState<PresaleVisitorSort>("value");
 
   const [visitorId, setVisitorId] = useState<string | null>(null);
   const [journey, setJourney] = useState<PresaleJourney | null>(null);
   const [journeyLoading, setJourneyLoading] = useState(false);
+
+  // Гео-агрегаты. Бэкенд в конце geo_countries присылает итоговую строку
+  // {total_visitors, total_visits} — отделяем её от списка стран.
+  const geoRaw = (funnel?.geo_countries ?? []) as (GeoCountry | GeoTotalsRow)[];
+  const geoCountries = geoRaw.filter(
+    (c): c is GeoCountry => !("total_visitors" in c),
+  );
+  const geoTotals = geoRaw.find(
+    (c): c is GeoTotalsRow => "total_visitors" in c,
+  );
+  const geoInquiries = funnel?.geo_inquiries ?? [];
 
   const load = useCallback(async (period: number) => {
     setLoading(true);
@@ -136,6 +174,7 @@ export function PresalePage() {
       lost: drill.lost,
       card_slug: drill.cardSlug,
       channel: drill.channel,
+      sort: sortMode,
     })
       .then((data) => {
         if (!cancelled) setCluster(data);
@@ -150,7 +189,7 @@ export function PresalePage() {
     return () => {
       cancelled = true;
     };
-  }, [drill, days]);
+  }, [drill, days, sortMode]);
 
   useEffect(() => {
     if (!visitorId) {
@@ -292,8 +331,12 @@ export function PresalePage() {
               <div className="ps-drill__head">
                 <span className="ps-drill__title">
                   {journey
-                    ? `Гость ${visitorId?.slice(0, 8)}…`
+                    ? `Гость ${guestNumber(visitorId)}`
                     : `${stepTitle(drill.step)}${drill.lost ? " — потеряны на шаге" : ""}`}
+                  {journey?.geo?.country_code
+                    ? ` · ${countryFlag(journey.geo.country_code)} ${journey.geo.country}${journey.geo.city ? `, ${journey.geo.city}` : ""}`
+                    : ""}
+                  {journey?.ip ? ` · ${journey.ip}` : ""}
                   {drill.cardSlug ? ` · кейс ${drill.cardSlug}` : ""}
                   {drill.channel
                     ? ` · канал ${CHANNEL_LABELS[drill.channel] ?? drill.channel}`
@@ -332,6 +375,24 @@ export function PresalePage() {
                   >
                     Потеряны здесь
                   </button>
+                </div>
+              )}
+
+              {!journey && (
+                <div className="ps-drill__sortrow">
+                  <label className="ps-drill__sortlabel" htmlFor="ps-sort">
+                    Сортировка
+                  </label>
+                  <select
+                    id="ps-sort"
+                    className="logs-select"
+                    value={sortMode}
+                    onChange={(e) => setSortMode(e.target.value as PresaleVisitorSort)}
+                  >
+                    <option value="value">По ценности (обращения &gt; диалоги &gt; кейсы)</option>
+                    <option value="touches">По касаниям</option>
+                    <option value="recent">Свежие</option>
+                  </select>
                 </div>
               )}
 
@@ -392,7 +453,9 @@ export function PresalePage() {
               {!journey && cluster && cluster.visitors.length > 0 && (
                 <>
                   <div className="ps-drill__count">
-                    {cluster.total} {plural(cluster.total, STEP_PLURALS.visitors)}
+                    {cluster.visitors.length < cluster.total
+                      ? `Показаны ${cluster.visitors.length} из ${cluster.total} ${plural(cluster.total, STEP_PLURALS.visitors)} — верх списка по выбранной сортировке`
+                      : `${cluster.total} ${plural(cluster.total, STEP_PLURALS.visitors)}`}
                   </div>
                   <div className="ps-visitor-list">
                     {cluster.visitors.map((v) => (
@@ -402,7 +465,17 @@ export function PresalePage() {
                         className="ps-visitor"
                         onClick={() => setVisitorId(v.visitor_id)}
                       >
-                        <span className="ps-visitor__id mono">{v.visitor_id.slice(0, 8)}</span>
+                        <span className="ps-visitor__id mono" title={v.visitor_id}>
+                          {guestNumber(v.visitor_id)}
+                        </span>
+                        {v.geo?.country_code && (
+                          <span
+                            className="ps-chip"
+                            title={`${v.geo.country}${v.geo.city ? `, ${v.geo.city}` : ""} · ${v.ip ?? ""}`}
+                          >
+                            {countryFlag(v.geo.country_code)} {v.geo.country}
+                          </span>
+                        )}
                         <span className="ps-visitor__chips">
                           {v.visits > 0 && (
                             <span className="ps-chip">
@@ -506,6 +579,87 @@ export function PresalePage() {
                           }}
                         />
                       </button>
+                    ));
+                  })()}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* --- География (геообогащение по IP, решение 02.09) --- */}
+          <div className="ac-layout">
+            <div className="ac-col">
+              <div className="ac-col__head">
+                <span className="ac-col__title">Откуда гости</span>
+                {geoTotals && (
+                  <span className="ac-col__meta">
+                    {geoTotals.total_visitors}{" "}
+                    {plural(geoTotals.total_visitors, STEP_PLURALS.visitors)} ·{" "}
+                    {geoTotals.total_visits}{" "}
+                    {plural(geoTotals.total_visits, STEP_PLURALS.views)}
+                  </span>
+                )}
+              </div>
+              {geoCountries.length === 0 ? (
+                <EmptyState message="География пока не определена — требуется база GeoIP на сервере (см. DEPLOYMENT_GUIDE)." />
+              ) : (
+                <div className="ps-list">
+                  {(() => {
+                    const maxVisitors = Math.max(
+                      ...geoCountries.map((c) => c.visitors),
+                      1,
+                    );
+                    return geoCountries.map((c) => (
+                      <div key={c.code} className="ps-list__row">
+                        <span className="ps-list__title">
+                          {countryFlag(c.code)} {c.country}
+                        </span>
+                        <span className="ps-list__numbers">
+                          {c.visitors} {plural(c.visitors, STEP_PLURALS.visitors)}
+                          {typeof c.share === "number" &&
+                            ` · ${(c.share * 100).toFixed(0)}%`}
+                        </span>
+                        <span
+                          className="ps-list__bar"
+                          style={{
+                            width: `${Math.max((c.visitors / maxVisitors) * 100, 4)}%`,
+                          }}
+                        />
+                      </div>
+                    ));
+                  })()}
+                </div>
+              )}
+            </div>
+
+            <div className="ac-col">
+              <div className="ac-col__head">
+                <span className="ac-col__title">Обращения по странам</span>
+              </div>
+              {geoInquiries.length === 0 ? (
+                <EmptyState message="Обращений с определённой географией пока нет." />
+              ) : (
+                <div className="ps-list">
+                  {(() => {
+                    const maxInq = Math.max(
+                      ...geoInquiries.map((c) => c.visitors),
+                      1,
+                    );
+                    return geoInquiries.map((c) => (
+                      <div key={c.code} className="ps-list__row">
+                        <span className="ps-list__title">
+                          {countryFlag(c.code)} {c.country}
+                        </span>
+                        <span className="ps-list__numbers">
+                          {c.visitors} {plural(c.visitors, STEP_PLURALS.visitors)}
+                        </span>
+                        <span
+                          className="ps-list__bar"
+                          style={{
+                            width: `${Math.max((c.visitors / maxInq) * 100, 4)}%`,
+                          }}
+                        />
+                      </div>
                     ));
                   })()}
                 </div>
