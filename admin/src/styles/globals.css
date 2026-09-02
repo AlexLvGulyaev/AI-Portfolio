@@ -2751,6 +2751,12 @@ body {
   color: var(--admin-text-muted);
 }
 
+/* Мелкая сводка в шапке колонки (например, итоги географии) */
+.ac-col__meta {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+}
+
 .ac-col--sources {
   overflow: hidden;
 }
@@ -4235,6 +4241,24 @@ body {
   font-size: 12px;
   color: var(--admin-text-muted);
   font-variant-numeric: tabular-nums;
+}
+
+/* Строка сортировки списка гостей (задача 02.09, вариант 2) */
+.ps-drill__sortrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ps-drill__sortrow .logs-select {
+  width: auto;
+  min-width: 260px;
+}
+
+.ps-drill__sortlabel {
+  font-size: 12px;
+  color: var(--admin-text-muted);
 }
 
 /* --- Уровень 2: список гостей --- */

@@ -131,9 +131,13 @@ async def track_event(
     """
     visitor_id = payload.visitor_id or str(uuid.uuid4())
     logger = OperationalLogService(db)
+    client_ip = _get_client_ip(request)
 
+    # ip проставляется сервером (как visitor_id): клиент не передаёт и
+    # подделать не может. География посетителей — §4.5, решение 02.09.
     metadata: dict[str, Any] = {
         "visitor_id": visitor_id,
+        "ip": client_ip,
         **_filter_presale_metadata(payload.metadata),
     }
 

@@ -97,3 +97,7 @@ docs/PORTFOLIO_CORPUS_AUDIT.md
 src/experiments/
 admin/tsconfig.tsbuildinfo
 admin/tsconfig.node.tsbuildinfo
+
+# Гео-базы (DB-IP Lite) — volume, не в git
+backend/data/geoip/*.mmdb
+backend/data/geoip/*.gz

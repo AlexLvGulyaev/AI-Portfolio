@@ -20,6 +20,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models.entities import ExecutionSession, OperationalLog
+from app.services.geo_service import resolve_geo
 
 # Шаги воронки в фиксированном порядке пути (§4.5, 5.2).
 FUNNEL_STEPS: list[dict[str, str]] = [
@@ -40,6 +41,30 @@ def _visitor_expr_for_logs():
     ``.astext`` недоступен — используется ``json_extract_path_text(json, key)``.
     """
     return func.json_extract_path_text(OperationalLog.log_metadata, "visitor_id")
+
+
+# Кеш гео-резолва IP → {country_code, country, city} | None. Кардинальность
+# IP в витринных логах мала, повторные запросы консоли идут без чтения mmdb.
+_geo_cache: dict[str, dict[str, Any] | None] = {}
+
+
+def _geo_for_ip(ip: str | None) -> dict[str, Any] | None:
+    if ip is None:
+        return None
+    if ip not in _geo_cache:
+        _geo_cache[ip] = resolve_geo(ip)
+    return _geo_cache[ip]
+
+
+def _dominant_ip(ips: list[str | None]) -> str | None:
+    """Частейший публичный IP списка (None игнорируются); None — пусто."""
+    counts: dict[str, int] = {}
+    for ip in ips:
+        if ip:
+            counts[ip] = counts.get(ip, 0) + 1
+    if not counts:
+        return None
+    return max(counts.items(), key=lambda kv: (kv[1], kv[0]))[0]
 
 
 class PresaleService:
@@ -75,7 +100,99 @@ class PresaleService:
             "steps_prev": steps_prev,
             "top_cases": self._top_case_views(since),
             "inquiry_channels": self._inquiry_channels(since),
+            "geo_countries": self._geo_countries(since),
+            "geo_inquiries": self._geo_inquiries(since),
         }
+
+    # ------------------------------------------------------------------
+    # Geo aggregates (география посетителей, задача 02.09)
+    # ------------------------------------------------------------------
+
+    def _geo_countries(self, since: datetime | None) -> list[dict[str, Any]]:
+        """Страны гостей: уникальные посетители + все визиты, по убыванию.
+
+        Гость относится к стране его частейшего IP среди визитов; страна
+        None (нерезолвенный IP) группируется как «не определена».
+        """
+        visitor = _visitor_expr_for_logs()
+        ip_expr = func.json_extract_path_text(OperationalLog.log_metadata, "ip")
+        rows = self._db.execute(
+            select(visitor, ip_expr, func.count())
+            .where(OperationalLog.event_type == "site_visit")
+            .where(visitor.isnot(None))
+            .where(*([OperationalLog.created_at >= since] if since else []))
+            .group_by(visitor, ip_expr)
+        ).fetchall()
+
+        # Один гость может прийти с нескольких IP: доминирующий IP —
+        # с наибольшим числом визитов.
+        best_ip: dict[str, tuple[int, str | None]] = {}
+        total_visits = 0
+        for visitor_id, ip, visits in rows:
+            total_visits += visits
+            if ip:
+                cur = best_ip.get(visitor_id)
+                if cur is None or visits > cur[0]:
+                    best_ip[visitor_id] = (visits, ip)
+            elif visitor_id not in best_ip:
+                best_ip[visitor_id] = (0, None)
+
+        countries: dict[str, dict[str, Any]] = {}
+        # «Не определена» — бакет с ключом None (IP не резолвится в страну).
+        unresolved: dict[str | None, dict[str, Any]] = {
+            None: {"code": None, "country": "Не определена", "visitors": 0, "visits": 0}
+        }
+        for visitor_id, (_visits, ip) in best_ip.items():
+            geo = _geo_for_ip(ip)
+            bucket = countries if geo else unresolved
+            key = geo["country_code"] if geo else None
+            if key not in bucket:
+                bucket[key] = {
+                    "code": geo["country_code"] if geo else None,
+                    "country": geo["country"] if geo else "Не определена",
+                    "visitors": 0,
+                    "visits": 0,
+                }
+            bucket[key]["visitors"] += 1
+            bucket[key]["visits"] += _visits
+
+        ordered = sorted(countries.values(), key=lambda r: r["visitors"], reverse=True)
+        result = [
+            {**r, "share": round(100 * r["visitors"] / len(best_ip), 1) if best_ip else 0.0}
+            for r in ordered
+        ]
+        if unresolved[None]["visitors"]:
+            result.append({
+                **unresolved[None],
+                "share": round(100 * unresolved[None]["visitors"] / len(best_ip), 1) if best_ip else 0.0,
+            })
+        result.append({"total_visitors": len(best_ip), "total_visits": total_visits})
+        return result
+
+    def _geo_inquiries(self, since: datetime | None) -> list[dict[str, Any]]:
+        """Страны обращающихся: та же логика по inquiry-касаниям."""
+        visitor = _visitor_expr_for_logs()
+        ip_expr = func.json_extract_path_text(OperationalLog.log_metadata, "ip")
+        rows = self._db.execute(
+            select(visitor, ip_expr, func.count())
+            .where(OperationalLog.event_type == "inquiry")
+            .where(visitor.isnot(None))
+            .where(*([OperationalLog.created_at >= since] if since else []))
+            .group_by(visitor, ip_expr)
+        ).fetchall()
+        per_visitor: dict[str, list[str | None]] = {}
+        for visitor_id, ip, _count in rows:
+            per_visitor.setdefault(visitor_id, []).append(ip)
+        countries: dict[str, dict[str, Any]] = {}
+        for visitor_id, ips in per_visitor.items():
+            geo = _geo_for_ip(_dominant_ip(ips))
+            code = geo["country_code"] if geo else None
+            name = geo["country"] if geo else "Не определена"
+            bucket = countries.setdefault(
+                code, {"code": code, "country": name, "visitors": 0}
+            )
+            bucket["visitors"] += 1
+        return sorted(countries.values(), key=lambda r: r["visitors"], reverse=True)
 
     # ------------------------------------------------------------------
     # Level 2 — visitor clusters per funnel step
@@ -89,6 +206,9 @@ class PresaleService:
         "inquiry": "inquiry",
     }
 
+    # Режимы сортировки списка гостей (задача 02.09, вариант владельца 2).
+    VISITOR_SORTS = ("value", "touches", "recent")
+
     def get_step_visitors(
         self,
         step_key: str,
@@ -96,6 +216,7 @@ class PresaleService:
         lost: bool = False,
         card_slug: str | None = None,
         channel: str | None = None,
+        sort: str = "value",
         limit: int = 100,
     ) -> dict[str, Any]:
         """Visitors of one funnel step ('дошли') or lost between the
@@ -110,6 +231,8 @@ class PresaleService:
             raise ValueError(f"Unknown funnel step: {step_key}")
         if days not in ALLOWED_PERIODS:
             raise ValueError(f"Unsupported period: {days}")
+        if sort not in self.VISITOR_SORTS:
+            raise ValueError(f"Unsupported sort: {sort}")
 
         since = datetime.now(timezone.utc) - timedelta(days=days) if days else None
         touches = self._collect_touches(since=since)
@@ -138,7 +261,7 @@ class PresaleService:
         if lost:
             if step_idx == 0:
                 return {
-                    "step": step_key, "days": days, "lost": True,
+                    "step": step_key, "days": days, "lost": True, "sort": sort,
                     "total": 0, "visitors": [],
                 }
             prev_kind = self._STEP_KINDS[FUNNEL_STEPS[step_idx - 1]["key"]]
@@ -150,17 +273,24 @@ class PresaleService:
         else:
             cluster = reached
 
-        # Богатейшие касаниями гости сверху (директивное ревью 02.09),
-        # при равенстве — самые свежие.
+        # Сортировка списка: ценность (дефолт) / касания / свежие; при
+        # равенстве — самые свежие (касания и ценность).
+        if sort == "touches":
+            keyfn = lambda r: (r["touches"], r["last_seen"])  # noqa: E731
+        elif sort == "recent":
+            keyfn = lambda r: (r["last_seen"],)  # noqa: E731
+        else:  # value — по умолчанию
+            keyfn = lambda r: (r["value"], r["last_seen"])  # noqa: E731
         rows = sorted(
             (self._visitor_summary(v, per_visitor[v]) for v in cluster),
-            key=lambda r: (r["touches"], r["last_seen"]),
+            key=keyfn,
             reverse=True,
         )
         return {
             "step": step_key,
             "days": days,
             "lost": lost,
+            "sort": sort,
             "total": len(rows),
             "visitors": rows[:limit],
         }
@@ -178,9 +308,12 @@ class PresaleService:
             t for t in self._collect_touches(since=since, visitor_id=visitor_id)
         ]
         touches.sort(key=lambda t: t["ts"])
+        geo = _geo_for_ip(_dominant_ip([t.get("ip") for t in touches]))
         return {
             "visitor_id": visitor_id,
             "days": days,
+            "geo": geo,
+            "ip": _dominant_ip([t.get("ip") for t in touches]),
             "touches": touches,
             "first_seen": touches[0]["ts"].isoformat() if touches else None,
             "last_seen": touches[-1]["ts"].isoformat() if touches else None,
@@ -208,6 +341,7 @@ class PresaleService:
         console; technical event_type stays in the backend).
         """
         visitor = _visitor_expr_for_logs()
+        ip_expr = func.json_extract_path_text(OperationalLog.log_metadata, "ip")
         slug_expr = func.json_extract_path_text(OperationalLog.log_metadata, "card_slug")
         title_expr = func.json_extract_path_text(OperationalLog.log_metadata, "card_title")
         channel_expr = func.json_extract_path_text(OperationalLog.log_metadata, "channel")
@@ -219,6 +353,7 @@ class PresaleService:
                 OperationalLog.created_at,
                 visitor,
                 OperationalLog.query,
+                ip_expr,
                 slug_expr,
                 title_expr,
                 channel_expr,
@@ -240,10 +375,11 @@ class PresaleService:
                 "ts": row[1],
                 "visitor": row[2],
                 "path": row[3],
-                "slug": row[4],
-                "title": row[5],
-                "channel": row[6],
-                "label": row[7],
+                "ip": row[4],
+                "slug": row[5],
+                "title": row[6],
+                "channel": row[7],
+                "label": row[8],
                 "session_id": None,
             }
             for row in self._db.execute(stmt).fetchall()
@@ -254,6 +390,7 @@ class PresaleService:
                 ExecutionSession.id,
                 ExecutionSession.created_at,
                 ExecutionSession.visitor_id,
+                ExecutionSession.client_ip,
             )
             .where(ExecutionSession.event_type == "chat_request")
             .where(ExecutionSession.visitor_id.isnot(None))
@@ -270,6 +407,7 @@ class PresaleService:
                 "ts": row[1],
                 "visitor": row[2],
                 "path": None,
+                "ip": row[3],
                 "slug": None,
                 "title": None,
                 "channel": None,
@@ -297,8 +435,10 @@ class PresaleService:
         by_kind = {k: 0 for k in ("visit", "case_view", "chat", "inquiry")}
         cases: list[str] = []
         channels: list[str] = []
+        ips: list[str | None] = []
         for t in touches:
             by_kind[t["kind"]] += 1
+            ips.append(t.get("ip"))
             if t["kind"] == "case_view":
                 name = t.get("title") or t.get("slug")
                 if name and name not in cases:
@@ -307,8 +447,19 @@ class PresaleService:
                 if t["channel"] not in channels:
                     channels.append(t["channel"])
         ordered_ts = sorted(t["ts"] for t in touches)
+        geo = _geo_for_ip(_dominant_ip(ips))
+        # Ценность гостя: обращение ×100, диалог ×10, кейс ×3, визит ×1
+        # (задача 02.09 — «одно обращение может стоить сотни визитов»).
+        value = (
+            100 * by_kind["inquiry"]
+            + 10 * by_kind["chat"]
+            + 3 * by_kind["case_view"]
+            + by_kind["visit"]
+        )
         return {
             "visitor_id": visitor_id,
+            "ip": _dominant_ip(ips),
+            "geo": geo,
             "visits": by_kind["visit"],
             "case_views": by_kind["case_view"],
             "chats": by_kind["chat"],
@@ -316,6 +467,7 @@ class PresaleService:
             "cases": cases[:5],
             "channels": channels,
             "touches": len(touches),
+            "value": value,
             "first_seen": ordered_ts[0].isoformat(),
             "last_seen": ordered_ts[-1].isoformat(),
         }

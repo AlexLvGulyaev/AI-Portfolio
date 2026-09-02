@@ -37,6 +37,10 @@ async def get_presale_visitors(
     lost: bool = Query(False, description="Lost on this step instead of reached"),
     card_slug: str | None = Query(None, description="Drill-down from top-cases breakdown"),
     channel: str | None = Query(None, description="Drill-down from inquiry channels breakdown"),
+    sort: str = Query(
+        "value",
+        description="Visitor list order: value (default) / touches / recent",
+    ),
     admin: None = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -49,6 +53,7 @@ async def get_presale_visitors(
             lost=lost,
             card_slug=card_slug or None,
             channel=channel or None,
+            sort=sort,
         )
     except ValueError as exc:
         from fastapi import HTTPException

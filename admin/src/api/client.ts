@@ -487,6 +487,14 @@ export interface InquiryChannel {
   visitors: number;
 }
 
+export interface GeoCountry {
+  code: string | null;
+  country: string;
+  visitors: number;
+  visits?: number;
+  share?: number;
+}
+
 export interface PresaleFunnel {
   period_days: number;
   since: string | null;
@@ -495,6 +503,8 @@ export interface PresaleFunnel {
   steps_prev: PresaleFunnelStep[] | null;
   top_cases: TopCaseView[];
   inquiry_channels: InquiryChannel[];
+  geo_countries: GeoCountry[];
+  geo_inquiries: GeoCountry[];
 }
 
 export function getPresaleFunnel(days: number) {
@@ -504,6 +514,8 @@ export function getPresaleFunnel(days: number) {
 // Уровень 2 — посетители шага воронки
 export interface PresaleVisitorRow {
   visitor_id: string;
+  ip: string | null;
+  geo: { country_code: string; country: string | null; city: string | null } | null;
   visits: number;
   case_views: number;
   chats: number;
@@ -511,14 +523,19 @@ export interface PresaleVisitorRow {
   cases: string[];
   channels: string[];
   touches: number;
+  value: number;
   first_seen: string;
   last_seen: string;
 }
+
+// Порядок списка гостей: ценность (дефолт) / касания / свежие
+export type PresaleVisitorSort = "value" | "touches" | "recent";
 
 export interface PresaleStepVisitors {
   step: PresaleFunnelStep["key"];
   days: number;
   lost: boolean;
+  sort: PresaleVisitorSort;
   total: number;
   visitors: PresaleVisitorRow[];
 }
@@ -529,6 +546,7 @@ export function getPresaleVisitors(params: {
   lost?: boolean;
   card_slug?: string;
   channel?: string;
+  sort?: PresaleVisitorSort;
 }) {
   const q = new URLSearchParams({
     step: params.step,
@@ -537,6 +555,7 @@ export function getPresaleVisitors(params: {
   });
   if (params.card_slug) q.set("card_slug", params.card_slug);
   if (params.channel) q.set("channel", params.channel);
+  if (params.sort) q.set("sort", params.sort);
   return apiClient.get<PresaleStepVisitors>(`/presale/visitors?${q.toString()}`);
 }
 
@@ -546,6 +565,7 @@ export interface PresaleJourneyTouch {
   ts: string;
   visitor: string;
   path: string | null;
+  ip: string | null;
   slug: string | null;
   title: string | null;
   channel: string | null;
@@ -556,6 +576,8 @@ export interface PresaleJourneyTouch {
 export interface PresaleJourney {
   visitor_id: string;
   days: number;
+  ip: string | null;
+  geo: { country_code: string; country: string | null; city: string | null } | null;
   touches: PresaleJourneyTouch[];
   first_seen: string | null;
   last_seen: string | null;

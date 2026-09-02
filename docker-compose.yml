@@ -100,6 +100,9 @@ services:
       - DEBUG=${DEBUG:-false}
     volumes:
       - ai-portfolio-data:/app/data
+      # GeoIP-базы DB-IP Lite (в git не входят; см. DEPLOYMENT_GUIDE §geo).
+      # Файл отсутствует — гео-обогащение отключается graceful, канал работает.
+      - ./backend/data/geoip:/app/data/geoip:ro
     networks:
       - ai-portfolio-network
     healthcheck:

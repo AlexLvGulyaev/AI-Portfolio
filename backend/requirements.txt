@@ -27,3 +27,6 @@ markdown==3.7
 
 # Utilities
 python-dotenv==1.0.1
+
+# Geo-обогащение посетителей (mmdb-базы DB-IP Lite, volume backend/data/geoip)
+maxminddb==3.1.1
