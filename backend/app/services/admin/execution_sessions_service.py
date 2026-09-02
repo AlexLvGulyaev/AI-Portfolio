@@ -52,7 +52,12 @@ class ExecutionSessionsAdminService:
                 | func.lower(ExecutionSession.model_name).like(search_lower)
                 | func.lower(ExecutionSession.event_type).like(search_lower)
                 | func.lower(ExecutionSession.client_ip).like(search_lower)
-                | func.cast(ExecutionSession.visitor_id, sa.String).like(search_lower)
+                | func.cast(ExecutionSession.visitor_id, sa_String).like(search_lower)
+                # текст вопроса/ответа/источников лежит в JSON-метаданных —
+                # ищем по нему как по тексту (запрос «CRM» находит диалоги о CRM)
+                | func.lower(
+                    func.cast(ExecutionSession.execution_metadata, sa_String)
+                ).like(search_lower)
             )
 
         total = self._db.scalar(select(func.count()).select_from(query.subquery()))
