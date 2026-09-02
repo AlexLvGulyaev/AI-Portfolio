@@ -4,6 +4,8 @@ import { Loading } from '../components/Loading';
 import { ErrorState } from '../components/ErrorState';
 import { Modal } from '../components/Modal';
 import { OperationalRefreshButton } from '../components/OperationalRefreshButton';
+import { FlagIcon } from '../components/FlagIcon';
+import { docIndexKey, DOC_INDEX_CHIP } from '../utils/chipContract';
 import { formatTimestampLocal } from '../utils/operationalLabels';
 import {
   listDocuments,
@@ -29,13 +31,12 @@ function formatDateTime(value: string | null | undefined): string {
   return formatTimestampLocal(value);
 }
 
+/* Индексация документа — значок + тултип «Индексация: …»
+   (эмодзи-контракт, правило 7). */
 function IndexStatusBadge({ chunkCount }: { chunkCount: number | null }) {
-  if (chunkCount == null) {
-    return <span className="admin-status admin-status--unknown">—</span>;
-  }
-  return chunkCount > 0
-    ? <span className="admin-status admin-status--ok">В индексе</span>
-    : <span className="admin-status admin-status--muted">Не в индексе</span>;
+  return (
+    <FlagIcon chip={DOC_INDEX_CHIP[docIndexKey(chunkCount)]} type="Индексация" />
+  );
 }
 
 /* Тулбар-стрип канона AIC «Документы» (как в «Источниках и синхронизация»):
@@ -85,6 +86,7 @@ export function DocumentsPage() {
   // Фильтры левой макропанели (решение владельца 30.08.2026): источник + формат файла
   const [sourceId, setSourceId] = useState('');
   const [docFormat, setDocFormat] = useState('');
+  const [indexFilter, setIndexFilter] = useState<'' | 'indexed' | 'not_indexed'>('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
 
@@ -167,12 +169,15 @@ export function DocumentsPage() {
   }, [docs]);
 
   const filteredDocs = useMemo(() => {
-    if (!docFormat) return docs;
     return docs.filter((d) => {
-      const m = d.path.match(/\.([A-Za-z0-9]+)$/);
-      return m ? m[1].toLowerCase() === docFormat : false;
+      if (docFormat) {
+        const m = d.path.match(/\.([A-Za-z0-9]+)$/);
+        if (!m || m[1].toLowerCase() !== docFormat) return false;
+      }
+      if (indexFilter && docIndexKey(d.chunk_count) !== indexFilter) return false;
+      return true;
     });
-  }, [docs, docFormat]);
+  }, [docs, docFormat, indexFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredDocs.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages - 1);
@@ -181,6 +186,7 @@ export function DocumentsPage() {
   const resetFilters = () => {
     setSourceId('');
     setDocFormat('');
+    setIndexFilter('');
     setSearch('');
     setPage(0);
   };
@@ -230,6 +236,17 @@ export function DocumentsPage() {
                     <option key={f} value={f}>.{f}</option>
                   ))}
                 </select>
+                {/* Фильтр индексации — значки семейства DOC_INDEX */}
+                <select
+                  className="ac-search"
+                  value={indexFilter}
+                  onChange={(e) => { setIndexFilter(e.target.value as '' | 'indexed' | 'not_indexed'); setPage(0); }}
+                  aria-label="Фильтр по индексации"
+                >
+                  <option value="">Любая индексация</option>
+                  <option value="indexed">✅ В индексе</option>
+                  <option value="not_indexed">⬜ Не в индексе</option>
+                </select>
               </div>
               <input
                 className="ac-search"
@@ -254,7 +271,7 @@ export function DocumentsPage() {
                     type="button"
                     className="logs-page-btn logs-page-btn--muted"
                     onClick={resetFilters}
-                    disabled={!sourceId && !docFormat && !search && safePage === 0}
+                    disabled={!sourceId && !docFormat && !indexFilter && !search && safePage === 0}
                   >
                     Сброс
                   </button>

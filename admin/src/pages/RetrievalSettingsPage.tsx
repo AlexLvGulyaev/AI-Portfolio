@@ -4,6 +4,8 @@ import { Card } from '../components/Card';
 import { EmptyState } from '../components/EmptyState';
 import { ErrorState } from '../components/ErrorState';
 import { Loading } from '../components/Loading';
+import { FlagIcon } from '../components/FlagIcon';
+import { FLAG_CHIP, type FlagChipKey } from '../utils/chipContract';
 import {
   RETRIEVAL_LABELS,
   retrievalApi,
@@ -57,11 +59,13 @@ const GROUP_TITLES: Record<TuningGroup, { title: string; description: string }> 
   },
 };
 
-function readinessBadge(row: RetrievalBackendHealth | undefined): { label: string; variant: string } {
-  if (!row || !row.ok) return { label: 'DOWN', variant: 'error' };
-  if (row.count == null) return { label: 'UNKNOWN', variant: 'warning' };
-  if (row.count === 0) return { label: 'EMPTY', variant: 'warning' };
-  return { label: 'READY', variant: 'ok' };
+/* Готовность бэкенда — значок + тултип «Готовность: …»
+   (эмодзи-контракт, правило 7). */
+function readinessBadge(row: RetrievalBackendHealth | undefined): FlagChipKey {
+  if (!row || !row.ok) return 'down';
+  if (row.count == null) return 'flag_unknown';
+  if (row.count === 0) return 'empty';
+  return 'ready';
 }
 
 function SourceChip({ source }: { source?: string }) {
@@ -325,10 +329,10 @@ export function RetrievalSettingsPage() {
                   const active = name === data.effective_backend;
                   return (
                     <tr key={name} className={active ? 'rc-row-active' : undefined}>
-                      <td className="admin-table__cell"><code>{name}</code>{active && <span className="admin-status admin-status--info">active</span>}</td>
+                      <td className="admin-table__cell"><code>{name}</code>{active && <FlagIcon chip={FLAG_CHIP.active} type="Бэкенд" />}</td>
                       <td className="admin-table__cell">{row ? (row.ok ? '✔' : '✖') : '—'}</td>
                       <td className="admin-table__cell">{row?.count ?? '—'}</td>
-                      <td className="admin-table__cell"><span className={`admin-status admin-status--${rb.variant}`}>{rb.label}</span></td>
+                      <td className="admin-table__cell"><FlagIcon chip={FLAG_CHIP[rb]} type="Готовность" /></td>
                       <td className="admin-table__cell rc-detail">{row && !row.ok ? row.detail : row && row.count == null ? 'создайте коллекцию через resync' : '—'}</td>
                     </tr>
                   );
