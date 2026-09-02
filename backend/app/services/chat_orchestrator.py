@@ -226,6 +226,37 @@ class ChatOrchestrator:
             })
         return sources, detail
 
+    # Цитата-маркер «[N]», за которой НЕ следует «(» (не ломаем markdown-ссылки
+    # вида «[1](https://...)»). Двузначных номеров достаточно: top_k ≤ 10.
+    _CITATION_RE = re.compile(r"\[(\d{1,2})\](?!\()")
+
+    @classmethod
+    def _strip_stale_citations(cls, answer: str, sources_count: int) -> tuple[str, list[int]]:
+        """
+        Вырезать цитаты [N] с N > sources_count (дефект «цитаты за пределами
+        топ-5»: модель нумерует источники, которых не получала, и UI не может
+        разрешить ссылку). Вырезанные номера возвращаются для метаданных;
+        артефакты («, )», пустые скобки) зачищаются.
+        """
+        if not answer or sources_count >= 99 or "[" not in answer:
+            return answer, []
+        stripped: list[int] = []
+
+        def _sub(m: "re.Match[str]") -> str:
+            n = int(m.group(1))
+            if n > sources_count:
+                stripped.append(n)
+                return ""
+            return m.group(0)
+
+        cleaned = cls._CITATION_RE.sub(_sub, answer)
+        if stripped:
+            cleaned = re.sub(r",\s*\)", ")", cleaned)
+            cleaned = re.sub(r"\(\s*см\.?\s*\)", " ", cleaned, flags=re.IGNORECASE)
+            cleaned = re.sub(r"\(\s*\)", "", cleaned)
+            cleaned = re.sub(r"\s{2,}", " ", cleaned).strip()
+        return cleaned, stripped
+
     async def process_request(
         self,
         user_query: str,
@@ -957,6 +988,12 @@ class ChatOrchestrator:
                     # No fallback available
                     answer = self._get_error_response(error_message)
 
+            # 8b. Гигиена цитат: вырезать [N] за пределами полученных
+            # источников (дефект «цитаты за пределами топ-5»). До сохранения
+            # в память и трейс, чтобы все последующие отображения ответа
+            # (UI, логи, память) видели уже очищенный текст.
+            answer, citations_stripped = self._strip_stale_citations(answer, len(sources))
+
             # 9. Кеш (только для ответов без истории).
             # Безопасная политика кеша (корректирующий проход §3): LLM-ответы
             # НЕ кешируются. Текстовая эвристика отказа не покрывает парафразы
@@ -999,6 +1036,7 @@ class ChatOrchestrator:
                 "rag_used": rag_used,
                 "cache_bypass": history_present,
                 "sources": sources,
+                "citations_stripped": citations_stripped,
             })
 
             # 11. Записать Execution Trace summary
@@ -1014,6 +1052,7 @@ class ChatOrchestrator:
                 "rag_used": rag_used,
                 "sources": sources,
                 "fallback_used": fallback_used,
+                "citations_stripped": citations_stripped,
                 "error": error_message,
             })
 
@@ -1054,6 +1093,7 @@ class ChatOrchestrator:
 
             if _tr is not None:
                 _tr.set("answer", answer)
+                _tr.set("citations_stripped", citations_stripped)
                 _tr.set("sources_returned", sources)
                 _tr.set("provider", provider_used)
                 _tr.set("model", model_used)

@@ -538,6 +538,57 @@ def test_citations_repo_path_deduped_in_order():
     print("PASS: citations are repository + path, deduped, first-appearance order")
 
 
+# ---------- §12: гигиена цитат (дефект «[N] за пределами топ-5») ----------
+
+def test_strip_stale_citations_cuts_out_of_range():
+    from app.services.chat_orchestrator import ChatOrchestrator
+
+    answer = ("Интеграция описана в документации (см. [4], [6]) и в сценарии "
+              "(см. [3]). Итог: готово.")
+    cleaned, stripped = ChatOrchestrator._strip_stale_citations(answer, 5)
+    assert cleaned == ("Интеграция описана в документации (см. [4]) и в сценарии "
+                       "(см. [3]). Итог: готово."), repr(cleaned)
+    assert stripped == [6], stripped
+    print("PASS: out-of-range citation cut, in-range kept, comma artifact cleaned")
+
+
+def test_strip_stale_citations_cleans_dangling_paren():
+    from app.services.chat_orchestrator import ChatOrchestrator
+
+    cleaned, stripped = ChatOrchestrator._strip_stale_citations(
+        "Ответ готов (см. [6]).", 5)
+    assert "[6]" not in cleaned and "()" not in cleaned, repr(cleaned)
+    assert stripped == [6]
+    print("PASS: dangling «(см. )» cleaned")
+
+
+def test_strip_stale_citations_keeps_markdown_links():
+    from app.services.chat_orchestrator import ChatOrchestrator
+
+    answer = "Смотрите [9](https://example.com) и сноску [2]."
+    cleaned, stripped = ChatOrchestrator._strip_stale_citations(answer, 5)
+    assert cleaned == answer, repr(cleaned)   # [9](url) — ссылка, не цитата; [2] в пределах
+    assert stripped == []
+    print("PASS: markdown links untouched")
+
+
+def test_strip_stale_citations_noop_cases():
+    from app.services.chat_orchestrator import ChatOrchestrator
+
+    # Все цитаты в пределах — текст не меняется
+    a = "Пункты [1] и [5] подтверждены."
+    cleaned, stripped = ChatOrchestrator._strip_stale_citations(a, 5)
+    assert cleaned == a and stripped == []
+    # Нет цитат вообще
+    b = "Обычный ответ без маркеров."
+    cleaned, stripped = ChatOrchestrator._strip_stale_citations(b, 0)
+    assert cleaned == b and stripped == []
+    # Пустой ответ
+    cleaned, stripped = ChatOrchestrator._strip_stale_citations("", 0)
+    assert cleaned == "" and stripped == []
+    print("PASS: no-op cases leave text unchanged")
+
+
 if __name__ == "__main__":
     import inspect
     for name, fn in sorted(globals().items()):
