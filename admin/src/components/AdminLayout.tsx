@@ -8,7 +8,9 @@ type NavItem =
 // Эмодзи-иконки пунктов — канон AIC (Sidebar.jsx): прямые аналоги пунктов
 // AIC берут ту же иконку (Обзор=📊 «Панель состояния», Retrieval=🧭
 // «Оркестратор», Документы=📚 «База знаний», Логи 📜, Диалоги 💬,
-// Аудит 📋, Выйти 🚪).
+// Аудит 📋, Выйти 🚪). Разделы — меню-канон APL
+// (shared/patterns/admin-menu-canon.md): Система → База знаний →
+// Аналитика → Наблюдаемость.
 const navItems: NavItem[] = [
   {
     type: 'group',
@@ -21,7 +23,7 @@ const navItems: NavItem[] = [
   },
   {
     type: 'group',
-    label: 'Контент/база знаний',
+    label: 'База знаний',
     children: [
       { path: '/content/cards', label: 'Карточки проектов', icon: '🗂️' },
       { path: '/content/sources', label: 'Источники и синхронизация', icon: '🔄' },
@@ -37,7 +39,7 @@ const navItems: NavItem[] = [
   },
   {
     type: 'group',
-    label: 'Операционная консоль',
+    label: 'Наблюдаемость',
     children: [
       { path: '/logs', label: 'Логи', icon: '📜' },
       { path: '/conversations', label: 'Диалоги', icon: '💬' },
