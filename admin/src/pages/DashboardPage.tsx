@@ -3,24 +3,25 @@ import { Page } from '../components/Page';
 import { Card } from '../components/Card';
 import { Loading } from '../components/Loading';
 import { ErrorState } from '../components/ErrorState';
+import { FlagIcon } from '../components/FlagIcon';
+import { FLAG_CHIP } from '../utils/chipContract';
 import { getDashboard, type DashboardData } from '../api/client';
 import { formatTimestampLocal } from '../utils/operationalLabels';
 
+/* Состояние сервиса — значок + тултип «Состояние: …»
+   (эмодзи-контракт, правило 7). */
 function StatusBadge({ status }: { status: string }) {
   const normalized = status.toLowerCase();
-  let variant = 'error';
+  let chip = FLAG_CHIP.down;
   if (['ok', 'ready', 'normal', 'norma', 'success'].includes(normalized)) {
-    variant = 'ok';
-  } else if (normalized === 'pending' || normalized.startsWith('degraded')) {
-    variant = 'warning';
+    chip = FLAG_CHIP.normal;
+  } else if (normalized === 'pending') {
+    chip = FLAG_CHIP.pending;
+  } else if (normalized.startsWith('degraded')) {
+    chip = FLAG_CHIP.degraded;
   }
 
-  let label = status;
-  if (['ok', 'ready', 'normal', 'norma'].includes(normalized)) {
-    label = 'НОРМА';
-  }
-
-  return <span className={`admin-status admin-status--${variant}`}>{label}</span>;
+  return <FlagIcon chip={chip} type="Состояние" />;
 }
 
 function MetricCard({ label, value, note }: { label: string; value: React.ReactNode; note?: string }) {

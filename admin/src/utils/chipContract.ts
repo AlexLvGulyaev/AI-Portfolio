@@ -108,3 +108,112 @@ export function chipOption(value: string, label: string): string {
   const chip = MODALITY_CHIP[value] ?? STATUS_CHIP[statusChipKey(value)];
   return chip ? `${chip.emoji} ${label}` : label;
 }
+
+/**
+ * Тултип значка-флага — канон (эмодзи-контракт, правило 7):
+ * слово-флаг в списке/таймлайне заменяется значком, при наведении
+ * всплывает комментарий формата «Тип: Значение» («Статус: Одобрен»).
+ */
+export function flagTitle(type: string, value: string): string {
+  return `${type}: ${value}`;
+}
+
+/* ===== B. Статусы источников (консоль допуска) ===== */
+
+export type SourceStatusKey =
+  | "approved"
+  | "need_preview"
+  | "preview_ready"
+  | "patterns_changed"
+  | "error";
+
+export const SOURCE_STATUS_CHIP: Record<SourceStatusKey, AiChip> = {
+  approved: { emoji: "✅", label: "Одобрен" },
+  need_preview: { emoji: "👀", label: "Нужен preview" },
+  preview_ready: { emoji: "📷", label: "Preview готов" },
+  patterns_changed: { emoji: "✏️", label: "Есть изменения" },
+  error: { emoji: "❌", label: "Ошибка" },
+};
+
+export function sourceStatusKey(raw: string | null | undefined): SourceStatusKey | "unknown" {
+  const k = (raw ?? "").trim().toLowerCase();
+  const known: SourceStatusKey[] = [
+    "approved", "need_preview", "preview_ready", "patterns_changed", "error",
+  ];
+  return (known as string[]).includes(k) ? (k as SourceStatusKey) : "unknown";
+}
+
+/** Чип статуса допуска: неизвестный статус показывается как «Нужен preview». */
+export function sourceStatusChip(raw: string | null | undefined): AiChip {
+  const key = sourceStatusKey(raw);
+  return SOURCE_STATUS_CHIP[key === "unknown" ? "need_preview" : key];
+}
+
+/* ===== C. Статусы индексации документов ===== */
+
+export type DocIndexKey = "indexed" | "not_indexed" | "unknown";
+
+export const DOC_INDEX_CHIP: Record<DocIndexKey, AiChip> = {
+  indexed: { emoji: "✅", label: "В индексе" },
+  not_indexed: { emoji: "⬜", label: "Не в индексе" },
+  unknown: { emoji: "➖", label: "Нет данных" },
+};
+
+export function docIndexKey(chunkCount: number | null | undefined): DocIndexKey {
+  if (chunkCount == null) return "unknown";
+  return chunkCount > 0 ? "indexed" : "not_indexed";
+}
+
+/* ===== D. Флаги готовности (admin-status dot-чипы → значки) ===== */
+
+export type FlagChipKey =
+  | "active"
+  | "inactive"
+  | "fallback"
+  | "off"
+  | "builtin"
+  | "ready"
+  | "down"
+  | "flag_unknown"
+  | "empty"
+  | "normal"
+  | "degraded"
+  | "pending";
+
+export const FLAG_CHIP: Record<FlagChipKey, AiChip> = {
+  active: { emoji: "⚡", label: "Активен" },
+  inactive: { emoji: "⚪", label: "Неактивен" },
+  fallback: { emoji: "🔀", label: "Резервный" },
+  off: { emoji: "🚫", label: "Выключен" },
+  builtin: { emoji: "📌", label: "Вшитый" },
+  ready: { emoji: "✅", label: "Готов" },
+  down: { emoji: "❌", label: "Недоступен" },
+  flag_unknown: { emoji: "❓", label: "Неизвестно" },
+  empty: { emoji: "📭", label: "Пуст" },
+  normal: { emoji: "🟢", label: "Норма" },
+  degraded: { emoji: "🟠", label: "Деградация" },
+  pending: { emoji: "⚠️", label: "Ожидание" },
+};
+
+/* ===== E. Типы audit-событий ===== */
+
+export const AUDIT_EVENT_CHIP: Record<string, AiChip> = {
+  admin_login: { emoji: "🔑", label: "Вход в админку" },
+  admin_action: { emoji: "🛠️", label: "Действие в админке" },
+  site_visit: { emoji: "🌐", label: "Визит на сайт" },
+  chat_request: { emoji: "💬", label: "Запрос чата" },
+  rag_query: { emoji: "📚", label: "RAG-запрос" },
+  provider_switch: { emoji: "🔀", label: "Смена провайдера" },
+};
+
+export function auditEventChip(eventType: string | null | undefined): AiChip | null {
+  const k = (eventType ?? "").trim().toLowerCase();
+  return AUDIT_EVENT_CHIP[k] ?? null;
+}
+
+/* ===== F. Видимость карточек проектов ===== */
+
+export const VISIBILITY_CHIP: Record<"visible" | "hidden", AiChip> = {
+  visible: { emoji: "⚡", label: "Видна на сайте" },
+  hidden: { emoji: "⚪", label: "Скрыта" },
+};

@@ -27,6 +27,8 @@ import {
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { Modal } from '../components/Modal';
 import { OperationalRefreshButton } from '../components/OperationalRefreshButton';
+import { FlagIcon } from '../components/FlagIcon';
+import { sourceStatusChip, SOURCE_STATUS_CHIP } from '../utils/chipContract';
 import {
   formatDateLocal,
   formatShortDateTimeLocal,
@@ -44,21 +46,16 @@ const STATUS_FILTERS = [
 
 // Статус «заблокирован» выведен из консоли (решение владельца 29.08): третья
 // ветка state machine дублирует пустой одобренный состав. Backend-механизм
-// block/unblock остаётся спящим для совместимости; если статус вернётся из
-// API, бейдж покажет его как есть (fallback ниже).
-const STATUS_LABELS: Record<string, string> = {
-  approved: 'ОДОБРЕН',
-  need_preview: 'НУЖЕН PREVIEW',
-  preview_ready: 'PREVIEW ГОТОВ',
-  patterns_changed: 'ЕСТЬ ИЗМЕНЕНИЯ',
-  error: 'ОШИБКА',
-};
+// block/unblock остаётся спящим для совместимости; неизвестный статус
+// показывается значком «Нужен preview» (fallback в chipContract).
+// Статусы допуска — значки из chipContract (эмодзи-контракт, правило 7):
+// слово заменяется значком, тултип «Статус: Значение».
 
 const SYNC_FILTERS = [
-  { key: 'all', label: 'Синхронизация: все' },
-  { key: 'ok', label: 'Синхронизирован' },
-  { key: 'error', label: 'Ошибка sync' },
-  { key: 'never', label: 'Не синхронизирован' },
+  { key: 'all', label: 'Синхронизация: все', emoji: '' },
+  { key: 'ok', label: 'Синхронизирован', emoji: '✅' },
+  { key: 'error', label: 'Ошибка sync', emoji: '❌' },
+  { key: 'never', label: 'Не синхронизирован', emoji: '⬜' },
 ] as const;
 
 type SyncFilterKey = (typeof SYNC_FILTERS)[number]['key'];
@@ -711,8 +708,11 @@ export function AdmissionConsolePage() {
               onChange={(e) => { setStatusFilter(e.target.value as typeof statusFilter); setPageState(0); }}
               aria-label="Фильтр по статусу допуска"
             >
+              {/* Опции фильтра — значки того же семейства, что и флаги */}
               {STATUS_FILTERS.map((f) => (
-                <option key={f.key} value={f.key}>{f.label}</option>
+                <option key={f.key} value={f.key}>
+                  {f.key === 'all' ? f.label : `${SOURCE_STATUS_CHIP[f.key as keyof typeof SOURCE_STATUS_CHIP].emoji} ${f.label}`}
+                </option>
               ))}
             </select>
             <select
@@ -722,7 +722,7 @@ export function AdmissionConsolePage() {
               aria-label="Фильтр по состоянию синхронизации"
             >
               {SYNC_FILTERS.map((f) => (
-                <option key={f.key} value={f.key}>{f.label}</option>
+                <option key={f.key} value={f.key}>{f.emoji ? `${f.emoji} ${f.label}` : f.label}</option>
               ))}
             </select>
           </div>
@@ -780,9 +780,8 @@ export function AdmissionConsolePage() {
               >
                 <div className="ac-source-item__line1">
                   <span className="ac-source-item__date">{formatDateTime(s.created_at)}</span>
-                  <span className={`ac-source-item__status ac-source-item__status--${s.display_status ?? 'need_preview'}`}>
-                    {STATUS_LABELS[s.display_status ?? 'need_preview'] ?? String(s.display_status ?? '').toUpperCase()}
-                  </span>
+                  {/* Флаг статуса — значок + тултип «Статус: Значение» */}
+                  <FlagIcon chip={sourceStatusChip(s.display_status)} type="Статус" className="ac-source-item__status" />
                 </div>
                 <div className="ac-source-item__title">{sourceTitle(s)}</div>
                 <div className="ac-source-item__params">

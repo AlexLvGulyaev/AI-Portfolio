@@ -1,10 +1,20 @@
 /**
  * Экран «Обозначения» — обязательный элемент канона APL
  * (admin-console-dual-theme-mirror-inversion): значок → название →
- * расшифровка, сетка 3+3, значок 1.5rem. Каждому чипу консоли
+ * расшифровка, сетка 3+3, значок 1.5rem. Каждому чипу/флагу консоли
  * соответствует строка здесь; источник значков — chipContract.
  */
-import { MODALITY_CHIP, STATUS_CHIP, STAGE_CHIP, type AiChip } from "../utils/chipContract";
+import {
+  AUDIT_EVENT_CHIP,
+  DOC_INDEX_CHIP,
+  FLAG_CHIP,
+  MODALITY_CHIP,
+  SOURCE_STATUS_CHIP,
+  STATUS_CHIP,
+  STAGE_CHIP,
+  VISIBILITY_CHIP,
+  type AiChip,
+} from "../utils/chipContract";
 
 const STATUS_DESC: Record<string, string> = {
   success: "Операция или шаг завершились успешно.",
@@ -49,6 +59,49 @@ const STAGE_NAMES: Record<string, string> = {
   muted: "Нет данных",
 };
 
+const SOURCE_STATUS_DESC: Record<string, string> = {
+  approved: "Источник одобрен и включён в состав KB.",
+  need_preview: "Требуется preview перед одобрением.",
+  preview_ready: "Preview построен — можно одобрять.",
+  patterns_changed: "В источнике есть изменения — нужен пересмотр.",
+  error: "Ошибка обработки источника.",
+};
+
+const DOC_INDEX_DESC: Record<string, string> = {
+  indexed: "Документ есть в векторном индексе (есть чанки).",
+  not_indexed: "Документа нет в индексе (чанков нет).",
+  unknown: "Счётчик чанков недоступен.",
+};
+
+const FLAG_DESC: Record<string, string> = {
+  active: "Флаг активности (провайдер, промпт, бэкенд, диалог).",
+  inactive: "Неактивен: сессия завершена или объект отключён от активности.",
+  fallback: "Резервный провайдер — используется при сбое основного.",
+  off: "Выключен вручную.",
+  builtin: "Вшитый (builtin): поставляется с системой, не создан вручную.",
+  ready: "Готов к работе, проверка пройдена.",
+  down: "Недоступен или ошибка проверки.",
+  flag_unknown: "Состояние неизвестно.",
+  empty: "Пусто: записей нет.",
+  normal: "Норма — все проверки пройдены.",
+  degraded: "Деградация: работает с ограничениями.",
+  pending: "Ожидание: ещё не подтверждено.",
+};
+
+const AUDIT_EVENT_DESC: Record<string, string> = {
+  admin_login: "Вход в админ-консоль.",
+  admin_action: "Действие в админ-консоли.",
+  site_visit: "Посещение публичного сайта.",
+  chat_request: "Запрос чата на витрине.",
+  rag_query: "RAG-запрос к базе знаний.",
+  provider_switch: "Переключение LLM-провайдера.",
+};
+
+const VISIBILITY_DESC: Record<string, string> = {
+  visible: "Карточка видна на публичном сайте.",
+  hidden: "Карточка скрыта с публичного сайта.",
+};
+
 type LegendRow = { emoji: string; name: string; desc: string };
 
 function LegendSection({ title, rows }: { title: string; rows: LegendRow[] }) {
@@ -80,15 +133,24 @@ function chipRows(chip: Record<string, AiChip>, desc: Record<string, string>): L
 
 export function LegendPage() {
   return (
-    <div className="page">
+    <div className="page page--legend">
       <div className="card" style={{ padding: "20px 24px" }}>
         <h1 className="page-title">Обозначения</h1>
         <p className="muted" style={{ fontSize: "0.875rem" }}>
-          Значки статус-чипов, модальностей и этапов конвейера во всех разделах
-          консоли. Один значок — одно понятие.
+          Значки статус-чипов, модальностей, флагов и этапов конвейера во всех
+          разделах консоли. Один значок — одно понятие; при наведении на значок
+          в списках всплывает комментарий «Тип: Значение».
         </p>
 
-        <LegendSection title="Статусы" rows={chipRows(STATUS_CHIP, STATUS_DESC)} />
+        <LegendSection title="Статусы операций" rows={chipRows(STATUS_CHIP, STATUS_DESC)} />
+
+        <LegendSection title="Статусы источников" rows={chipRows(SOURCE_STATUS_CHIP, SOURCE_STATUS_DESC)} />
+
+        <LegendSection title="Индексация документов" rows={chipRows(DOC_INDEX_CHIP, DOC_INDEX_DESC)} />
+
+        <LegendSection title="Флаги готовности" rows={chipRows(FLAG_CHIP, FLAG_DESC)} />
+
+        <LegendSection title="Типы событий" rows={chipRows(AUDIT_EVENT_CHIP, AUDIT_EVENT_DESC)} />
 
         <LegendSection title="Модальности" rows={chipRows(MODALITY_CHIP, MODALITY_DESC)} />
 
@@ -100,6 +162,8 @@ export function LegendPage() {
             desc: STAGE_DESC[key] ?? "",
           }))}
         />
+
+        <LegendSection title="Видимость карточек" rows={chipRows(VISIBILITY_CHIP, VISIBILITY_DESC)} />
       </div>
     </div>
   );

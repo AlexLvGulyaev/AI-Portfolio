@@ -19,6 +19,8 @@ import { OperationalModalityBadge } from '../components/OperationalModalityBadge
 import { OperationalPipelineStageIcon } from '../components/OperationalPipelineStageIcon';
 import { OperationalRefreshButton } from '../components/OperationalRefreshButton';
 import { StatusChip } from '../components/StatusChip';
+import { FlagIcon } from '../components/FlagIcon';
+import { FLAG_CHIP } from '../utils/chipContract';
 import { SessionJsonSnapshot } from '../components/SessionJsonSnapshot';
 import {
   detailsJsonPreview,
@@ -136,12 +138,10 @@ function OpsRow({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
+/* Активность диалога — значок + тултип «Активность: …»
+   (эмодзи-контракт, правило 7). */
 function ActiveBadge({ active }: { active: boolean }) {
-  return (
-    <span className={`admin-status ${active ? 'admin-status--ok' : 'admin-status--muted'}`}>
-      {active ? 'АКТИВНА' : 'НЕАКТИВНА'}
-    </span>
-  );
+  return <FlagIcon chip={active ? FLAG_CHIP.active : FLAG_CHIP.inactive} type="Активность" />;
 }
 
 function ConversationDetailPanel({

@@ -4,6 +4,8 @@ import { EmptyState } from "../components/EmptyState";
 import { Loading } from "../components/Loading";
 import { OperationalRefreshButton } from "../components/OperationalRefreshButton";
 import { StatusChip } from "../components/StatusChip";
+import { FlagIcon } from "../components/FlagIcon";
+import { auditEventChip, FLAG_CHIP } from "../utils/chipContract";
 import { formatDetailsJson } from "../utils/operationalConsoleUi";
 import {
   eventTypeLabelRu,
@@ -158,11 +160,12 @@ export function AuditPage() {
                   }}
                   aria-label="Тип события"
                 >
+                  {/* Значки семейства AUDIT_EVENT — те же, что в списке */}
                   <option value="all">все события</option>
-                  <option value="admin_action">админ-действия</option>
-                  <option value="admin_login">admin_login</option>
-                  <option value="site_visit">site_visit</option>
-                  <option value="provider_switch">provider_switch</option>
+                  <option value="admin_action">🛠️ админ-действия</option>
+                  <option value="admin_login">🔑 вход</option>
+                  <option value="site_visit">🌐 визиты</option>
+                  <option value="provider_switch">🔀 смена провайдера</option>
                   <option value="other">прочее</option>
                 </select>
                 <select
@@ -175,8 +178,8 @@ export function AuditPage() {
                   aria-label="Фильтр статуса"
                 >
                   <option value="all">все статусы</option>
-                  <option value="ok">ok</option>
-                  <option value="error">error</option>
+                  <option value="ok">🟢 успешно</option>
+                  <option value="error">❌ ошибка</option>
                   <option value="other">прочие</option>
                 </select>
               </div>
@@ -242,10 +245,17 @@ export function AuditPage() {
                     >
                       <div className="logs-item__row logs-item__row--tight">
                         <span className="mono logs-item__ts">{formatTimestampLocal(log.created_at)}</span>
-                        <span className={`admin-status admin-status--${status === "error" ? "error" : "ok"}`}>
-                          {eventTypeLabelRu(log.event_type)}
+                        {/* Тип события — значок + тултип «Тип: …»
+                            (эмодзи-контракт, правило 7); статус рядом —
+                            значком семейства HEALTH. */}
+                        <FlagIcon
+                          chip={auditEventChip(log.event_type) ?? FLAG_CHIP.flag_unknown}
+                          type="Тип"
+                        />
+                        <span className="logs-item__route-status">{eventTypeLabelRu(log.event_type)}</span>
+                        <span className="logs-item__route-status">
+                          <StatusChip status={status} label={statusLabelRu(status)} />
                         </span>
-                        <span className="logs-item__route-status">{statusLabelRu(status).toUpperCase()}</span>
                       </div>
                       <div className="logs-item__preview">{preview}</div>
                       <div className="logs-item__row logs-item__meta muted">

@@ -3,6 +3,8 @@ import { Page } from '../components/Page';
 import { Card } from '../components/Card';
 import { Loading } from '../components/Loading';
 import { ErrorState } from '../components/ErrorState';
+import { FlagIcon } from '../components/FlagIcon';
+import { FLAG_CHIP } from '../utils/chipContract';
 import { formatTimestampLocal } from '../utils/operationalLabels';
 import {
   activateAIProvider,
@@ -101,11 +103,12 @@ function ProviderCard({
     <Card className="provider-card">
       <div className="provider-card__header">
         <span className="provider-card__name">{provider.display_name}</span>
-        {provider.is_active && <span className="admin-status admin-status--ok">ACTIVE</span>}
-        {provider.is_fallback && <span className="admin-status admin-status--info">FALLBACK</span>}
-        {!provider.is_enabled && <span className="admin-status admin-status--warning">OFF</span>}
+        {/* Флаги провайдера — значки + тултипы (эмодзи-контракт, правило 7) */}
+        {provider.is_active && <FlagIcon chip={FLAG_CHIP.active} type="Провайдер" />}
+        {provider.is_fallback && <FlagIcon chip={FLAG_CHIP.fallback} type="Провайдер" />}
+        {!provider.is_enabled && <FlagIcon chip={FLAG_CHIP.off} type="Провайдер" />}
         {provider.readiness === 'ready' && provider.is_enabled && (
-          <span className="admin-status admin-status--ok">READY</span>
+          <FlagIcon chip={FLAG_CHIP.ready} type="Готовность" />
         )}
       </div>
       <div className="provider-card__body provider-card__body--form">
@@ -291,8 +294,8 @@ function SystemPromptPanel({ state, saving, apiError, notice, onSave, onActivate
             {state.items.map((item) => (
               <li key={item.id} className={`prompt-history__item${item.is_active ? " prompt-history__item--active" : ""}`}>
                 <span className="prompt-history__version">{item.version}</span>
-                {item.is_active && <span className="admin-status admin-status--ok">ACTIVE</span>}
-                {item.is_builtin && !item.is_active && <span className="admin-status admin-status--info">Вшитый</span>}
+                {item.is_active && <FlagIcon chip={FLAG_CHIP.active} type="Промпт" />}
+                {item.is_builtin && !item.is_active && <FlagIcon chip={FLAG_CHIP.builtin} type="Промпт" />}
                 <span className="prompt-history__date">
                   {item.created_at ? formatTimestampLocal(item.created_at) : '—'}
                 </span>

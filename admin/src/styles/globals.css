@@ -1691,6 +1691,14 @@ body {
   font-size: 1.5rem;
 }
 
+/* Значок-флага: заменяет текстовый флаг в списке/таймлайне,
+   тултип «Тип: Значение» (нативный title). Наследует размер строки. */
+.flag-icon {
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+}
+
 /* Экран «Обозначения»: значок → название → расшифровка (сетка 3+3). */
 .legend-grid {
   display: grid;
@@ -1735,6 +1743,15 @@ body {
 
 .legend-section + .legend-section {
   margin-top: 24px;
+}
+
+/* Легенда не влезает во вьюпорт (52 значка, 8 секций): скролл внутри
+   рабочей области — .admin-content имеет overflow: hidden. */
+.page--legend {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 /* Operational console (Assistant Flow style) */
@@ -3086,27 +3103,10 @@ body {
   color: var(--ai-text-muted);
 }
 
+/* Статус допуска — значок-флаг (FlagIcon) справа в строке источника. */
 .ac-source-item__status {
-  text-transform: uppercase;
-  font-weight: 600;
   margin-left: auto;
   flex-shrink: 0;
-  white-space: nowrap;
-  color: var(--ai-text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.ac-source-item__status--patterns_changed {
-  color: var(--ai-warning);
-}
-
-.ac-source-item__status--error {
-  color: var(--ai-error);
-}
-
-.ac-source-item__status--preview_ready {
-  color: var(--ai-success);
 }
 
 /* Line 2: main descriptor, canonical logs preview size (0.875rem) */

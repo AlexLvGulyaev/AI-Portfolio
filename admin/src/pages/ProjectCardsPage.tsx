@@ -6,6 +6,8 @@ import { EmptyState } from '../components/EmptyState';
 import { Modal } from '../components/Modal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { formatDateLocal, formatTimestampLocal } from '../utils/operationalLabels';
+import { FlagIcon } from '../components/FlagIcon';
+import { FLAG_CHIP, VISIBILITY_CHIP } from '../utils/chipContract';
 import {
   listProjectCards,
   createProjectCard,
@@ -247,9 +249,9 @@ function OperationPanel({ card }: { card: ProjectCard }) {
   return (
     <Panel title="Эксплуатация">
       <MetadataRow label="Внешний URL" value={card.external_url || '—'} />
-      <MetadataRow label="Видимость" value={card.is_visible ? 'Видна на сайте' : 'Скрыта'} />
+      <MetadataRow label="Видимость" value={<FlagIcon chip={card.is_visible ? VISIBILITY_CHIP.visible : VISIBILITY_CHIP.hidden} type="Видимость" />} />
       <MetadataRow label="Дочерний проект" value={card.is_child_project ? 'Да' : 'нет'} />
-      {card.is_meta && <MetadataRow label="Статус" value="Мета-карточка платформы" />}
+      {card.is_meta && <MetadataRow label="Статус" value={<FlagIcon chip={FLAG_CHIP.builtin} type="Карточка" />} />}
       <MetadataRow label="На главной" value={card.show_on_homepage > 0 ? `позиция ${card.show_on_homepage}` : 'нет'} />
       <MetadataRow label="Порядок" value={card.display_order} />
       <MetadataRow label="Изменена" value={formatDate(card.updated_at)} />
@@ -522,10 +524,14 @@ export function ProjectCardsPage() {
                     <div className="project-cards-item__tags-inline">
                       <TagsList tags={card.tags} />
                     </div>
-                    <span className={`project-cards-item__status${card.is_visible ? '' : ' project-cards-item__status--inactive'}`}>
-                      {card.is_visible ? 'ВИДНА' : 'СКРЫТА'}
-                    </span>
-                    {card.is_meta && <span className="project-cards-item__meta">МЕТА-КАРТОЧКА</span>}
+                    {/* Видимость и мета — значки + тултипы
+                        (эмодзи-контракт, правило 7) */}
+                    <FlagIcon
+                      chip={card.is_visible ? VISIBILITY_CHIP.visible : VISIBILITY_CHIP.hidden}
+                      type="Видимость"
+                      className="project-cards-item__status"
+                    />
+                    {card.is_meta && <FlagIcon chip={FLAG_CHIP.builtin} type="Карточка" />}
                   </div>
                   <div className="project-cards-item__title">{card.title}</div>
                   <div className="project-cards-item__meta">
