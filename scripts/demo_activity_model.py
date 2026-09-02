@@ -108,11 +108,28 @@ CASE_OPENERS = {
 
 RNG = random.Random(SEED)
 OP_SQL: list[str] = []
-CHAT_PLAN: list[dict] = []  # {visitor, ts, questions[]}
+CHAT_PLAN: list[dict[str, str]] = []  # {visitor, ts, questions[]}
+
+# География демо-гостей: по одному IP из реальных провайдерских диапазонов
+# на гостя (вес стран — реалистичный для RU-рынка). IP нужен гео-обогащению
+# консоли (задача 02.09); диапазон 203.0.113.x не резолвится mmdb-базами.
+GEO_BLOCKS = [
+    ("5.61.232.", 0.30), ("95.161.220.", 0.15), ("212.192.28.", 0.10),   # RU
+    ("95.56.", 0.10),     # KZ
+    ("178.124.", 0.05),   # BY
+    ("88.99.", 0.07), ("116.203.", 0.05),   # DE
+    ("73.222.", 0.06),    # US
+    ("223.104.", 0.05),   # CN
+    ("88.230.", 0.04),    # TR
+    ("94.200.", 0.02),    # AE
+    ("49.36.", 0.01),     # IN
+]
+_visitor_ip = ""
 
 
 def demo_ip() -> str:
-    return f"203.0.113.{RNG.randint(2, 254)}"
+    """IP текущего гостя (назначается в make_visitor)."""
+    return _visitor_ip
 
 
 def weighted_ts() -> datetime:
@@ -152,7 +169,9 @@ def demo_ip() -> str:
 
 
 def make_visitor(scenario: str, idx: int) -> None:
+    global _visitor_ip
     visitor = f"d3a00000-0000-4000-8000-{uuid.UUID(int=RNG.getrandbits(96), version=4).hex[:12]}"
+    _visitor_ip = _geo_ip_for(visitor)
     base = weighted_hour_ts()
 
     n_visits = RNG.randint(1, 2) if scenario in ("S1", "S2", "S6") else RNG.randint(2, 4)
@@ -196,6 +215,29 @@ def make_visitor(scenario: str, idx: int) -> None:
         plan_chat(visitor, cur, cases[0])
         cur += timedelta(minutes=RNG.randint(2, 30))
         inquiry(cur, visitor, "telegram" if RNG.random() < 0.7 else "email")
+
+
+def _geo_ip_for(visitor: str) -> str:
+    """Стабильный по visitor_id IP из GEO_BLOCKS (сид RNG уже потреблён —
+    поэтому хеш, а не RNG). Префиксы блоков разной длины, поэтому хвост —
+    два октета: «95.56.» + «130.17» даёт валидный IPv4."""
+    import hashlib
+
+    digest = hashlib.sha256(visitor.encode()).digest()
+    x = int.from_bytes(digest[:4], "big") / 2**32
+    acc = 0.0
+    prefix = GEO_BLOCKS[0][0]
+    for prefix_, weight in GEO_BLOCKS:
+        acc += weight
+        if x <= acc:
+            prefix = prefix_
+            break
+    have = len(prefix.rstrip(".").split("."))
+    tail = ".".join(
+        str(1 + int.from_bytes(digest[2 * i: 2 * i + 2], "big") % 254)
+        for i in range(4 - have)
+    )
+    return f"{prefix}{tail}"
 
 
 def weighted_hour_ts() -> datetime:
