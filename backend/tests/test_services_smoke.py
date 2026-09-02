@@ -2,6 +2,11 @@
 Smoke tests for AI Portfolio services.
 
 Validates that all services can be imported and instantiated.
+
+Важно (инцидент 2026-09-02): часть тестов пишет в БД через SessionLocal,
+который в контейнере указывает на БОЕВУЮ базу — прогон pytest вставлял
+тестовые сессии/сообщения/op-логи в прод. Такие тесты выполняются только
+при явном SMOKE_DB_WRITES=1; по умолчанию пропускаются.
 """
 
 import sys
@@ -12,6 +17,16 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from uuid import uuid4
 from datetime import datetime
+
+import pytest
+
+# Запись в БД разрешена только явным флагом (по умолчанию — скип).
+_DB_WRITES_ALLOWED = os.environ.get("SMOKE_DB_WRITES") == "1"
+_skip_no_db_writes = pytest.mark.skipif(
+    not _DB_WRITES_ALLOWED,
+    reason="пишет в БД (SessionLocal = боевая база в контейнере); "
+           "запуск только с SMOKE_DB_WRITES=1",
+)
 
 
 def test_imports():
@@ -70,6 +85,7 @@ def test_database_connection():
         db.close()
 
 
+@_skip_no_db_writes
 def test_chat_session_service():
     """Test Chat Session Service."""
     print("\nTesting Chat Session Service...")
@@ -115,6 +131,7 @@ def test_chat_session_service():
         db.close()
 
 
+@_skip_no_db_writes
 def test_conversation_memory_service():
     """Test Conversation Memory Service."""
     print("\nTesting Conversation Memory Service...")
@@ -162,6 +179,7 @@ def test_conversation_memory_service():
         db.close()
 
 
+@_skip_no_db_writes
 def test_operational_log_service():
     """Test Operational Log Service."""
     print("\nTesting Operational Log Service...")
@@ -260,16 +278,21 @@ def main():
     print("=" * 60)
     print("AI Portfolio Services - Smoke Tests")
     print("=" * 60)
+    if not _DB_WRITES_ALLOWED:
+        print("SMOKE_DB_WRITES != 1: тесты с записью в БД будут пропущены")
 
     tests = [
         test_imports,
         test_memory_contracts,
         test_database_connection,
         test_ai_provider_settings_service,
-        test_chat_session_service,
-        test_conversation_memory_service,
-        test_operational_log_service,
     ]
+    if _DB_WRITES_ALLOWED:
+        tests += [
+            test_chat_session_service,
+            test_conversation_memory_service,
+            test_operational_log_service,
+        ]
 
     passed = 0
     failed = 0
