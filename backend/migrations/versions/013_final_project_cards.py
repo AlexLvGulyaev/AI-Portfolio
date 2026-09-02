@@ -142,7 +142,7 @@ FINAL_CARDS = [
 ]
 
 # Projects that should be hidden from the public portfolio.
-HIDDEN_SLUGS = ["prompt-review", "telegram-ai-gateway", "competitor-monitor"]
+HIDDEN_SLUGS = ["telegram-ai-gateway", "competitor-monitor"]
 
 
 def _upsert_card(conn, card: dict) -> None:
