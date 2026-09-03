@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Портфолио AI-инженера. AI-автоматизации от идеи до продакшена — 13 реализованных проектов: код на GitHub, метрики и AI-ассистент по документам кейсов.">
+  <meta name="description" content="Портфолио AI-инженера. AI-автоматизации от идеи до продакшена — 13 проектов: код на GitHub, метрики и AI-ассистент по документам кейсов.">
   <meta property="og:title" content="AI Portfolio — AI-инженер, автоматизация бизнес-процессов">
-  <meta property="og:description" content="Портфолио AI-инженера. AI-автоматизации от идеи до продакшена — 13 реализованных проектов: код на GitHub, метрики и AI-ассистент по документам кейсов.">
+  <meta property="og:description" content="Портфолио AI-инженера. AI-автоматизации от идеи до продакшена — 13 проектов: код на GitHub, метрики и AI-ассистент по документам кейсов.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ai.alex-n8n.site/">
   <meta property="og:image" content="https://ai.alex-n8n.site/assets/images/og-image.jpg">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AI Portfolio — AI-инженер, автоматизация бизнес-процессов">
-  <meta name="twitter:description" content="Портфолио AI-инженера. AI-автоматизации от идеи до продакшена — 13 реализованных проектов: код на GitHub, метрики и AI-ассистент по документам кейсов.">
+  <meta name="twitter:description" content="Портфолио AI-инженера. AI-автоматизации от идеи до продакшена — 13 проектов: код на GitHub, метрики и AI-ассистент по документам кейсов.">
   <meta name="twitter:image" content="https://ai.alex-n8n.site/assets/images/og-image.jpg">
   <link rel="canonical" href="https://ai.alex-n8n.site/">
   <title>AI Portfolio — AI-инженер, автоматизация бизнес-процессов</title>
@@ -199,6 +199,33 @@
       color: var(--text-muted);
     }
 
+    /* Наводка на живого ассистента (решение владельца 03.09 — п.12 аудита) */
+    .hero__assistant { margin: var(--space-sm) 0 0; }
+    .hero__assistant-link {
+      background: none;
+      border: none;
+      padding: 0;
+      font: inherit;
+      color: var(--accent);
+      cursor: pointer;
+    }
+    .hero__assistant-link:hover { text-decoration: underline; }
+
+    /* Мост к типовым задачам (п.6 аудита: переиспользование перечня с services.html) */
+    .hero__bridge {
+      margin: var(--space-md) 0 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .hero__bridge a { color: var(--accent); text-decoration: none; }
+    .hero__bridge a:hover { text-decoration: underline; }
+
+    .section-legend {
+      margin: calc(-1 * var(--space-xs)) 0 var(--space-sm);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
     .section-eyebrow {
       font-family: var(--font-mono);
       font-size: 0.72rem;
@@ -357,21 +384,21 @@
 
     .featured-card__actions { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
 
-    /* Dual-theme image switching */
-    .featured-card__media .preview-light,
-    .project-card__media .preview-light { display: none; }
+    /* Dual-theme image switching (матчинг: дарк-превью на дарк-теме, лайт на лайт — решение владельца 03.09) */
+    .featured-card__media .preview-dark,
+    .project-card__media .preview-dark { display: none; }
 
     @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) .featured-card__media .preview-dark,
-      :root:not([data-theme="light"]) .project-card__media .preview-dark { display: none; }
       :root:not([data-theme="light"]) .featured-card__media .preview-light,
-      :root:not([data-theme="light"]) .project-card__media .preview-light { display: block; }
+      :root:not([data-theme="light"]) .project-card__media .preview-light { display: none; }
+      :root:not([data-theme="light"]) .featured-card__media .preview-dark,
+      :root:not([data-theme="light"]) .project-card__media .preview-dark { display: block; }
     }
 
-    :root[data-theme="dark"] .featured-card__media .preview-dark,
-    :root[data-theme="dark"] .project-card__media .preview-dark { display: none; }
     :root[data-theme="dark"] .featured-card__media .preview-light,
-    :root[data-theme="dark"] .project-card__media .preview-light { display: block; }
+    :root[data-theme="dark"] .project-card__media .preview-light { display: none; }
+    :root[data-theme="dark"] .featured-card__media .preview-dark,
+    :root[data-theme="dark"] .project-card__media .preview-dark { display: block; }
 
     .archive__filters {
       position: sticky;
@@ -595,6 +622,13 @@
     }
 
     .cta__actions { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
+
+    .cta__microcopy {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin: var(--space-sm) 0 0;
+    }
 
     .cta__contact {
       display: flex;
@@ -830,7 +864,7 @@
       <a href="/" class="logo"><span class="logo__mark">◇</span> AI Portfolio</a>
       <nav class="nav" aria-label="Primary">
         <a href="/">Главная</a>
-        <a href="/">Проекты</a>
+        <a href="/#featured">Проекты</a>
         <a href="/services.html">Услуги</a>
         <a href="/contacts.html">Контакты</a>
       </nav>
@@ -841,14 +875,16 @@
   <main>
     <section class="hero">
       <div class="container">
-        <p class="hero__eyebrow">AI Automation Portfolio Lab</p>
+        <p class="hero__eyebrow">Александр Гуляев · AI-инженер</p>
         <h1 class="hero__title">AI-автоматизации от идеи до продакшена</h1>
-        <p class="hero__lead">13 реализованных проектов: код на GitHub, метрики и AI-ассистент, отвечающий по документам каждого кейса.</p>
+        <p class="hero__lead">13 проектов: код на GitHub, метрики и AI-ассистент, отвечающий по документам каждого кейса.</p>
+        <p class="hero__assistant"><button type="button" class="hero__assistant-link" id="hero-assistant-open">💡 Спросите ассистента о любом кейсе — прямо здесь, по документам и с указанием источников</button></p>
         <p class="hero__meta" id="hero-meta">Загрузка проектов…</p>
+        <p class="hero__bridge">С чем обычно обращаются: первая линия поддержки · лиды и CRM · AI-ассистенты по документам · анализ документов и данных. Подробно — <a href="/services.html">на странице услуг</a>.</p>
       </div>
     </section>
 
-    <section class="featured" aria-labelledby="featured-title">
+    <section class="featured" id="featured" aria-labelledby="featured-title">
       <div class="container">
         <p class="section-eyebrow" id="featured-title">Флагманские кейсы</p>
         <div class="featured__list" id="featured-list">
@@ -859,7 +895,8 @@
 
     <section class="archive" aria-labelledby="archive-title">
       <div class="container">
-        <p class="section-eyebrow" id="archive-title">Остальные проекты</p>
+        <p class="section-eyebrow" id="archive-title">Все проекты</p>
+        <p class="section-legend">У каждого проекта — статус: работающий, пресейл или исследование.</p>
 
         <div class="archive__filters" id="archive-filters">
           <div class="container" style="display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-sm);">
@@ -884,12 +921,13 @@
     <section class="cta">
       <div class="container cta__inner">
         <div>
-          <h2 class="cta__title">Нужна такая же автоматизация?</h2>
-          <p class="cta__lead">Расскажите, какая рутина отнимает время у команды. Мы спроектируем решение, соберём прототип и проведём Deployment Validation в вашем контуре.</p>
+          <h2 class="cta__title">Какая рутина отнимает время у вашей команды?</h2>
+          <p class="cta__lead">Расскажите о вашей задаче — обсудим, что можно автоматизировать и с чего начать.</p>
           <div class="cta__actions">
             <a href="/contacts.html" class="btn btn-primary">Обсудить проект</a>
-            <a href="#" class="btn btn-ghost">Скачать портфолио PDF</a>
+            <a href="/assets/portfolio/AIP_portfolio_v1.pdf" class="btn btn-ghost" target="_blank" rel="noopener">Скачать портфолио PDF</a>
           </div>
+          <p class="cta__microcopy">Ответ в течение дня · Прототип — до 10 дней</p>
         </div>
         <div class="cta__contact">
           <span><strong>Александр Гуляев</strong>, AI Automation Portfolio Lab</span>
@@ -903,7 +941,7 @@
   <footer class="site-footer">
     <div class="container site-footer__inner">
       <span>© 2026 AI Automation Portfolio Lab</span>
-      <span id="footer-counter">12 проектов · от идеи до Deployment Validation</span>
+      <span id="footer-counter">13 проектов · каждый воспроизводится с нуля по публичной инструкции (Deployment Validation)</span>
     </div>
   </footer>
 
@@ -984,16 +1022,16 @@
       const ASSETS = {
         'ai-curator': { category: 'Education / RAG', stats: ['3', '423', 'Live'], labels: ['LLM-провайдера', 'Чанка в индексе', 'Демо-стенд'], dark: '/assets/screenshots/AIC_portfolio_dark.png', light: '/assets/screenshots/AIC_portfolio_light.png', altDark: 'AI Curator: тёмная операционная консоль диалога с ответом системы и источниками', altLight: 'AI Curator: светлый диалог студента с ответом AI и ссылкой на дедлайн', actionPrimary: '/cases/ai-curator.html', actionPrimaryLabel: 'Узнать больше', actionGhost: 'https://curator.alex-n8n.site', actionGhostLabel: 'Live demo' },
         'ai-data-assistant': { category: 'Data Analysis / Reports', stats: ['DOCX', '3+', 'Live'], labels: ['Отчёты на лету', 'Провайдера LLM', 'Демо-стенд'], dark: '/assets/screenshots/ADA_portfolio_dark.png', light: '/assets/screenshots/ADA_portfolio_light.png', altDark: 'AI Data Assistant: тёмная операционная консоль', altLight: 'AI Data Assistant: светлый чат с аналитикой', actionPrimary: '/cases/ai-data-assistant.html', actionPrimaryLabel: 'Узнать больше', actionGhost: 'https://data-assistant.alex-n8n.site', actionGhostLabel: 'Live demo' },
-        'review-flow': { category: 'Review / RAG', stats: ['19', 'Hybrid', 'Case'], labels: ['Тем обработки', 'LLM + оператор', 'Полноценный прототип'], dark: '/assets/screenshots/RF_portfolio_dark.png', light: '/assets/screenshots/RF_portfolio_light.png', altDark: 'Review Flow: статус обращения NL-00250112-001 — опубликовано', altLight: 'Review Flow: портал проверки статуса обращения с ответом компании', actionPrimary: '/cases/review-flow.html', actionPrimaryLabel: 'Узнать больше', actionGhost: 'https://review-flow.alex-n8n.site', actionGhostLabel: 'Live demo' },
+        'review-flow': { category: 'Review / RAG', stats: ['19', 'Hybrid', 'Case'], labels: ['Тем обработки', 'LLM + оператор', 'Прототип'], dark: '/assets/screenshots/RF_portfolio_dark.png', light: '/assets/screenshots/RF_portfolio_light.png', altDark: 'Review Flow: статус обращения NL-00250112-001 — опубликовано', altLight: 'Review Flow: портал проверки статуса обращения с ответом компании', actionPrimary: '/cases/review-flow.html', actionPrimaryLabel: 'Узнать больше', actionGhost: 'https://review-flow.alex-n8n.site', actionGhostLabel: 'Live demo' },
         'review-auto-responder': { category: 'Review Automation', status: 'Live demo', tags: ['FastAPI', 'OpenAI', 'GigaChat'], dark: '/assets/screenshots/RAR_portfolio_dark.png', light: '/assets/screenshots/RAR_portfolio_light.png', altDark: 'Review Auto Responder: тёмная операционная консоль с трассой обработки отзыва', altLight: 'Review Auto Responder: светлый публичный тред отзыва и ответ AI Support' },
         'assistant-flow': { category: 'Intake / Routing', status: 'Prototype', tags: ['RAG', 'Multimodal', 'Routing'], dark: '/assets/screenshots/AF_portfolio_dark.png', light: '/assets/screenshots/AF_portfolio_light.png', altDark: 'Assistant Flow: тёмная панель обработки multimodal-запроса', altLight: 'Assistant Flow: светлый Telegram-диалог с генерацией изображения' },
         'meeting-audit-bot': { category: 'STT / Audit', status: 'Live demo', tags: ['Telegram', 'AssemblyAI', 'FastAPI'], dark: '/assets/screenshots/mab_portfolio_dark.png', light: '/assets/screenshots/mab_portfolio_light.png', altDark: 'Meeting Audit Bot: тёмная операторская консоль execution-трейса', altLight: 'Meeting Audit Bot: светлый Telegram-аудит звонка с оценкой' },
         'lead-qualification': { category: 'Sales / CRM', status: 'Case study', tags: ['n8n', 'AI', 'CRM'], dark: '/assets/screenshots/LQ_portfolio_dark.png', light: '/assets/screenshots/LQ_portfolio_light.png', altDark: 'Lead Qualification: тёмная админ-консоль', altLight: 'Lead Qualification: светлая админ-консоль' },
-        'hr-assistant': { category: 'HR Automation', status: 'Case study', tags: ['Telegram', 'HR', 'Matching'], dark: '/assets/screenshots/HRA_portfolio_dark.png', light: '/assets/screenshots/HRA_portfolio_light.png', altDark: 'HR Assistant: тёмная панель matching', altLight: 'HR Assistant: светлая панель matching' },
-        'hr-assistant-lora': { category: 'ML / Fine-Tuning', status: 'Research', tags: ['LoRA', 'Qwen', 'ML'], dark: '/assets/screenshots/HRA-Lora_portfolio_dark.png', light: '/assets/screenshots/HRA-Lora_portfolio_light.png', altDark: 'HR Assistant — LoRA: тёмная Jupyter-консоль с обучением Qwen2.5 и сравнением с GPT', altLight: 'HR Assistant — LoRA: светлая training-диаграмма дообучения matching-модели' },
+        'hr-assistant': { category: 'HR Automation', status: 'Live demo', tags: ['Telegram', 'HR', 'Matching'], dark: '/assets/screenshots/HRA_portfolio_dark.png', light: '/assets/screenshots/HRA_portfolio_light.png', altDark: 'HR Assistant: тёмная панель matching', altLight: 'HR Assistant: светлая панель matching' },
+        'hr-assistant-lora': { category: 'ML / Fine-Tuning', status: 'Исследование', tags: ['LoRA', 'Qwen', 'ML'], dark: '/assets/screenshots/HRA-Lora_portfolio_dark.png', light: '/assets/screenshots/HRA-Lora_portfolio_light.png', altDark: 'HR Assistant — LoRA: тёмная Jupyter-консоль с обучением Qwen2.5 и сравнением с GPT', altLight: 'HR Assistant — LoRA: светлая training-диаграмма дообучения matching-модели' },
         'telegram-intake-bot': { category: 'Support / Leads', status: 'MVP ready', tags: ['Telegram', 'aiogram', 'OpenAI'], dark: '/assets/screenshots/TIB_portfolio_dark.png', light: '/assets/screenshots/TIB_portfolio_light.png', altDark: 'Telegram Intake Bot: тёмная карточка диалога поддержки и структурированной заявки', altLight: 'Telegram Intake Bot: светлая карточка диалога поддержки и структурированной заявки' },
         'telegram-onboarding-bot': { category: 'Onboarding', status: 'MVP ready', tags: ['Telegram', 'FSM', 'PostgreSQL'], dark: '/assets/screenshots/TOB_portfolio_dark.png', light: '/assets/screenshots/TOB_portfolio_light.png', altDark: 'Telegram Onboarding Bot: тёмная карточка обучения и тестирования сотрудника', altLight: 'Telegram Onboarding Bot: светлая карточка обучения и тестирования сотрудника' },
-        'retail-group': { category: 'Voice AI / Presale', status: 'Case story', tags: ['n8n', 'Voice AI', 'RAG'], dark: '/assets/screenshots/RG-portfolio-dark.png', light: '/assets/screenshots/RG-portfolio-light.png', altDark: 'Retail Group: тёмная Case Story голосового AI-ассистента первой линии', altLight: 'Retail Group: светлая Case Story голосового AI-ассистента первой линии' },
+        'retail-group': { category: 'Voice AI / Presale', status: 'Пресейл', tags: ['n8n', 'Voice AI', 'RAG'], dark: '/assets/screenshots/RG-portfolio-dark.png', light: '/assets/screenshots/RG-portfolio-light.png', altDark: 'Retail Group: тёмная Case Story голосового AI-ассистента первой линии', altLight: 'Retail Group: светлая Case Story голосового AI-ассистента первой линии' },
         'prompt-review': { category: 'Prompt Engineering', status: 'In progress', tags: ['OpenAI', 'Structured Output', 'Review'], dark: '/assets/screenshots/PR-portfolio-dark.png', light: '/assets/screenshots/PR-portfolio-light.png', altDark: 'Prompt Review: тёмная карточка анализа промпта с scorecard по 8 критериям и улучшенной редакцией', altLight: 'Prompt Review: светлая карточка анализа промпта с scorecard по 8 критериям и улучшенной редакцией', actionPrimary: '/cases/prompt-review.html', actionPrimaryLabel: 'Открыть кейс', actionGhost: '#', actionGhostLabel: 'Live demo' },
       };
 
@@ -1098,9 +1136,9 @@
             ? archive.map(function(c) { return renderArchive(c); }).join('')
             : '<p class="cards-error">Архивные проекты временно недоступны.</p>';
 
-          heroMeta.textContent = sorted.length + ' проектов · 3 флагманских кейса · 6 технологических контуров';
+          heroMeta.textContent = sorted.length + ' проектов · 3 флагманских кейса · 8 направлений работ';
           filterResult.textContent = archive.length + ' ' + pluralize(archive.length);
-          document.getElementById('footer-counter').textContent = sorted.length + ' проектов · от идеи до Deployment Validation';
+          document.getElementById('footer-counter').textContent = sorted.length + ' проектов · каждый воспроизводится с нуля по публичной инструкции (Deployment Validation)';
 
           initFilters();
 
@@ -1158,6 +1196,16 @@
         document.addEventListener('DOMContentLoaded', loadProjectCards);
       } else {
         loadProjectCards();
+      }
+
+      // Наводка на ассистента в hero (п.12 аудита): клик открывает чат-виджет
+      const heroAssistantBtn = document.getElementById('hero-assistant-open');
+      if (heroAssistantBtn) {
+        heroAssistantBtn.addEventListener('click', function() {
+          if (window.AIPortfolioChat && typeof window.AIPortfolioChat.open === 'function') {
+            window.AIPortfolioChat.open();
+          }
+        });
       }
     })();
   </script>
