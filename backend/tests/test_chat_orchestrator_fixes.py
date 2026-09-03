@@ -301,6 +301,53 @@ def test_project_scoped_retrieval_uses_repo_filter():
     print("PASS: single-project query uses repo-scoped retrieval")
 
 
+def test_impersonal_eto_not_anaphora():
+    """Безличное «это» («что это за …») не анафора: retrieval не сужается
+    прошлым проектом из истории (кейс 03.09: чип «Что это за платформа?» в
+    сессии со старой историей про AI Curator → поиск по чужому репозиторию)."""
+    card = SimpleNamespace(slug="ai-curator", display_order=1)
+    memory = [SimpleNamespace(role="user", content="расскажи про AI Curator")]
+    orch, rag, _ = _make_orch(memory=memory, registry={
+        "resolve_all": lambda q: [card] if "AI Curator" in q else [],
+        "repo_for_card": lambda c: "o/AI-Curator",
+    })
+    rag.search.return_value = [SimpleNamespace(
+        content="c", source="README.md", score=0.1,
+        metadata={"repo": "o/AI-Curator", "path": "README.md"}, chunk_id="1")]
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(user_query="Что это за платформа?"))
+    args, kwargs = rag.search.call_args
+    # глобальный поиск: без repo-фильтра, запрос не обогащён историей
+    assert kwargs.get("where") is None
+    assert args and args[0] == "Что это за платформа?"
+    print("PASS: impersonal 'что это за …' skips anaphora enrichment")
+
+
+def test_real_anaphora_still_enriches_retrieval():
+    """Настоящая анафора («какой у него стек») по-прежнему обогащает retrieval
+    последним сообщением с проектом → repo-scoped поиск."""
+    card = SimpleNamespace(slug="ai-curator", display_order=1)
+    memory = [SimpleNamespace(role="user", content="расскажи про AI Curator")]
+    orch, rag, _ = _make_orch(memory=memory, registry={
+        "resolve_all": lambda q: [card] if "AI Curator" in q else [],
+        "repo_for_card": lambda c: "o/AI-Curator",
+    })
+    rag.search.return_value = [SimpleNamespace(
+        content="c", source="README.md", score=0.1,
+        metadata={"repo": "o/AI-Curator", "path": "README.md"}, chunk_id="1")]
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(user_query="какой у него стек?"))
+    args, kwargs = rag.search.call_args
+    # project_scoped: сужение делает repo-фильтр (запрос остаётся исходным)
+    assert kwargs.get("where") == {"repo": {"$eq": "o/AI-Curator"}}
+    assert rag.search.call_count == 1
+    print("PASS: real anaphora still scopes retrieval to prior project")
+
+
 def test_multi_project_query_uses_diverse_retrieval():
     card_a = SimpleNamespace(slug="review-flow", display_order=1)
     card_b = SimpleNamespace(slug="ai-curator", display_order=2)
