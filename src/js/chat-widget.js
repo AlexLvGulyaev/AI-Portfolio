@@ -172,25 +172,43 @@
       .chat-question-chip:hover {
         background: var(--surface-elevated, rgba(128,128,128,.12));
       }
-      /* Оценка ответа 👍/👎 */
+      /* Оценка ответа 👍/👎 (SVG, color наследуется темой) */
       .chat-feedback {
         display: flex;
         gap: 4px;
         margin-top: 2px;
       }
       .chat-feedback__btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
         border: none;
         background: transparent;
         cursor: pointer;
-        font-size: 0.8rem;
+        color: var(--text-muted, #888);
         line-height: 1;
-        padding: 2px;
-        opacity: 0.55;
-        transition: opacity .15s ease, transform .15s ease;
+        padding: 0;
+        opacity: 0.75;
+        transition: opacity .15s ease, color .15s ease, transform .15s ease;
       }
-      .chat-feedback__btn:hover { opacity: 1; transform: scale(1.1); }
-      .chat-feedback__btn[disabled] { cursor: default; }
-      .chat-feedback__btn--active { opacity: 1; }
+      .chat-feedback__btn svg { display: block; }
+      .chat-feedback__btn:hover {
+        opacity: 1;
+        color: var(--text-primary, inherit);
+        transform: scale(1.12);
+      }
+      .chat-feedback__btn[disabled] {
+        cursor: default;
+        opacity: 0.3;
+        transform: none;
+      }
+      .chat-feedback__btn--active,
+      .chat-feedback__btn.chat-feedback__btn--active {
+        opacity: 1;
+        color: var(--accent, currentColor);
+      }
       /* Проактивный бейдж на launcher */
       .chat-launcher { position: fixed; }
       .chat-launcher--badge::after {
@@ -356,19 +374,25 @@
         const feedbackDiv = document.createElement('div');
         feedbackDiv.className = 'chat-feedback';
 
+        // SVG-иконки вместо эмодзи: эмодзи (жёлтый) теряются на серо-голубом
+        // фоне и по-разному рендерятся на разных ОС; stroke=currentColor
+        // наследует цвет темы, активный голос подсвечивается акцентом.
+        const THUMB_UP_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>';
+        const THUMB_DOWN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2 2 0 0 1-2 2h-3"/></svg>';
+
         const upBtn = document.createElement('button');
         upBtn.type = 'button';
         upBtn.className = 'chat-feedback__btn';
         upBtn.title = 'Полезный ответ';
         upBtn.setAttribute('aria-label', 'Полезный ответ');
-        upBtn.textContent = '👍';
+        upBtn.innerHTML = THUMB_UP_SVG;
 
         const downBtn = document.createElement('button');
         downBtn.type = 'button';
         downBtn.className = 'chat-feedback__btn';
         downBtn.title = 'Неполезный ответ';
         downBtn.setAttribute('aria-label', 'Неполезный ответ');
-        downBtn.textContent = '👎';
+        downBtn.innerHTML = THUMB_DOWN_SVG;
 
         const markVoted = function(activeBtn) {
           upBtn.disabled = true;
