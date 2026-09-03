@@ -31,7 +31,8 @@
 ## ✨ Ключевые возможности
 
 - **Витрина 13 кейсов** — единый лендинг-стандарт: результат, проблема/решение, метрики, сценарии; главная страница одновременно является каталогом.
-- **Живой AI-ассистент** — RAG с grounding: ответы по документации кейсов из векторного индекса, с бейджами источников.
+- **Подбор кейса под задачу** — опишите задачу на главной, платформа вернёт до 3 релевантных кейсов с объяснением применимости по документам (`POST /case-match`, grounded).
+- **Живой AI-ассистент** — RAG с grounding: ответы по документации кейсов из векторного индекса, с карточками источников; клик по источнику открывает панель документа с подсвеченным фрагментом и ссылкой на GitHub; оценка ответов 👍/👎.
 - **Управляемый допуск знаний** — каждый документ проходит admission gate: draft-правила → immutable-превью с commit SHA → утверждение → синхронизация.
 - **Multi-provider LLM** — OpenAI активен, GigaChat в фоллбэке; провайдер и параметры настраиваются из админ-консоли.
 - **Admin Console** — реакт-консоль: контент и допуск KB, retrieval-настройки, AI-настройки (включая управляемый системный промпт с историей версий), операционные логи, диалоги, аудит, пресейл-воронка.
@@ -47,12 +48,17 @@
 | Admin Console | https://af-admin.alex-n8n.site | bearer-токен `ADMIN_API_TOKEN` |
 | Backend health | `GET /health` | публично |
 | Каталог проектов | `GET /project-cards` | публично |
-| AI-ассистент | `POST /chat` | публично (rate limit) |
+| AI-ассистент | `POST /chat` | публично (rate limit 10 req/min на IP) |
+| Подбор кейса под задачу | `POST /case-match` | публично |
+| Панель документа | `GET /document-fragment` | публично |
+
+Контракты всех публичных эндпойнтов — [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md); ограничение частоты запросов — 10 req/min на IP с burst 20 (429 при превышении).
 
 ## 📚 Документация
 
-### Для заказчиков и менеджеров
+### Для посетителей и заказчиков
 
+- [🙋 `docs/USER_GUIDE.md`](docs/USER_GUIDE.md) — как пользоваться витриной, подбором кейса и ассистентом.
 - [💼 `docs/BUSINESS_VALUE.md`](docs/BUSINESS_VALUE.md) — бизнес-ценность: какие задачи клиента закрываются и как строится работа.
 - [🎬 `docs/SYSTEM_DEMO.md`](docs/SYSTEM_DEMO.md) — продукт как работающая система: демо-сценарии и скриншоты.
 - [🎬 `docs/E2E_SCENARIOS.md`](docs/E2E_SCENARIOS.md) — сквозные сценарии работы системы.
@@ -62,13 +68,18 @@
 ### Для пользователей и операторов
 
 - [🎛️ `docs/ADMIN_GUIDE.md`](docs/ADMIN_GUIDE.md) — операции администратора: допуск источников KB, retrieval, AI-настройки, мониторинг.
+- [🔧 `docs/OPERATIONS.md`](docs/OPERATIONS.md) — эксплуатация развёрнутого экземпляра: регламент, штатные операции, инциденты, бэкапы.
+- [🛣️ `docs/ROADMAP.md`](docs/ROADMAP.md) — развитие платформы: незакрытые требования и утверждённые направления.
 - [🔤 `docs/GLOSSARY.md`](docs/GLOSSARY.md) — глоссарий терминов.
 - [🧭 `docs/COMPETENCIES.md`](docs/COMPETENCIES.md) — матрица компетенций.
 
 ### Для инженеров и интеграторов
 
 - [🏗️ `docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — архитектура системы.
+- [📡 `docs/API_CONTRACT.md`](docs/API_CONTRACT.md) — контракт публичных эндпойнтов.
 - [🚀 `docs/DEPLOYMENT_GUIDE.md`](docs/DEPLOYMENT_GUIDE.md) — воспроизводимое развёртывание с нуля (валидировано Deployment Validation).
+- [🧾 `docs/DEPLOYMENT_VALIDATION_REPORT.md`](docs/DEPLOYMENT_VALIDATION_REPORT.md) — протокол Deployment Validation.
+- [🔬 `docs/TESTING_CONTRACT.md`](docs/TESTING_CONTRACT.md) — тестовые контуры: unit, eval, E2E.
 - [🧪 `docs/AI_EVAL_REPORT.md`](docs/AI_EVAL_REPORT.md) — методика и итоги eval-тестирования ассистента.
 - [📝 `docs/PROMPT_ARCHITECTURE.md`](docs/PROMPT_ARCHITECTURE.md) — промпт-архитектура и активный системный промпт.
 - [🖥️ `docs/ADMIN_CONSOLE_ARCHITECTURE.md`](docs/ADMIN_CONSOLE_ARCHITECTURE.md) — техническая архитектура Admin Console.
