@@ -367,6 +367,22 @@
       const href = link.getAttribute('href');
       if (!href || href === '#') return;
 
+      // 0) Обращение: CTA «Обсудить» (виджет и карточки главной).
+      //    Правило стоит до правила case_view — иначе клик по CTA внутри
+      //    карточки ушёл бы в case_view. channel различает источник CTA.
+      if (link.classList.contains('aip-discuss')) {
+        const article = link.closest('article');
+        const heading = article ? article.querySelector('h2, h3') : null;
+        const inCard = Boolean(link.closest('.project-card, .featured-card'));
+        APIClient.trackEvent('inquiry', {
+          channel: inCard ? 'card' : 'chat_widget',
+          card_slug: inCard ? (link.getAttribute('data-card-slug') || null) : null,
+          card_title: heading ? heading.textContent.trim() : null,
+          label: (link.textContent || '').trim(),
+        });
+        return;
+      }
+
       // 1) Касание кейса: ссылки внутри карточки проекта (главная:
       //    project-card / featured-card — «Узнать больше», external_url)
       if (link.closest('.project-card, .featured-card')) {
