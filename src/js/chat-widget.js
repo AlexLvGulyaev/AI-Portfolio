@@ -20,8 +20,27 @@
   // ============================================
 
   const CONFIG = {
-    // Welcome message
-    WELCOME_MESSAGE: 'Привет! Я AI-ассистент. Могу рассказать о кейсах, услугах и компетенциях. Задайте вопрос.',
+    // Staggered welcome (2 коротких сообщения вместо одного полотна)
+    WELCOME_STEPS: [
+      'Привет! Я AI-ассистент портфолио.',
+      'Отвечаю о кейсах, услугах и компетенциях по документам GitHub-репозиториев — с указанием источников.',
+    ],
+
+    // Заготовленные вопросы (conversation starters). Ключ = тип страницы.
+    STARTERS: {
+      default: ['Что это за платформа?', 'Какие кейсы реализованы?', 'Как устроена база знаний?'],
+      case: ['Как устроен этот кейс?', 'Какие результаты и метрики?', 'Какие технологии использованы?'],
+      services: ['Что входит в услуги?', 'Как проходит работа над проектом?', 'Как связаться?'],
+    },
+
+    // Проактивный тизер/бейдж: задержка до появления, один раз за сессию
+    TEASER_DELAY_MS: 30000,
+    TEASER_SHOWN_KEY: 'ai_portfolio_teaser_shown',
+    EXPANDED_KEY: 'ai_portfolio_widget_expanded',
+
+    // Оценка ответов 👍/👎 → /track-event (event_type=chat_feedback)
+    FEEDBACK: true,
+    QUESTION_PREVIEW_MAX: 120,
 
     // Typing indicator dots
     TYPING_DOTS: 3,
@@ -33,12 +52,29 @@
     SHOW_METADATA: true,
   };
 
+  // Заготовленные вопросы для текущего типа страницы
+  function pageKind() {
+    const path = window.location.pathname || '';
+    if (/\/cases\/[a-z0-9-]+\.html$/.test(path)) return 'case';
+    if (/\/services\.html$/.test(path)) return 'services';
+    return 'default';
+  }
+
+  function teaserText() {
+    const kind = pageKind();
+    if (kind === 'case') return 'Спросите ассистента, как устроен этот кейс.';
+    if (kind === 'services') return 'Спросите ассистента, что входит в услуги.';
+    return 'Спросите ассистента о кейсах и услугах.';
+  }
+
   // ============================================
   // State
   // ============================================
 
   let isOpen = false;
   let isSending = false;
+  let lastUserText = '';
+  let startersEl = null;
 
   // ============================================
   // DOM Elements
@@ -55,7 +91,7 @@
   // Helper Functions
   // ============================================
 
-  // Стили чипов источников инъектируются одним <style> на страницу (CSS виджета
+  // Стили виджета инъектируются одним <style> на страницу (CSS виджета
   // дублируется в 17 HTML-страницах — инъекция из JS исключает правку всех страниц;
   // цвета берутся из CSS-переменных темы страницы, fallback — нейтральные).
   function ensureSourceChipStyles() {
@@ -79,6 +115,128 @@
       a.chat-source-chip:hover {
         color: var(--accent, inherit);
         border-color: var(--accent, currentColor);
+      }
+      /* Кнопка «Развернуть» в шапке виджета */
+      .chat-expand {
+        border: none;
+        background: transparent;
+        color: var(--text-secondary, inherit);
+        font-size: 15px;
+        line-height: 1;
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 150ms ease;
+        padding: var(--space-xs, 4px);
+      }
+      .chat-expand:hover { opacity: 1; }
+      .chat-widget--expanded {
+        width: 480px !important;
+        height: 720px !important;
+        max-height: calc(100vh - 60px) !important;
+      }
+      /* Полноэкранный режим на мобильных (стандарт Intercom/Crisp) */
+      @media (max-width: 600px) {
+        .chat-widget {
+          right: 0 !important;
+          bottom: 0 !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          max-height: none !important;
+          max-width: none !important;
+          border-radius: 0 !important;
+        }
+        .chat-expand { display: none; }
+        .chat-teaser { right: 16px; }
+      }
+      /* Заготовленные вопросы (conversation starters) */
+      .chat-starters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 4px;
+      }
+      .chat-question-chip {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.75rem;
+        line-height: 1.4;
+        color: var(--accent, inherit);
+        background: transparent;
+        border: 1px solid var(--accent, currentColor);
+        border-radius: 999px;
+        padding: 4px 10px;
+        cursor: pointer;
+        text-align: left;
+        transition: color .15s ease, background .15s ease, border-color .15s ease;
+      }
+      .chat-question-chip:hover {
+        background: var(--surface-elevated, rgba(128,128,128,.12));
+      }
+      /* Оценка ответа 👍/👎 */
+      .chat-feedback {
+        display: flex;
+        gap: 4px;
+        margin-top: 2px;
+      }
+      .chat-feedback__btn {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 0.8rem;
+        line-height: 1;
+        padding: 2px;
+        opacity: 0.55;
+        transition: opacity .15s ease, transform .15s ease;
+      }
+      .chat-feedback__btn:hover { opacity: 1; transform: scale(1.1); }
+      .chat-feedback__btn[disabled] { cursor: default; }
+      .chat-feedback__btn--active { opacity: 1; }
+      /* Проактивный бейдж на launcher */
+      .chat-launcher { position: fixed; }
+      .chat-launcher--badge::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        width: 12px;
+        height: 12px;
+        background: #e5484d;
+        border-radius: 999px;
+        border: 2px solid var(--bg, #fff);
+      }
+      /* Проактивный тизер возле launcher */
+      .chat-teaser {
+        position: fixed;
+        bottom: 100px;
+        right: 24px;
+        max-width: 260px;
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        background: var(--surface, #fff);
+        color: var(--text-primary, inherit);
+        border: 1px solid var(--border, rgba(128,128,128,.35));
+        border-radius: 12px;
+        box-shadow: var(--shadow-lg, 0 8px 24px rgba(0,0,0,.15));
+        padding: 10px 12px;
+        font-size: 0.8rem;
+        line-height: 1.45;
+        z-index: 1000;
+        animation: chat-teaser-in .25s ease;
+      }
+      .chat-teaser__text { flex: 1; cursor: pointer; }
+      .chat-teaser__close {
+        border: none;
+        background: none;
+        color: var(--text-muted, #888);
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        padding: 0;
+      }
+      @keyframes chat-teaser-in {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: none; }
       }
     `;
     document.head.appendChild(style);
@@ -193,6 +351,53 @@
         metaDiv.appendChild(cacheDiv);
       }
 
+      // Оценка ответа 👍/👎 → chat_feedback в operational_logs
+      if (CONFIG.FEEDBACK) {
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.className = 'chat-feedback';
+
+        const upBtn = document.createElement('button');
+        upBtn.type = 'button';
+        upBtn.className = 'chat-feedback__btn';
+        upBtn.title = 'Полезный ответ';
+        upBtn.setAttribute('aria-label', 'Полезный ответ');
+        upBtn.textContent = '👍';
+
+        const downBtn = document.createElement('button');
+        downBtn.type = 'button';
+        downBtn.className = 'chat-feedback__btn';
+        downBtn.title = 'Неполезный ответ';
+        downBtn.setAttribute('aria-label', 'Неполезный ответ');
+        downBtn.textContent = '👎';
+
+        const markVoted = function(activeBtn) {
+          upBtn.disabled = true;
+          downBtn.disabled = true;
+          activeBtn.classList.add('chat-feedback__btn--active');
+        };
+
+        upBtn.addEventListener('click', function() {
+          if (upBtn.disabled) return;
+          window.APIClient.trackEvent('chat_feedback', {
+            rating: 'up',
+            question_preview: (lastUserText || '').slice(0, CONFIG.QUESTION_PREVIEW_MAX),
+          });
+          markVoted(upBtn);
+        });
+        downBtn.addEventListener('click', function() {
+          if (downBtn.disabled) return;
+          window.APIClient.trackEvent('chat_feedback', {
+            rating: 'down',
+            question_preview: (lastUserText || '').slice(0, CONFIG.QUESTION_PREVIEW_MAX),
+          });
+          markVoted(downBtn);
+        });
+
+        feedbackDiv.appendChild(upBtn);
+        feedbackDiv.appendChild(downBtn);
+        metaDiv.appendChild(feedbackDiv);
+      }
+
       div.appendChild(metaDiv);
     }
 
@@ -252,13 +457,65 @@
   // ============================================
 
   /**
-   * Send message to backend
+   * Remove conversation starters (after the first user message)
    */
-  async function sendMessage() {
+  function removeStarters() {
+    if (startersEl && startersEl.parentNode) {
+      startersEl.parentNode.removeChild(startersEl);
+    }
+    startersEl = null;
+  }
+
+  /**
+   * Render page-aware question chips under the welcome message
+   */
+  function renderStarters() {
+    const chips = CONFIG.STARTERS[pageKind()] || CONFIG.STARTERS.default;
+    startersEl = document.createElement('div');
+    startersEl.className = 'chat-starters';
+    chips.forEach(function(q) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chat-question-chip';
+      chip.textContent = q;
+      chip.addEventListener('click', function() {
+        sendMessage(q);
+      });
+      startersEl.appendChild(chip);
+    });
+    messagesEl.appendChild(startersEl);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  /**
+   * Staggered welcome: короткие сообщения с задержками + вопрос-чипы
+   */
+  function showWelcome() {
+    appendMessage(CONFIG.WELCOME_STEPS[0], 'bot');
+    setTimeout(function() {
+      appendTyping();
+      setTimeout(function() {
+        removeTyping();
+        appendMessage(CONFIG.WELCOME_STEPS[1], 'bot');
+        if (CONFIG.SHOW_METADATA) renderStarters();
+      }, 900);
+    }, 500);
+  }
+
+  /**
+   * Send message to backend
+   * @param {string} [textOverride] - текст из вопрос-чипа (иначе — из инпута)
+   */
+  async function sendMessage(textOverride) {
     if (isSending) return;
 
-    const text = inputEl.value.trim();
+    const text = (typeof textOverride === 'string' && textOverride.trim())
+      ? textOverride.trim()
+      : inputEl.value.trim();
     if (!text) return;
+
+    removeStarters();
+    lastUserText = text;
 
     // Append user message
     appendMessage(text, 'user');
@@ -320,8 +577,10 @@
 
     // Show welcome message if empty
     if (!messagesEl.hasChildNodes()) {
-      appendMessage(CONFIG.WELCOME_MESSAGE, 'bot');
+      showWelcome();
     }
+
+    dismissTeaser(true);
 
     setTimeout(() => inputEl.focus(), CONFIG.ANIMATION_MS);
   }
@@ -333,6 +592,96 @@
     isOpen = false;
     widget.style.display = 'none';
     launcher.style.display = 'flex';
+  }
+
+  /**
+   * Кнопка «Развернуть» в шапке: десктоп 480×720, состояние запоминается.
+   * На мобильных (≤600px) виджет и так полноэкранный — кнопка скрыта CSS.
+   */
+  function addExpandButton() {
+    const expandBtn = document.createElement('button');
+    expandBtn.type = 'button';
+    expandBtn.id = 'chat-expand';
+    expandBtn.className = 'chat-expand';
+    expandBtn.title = 'Развернуть окно';
+    expandBtn.setAttribute('aria-label', 'Развернуть окно');
+    expandBtn.textContent = '⤢';
+
+    expandBtn.addEventListener('click', function() {
+      const expanded = widget.classList.toggle('chat-widget--expanded');
+      expandBtn.title = expanded ? 'Свернуть окно' : 'Развернуть окно';
+      expandBtn.setAttribute('aria-label', expandBtn.title);
+      try {
+        localStorage.setItem(CONFIG.EXPANDED_KEY, expanded ? '1' : '0');
+      } catch (e) { /* localStorage недоступен */ }
+    });
+
+    try {
+      if (localStorage.getItem(CONFIG.EXPANDED_KEY) === '1') {
+        widget.classList.add('chat-widget--expanded');
+        expandBtn.title = 'Свернуть окно';
+        expandBtn.setAttribute('aria-label', expandBtn.title);
+      }
+    } catch (e) { /* localStorage недоступен */ }
+
+    closeBtn.parentNode.insertBefore(expandBtn, closeBtn);
+  }
+
+  /**
+   * Проактивный тизер: через 30 сек бездействия — бейдж на launcher и
+   * подсказка с текстом под тип страницы. Один раз за сессию (sessionStorage).
+   */
+  function scheduleTeaser() {
+    let shown = false;
+    try {
+      shown = sessionStorage.getItem(CONFIG.TEASER_SHOWN_KEY) === '1';
+    } catch (e) { /* sessionStorage недоступен */ }
+    if (shown) return;
+    setTimeout(function() {
+      if (!isOpen) showTeaser();
+    }, CONFIG.TEASER_DELAY_MS);
+  }
+
+  function showTeaser() {
+    ensureSourceChipStyles();
+    if (document.getElementById('chat-teaser')) return;
+    const teaser = document.createElement('div');
+    teaser.className = 'chat-teaser';
+    teaser.id = 'chat-teaser';
+
+    const text = document.createElement('span');
+    text.className = 'chat-teaser__text';
+    text.textContent = teaserText();
+
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'chat-teaser__close';
+    close.setAttribute('aria-label', 'Скрыть подсказку');
+    close.textContent = '×';
+
+    text.addEventListener('click', function() {
+      dismissTeaser(true);
+      openWidget();
+    });
+    close.addEventListener('click', function() {
+      dismissTeaser(true);
+    });
+
+    teaser.appendChild(text);
+    teaser.appendChild(close);
+    document.body.appendChild(teaser);
+    if (launcher) launcher.classList.add('chat-launcher--badge');
+  }
+
+  function dismissTeaser(permanent) {
+    const teaser = document.getElementById('chat-teaser');
+    if (teaser) teaser.remove();
+    if (launcher) launcher.classList.remove('chat-launcher--badge');
+    if (permanent) {
+      try {
+        sessionStorage.setItem(CONFIG.TEASER_SHOWN_KEY, '1');
+      } catch (e) { /* sessionStorage недоступен */ }
+    }
   }
 
   // ============================================
@@ -371,6 +720,11 @@
         closeWidget();
       }
     });
+
+    // UX-расширения: «Развернуть», вопрос-чипы, проактивный тизер
+    ensureSourceChipStyles();
+    addExpandButton();
+    scheduleTeaser();
   }
 
   // Run on DOM ready
