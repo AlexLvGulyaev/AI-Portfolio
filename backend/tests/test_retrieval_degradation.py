@@ -17,8 +17,9 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from test_chat_orchestrator_fixes import _fake_provider, _make_orch
+from tests.test_chat_orchestrator_fixes import _fake_provider, _make_orch
 
 
 def _run(orch, query="расскажи про HR Assistant"):
