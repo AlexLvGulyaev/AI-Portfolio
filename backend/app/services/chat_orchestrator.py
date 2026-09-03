@@ -797,6 +797,20 @@ class ChatOrchestrator:
                 _tr.set("resolved_cards", [c.slug for c in resolved_cards])
                 _tr.set("retrieval_query", retrieval_query)
 
+            # Страница кейса (аудит 03.09, решение владельца): валидный slug
+            # работает как явно названный проект — retrieval сужается на репо
+            # страницы (project_scoped с честным fallback в глобальный поиск).
+            # Сырой текст клиента не пробрасывается: в retrieval и промпт идёт
+            # только доверенная карточка реестра. Скрытые карточки в публичном
+            # канале в реестре отсутствуют (visibility guard 29.08.2026), поэтому
+            # page_card здесь — только публичные проекты. Явно названный проект
+            # (в текущем запросе или из анафоры) приоритетнее страницы.
+            page_card = self.registry.get_by_slug(page_slug) if page_slug else None
+            if not resolved_cards and page_card is not None:
+                resolved_cards = [page_card]
+                if _tr is not None:
+                    _tr.set("resolved_via_page", page_slug)
+
             if self.rag_service.count_documents() > 0:
                 _start_step("rag_search", 5)
                 _t0 = time.monotonic()
@@ -880,6 +894,9 @@ class ChatOrchestrator:
                 if rag_results:
                     # Контекст строится из УЖЕ полученных результатов —
                     # без повторного поиска (один retrieval на запрос).
+                    # (Мягкий буст варианта B заменён routing-решением
+                    # «страница = названный проект» выше: project_scoped
+                    # не пускает чужие источники в выдачу вовсе.)
                     _repos = {
                         r.metadata.get("repo")
                         for r in rag_results
@@ -940,20 +957,25 @@ class ChatOrchestrator:
                 registry_list=self.registry.render_list(),
                 registry_version=self.registry.version,
             )
-            # Контекст страницы кейса (вариант A аудита 03.09): slug
-            # валидируется по реестру, в промпт идёт доверенное название из
-            # реестра — сырой текст клиента не пробрасывается. Дополняется
-            # после сборки, чтобы работать с любым шаблоном (в т.ч. из БД).
-            if page_slug:
-                page_card = self.registry.get_by_slug(page_slug)
-                if page_title := (page_card.title if page_card else None):
-                    prompt += (
-                        f"\n\nКОНТЕКСТ СТРАНИЦЫ (доверенная системная информация): "
-                        f"пользователь открыл страницу кейса «{page_title}» "
-                        f"(slug: {page_slug}). Ссылки вида «этот кейс», «этот проект» "
-                        f"относятся к нему. Это вопрос о существующем проекте реестра, "
-                        f"а не запрос о новом."
-                    )
+            # Контекст страницы кейса (вариант A аудита 03.09): в промпт идёт
+            # доверенное название из реестра — сырой текст клиента не
+            # пробрасывается. Дополняется после сборки, чтобы работать с любым
+            # шаблоном (в т.ч. из БД).
+            if page_card is not None:
+                prompt += (
+                    f"\n\nКОНТЕКСТ СТРАНИЦЫ (доверенная системная информация): "
+                    f"пользователь открыл страницу кейса «{page_card.title}» "
+                    f"(slug: {page_slug}). Ссылки вида «этот кейс», «этот проект» "
+                    f"относятся к нему. Это вопрос о существующем проекте реестра, "
+                    f"а не запрос о новом."
+                    f"\nФОРМА ОТВЕТА (доверенная инструкция): если пользователь "
+                    f"спрашивает, что проверить в демо или как устроен кейс, "
+                    f"отвечайте маршрутом проверки — нумерованными шагами по "
+                    f"схеме «открыть → сделать → увидеть». Опора — документ "
+                    f"DEMO_ROUTE этого кейса, если он есть в контексте БЗ; без "
+                    f"него соберите маршрут из документов кейса. Не отвечайте "
+                    f"перечнем всех возможностей проекта."
+                )
             if _tr is not None:
                 _tr.set("prompt", prompt)
                 _tr.set("prompt_sha256", eval_trace_mod.content_sha256(prompt))
