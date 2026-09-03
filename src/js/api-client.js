@@ -137,7 +137,10 @@
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.detail || `Server error: ${response.status}`);
+          const err = new Error(errorData.detail || `Server error: ${response.status}`);
+          // Статус сохраняем для дружелюбных сообщений (429 rate limit)
+          err.status = response.status;
+          throw err;
         }
 
         const data = await response.json();
@@ -179,6 +182,16 @@
             success: false,
             error: 'network',
             message: 'Не удалось подключиться к серверу. Проверьте подключение.',
+          };
+        }
+
+        // Rate limit (nginx, 10 req/min на IP) — понятный текст вместо
+        // технического «Server error: 429»
+        if (error.status === 429) {
+          return {
+            success: false,
+            error: 'rate_limited',
+            message: 'Слишком много запросов. Подождите минуту и попробуйте снова.',
           };
         }
 
