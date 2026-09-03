@@ -1288,6 +1288,9 @@
       color: var(--text-muted);
       line-height: 1.6;
       max-width: 640px;
+      /* Длинные URL «проверки демо» не должны распирать flex-строку hero:
+         иначе медиа-блок уезжает за край (репорт владельца 03.09) */
+      overflow-wrap: anywhere;
     }
     .demo-hint a { color: var(--accent); }
   </style>

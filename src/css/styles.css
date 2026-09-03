@@ -363,6 +363,10 @@ code {
     display: flex;
     flex-direction: column;
     gap: var(--space-lg);
+    /* Flex-элемент по умолчанию не сжимается ниже min-content:
+       длинный URL (например, «проверка демо за 2 минуты») распирал
+       строку hero и уводил медиа-блок за край (репорт владельца 03.09) */
+    min-width: 0;
 }
 
 .hero__badge {

@@ -262,6 +262,9 @@ class ChatOrchestrator:
                 "score": r.score,
                 "label": label,
                 "html_url": html_url,
+                # Полный текст цитированного чанка — панель документа
+                # (03.09.2026) ищет его в md на GitHub и подсвечивает.
+                "excerpt": re.sub(r"\s+", " ", (r.content or "")).strip()[:2000],
             })
         return sources, detail
 
