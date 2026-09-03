@@ -74,14 +74,18 @@ def draft_patterns(source: Any) -> tuple[Optional[list[str]], Optional[list[str]
 
 
 def has_draft_changes(source: Any) -> bool:
-    """True when the draft patterns differ from the effective patterns."""
-    if getattr(source, "approved_preview_id", None) is None:
-        # A never-approved source has no composition to differ from yet.
-        draft_inc, draft_exc = draft_patterns(source)
-        if source.draft_include_patterns is None and source.draft_exclude_patterns is None:
-            return False
-        return _patterns_differ(draft_inc, source.include_patterns) or _patterns_differ(draft_exc, source.exclude_patterns)
-    return source.draft_include_patterns is not None or source.draft_exclude_patterns is not None
+    """True when the draft patterns differ from the effective patterns.
+
+    Сравнение по значениям, не по факту наличия draft-колонок: «Обновить
+    состав» пишет черновик даже при идентичных списках, и присутствие
+    черновика само по себе не является изменением состава (иначе одобренный
+    источник навсегда подвешивался в patterns_changed — репорт владельца
+    03.09.2026).
+    """
+    if source.draft_include_patterns is None and source.draft_exclude_patterns is None:
+        return False
+    draft_inc, draft_exc = draft_patterns(source)
+    return _patterns_differ(draft_inc, source.include_patterns) or _patterns_differ(draft_exc, source.exclude_patterns)
 
 
 def _patterns_differ(a: Any, b: Any) -> bool:

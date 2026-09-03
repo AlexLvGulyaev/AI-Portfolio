@@ -187,6 +187,21 @@ def test_display_status_patterns_changed_after_approval():
     assert status == rules.STATUS_PATTERNS_CHANGED
 
 
+def test_display_status_approved_with_identical_draft():
+    # «Обновить состав» без изменения списков: идентичный черновик не
+    # меняет статус одобренного источника (репорт владельца 03.09.2026).
+    status = rules.derive_display_status(
+        "approved",
+        _preview(),
+        _source(
+            admission_status="approved",
+            draft_include_patterns=["docs/**", "README.md"],
+            draft_exclude_patterns=["task_history/**"],
+        ),
+    )
+    assert status == rules.STATUS_APPROVED
+
+
 def test_display_status_error():
     status = rules.derive_display_status(
         "pending", _preview(status="error"), _source()
@@ -234,7 +249,17 @@ def test_draft_patterns_use_draft_columns_when_set():
 
 
 def test_has_draft_changes_for_approved_source():
+    # Presence of a draft is not a change (fix 03.09.2026: «Обновить
+    # состав» writes an identical draft and the source got stuck in
+    # patterns_changed forever). Values are compared, same as for a
+    # never-approved source.
     assert rules.has_draft_changes(_source(admission_status="approved")) is False
+    assert rules.has_draft_changes(
+        _source(
+            admission_status="approved",
+            draft_include_patterns=["docs/**", "README.md"],
+        )
+    ) is False
     assert rules.has_draft_changes(
         _source(admission_status="approved", draft_include_patterns=["x/**"])
     ) is True
