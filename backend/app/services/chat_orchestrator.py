@@ -332,6 +332,7 @@ class ChatOrchestrator:
         user_query: str,
         session_id: uuid.UUID | None = None,
         visitor_id: uuid.UUID | str | None = None,
+        page_slug: str | None = None,
         client_ip: str | None = None,
         user_agent: str | None = None,
     ) -> ChatResponseDTO:
@@ -342,6 +343,8 @@ class ChatOrchestrator:
             user_query: Запрос пользователя
             session_id: ID сессии (если None, создаётся новая)
             visitor_id: ID посетителя (если None, создаётся новый)
+            page_slug: Slug кейс-страницы, с которой задан вопрос (контекст
+                «этот кейс»); принимается только при совпадении с реестром
             client_ip: IP-адрес клиента
             user_agent: User-Agent клиента
 
@@ -502,6 +505,10 @@ class ChatOrchestrator:
             })
 
             config_fingerprint = self._config_fingerprint(provider_key, model_name)
+            # Контекст страницы входит в fingerprint: один и тот же вопрос с
+            # разных кейс-страниц («этот кейс») не должен коллайдить в кеше.
+            if page_slug and self.registry.get_by_slug(page_slug):
+                config_fingerprint = f"{config_fingerprint}|page:{page_slug}"
 
             # 4. Проверить Response Cache (версионированный ключ)
             _start_step("cache_check", 4)
@@ -933,9 +940,25 @@ class ChatOrchestrator:
                 registry_list=self.registry.render_list(),
                 registry_version=self.registry.version,
             )
+            # Контекст страницы кейса (вариант A аудита 03.09): slug
+            # валидируется по реестру, в промпт идёт доверенное название из
+            # реестра — сырой текст клиента не пробрасывается. Дополняется
+            # после сборки, чтобы работать с любым шаблоном (в т.ч. из БД).
+            if page_slug:
+                page_card = self.registry.get_by_slug(page_slug)
+                if page_title := (page_card.title if page_card else None):
+                    prompt += (
+                        f"\n\nКОНТЕКСТ СТРАНИЦЫ (доверенная системная информация): "
+                        f"пользователь открыл страницу кейса «{page_title}» "
+                        f"(slug: {page_slug}). Ссылки вида «этот кейс», «этот проект» "
+                        f"относятся к нему. Это вопрос о существующем проекте реестра, "
+                        f"а не запрос о новом."
+                    )
             if _tr is not None:
                 _tr.set("prompt", prompt)
                 _tr.set("prompt_sha256", eval_trace_mod.content_sha256(prompt))
+                if page_slug:
+                    _tr.set("page_slug", page_slug)
             _finish_step("prompt_build", "ok", {
                 "rag_used": rag_used,
                 "query": user_query,

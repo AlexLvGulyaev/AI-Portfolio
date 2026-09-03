@@ -113,6 +113,7 @@ async def chat(
             user_query=request.message,
             session_id=session_id,
             visitor_id=request.visitor_id,
+            page_slug=request.page_slug,
             client_ip=_get_client_ip(http_request),
             user_agent=http_request.headers.get("user-agent"),
         )

@@ -50,6 +50,9 @@ class ChatRequest(BaseModel):
     message: str
     session_id: UUID | None = None
     visitor_id: str | None = None
+    # Slug кейс-страницы, с которой задан вопрос (контекст «этот кейс»).
+    # Принимается только при совпадении с реестром; сырой текст не пробрасывается.
+    page_slug: str | None = None
 
 
 class ChatResponse(BaseModel):
