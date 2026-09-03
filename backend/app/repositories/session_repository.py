@@ -9,7 +9,7 @@ from typing import Any
 from datetime import datetime
 
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from app.models.entities import ChatSession, ChatMessage
 
@@ -109,6 +109,15 @@ class SessionRepository:
             message_metadata=metadata,
         )
         db.add(message)
+        # Активность сессии: консоль «Диалоги» сортируется по
+        # ChatSession.updated_at, но onupdate SQLAlchemy срабатывает только
+        # при UPDATE самой строки — без бампа он навсегда равен created_at
+        # и живые сессии проваливаются вниз списка (кейс 03.09).
+        db.execute(
+            update(ChatSession)
+            .where(ChatSession.id == session_id)
+            .values(updated_at=datetime.utcnow())
+        )
         db.commit()
         db.refresh(message)
         return message.id
