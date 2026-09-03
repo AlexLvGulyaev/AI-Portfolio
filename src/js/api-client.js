@@ -145,6 +145,7 @@
           answer: data.answer || '',
           sessionId: data.session_id,
           sources: data.sources || [],
+          sourcesDetail: data.sources_detail || [],
           provider: data.provider || 'unknown',
           model: data.model || 'unknown',
           fromCache: data.from_cache || false,

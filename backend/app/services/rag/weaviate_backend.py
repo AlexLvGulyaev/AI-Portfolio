@@ -21,17 +21,30 @@ from app.services.rag.rag_service import (
     SearchResult,
     apply_root_readme_boost,
 )
+from app.services.rag.source_labels import make_source_label
 
 
-def build_context(results: list[SearchResult], max_tokens: Optional[int] = None) -> str:
+def build_context(
+    results: list[SearchResult],
+    max_tokens: Optional[int] = None,
+    source_names: Optional[dict[str, str]] = None,
+) -> str:
     """Same context contract as RAGService.build_context (shared result shape)."""
     if not results:
         return ""
+    source_names = source_names or {}
     parts: list[str] = []
     length = 0
     for i, result in enumerate(results, 1):
         repo = result.metadata.get("repo")
-        label = f"{repo} · {result.source}" if repo else result.source
+        name = source_names.get(repo)
+        path = result.metadata.get("path") or result.source
+        if name:
+            label = make_source_label(name, path)
+        elif repo:
+            label = f"{repo} · {result.source}"
+        else:
+            label = result.source
         part = f"\n[{i}] {label}:\n{result.content}\n"
         if max_tokens:
             part_tokens = len(part) // 4
@@ -151,11 +164,14 @@ class WeaviateBackend:
         )
 
     def build_context(
-        self, results: list[SearchResult], max_tokens: Optional[int] = None
+        self,
+        results: list[SearchResult],
+        max_tokens: Optional[int] = None,
+        source_names: Optional[dict[str, str]] = None,
     ) -> str:
         """Class-method wrapper used by ChatOrchestrator (delegates to the
         module-level builder — same contract as RAGService.build_context)."""
-        return build_context(results, max_tokens)
+        return build_context(results, max_tokens, source_names)
 
     def close(self) -> None:
         try:

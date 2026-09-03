@@ -24,6 +24,8 @@ import chromadb
 from chromadb.config import Settings
 from openai import OpenAI
 
+from app.services.rag.source_labels import make_source_label
+
 
 @dataclass
 class SearchResult:
@@ -349,6 +351,7 @@ class RAGService:
         self,
         results: list[SearchResult],
         max_tokens: Optional[int] = None,
+        source_names: Optional[dict[str, str]] = None,
     ) -> str:
         """
         Строит контекст из УЖЕ полученных результатов поиска (без повторного
@@ -357,6 +360,9 @@ class RAGService:
         Args:
             results: Результаты search()
             max_tokens: Максимальное количество токенов (приблизительно)
+            source_names: Читабельные имена проектов по repo (вариант C,
+                02.09.2026) — метки [N] для модели совпадают с источниками
+                в ответе
 
         Returns:
             Строка с контекстом (пустая, если результатов нет)
@@ -364,13 +370,22 @@ class RAGService:
         if not results:
             return ""
 
+        source_names = source_names or {}
+
         context_parts: list[str] = []
         current_length = 0
 
         for i, result in enumerate(results, 1):
-            # Понятная пользователю/модели метка источника: репозиторий · путь
+            # Понятная пользователю/модели метка источника: имя проекта · документ
             repo = result.metadata.get("repo")
-            label = f"{repo} · {result.source}" if repo else result.source
+            name = source_names.get(repo)
+            path = result.metadata.get("path") or result.source
+            if name:
+                label = make_source_label(name, path)
+            elif repo:
+                label = f"{repo} · {result.source}"
+            else:
+                label = result.source
             part = f"\n[{i}] {label}:\n{result.content}\n"
 
             if max_tokens:
