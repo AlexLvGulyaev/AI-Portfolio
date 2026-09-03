@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>AI Portfolio — портфолио AI-инженера (v1)</title>
+<style>
+  /* WeasyPrint-совместимая печать: без CSS Grid, flex и переменных. */
+  @page {
+    size: A4 portrait;
+    margin: 18mm 16mm 16mm 16mm;
+    @bottom-center {
+      content: "AI Portfolio · Alexander Gulyaev · страница " counter(page) " из " counter(pages);
+      font-family: "DejaVu Sans", sans-serif;
+      font-size: 7.5pt;
+      color: #7D7D85;
+    }
+  }
+  @page cover { margin: 0; @bottom-center { content: none; } }
+
+  body {
+    font-family: "DejaVu Sans", sans-serif;
+    font-size: 9.5pt;
+    line-height: 1.5;
+    color: #1A1A1C;
+    margin: 0;
+  }
+
+  h1, h2, h3 { font-weight: bold; }
+
+  .cover {
+    page: cover;
+    page-break-after: always;
+    background: #E9F2F1;
+    height: 297mm;
+    padding: 40mm 22mm 0 22mm;
+    box-sizing: border-box;
+  }
+  .cover__brand {
+    font-size: 10pt;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #0D9488;
+    margin-bottom: 30mm;
+  }
+  .cover__title { font-size: 27pt; line-height: 1.15; margin: 0 0 10mm 0; }
+  .cover__lead { font-size: 12pt; line-height: 1.55; color: #3A3A40; margin: 0 0 40mm 0; }
+  .cover__author { font-size: 11pt; font-weight: bold; margin-bottom: 3mm; }
+  .cover__contacts { font-size: 9.5pt; color: #3A3A40; line-height: 1.8; }
+  .cover__version { font-size: 8pt; color: #7D7D85; margin-top: 28mm; }
+
+  .section { page-break-inside: avoid; }
+  .page-break { page-break-before: always; }
+
+  h2 {
+    font-size: 15pt;
+    border-bottom: 2px solid #0D9488;
+    padding-bottom: 3mm;
+    margin: 0 0 5mm 0;
+  }
+  h3 { font-size: 11pt; margin: 5mm 0 2mm 0; }
+
+  p { margin: 0 0 3mm 0; }
+  .muted { color: #5A5A62; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+    margin: 0 0 4mm 0;
+  }
+  th {
+    text-align: left;
+    background: #E9F2F1;
+    color: #1A1A1C;
+    padding: 2mm 2.5mm;
+    border-bottom: 1px solid #0D9488;
+    font-size: 8.5pt;
+  }
+  td {
+    padding: 2mm 2.5mm;
+    border-bottom: 0.5pt solid #C7D0DB;
+    vertical-align: top;
+  }
+  .proj-name { font-weight: bold; white-space: nowrap; }
+
+  ul { margin: 0 0 3mm 0; padding-left: 5mm; }
+  li { margin-bottom: 1.5mm; }
+
+  .principles td:first-child { font-weight: bold; width: 38%; }
+
+  .steps td { width: 25%; }
+  .steps .step-title { font-weight: bold; margin-bottom: 1mm; }
+
+  .contacts-block {
+    background: #E9F2F1;
+    padding: 5mm 6mm;
+    margin-top: 4mm;
+  }
+  .contacts-block p { margin: 0 0 2mm 0; }
+</style>
+</head>
+<body>
+
+<!-- Стр. 1: обложка -->
+<div class="cover">
+  <div class="cover__brand">AI Automation Portfolio Lab</div>
+  <h1 class="cover__title">AI&nbsp;Portfolio<br>AI-автоматизации<br>от идеи до продакшена</h1>
+  <p class="cover__lead">13 реализованных проектов: код на GitHub, метрики
+  и AI-ассистент, отвечающий по документам каждого кейса.</p>
+  <p class="cover__author">Александр Гуляев</p>
+  <div class="cover__contacts">
+    Telegram: @AlexLvGulyaev<br>
+    Email: sbs.gulyaev.al@gmail.com<br>
+    Сайт: ai.alex-n8n.site<br>
+    GitHub: github.com/AlexLvGulyaev/AI-Portfolio
+  </div>
+  <p class="cover__version">Портфолио · версия 1 · сентябрь 2026</p>
+</div>
+
+<!-- Стр. 2: о платформе -->
+<div class="page-break">
+  <h2>О платформе</h2>
+  <p>AI Portfolio — публичная платформа, объединяющая реализованные AI-проекты
+  с доказательной базой: описаниями решённых задач, архитектурой, инженерной
+  документацией, исходным кодом и работающими демо. Назначение — заказчик за
+  один визит находит релевантный кейс, проверяет фактическую реализацию и
+  обращается к исполнителю.</p>
+
+  <h3>Принципы, отличающие внедрение от демо</h3>
+  <table class="principles">
+    <tr><td>Grounding</td><td>Фактические утверждения о проектах — только из
+      подтверждённых источников; честный отказ вместо выдуманного ответа.</td></tr>
+    <tr><td>Реестр проектов</td><td>Единый источник состава портфеля,
+      администрируемый владельцем; документация синхронизируется с ним.</td></tr>
+    <tr><td>Допуск источников</td><td>В базу знаний ассистента попадает только
+      документация, прошедшая проверку качества (admission gate, fail-closed).</td></tr>
+    <tr><td>Eval-регрессия</td><td>Контрольные прогоны ассистента на eval-сете
+      каждой версии с публичным отчётом.</td></tr>
+    <tr><td>Deployment Validation</td><td>Воспроизведение системы с нуля по
+      публичной инструкции в чистом окружении — критерий готовности проекта.</td></tr>
+  </table>
+
+  <h3>AI-ассистент по документам кейсов</h3>
+  <p>На сайте работает AI-ассистент, отвечающий на вопросы о кейсах, услугах и
+  компетенциях с указанием источников. Для заказчика это способ проверить
+  глубину документации каждого проекта до первого контакта.</p>
+</div>
+
+<!-- Стр. 3: направления -->
+<div class="page-break">
+  <h2>Направления портфеля</h2>
+  <p class="muted">Восемь направлений закрывают классы задач, с которыми
+  приходят заказчики AI-автоматизации.</p>
+  <ul>
+    <li><strong>RAG-ассистенты и базы знаний</strong> — доступ к документации
+      и обращениям через диалоговый поиск;</li>
+    <li><strong>Автоматизация работы с отзывами</strong> — LLM-генерация и
+      обработка под контролем оператора;</li>
+    <li><strong>Голосовая первая линия</strong> — транскрибация, аудит встреч,
+      голосовые ассистенты;</li>
+    <li><strong>Telegram-боты: поддержка и HR</strong> — приём обращений,
+      онбординг, обработка резюме;</li>
+    <li><strong>Продажи и CRM</strong> — AI-квалификация лидов на входе;</li>
+    <li><strong>Анализ данных</strong> — диалоговый data-ассистент с отчётами;</li>
+    <li><strong>Качество AI</strong> — автоматическая проверка промптов;</li>
+    <li><strong>ML-глубина</strong> — дообучение моделей под задачу (LoRA).</li>
+  </ul>
+
+  <h2 class="page-break" style="page-break-before: always;">Реестр проектов</h2>
+  <p class="muted">Официальный состав портфеля — 13 проектов. Состав
+  синхронизирован с реестром проектов платформы.</p>
+  <table>
+    <tr><th>Проект</th><th>Направление</th><th>Что решает</th></tr>
+    <tr><td class="proj-name">AI Curator</td><td>RAG-ассистенты и базы знаний</td>
+        <td>AI-ассистент для студентов и преподавателей с базой знаний (RAG),
+        админ-консолью и мультипровайдерной LLM-цепочкой</td></tr>
+    <tr><td class="proj-name">Assistant Flow</td><td>RAG-ассистенты и базы знаний</td>
+        <td>Мультимодальная RAG-платформа для обработки входящих заявок клиентов</td></tr>
+    <tr><td class="proj-name">Review Flow</td><td>Работа с отзывами</td>
+        <td>Контролируемый гибридный цикл «AI готовит — человек решает»:
+        LLM + RAG, staff-контур</td></tr>
+    <tr><td class="proj-name">Review Auto Responder</td><td>Работа с отзывами</td>
+        <td>Автоматический ответчик на отзывы: мультипровайдерная генерация,
+        операторская панель, RBAC</td></tr>
+    <tr><td class="proj-name">Meeting Audit Bot</td><td>Голосовая первая линия</td>
+        <td>Telegram-бот аудита встреч: транскрибация, мультипровайдерный
+        анализ, веб-админка и трейсы исполнения</td></tr>
+    <tr><td class="proj-name">Retail Group</td><td>Голосовая первая линия</td>
+        <td>Пресейл-кейс голосового AI-ассистента первой линии поддержки:
+        история кейса, пилотный план, экономика</td></tr>
+    <tr><td class="proj-name">Telegram Intake Bot</td><td>Telegram-боты</td>
+        <td>Бот первичной поддержки: ответы на частые вопросы и сбор лидов</td></tr>
+    <tr><td class="proj-name">Telegram Onboarding Bot</td><td>Telegram-боты</td>
+        <td>Бот адаптации сотрудников: внешние темы онбординга, inline-редактор,
+        разграничение доступов</td></tr>
+    <tr><td class="proj-name">HR Assistant</td><td>Telegram-боты / HR</td>
+        <td>Обработка резюме, сопоставление вакансий и кандидатов,
+        мультимедийные ответы</td></tr>
+    <tr><td class="proj-name">Lead Qualification</td><td>Продажи и CRM</td>
+        <td>AI-квалификация лидов: классификация входящих, scoring,
+        интеграция с CRM</td></tr>
+    <tr><td class="proj-name">AI Data Assistant</td><td>Анализ данных</td>
+        <td>Data-ассистент с runtime-конфигом оператора, графиками, отчётами
+        DOCX и end-to-end тестами в Docker</td></tr>
+    <tr><td class="proj-name">Prompt Review</td><td>Качество AI</td>
+        <td>Автоматическая проверка промптов: анализ качества и рекомендации
+        по улучшению</td></tr>
+    <tr><td class="proj-name">HR Assistant — LoRA</td><td>ML-глубина</td>
+        <td>Дообучение Qwen2.5 (LoRA) под matching-модель HR-ассистента</td></tr>
+  </table>
+</div>
+
+<!-- Стр. 4-5: компетенции -->
+<div class="page-break">
+  <h2>Компетенции</h2>
+  <p class="muted">Каждая компетенция подтверждается реализацией в конкретных
+  проектах портфеля.</p>
+  <table>
+    <tr><th style="width:40%;">Компетенция</th><th>Чем подтверждена</th></tr>
+    <tr><td>RAG: базы знаний и диалоговый поиск</td>
+        <td>AI Curator (KB + RAG + допуск источников), Assistant Flow,
+        Review Flow</td></tr>
+    <tr><td>Контролируемые AI-циклы («AI готовит — человек решает»)</td>
+        <td>Review Flow — Controlled Hybrid со staff-контуром</td></tr>
+    <tr><td>AI-классификация входящих, интеграция с CRM</td>
+        <td>Lead Qualification (n8n, scoring, CRM)</td></tr>
+    <tr><td>Telegram-боты: обращения, FAQ, лиды</td>
+        <td>Telegram Intake Bot, Telegram Onboarding Bot (FSM, RBAC)</td></tr>
+    <tr><td>HR-автоматизация: резюме, matching, онбординг</td>
+        <td>HR Assistant, HR Assistant — LoRA, Telegram Onboarding Bot</td></tr>
+    <tr><td>Голосовые сценарии: транскрибация и анализ</td>
+        <td>Meeting Audit Bot (STT, трейсы), Retail Group (пресейл,
+        пилотный план, экономика)</td></tr>
+    <tr><td>Диалоговый анализ данных с отчётами</td>
+        <td>AI Data Assistant (графики, DOCX, Docker E2E)</td></tr>
+    <tr><td>Контроль качества LLM-промптов</td>
+        <td>Prompt Review (scorecard, рекомендации)</td></tr>
+    <tr><td>Дообучение LLM под задачу (LoRA)</td>
+        <td>HR Assistant — LoRA: дообучение Qwen2.5 под matching-модель</td></tr>
+  </table>
+
+  <h3>Технологический стек</h3>
+  <table>
+    <tr><th style="width:40%;">Технология</th><th>Где применена</th></tr>
+    <tr><td>Python, FastAPI</td>
+        <td>Backend ключевых LLM-проектов: AI Curator, Assistant Flow,
+        Review Flow, AI Data Assistant, Meeting Audit Bot</td></tr>
+    <tr><td>PostgreSQL, React</td>
+        <td>Хранение данных и интерфейсы продуктов; админ-консоль платформы</td></tr>
+    <tr><td>Векторные базы: ChromaDB / Weaviate</td>
+        <td>Переключаемые бэкенды RAG; активный — Weaviate</td></tr>
+    <tr><td>Мультипровайдерность LLM</td>
+        <td>OpenAI / GigaChat: переключение провайдера без изменения кода</td></tr>
+    <tr><td>n8n, Docker Compose, Telegram Bot API</td>
+        <td>Workflow-автоматизация, развёртывание, боты поддержки и HR</td></tr>
+  </table>
+
+  <h3 style="page-break-before: always;">Инженерные практики</h3>
+  <table>
+    <tr><th style="width:40%;">Практика</th><th>Где реализована</th></tr>
+    <tr><td>Eval-регрессия ассистента</td>
+        <td>Контрольные прогоны каждой версии, публичный отчёт</td></tr>
+    <tr><td>Допуск источников к базе знаний</td>
+        <td>Admission gate с политикой fail-closed</td></tr>
+    <tr><td>Операционные консоли</td>
+        <td>Логи, диалоги, аудит, retrieval, допуск — наблюдаемость
+        рантайма</td></tr>
+    <tr><td>RBAC и операторские контуры</td>
+        <td>Review Auto Responder, Telegram Onboarding Bot, Review Flow</td></tr>
+    <tr><td>Трейсинг исполнения</td>
+        <td>Execution-трейсы Meeting Audit Bot и платформы</td></tr>
+  </table>
+</div>
+
+<!-- Как строится работа: сразу после практик -->
+<div>
+  <h2>Как строится работа</h2>
+  <p class="muted">Решения с чётким результатом и сроком реализации до 10 дней.</p>
+  <table class="steps">
+    <tr>
+      <td><div class="step-title">1. Диагностика</div>
+          Уточняю задачу, процесс, системы и критерии успеха.</td>
+      <td><div class="step-title">2. Прототип</div>
+          Собираю первый рабочий поток на реальных данных.</td>
+    </tr>
+    <tr>
+      <td><div class="step-title">3. Интеграция</div>
+          Подключаю CRM, мессенджеры, базы знаний, LLM-провайдеров.</td>
+      <td><div class="step-title">4. Передача</div>
+          Документирую, обучаю команду, сдаю с метриками и планом поддержки.</td>
+    </tr>
+  </table>
+
+  <h3>Прежде чем писать — посмотрите</h3>
+  <ul>
+    <li><strong>Страницы кейсов</strong> — каждая содержит задачу, архитектуру,
+      результаты и ссылки на код;</li>
+    <li><strong>Живое демо ассистента</strong> — на сайте: задайте вопрос о
+      любом кейсе, ассистент ответит по документам с указанием источников;</li>
+    <li><strong>Документация платформы</strong> — архитектура, глоссарий,
+      FAQ и отчёт eval-регрессии — в публичном репозитории.</li>
+  </ul>
+</div>
+
+<!-- Стр. 7: контакты -->
+<div class="page-break">
+  <h2>Связаться</h2>
+  <p>Опишите задачу — обсудим, что можно автоматизировать и с чего начать.</p>
+  <div class="contacts-block">
+    <p><strong>Александр Гуляев</strong> · AI Automation Portfolio Lab</p>
+    <p>Telegram: <strong>@AlexLvGulyaev</strong> — самый быстрый канал</p>
+    <p>Email: sbs.gulyaev.al@gmail.com</p>
+    <p>Сайт: ai.alex-n8n.site</p>
+    <p>GitHub: github.com/AlexLvGulyaev/AI-Portfolio</p>
+  </div>
+  <p class="muted" style="margin-top:6mm;">Портфолио — живая система: состав
+  проектов и документация обновляются, ассистент отвечает по актуальной базе
+  знаний. Актуальная версия всегда на сайте.</p>
+</div>
+
+</body>
+</html>
