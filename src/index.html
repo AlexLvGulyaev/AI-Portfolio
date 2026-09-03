@@ -1188,8 +1188,10 @@
         function applyFilter(filter) {
           let visible = 0;
           cards.forEach(function(card) {
-            const tags = card.getAttribute('data-tags') || '';
-            const match = filter === 'all' || tags.includes(filter);
+            // Регистронезависимо: теги БД — 'Telegram Bot', 'FastAPI',
+            // 'RAG', 'Voice AI', а значения фильтров — в нижнем регистре.
+            const tags = (card.getAttribute('data-tags') || '').toLowerCase();
+            const match = filter === 'all' || tags.includes(filter.toLowerCase());
             if (match) {
               card.classList.remove('is-hidden');
               visible++;
