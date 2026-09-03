@@ -888,8 +888,8 @@ export function AdmissionConsolePage() {
                     <button
                       className="admin-btn admin-btn--primary admin-btn--small"
                       type="button"
-                      disabled={!preview || preview.status !== 'ready' || !compDirty || detailBusy}
-                      title={compDirty ? '' : 'Изменений состава нет'}
+                      disabled={!preview || preview.status !== 'ready' || (!compDirty && selected.display_status !== 'patterns_changed') || detailBusy}
+                      title={compDirty || selected.display_status === 'patterns_changed' ? '' : 'Изменений состава нет'}
                       onClick={() => setConfirmAction('save')}
                     >
                       Сохранить

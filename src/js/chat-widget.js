@@ -468,6 +468,12 @@
       })
       .then((data) => loadMarked().then(() => {
         body.innerHTML = renderDocFragment(data.fragment || '');
+        // Документ хранится в KB как plain-текст (markdown-разметка
+        // снята при синхронизации) — панель честно об этом предупреждает.
+        const plainNote = document.createElement('p');
+        plainNote.className = 'doc-panel__hint';
+        plainNote.textContent = 'Показан plain-текст документа (в таком виде он хранится в базе знаний); markdown-оформление — в оригинале по ссылке GitHub выше.';
+        body.insertBefore(plainNote, body.firstChild);
         if (data.located === false) {
           const hint = document.createElement('p');
           hint.className = 'doc-panel__hint';

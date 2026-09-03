@@ -1,16 +1,18 @@
-"""Панель документа: фрагмент md-документа вокруг цитированного чанка.
+"""Панель документа: фрагмент документа вокруг цитированного чанка.
 
 GET /document-fragment?repo=...&path=...&excerpt=...
-→ крупный статический фрагмент документа с подсвеченным цитированным
-чанком (решение владельца 03.09.2026: не полный md со скроллом, а
-достаточно большой фрагмент с контекстом).
+→ достаточно большой статический фрагмент с подсвеченным цитированным
+чанком (решение владельца 03.09.2026: не полный md со скроллом).
 
 Механика: полный md берётся с raw.githubusercontent.com (ветка — из
-реестра допуска KnowledgeSource, fail-closed: нет записи — 404); чанк
-— точная подстрока документа (секционное чанкование), ищется после
-схлопывания пробелов с обратной картой в исходные оффсеты. Подсветка —
-PUA-маркеры / вокруг чанка, фронт разворачивает их в <mark>
-после markdown-рендера.
+реестра допуска KnowledgeSource, fail-closed: нет записи — 404) и
+приводится тем же `_markdown_to_plain_text`, что и при синхронизации KB:
+чанки в индексе — подстроки именно plain-текста (markdown → HTML →
+текст, заголовки живут, `**` и `- ` поглощаются), поэтому искать чанк
+и вырезать окно нужно в этом же представлении (фикс 03.09.2026 после
+репорта владельца: в raw md чанк с жирностью/буллетами не находился).
+Подсветка — PUA-маркеры, фронт разворачивает их в <mark> после
+markdown-рендера; панель честно подписывает, что показан plain-текст.
 """
 
 import logging
@@ -24,6 +26,9 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.models.entities import KnowledgeSource, ProjectCard
+from app.services.admin.github_knowledge_source_service import (
+    GitHubKnowledgeSourceService,
+)
 from app.services.rag.source_labels import github_blob_url, make_source_label
 
 logger = logging.getLogger(__name__)
@@ -39,9 +44,9 @@ CACHE_TTL_S = 600
 MAX_CACHE_DOCS = 128
 
 # Символы Private Use Area: проходят через markdown-рендер как текст,
-# фронт разворачивает их в <mark>. Не встречаются в осмысленных md.
-MARK_OPEN = "\ue000"  # U+E000 PUA
-MARK_CLOSE = "\ue001"  # U+E001 PUA
+# фронт разворачивает их в <mark>. Не встречаются в осмысленном тексте.
+MARK_OPEN = ""  # U+E000 PUA
+MARK_CLOSE = ""  # U+E001 PUA
 
 # (repo, branch, path) -> (fetched_at, text)
 _raw_cache: dict[tuple[str, str, str], tuple[float, str]] = {}
@@ -158,7 +163,11 @@ async def document_fragment(
     label = make_source_label(display_name or card_title or repo, path)
     html_url = github_blob_url(repo, branch, path)
 
-    located_span = _locate(doc, excerpt)
+    # Чанки в KB — подстроки plain-текста (тот же трансформ, что в sync),
+    # поэтому локализация и окно — в этом же представлении документа.
+    plain = GitHubKnowledgeSourceService._markdown_to_plain_text(doc)
+
+    located_span = _locate(plain, excerpt)
     if located_span is None:
         # Чанк не найден в текущем виде файла (документ правили после
         # индексации): честный фолбэк — показываем сам чанк целиком.
@@ -168,9 +177,9 @@ async def document_fragment(
         located = True
         exc_start, exc_end = located_span
         win_start, win_end = _build_window(
-            doc, exc_start, exc_end, context_chars
+            plain, exc_start, exc_end, context_chars
         )
-        fragment = doc[win_start:win_end].strip()
+        fragment = plain[win_start:win_end].strip()
         h = _locate(fragment, excerpt)
         if h is None:  # не должно случиться, но не роняем панель
             fragment = _insert_markers(excerpt.strip(), 0, len(excerpt.strip()))
@@ -185,5 +194,6 @@ async def document_fragment(
         "branch": branch,
         "fragment": fragment,
         "located": located,
-        "total_chars": len(doc),
+        "plain_text": True,
+        "total_chars": len(plain),
     }
