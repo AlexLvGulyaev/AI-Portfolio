@@ -60,6 +60,14 @@ ANAPHORA_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Безличное «это» в определительных вопросах («что это за …», «что это
+# такое») — не анафора: обогащение retrieval прошлым проектом сужало поиск
+# не туда. Кейс 03.09: чип «Что это за платформа?» в сессии со старой
+# историей про AI Curator → project_scoped-поиск по репозиторию AI-Curator,
+# ответ целиком про чужой кейс. Такие вопросы — самодостаточные, retrieval
+# идёт по исходному запросу.
+IMPERSONAL_ITA_RE = re.compile(r"\bчто\s+это\b", re.IGNORECASE)
+
 
 class ChatOrchestrator:
     """
@@ -768,6 +776,7 @@ class ChatOrchestrator:
                 not resolved_cards
                 and history_present
                 and ANAPHORA_RE.search(user_query)
+                and not IMPERSONAL_ITA_RE.search(user_query)
             ):
                 for m in reversed(conversation_memory):
                     if m.role != "user":
