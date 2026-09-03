@@ -304,16 +304,16 @@
       display: block;
     }
 
-    .preview-dark { display: block; }
-    .preview-light { display: none; }
+    .preview-light { display: block; }
+    .preview-dark { display: none; }
 
     @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) .preview-dark { display: none; }
-      :root:not([data-theme="light"]) .preview-light { display: block; }
+      :root:not([data-theme="light"]) .preview-light { display: none; }
+      :root:not([data-theme="light"]) .preview-dark { display: block; }
     }
 
-    :root[data-theme="dark"] .preview-dark { display: none; }
-    :root[data-theme="dark"] .preview-light { display: block; }
+    :root[data-theme="dark"] .preview-light { display: none; }
+    :root[data-theme="dark"] .preview-dark { display: block; }
 
     .summary {
       padding: 0 0 var(--space-3xl);
@@ -1280,6 +1280,16 @@
       .chat-widget { right: 16px; bottom: 84px; }
       .chat-launcher { right: 16px; bottom: 16px; }
     }
+    /* Приглашение к eval-тесту демо (решение владельца 03.09) */
+    .demo-hint {
+      margin: var(--space-sm) 0 0;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 640px;
+    }
+    .demo-hint a { color: var(--accent); }
   </style>
   
 </head>
@@ -1311,6 +1321,7 @@
             <a href="/contacts.html" class="btn btn-ghost" target="_blank" rel="noopener">Обсудить проект</a>
             
           </div>
+<p class="demo-hint"><strong>Как проверить демо за 2 минуты:</strong> <a href="https://t.me/PEcb06_bot" target="_blank" rel="noopener">откройте бота</a> → откройте бота → /start → напишите заявку свободным текстом → проверьте, как извлекаются поля и формируется карточка.</p>
         </div>
         <div class="hero__media">
           <img class="hero__screenshot preview-dark" src="/assets/screenshots/TIB_portfolio_dark.png" alt="Telegram-интерфейс Intake Bot: диалог с пользователем" loading="eager">
@@ -1730,7 +1741,7 @@
         <div>
           <p class="eyebrow">Следующий шаг</p>
           <h2 class="final__title">Расскажите о вашем intake-процессе</h2>
-          <p class="final__lead">Мы оценим, как Telegram Intake Bot превратит свободные сообщения в структурированные заявки.</p>
+          <p class="final__lead">Я оценю, как Telegram Intake Bot превратит свободные сообщения в структурированные заявки.</p>
           <div class="final__actions">
             <a href="/contacts.html" class="btn btn-primary" target="_blank" rel="noopener">Обсудить проект</a>
             <a href="https://t.me/PEcb06_bot" class="btn btn-ghost" target="_blank" rel="noopener">Открыть в Telegram</a>

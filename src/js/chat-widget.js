@@ -20,16 +20,17 @@
   // ============================================
 
   const CONFIG = {
-    // Staggered welcome (2 коротких сообщения вместо одного полотна)
+    // Staggered welcome (короткие сообщения вместо одного полотна)
     WELCOME_STEPS: [
       'Привет! Я AI-ассистент портфолио.',
       'Отвечаю о кейсах, услугах и компетенциях по документам GitHub-репозиториев — с указанием источников.',
+      'Спросите про любой кейс — или опишите свою рутину, и я подскажу, есть ли похожий проект.',
     ],
 
     // Заготовленные вопросы (conversation starters). Ключ = тип страницы.
     STARTERS: {
-      default: ['Что такое AI Portfolio?', 'Какие кейсы реализованы?', 'Как устроена база знаний?'],
-      case: ['Как устроен этот кейс?', 'Какие результаты и метрики?', 'Какие технологии использованы?'],
+      default: ['Что такое AI Portfolio?', 'Какие кейсы реализованы?', 'Как устроена база знаний?', 'Я иду смотреть демо — что проверить?'],
+      case: ['Как устроен этот кейс?', 'Какие результаты и метрики?', 'Какие технологии использованы?', 'Я иду смотреть демо — что проверить?'],
       services: ['Что входит в услуги?', 'Как проходит работа над проектом?', 'Как связаться?'],
     },
 
@@ -521,7 +522,14 @@
       setTimeout(function() {
         removeTyping();
         appendMessage(CONFIG.WELCOME_STEPS[1], 'bot');
-        if (CONFIG.SHOW_METADATA) renderStarters();
+        setTimeout(function() {
+          appendTyping();
+          setTimeout(function() {
+            removeTyping();
+            appendMessage(CONFIG.WELCOME_STEPS[2], 'bot');
+            if (CONFIG.SHOW_METADATA) renderStarters();
+          }, 900);
+        }, 500);
       }, 900);
     }, 500);
   }
@@ -757,5 +765,8 @@
   } else {
     init();
   }
+
+  // Публичный API: наводка в hero (index.html) открывает виджет программно
+  window.AIPortfolioChat = { open: openWidget, close: closeWidget };
 
 })();

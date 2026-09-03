@@ -304,16 +304,16 @@
       display: block;
     }
 
-    .preview-dark { display: block; }
-    .preview-light { display: none; }
+    .preview-light { display: block; }
+    .preview-dark { display: none; }
 
     @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) .preview-dark { display: none; }
-      :root:not([data-theme="light"]) .preview-light { display: block; }
+      :root:not([data-theme="light"]) .preview-light { display: none; }
+      :root:not([data-theme="light"]) .preview-dark { display: block; }
     }
 
-    :root[data-theme="dark"] .preview-dark { display: none; }
-    :root[data-theme="dark"] .preview-light { display: block; }
+    :root[data-theme="dark"] .preview-light { display: none; }
+    :root[data-theme="dark"] .preview-dark { display: block; }
 
     /* Case summary */
     .summary {
@@ -1310,6 +1310,16 @@
       .chat-widget { right: 16px; bottom: 84px; }
       .chat-launcher { right: 16px; bottom: 16px; }
     }
+    /* Приглашение к eval-тесту демо (решение владельца 03.09) */
+    .demo-hint {
+      margin: var(--space-sm) 0 0;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 640px;
+    }
+    .demo-hint a { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -1342,6 +1352,7 @@
             <a href="https://github.com/AlexLvGulyaev/ai-curator" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a>
             <a href="/contacts.html" class="btn btn-ghost">Обсудить проект</a>
           </div>
+<p class="demo-hint"><strong>Как проверить демо за 2 минуты:</strong> <a href="https://curator.alex-n8n.site" target="_blank" rel="noopener">откройте Live demo</a> → задайте вопрос об учебном материале или дедлайне → проверьте, что под ответом стоит ссылка на источник (LMS или База знаний).</p>
         </div>
         <div class="hero__media">
           <img class="hero__screenshot preview-dark" src="/assets/screenshots/AIC_portfolio_dark.png" alt="AI Curator: тёмная операционная консоль диалога с ответом системы и источниками" loading="eager">
