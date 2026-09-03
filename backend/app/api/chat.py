@@ -9,7 +9,7 @@ HTTP Request → Session Management → Conversation Memory → Response Cache
 → Operational Logging → Conversation Memory → HTTP Response
 """
 
-from uuid import UUID
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
@@ -23,6 +23,8 @@ from app.services.chat_orchestrator import ChatOrchestrator
 from app.services.execution_tracing_service import ExecutionTracingService
 
 router = APIRouter(prefix="/chat", tags=["chat"])
+
+logger = logging.getLogger(__name__)
 
 
 def get_db():
@@ -134,8 +136,11 @@ async def chat(
         )
 
     except Exception as e:
-        # В случае ошибки возвращаем понятное сообщение
+        # Обобщённое сообщение наружу (API_CONTRACT §2): текст исключения
+        # не отдаётся зрителю — виджет показывает detail как есть.
+        # Детали — в логе backend.
+        logger.error("chat request failed: %s: %s", type(e).__name__, e)
         raise HTTPException(
             status_code=500,
-            detail=f"Ошибка обработки запроса: {str(e)}",
+            detail="Не удалось обработать запрос. Попробуйте позже.",
         )
