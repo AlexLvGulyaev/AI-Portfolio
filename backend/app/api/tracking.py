@@ -32,8 +32,10 @@ class TrackVisitResponse(BaseModel):
 
 
 # Presale funnel event types (§4.5, решение о хранилище — ARCHITECTURE.md §8.4).
+# chat_feedback — не шаг воронки, а оценка ответа ассистента (👍/👎, 03.09);
+# консоль «Пресейл» фильтрует по явным типам и не задевается новым типом.
 # Whitelist: произвольные типы не принимаются, чтобы не засорять воронку.
-ALLOWED_PRESALE_EVENT_TYPES: tuple[str, ...] = ("case_view", "inquiry")
+ALLOWED_PRESALE_EVENT_TYPES: tuple[str, ...] = ("case_view", "inquiry", "chat_feedback")
 
 # Разрешённые ключи метаданных события (visitor_id проставляется сервером).
 ALLOWED_PRESALE_METADATA_KEYS: tuple[str, ...] = (
@@ -42,12 +44,14 @@ ALLOWED_PRESALE_METADATA_KEYS: tuple[str, ...] = (
     "external_url",
     "channel",
     "label",
+    "rating",
+    "question_preview",
 )
 
 
 class TrackEventRequest(BaseModel):
-    event_type: Literal["case_view", "inquiry"] = Field(
-        description="Presale funnel event type"
+    event_type: Literal["case_view", "inquiry", "chat_feedback"] = Field(
+        description="Presale funnel event type (chat_feedback — оценка ответа ассистента)"
     )
     visitor_id: str | None = Field(None, description="Stable anonymous visitor id")
     path: str | None = Field(None, description="Current page path")

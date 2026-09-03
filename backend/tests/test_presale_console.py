@@ -53,6 +53,10 @@ def test_track_event_request_type_whitelist():
         "inquiry accepted",
         TrackEventRequest(event_type="inquiry").event_type == "inquiry",
     )
+    ok &= check(
+        "chat_feedback accepted (оценка ответа ассистента, 03.09)",
+        TrackEventRequest(event_type="chat_feedback").event_type == "chat_feedback",
+    )
     rejected = False
     try:
         TrackEventRequest(event_type="page_poke")  # type: ignore[arg-type]
@@ -61,7 +65,7 @@ def test_track_event_request_type_whitelist():
     ok &= check("unknown event type rejected by Literal", rejected)
     ok &= check(
         "ALLOWED_PRESALE_EVENT_TYPES matches Literal",
-        sorted(ALLOWED_PRESALE_EVENT_TYPES) == ["case_view", "inquiry"],
+        sorted(ALLOWED_PRESALE_EVENT_TYPES) == ["case_view", "chat_feedback", "inquiry"],
     )
     return ok
 
