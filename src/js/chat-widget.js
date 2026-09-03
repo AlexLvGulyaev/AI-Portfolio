@@ -135,6 +135,20 @@
         height: 720px !important;
         max-height: calc(100vh - 60px) !important;
       }
+      /* CTA «Обсудить проект» над полем ввода */
+      .chat-discuss-bar {
+        display: flex;
+        justify-content: center;
+        padding: 6px 14px;
+        border-top: 1px solid var(--border, rgba(128, 128, 128, 0.25));
+      }
+      .chat-discuss {
+        font-size: 0.78rem;
+        color: var(--accent, inherit);
+        text-decoration: none;
+        transition: opacity 150ms ease;
+      }
+      .chat-discuss:hover { text-decoration: underline; }
       /* Полноэкранный режим на мобильных (стандарт Intercom/Crisp) */
       @media (max-width: 600px) {
         .chat-widget {
@@ -717,6 +731,31 @@
   }
 
   // ============================================
+  /**
+   * CTA «Обсудить проект»: строка над полем ввода. Инъекция из JS —
+   * разметка виджета продублирована в HTML всех страниц витрины, одну
+   * правку делаем здесь. target=_blank: диалог остаётся в текущей
+   * вкладке, обращение открывается рядом. Клик трекается как inquiry
+   * (channel: chat_widget) — см. initPresaleTracking в api-client.js.
+   */
+  function addDiscussBar() {
+    if (widget.querySelector('.chat-discuss-bar')) return;
+    // На «Контактах» CTA не нужен — зритель уже на странице обращения
+    if (window.location.pathname === '/contacts.html') return;
+    const bar = document.createElement('div');
+    bar.className = 'chat-discuss-bar';
+    const link = document.createElement('a');
+    link.className = 'chat-discuss aip-discuss';
+    link.href = '/contacts.html';
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = 'Обсудить проект →';
+    bar.appendChild(link);
+    const footer = widget.querySelector('.chat-footer');
+    if (!footer) return;
+    footer.parentNode.insertBefore(bar, footer);
+  }
+
   // Initialize
   // ============================================
 
@@ -753,9 +792,11 @@
       }
     });
 
-    // UX-расширения: «Развернуть», вопрос-чипы, проактивный тизер
+    // UX-расширения: «Развернуть», вопрос-чипы, проактивный тизер,
+    // CTA «Обсудить проект»
     ensureSourceChipStyles();
     addExpandButton();
+    addDiscussBar();
     scheduleTeaser();
   }
 

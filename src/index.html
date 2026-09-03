@@ -599,6 +599,19 @@
       gap: 0.35rem;
     }
 
+    /* CTA «Обсудить» в карточке: тихая текстовая ссылка, прижата к низу */
+    .project-card__actions {
+      margin-top: auto;
+      padding-top: var(--space-sm);
+    }
+    .project-card__discuss {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 150ms ease;
+    }
+    .project-card__discuss:hover { color: var(--accent); }
+
     .tag {
       font-family: var(--font-mono);
       font-size: 0.68rem;
@@ -990,8 +1003,8 @@
     </div>
   </div>
 
-  <script src="js/api-client.js"></script>
-  <script src="js/chat-widget.js"></script>
+  <script src="js/api-client.js?v=20260903"></script>
+  <script src="js/chat-widget.js?v=20260903"></script>
   <script>
     (function() {
       const btn = document.getElementById('theme-toggle');
@@ -1091,6 +1104,7 @@
               '<div class="featured-card__actions">' +
                 '<a href="' + escapeHtml(meta.actionPrimary || card.external_url || '#') + '" class="btn btn-primary">' + escapeHtml(meta.actionPrimaryLabel || 'Открыть кейс') + '</a>' +
                 '<a href="' + escapeHtml(meta.actionGhost || '#') + '" class="btn btn-ghost">' + escapeHtml(meta.actionGhostLabel || 'Подробнее') + '</a>' +
+                '<a href="/contacts.html" class="btn btn-ghost aip-discuss" data-card-slug="' + escapeHtml(card.slug) + '">Обсудить</a>' +
               '</div>' +
             '</div>' +
           '</article>'
@@ -1132,6 +1146,9 @@
               '<h3 class="project-card__title"><a href="' + escapeHtml(card.external_url || meta.actionPrimary || '#') + '">' + escapeHtml(card.title) + '</a></h3>' +
               '<p class="project-card__desc">' + escapeHtml(card.short_description) + '</p>' +
               '<div class="project-card__tags">' + tagsHtml + '</div>' +
+              '<div class="project-card__actions">' +
+                '<a href="/contacts.html" class="project-card__discuss aip-discuss" data-card-slug="' + escapeHtml(card.slug) + '">Обсудить →</a>' +
+              '</div>' +
             '</div>' +
           '</article>'
         );
