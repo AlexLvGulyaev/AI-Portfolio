@@ -46,6 +46,8 @@ from app.services.portfolio_registry import RegistryCard
 from app.services.prompt_assembly import PromptAssembly
 from app.services.providers.base import AIProvider
 from app.services.providers.factory import AIProviderFactory
+from app.models.entities import KnowledgeSource, ProjectCard
+from app.services.rag.source_labels import github_blob_url, make_source_label
 from app.services.rag.rag_service import RAGService
 
 
@@ -200,31 +202,91 @@ class ChatOrchestrator:
         """
         return "такой информации нет" in (answer or "").lower()
 
-    @staticmethod
-    def _citations(rag_results: list) -> tuple[list[str], list[dict[str, Any]]]:
+    def _citations(self, rag_results: list) -> tuple[list[str], list[dict[str, Any]]]:
         """
-        Пользовательские цитаты: `<repository> · <relative path>`.
+        Пользовательские цитаты: `<имя проекта> · <короткое имя документа>`
+        (вариант C, решение владельца 02.09.2026 — подписи вместо сырых
+        GitHub-путей) + GitHub blob-ссылка в detail для кликабельных карточек.
 
-        Дедупликация по repository+path с сохранением порядка первого
+        Дедупликация по (repository, path) с сохранением порядка первого
         появления. Возвращает (sources, sources_detail).
         """
-        seen: set[str] = set()
+        source_info = self._source_info({
+            r.metadata.get("repo")
+            for r in rag_results
+            if r.metadata.get("repo")
+        })
+        return self._build_citations(rag_results, source_info)
+
+    @classmethod
+    def _build_citations(
+        cls,
+        rag_results: list,
+        source_info: dict[str, tuple[str, str | None]],
+    ) -> tuple[list[str], list[dict[str, Any]]]:
+        """Чистая сборка цитат по готовому маппингу repo -> (имя, branch)."""
+        seen: set[tuple[str | None, str]] = set()
         sources: list[str] = []
         detail: list[dict[str, Any]] = []
         for r in rag_results:
             repo = r.metadata.get("repo")
             path = r.metadata.get("path") or r.source
-            label = f"{repo} · {path}" if repo else path
-            if label not in seen:
-                seen.add(label)
+            key = (repo, path)
+            name, branch = source_info.get(repo) or (None, None)
+            if name or repo:
+                label = make_source_label(name or repo, path)
+            else:
+                label = path
+            # blob-ссылка только при известной ветке из реестра допуска:
+            # угаданная ветка — источник битых ссылок (fail-closed).
+            html_url = (
+                github_blob_url(repo, branch, path)
+                if repo and path and branch
+                else None
+            )
+            if key not in seen:
+                seen.add(key)
                 sources.append(label)
             detail.append({
                 "repo": repo,
                 "path": path,
                 "chunk_index": r.metadata.get("chunk_index"),
                 "score": r.score,
+                "label": label,
+                "html_url": html_url,
             })
         return sources, detail
+
+    def _source_info(
+        self, repos: set[str]
+    ) -> dict[str, tuple[str, str | None]]:
+        """
+        Маппинг `owner/repo` -> (читабельное имя проекта, ветка) из реестра
+        допуска: display_name источника, фолбэк — title карточки проекта.
+        """
+        if not repos:
+            return {}
+        rows = (
+            self.db.query(
+                KnowledgeSource.identifier,
+                KnowledgeSource.display_name,
+                KnowledgeSource.branch,
+                ProjectCard.title,
+            )
+            .outerjoin(
+                ProjectCard,
+                KnowledgeSource.project_card_id == ProjectCard.id,
+            )
+            .filter(
+                KnowledgeSource.source_type == "github_repo",
+                KnowledgeSource.identifier.in_(repos),
+            )
+            .all()
+        )
+        return {
+            identifier: (display_name or card_title or identifier, branch)
+            for identifier, display_name, branch, card_title in rows
+        }
 
     # Цитата-маркер «[N]», за которой НЕ следует «(» (не ломаем markdown-ссылки
     # вида «[1](https://...)»). Двузначных номеров достаточно: top_k ≤ 10.
@@ -802,9 +864,22 @@ class ChatOrchestrator:
                 if rag_results:
                     # Контекст строится из УЖЕ полученных результатов —
                     # без повторного поиска (один retrieval на запрос).
-                    rag_context = self.rag_service.build_context(rag_results)
+                    _repos = {
+                        r.metadata.get("repo")
+                        for r in rag_results
+                        if r.metadata.get("repo")
+                    }
+                    _source_info = self._source_info(_repos)
+                    rag_context = self.rag_service.build_context(
+                        rag_results,
+                        source_names={
+                            repo: name for repo, (name, _b) in _source_info.items()
+                        },
+                    )
                     rag_used = True
-                    sources, sources_detail = self._citations(rag_results)
+                    sources, sources_detail = self._build_citations(
+                        rag_results, _source_info
+                    )
                     if _tr is not None:
                         _tr.set("collection", self.rag_service.config.collection_name)
                         _tr.set("kb_chunk_count", self.rag_service.count_documents())

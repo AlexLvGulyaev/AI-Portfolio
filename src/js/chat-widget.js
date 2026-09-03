@@ -55,6 +55,35 @@
   // Helper Functions
   // ============================================
 
+  // Стили чипов источников инъектируются одним <style> на страницу (CSS виджета
+  // дублируется в 17 HTML-страницах — инъекция из JS исключает правку всех страниц;
+  // цвета берутся из CSS-переменных темы страницы, fallback — нейтральные).
+  function ensureSourceChipStyles() {
+    if (document.getElementById('chat-source-chip-style')) return;
+    const style = document.createElement('style');
+    style.id = 'chat-source-chip-style';
+    style.textContent = `
+      .chat-source-chip {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.75rem;
+        line-height: 1.4;
+        color: var(--text-secondary, inherit);
+        background: var(--surface-elevated, transparent);
+        border: 1px solid var(--border, rgba(128,128,128,.35));
+        border-radius: 999px;
+        padding: 2px 10px;
+        text-decoration: none;
+        transition: color .15s ease, border-color .15s ease;
+      }
+      a.chat-source-chip:hover {
+        color: var(--accent, inherit);
+        border-color: var(--accent, currentColor);
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   /**
    * Append message to chat
    * @param {string} text - Message text
@@ -86,10 +115,36 @@
         sourcesLabel.textContent = 'Источники:';
         sourcesDiv.appendChild(sourcesLabel);
 
-        const sourcesList = document.createElement('span');
-        sourcesList.className = 'chat-message__meta-value';
-        sourcesList.textContent = metadata.sources.join(', ');
-        sourcesDiv.appendChild(sourcesList);
+        // Кликабельные карточки источников (вариант C, 02.09.2026): читабельная
+        // подпись + GitHub blob-ссылка из sources_detail. Без detail — plain text.
+        const detail = metadata.sourcesDetail || [];
+        const byLabel = new Map();
+        detail.forEach((d) => {
+          if (d && d.label && d.html_url && !byLabel.has(d.label)) {
+            byLabel.set(d.label, d.html_url);
+          }
+        });
+
+        if (byLabel.size > 0) {
+          ensureSourceChipStyles();
+          metadata.sources.forEach((label) => {
+            const href = byLabel.get(label);
+            const chip = document.createElement(href ? 'a' : 'span');
+            chip.className = 'chat-source-chip';
+            if (href) {
+              chip.href = href;
+              chip.target = '_blank';
+              chip.rel = 'noopener noreferrer';
+            }
+            chip.textContent = label;
+            sourcesDiv.appendChild(chip);
+          });
+        } else {
+          const sourcesList = document.createElement('span');
+          sourcesList.className = 'chat-message__meta-value';
+          sourcesList.textContent = metadata.sources.join(', ');
+          sourcesDiv.appendChild(sourcesList);
+        }
 
         metaDiv.appendChild(sourcesDiv);
       }
@@ -227,6 +282,7 @@
         // Append bot response with metadata
         appendMessage(response.answer, 'bot', {
           sources: response.sources,
+          sourcesDetail: response.sourcesDetail,
           provider: response.provider,
           model: response.model,
           responseTimeMs: response.responseTimeMs,

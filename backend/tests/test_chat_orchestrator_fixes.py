@@ -520,7 +520,8 @@ def test_single_retrieval_per_cache_miss():
 
 # ---------- §8: цитаты ----------
 
-def test_citations_repo_path_deduped_in_order():
+def test_citations_readable_labels_and_blob_links():
+    """Вариант C (02.09.2026): читабельные подписи + GitHub blob в detail."""
     from app.services.chat_orchestrator import ChatOrchestrator
 
     results = [
@@ -531,11 +532,67 @@ def test_citations_repo_path_deduped_in_order():
         SimpleNamespace(content="", source="README.md", score=0.3,
                         metadata={"repo": "o/A", "path": "README.md"}),
     ]
-    sources, detail = ChatOrchestrator._citations(results)
-    assert sources == ["o/A · README.md", "o/B · docs/arch.md"]
+    source_info = {"o/A": ("AI Curator", "main"), "o/B": ("Prompt Review", "master")}
+    sources, detail = ChatOrchestrator._build_citations(results, source_info)
+    assert sources == ["AI Curator · README", "Prompt Review · arch"]
     assert len(detail) == 3
     assert detail[0]["repo"] == "o/A" and detail[0]["path"] == "README.md"
-    print("PASS: citations are repository + path, deduped, first-appearance order")
+    assert detail[0]["label"] == "AI Curator · README"
+    assert detail[0]["html_url"] == "https://github.com/o/A/blob/main/README.md"
+    assert detail[1]["html_url"] == "https://github.com/o/B/blob/master/docs/arch.md"
+    print("PASS: citations are readable labels, deduped by (repo, path), blob links in detail")
+
+
+def test_citations_fallbacks_without_source_info():
+    """Без маппинга (репо не в реестре) — прежний вид label, без html_url."""
+    from app.services.chat_orchestrator import ChatOrchestrator
+
+    results = [
+        SimpleNamespace(content="", source="README.md", score=0.1,
+                        metadata={"repo": "o/unknown", "path": "README.md"}),
+        SimpleNamespace(content="", source="doc.md", score=0.2,
+                        metadata={"path": "doc.md"}),
+    ]
+    sources, detail = ChatOrchestrator._build_citations(results, {})
+    assert sources == ["o/unknown · README", "doc.md"]
+    assert detail[0]["html_url"] is None
+    assert detail[1]["repo"] is None
+    print("PASS: citations fall back to repo-prefixed/path labels without html_url")
+
+
+def test_source_labels_helpers():
+    """Хелпер source_labels: короткое имя, подпись, blob-ссылка."""
+    from app.services.rag.source_labels import (
+        doc_short_name, github_blob_url, make_source_label,
+    )
+
+    assert doc_short_name("docs/ARCHITECTURE.md") == "ARCHITECTURE"
+    assert doc_short_name("README.md") == "README"
+    assert make_source_label("AI Curator", "README.md") == "AI Curator · README"
+    url = github_blob_url("AlexLvGulyaev/AI-Portfolio", "master", "docs/TZ.md")
+    assert url == "https://github.com/AlexLvGulyaev/AI-Portfolio/blob/master/docs/TZ.md"
+    assert github_blob_url("o/r", None, "a.md").endswith("/blob/main/a.md")
+    print("PASS: source_labels helpers")
+
+
+def test_build_context_uses_readable_labels():
+    """build_context с source_names: метки [N] для модели — читабельные подписи."""
+    from types import SimpleNamespace
+
+    from app.services.rag.rag_service import RAGService
+
+    results = [
+        SimpleNamespace(content="текст", source="README.md", score=0.1,
+                        metadata={"repo": "o/A", "path": "docs/arch.md"}),
+    ]
+    ctx = RAGService.build_context(
+        RAGService.__new__(RAGService), results,
+        source_names={"o/A": "AI Curator"},
+    )
+    assert "[1] AI Curator · arch:" in ctx
+    ctx2 = RAGService.build_context(RAGService.__new__(RAGService), results)
+    assert "[1] o/A · README.md:" in ctx2
+    print("PASS: build_context readable labels with and without source_names")
 
 
 # ---------- §12: гигиена цитат (дефект «[N] за пределами топ-5») ----------
