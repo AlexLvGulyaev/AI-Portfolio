@@ -93,6 +93,13 @@
         message: message,
       };
 
+      // Контекст кейс-страницы: вопрос «этот кейс» привязывается к проекту
+      // (slug валидируется бэкендом по реестру)
+      const slugMatch = (window.location.pathname || '').match(/\/cases\/([a-z0-9-]+)\.html$/);
+      if (slugMatch) {
+        requestBody.page_slug = slugMatch[1];
+      }
+
       // Include session_id if we have one
       if (sessionId) {
         try {

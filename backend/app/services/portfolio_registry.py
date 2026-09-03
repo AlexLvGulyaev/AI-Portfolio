@@ -345,6 +345,10 @@ class PortfolioRegistry:
 
     # ---------- deterministic answers ----------
 
+    def get_by_slug(self, slug: str) -> RegistryCard | None:
+        """Карточка по точному slug (для контекста страницы кейса); None — нет в реестре."""
+        return next((c for c in self._cards if c.slug == slug), None)
+
     def render_list(self) -> str:
         """Полный список проектов: ровно текущие видимые карточки."""
         lines = [f"В портфолио {len(self._cards)} проектов:"]
