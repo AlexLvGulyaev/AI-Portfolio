@@ -27,6 +27,7 @@ Pipeline:
 from __future__ import annotations
 
 import concurrent.futures
+import logging
 import re
 import time
 import uuid
@@ -49,6 +50,8 @@ from app.services.providers.factory import AIProviderFactory
 from app.models.entities import KnowledgeSource, ProjectCard
 from app.services.rag.source_labels import github_blob_url, make_source_label
 from app.services.rag.rag_service import RAGService
+
+logger = logging.getLogger(__name__)
 
 
 # Анафорические ссылки («у него», «этот проект»): текущий запрос не содержит
@@ -814,7 +817,25 @@ class ChatOrchestrator:
                 if _tr is not None:
                     _tr.set("resolved_via_page", page_slug)
 
-            if self.rag_service.count_documents() > 0:
+            # Доступность retrieval-канала (векторная СУБД + провайдер
+            # эмбеддингов): недоступность не роняет запрос с 500 — контур
+            # деградирует к генерации без контекста (честный отказ в промпте,
+            # LLM-failover остаётся доступен). Замечания PEf01-2/PEf02-2,
+            # решение владельца 03.09.2026 (вариант A).
+            try:
+                kb_count = self.rag_service.count_documents()
+                kb_error = None
+            except Exception as e:
+                kb_count = 0
+                kb_error = f"{type(e).__name__}: {e}"
+                logger.error(
+                    "retrieval channel unavailable (count_documents): %s",
+                    kb_error,
+                )
+                if _tr is not None:
+                    _tr.set("retrieval_error", kb_error)
+
+            if kb_count > 0:
                 _start_step("rag_search", 5)
                 _t0 = time.monotonic()
                 # Visibility guard (owner decision 29.08.2026, variant B1):
@@ -891,6 +912,18 @@ class ChatOrchestrator:
                     retrieval_mode = "timeout"
                     if _tr is not None:
                         _tr.set("retrieval_timeout_s", retrieval_timeout_s)
+                except Exception as e:
+                    # Ошибка retrieval (провайдер эмбеддингов, векторная
+                    # СУБД) — деградация к генерации без контекста, не 500:
+                    # LLM-failover и честный отказ в промпте остаются
+                    # доступны. Замечания PEf01-2/PEf02-2, вариант A.
+                    rag_results = []
+                    retrieval_mode = "error"
+                    logger.error(
+                        "retrieval failed: %s: %s", type(e).__name__, e
+                    )
+                    if _tr is not None:
+                        _tr.set("retrieval_error", f"{type(e).__name__}: {e}")
                 finally:
                     _pool.shutdown(wait=False)
                 _t_retrieval_ms.append(int((time.monotonic() - _t0) * 1000))
@@ -949,7 +982,16 @@ class ChatOrchestrator:
                     _finish_step("rag_search", "ok", {"retrieval_mode": retrieval_mode,
                                                      "sources_count": 0, "query": user_query, "rag_used": False})
             else:
-                _skip_step("rag_search", 5, {"reason": "no_documents", "query": user_query})
+                _skip_step(
+                    "rag_search",
+                    5,
+                    {
+                        "reason": (
+                            "retrieval_unavailable" if kb_error else "no_documents"
+                        ),
+                        "query": user_query,
+                    },
+                )
 
             # 6. Сформировать prompt (разделение доверенных/недоверенных блоков)
             _start_step("prompt_build", 6)
