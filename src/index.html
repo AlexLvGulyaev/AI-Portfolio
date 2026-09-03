@@ -193,33 +193,6 @@
       margin: 0 0 var(--space-lg);
     }
 
-    .hero__meta {
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    /* Наводка на живого ассистента (решение владельца 03.09 — п.12 аудита) */
-    .hero__assistant { margin: var(--space-sm) 0 0; }
-    .hero__assistant-link {
-      background: none;
-      border: none;
-      padding: 0;
-      font: inherit;
-      color: var(--accent);
-      cursor: pointer;
-    }
-    .hero__assistant-link:hover { text-decoration: underline; }
-
-    /* Мост к типовым задачам (п.6 аудита: переиспользование перечня с services.html) */
-    .hero__bridge {
-      margin: var(--space-md) 0 0;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-    .hero__bridge a { color: var(--accent); text-decoration: none; }
-    .hero__bridge a:hover { text-decoration: underline; }
-
     /* Тултип расшифровки статуса: наведение/фокус/тап на чип карточки */
     .status-tip {
       position: fixed;
@@ -458,6 +431,69 @@
       margin-left: auto;
       align-self: center;
     }
+
+    /* Morphic-проба «Сетка как сцена» (03.09.2026): строка подбора над
+       сеткой. Откат — флаг MORPHIC_ENABLED в скрипте или revert коммита. */
+    .case-match {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-top: var(--space-xs);
+      margin-bottom: var(--space-md);
+    }
+    .case-match__input {
+      flex: 1 1 320px;
+      font: inherit;
+      font-size: 0.9rem;
+      padding: 0.6rem 0.9rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-primary);
+      border-radius: var(--radius);
+    }
+    .case-match__input::placeholder { color: var(--text-muted); }
+    .case-match__input:focus { outline: none; border-color: var(--accent); }
+    .match-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+    }
+    .match-note {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+    .match-restore {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: color 150ms ease, border-color 150ms ease;
+    }
+    .match-restore:hover { color: var(--text-primary); border-color: var(--text-muted); }
+    .match-why {
+      margin-top: var(--space-sm);
+      font-size: 0.82rem;
+      color: var(--accent);
+      line-height: 1.4;
+    }
+    .match-why__label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+    .project-card.is-matched,
+    .featured-card.is-matched { border-color: var(--accent); }
 
     .archive {
       padding-bottom: var(--space-3xl);
@@ -906,11 +942,22 @@
         <p class="hero__eyebrow">Александр Гуляев · AI-инженер</p>
         <h1 class="hero__title">AI-автоматизации от идеи до продакшена</h1>
         <p class="hero__lead">13 проектов: код на GitHub, метрики и AI-ассистент, отвечающий по документам каждого кейса.</p>
-        <p class="hero__assistant"><button type="button" class="hero__assistant-link" id="hero-assistant-open">💡 Спросите ассистента о любом кейсе — прямо здесь, по документам и с указанием источников</button></p>
-        <p class="hero__meta" id="hero-meta">Загрузка проектов…</p>
-        <p class="hero__bridge">С чем обычно обращаются: первая линия поддержки · лиды и CRM · AI-ассистенты по документам · анализ документов и данных. Подробно — <a href="/services.html">на странице услуг</a>.</p>
+        <!-- Строка «Спросите ассистента» снята (решение владельца 03.09,
+             вариант А): конкурировала с морфик-баром как второй ввод.
+             Чат доступен через лаунчер виджета. -->
       </div>
     </section>
+
+    <!-- Morphic-проба (вариант 2): строка подбора над всей сценой.
+         Показывается из JS при MORPHIC_ENABLED, откат — флагом. -->
+    <div class="container">
+      <div class="case-match" id="case-match" hidden>
+        <input type="text" class="case-match__input" id="case-match-input"
+               placeholder="Опишите вашу задачу — например, «принимать заявки из Telegram в CRM»"
+               maxlength="500" aria-label="Описание задачи для подбора кейсов">
+        <button class="btn btn-primary case-match__btn" id="case-match-go">Подобрать</button>
+      </div>
+    </div>
 
     <section class="featured" id="featured" aria-labelledby="featured-title">
       <div class="container">
@@ -937,6 +984,14 @@
             </div>
             <span class="filter-result" id="filter-result">Загрузка…</span>
           </div>
+        </div>
+
+        <!-- Morphic-проба: тулбар результатов подбора (note + «Показать все»).
+             Сама строка подбора — между hero и флагманами; в режиме подбора
+             секция флагманов скрывается, и сцена одна: бар → сетка. -->
+        <div class="match-toolbar" id="match-toolbar" hidden>
+          <span class="match-note" id="match-note" role="status"></span>
+          <button class="match-restore" id="match-restore">Вернуть исходную матрицу</button>
         </div>
 
         <div class="project-grid" id="project-grid">
@@ -1050,16 +1105,16 @@
         'ai-curator': { category: 'Education / RAG', stats: ['3', '423', 'Онлайн'], labels: ['LLM-провайдера', 'Чанка в индексе', 'Демо-стенд'], dark: '/assets/screenshots/AIC_portfolio_dark.png', light: '/assets/screenshots/AIC_portfolio_light.png', altDark: 'AI Curator: тёмная операционная консоль диалога с ответом системы и источниками', altLight: 'AI Curator: светлый диалог студента с ответом AI и ссылкой на дедлайн', actionPrimary: '/cases/ai-curator.html', actionPrimaryLabel: 'Узнать больше', actionGhost: 'https://curator.alex-n8n.site', actionGhostLabel: 'Живое демо' },
         'ai-data-assistant': { category: 'Data Analysis / Reports', stats: ['DOCX', '3+', 'Онлайн'], labels: ['Отчёты на лету', 'Провайдера LLM', 'Демо-стенд'], dark: '/assets/screenshots/ADA_portfolio_dark.png', light: '/assets/screenshots/ADA_portfolio_light.png', altDark: 'AI Data Assistant: тёмная операционная консоль', altLight: 'AI Data Assistant: светлый чат с аналитикой', actionPrimary: '/cases/ai-data-assistant.html', actionPrimaryLabel: 'Узнать больше', actionGhost: 'https://data-assistant.alex-n8n.site', actionGhostLabel: 'Живое демо' },
         'review-flow': { category: 'Review / RAG', stats: ['19', 'Hybrid', 'Кейс'], labels: ['Тем обработки', 'LLM + оператор', 'Прототип'], dark: '/assets/screenshots/RF_portfolio_dark.png', light: '/assets/screenshots/RF_portfolio_light.png', altDark: 'Review Flow: статус обращения NL-00250112-001 — опубликовано', altLight: 'Review Flow: портал проверки статуса обращения с ответом компании', actionPrimary: '/cases/review-flow.html', actionPrimaryLabel: 'Узнать больше', actionGhost: 'https://review-flow.alex-n8n.site', actionGhostLabel: 'Живое демо' },
-        'review-auto-responder': { category: 'Review Automation', status: 'Живое демо', tags: ['FastAPI', 'OpenAI', 'GigaChat'], dark: '/assets/screenshots/RAR_portfolio_dark.png', light: '/assets/screenshots/RAR_portfolio_light.png', altDark: 'Review Auto Responder: тёмная операционная консоль с трассой обработки отзыва', altLight: 'Review Auto Responder: светлый публичный тред отзыва и ответ AI Support' },
-        'assistant-flow': { category: 'Intake / Routing', status: 'Живое демо', tags: ['RAG', 'Multimodal', 'Routing'], dark: '/assets/screenshots/AF_portfolio_dark.png', light: '/assets/screenshots/AF_portfolio_light.png', altDark: 'Assistant Flow: тёмная панель обработки multimodal-запроса', altLight: 'Assistant Flow: светлый Telegram-диалог с генерацией изображения' },
+        'review-auto-responder': { category: 'Review Automation', status: 'Живое демо', tags: ['Telegram', 'FastAPI', 'OpenAI', 'GigaChat'], dark: '/assets/screenshots/RAR_portfolio_dark.png', light: '/assets/screenshots/RAR_portfolio_light.png', altDark: 'Review Auto Responder: тёмная операционная консоль с трассой обработки отзыва', altLight: 'Review Auto Responder: светлый публичный тред отзыва и ответ AI Support' },
+        'assistant-flow': { category: 'Intake / Routing', status: 'Живое демо', tags: ['Telegram', 'RAG', 'Multimodal', 'Routing'], dark: '/assets/screenshots/AF_portfolio_dark.png', light: '/assets/screenshots/AF_portfolio_light.png', altDark: 'Assistant Flow: тёмная панель обработки multimodal-запроса', altLight: 'Assistant Flow: светлый Telegram-диалог с генерацией изображения' },
         'meeting-audit-bot': { category: 'STT / Audit', status: 'Живое демо', tags: ['Telegram', 'AssemblyAI', 'FastAPI'], dark: '/assets/screenshots/mab_portfolio_dark.png', light: '/assets/screenshots/mab_portfolio_light.png', altDark: 'Meeting Audit Bot: тёмная операторская консоль execution-трейса', altLight: 'Meeting Audit Bot: светлый Telegram-аудит звонка с оценкой' },
-        'lead-qualification': { category: 'Sales / CRM', status: 'Живое демо', tags: ['n8n', 'AI', 'CRM'], dark: '/assets/screenshots/LQ_portfolio_dark.png', light: '/assets/screenshots/LQ_portfolio_light.png', altDark: 'Lead Qualification: тёмная админ-консоль', altLight: 'Lead Qualification: светлая админ-консоль' },
-        'hr-assistant': { category: 'HR Automation', status: 'Живое демо', tags: ['Telegram', 'HR', 'Matching'], dark: '/assets/screenshots/HRA_portfolio_dark.png', light: '/assets/screenshots/HRA_portfolio_light.png', altDark: 'HR Assistant: тёмная панель matching', altLight: 'HR Assistant: светлая панель matching' },
-        'hr-assistant-lora': { category: 'ML / Fine-Tuning', status: 'Исследование', tags: ['LoRA', 'Qwen', 'ML'], dark: '/assets/screenshots/HRA-Lora_portfolio_dark.png', light: '/assets/screenshots/HRA-Lora_portfolio_light.png', altDark: 'HR Assistant — LoRA: тёмная Jupyter-консоль с обучением Qwen2.5 и сравнением с GPT', altLight: 'HR Assistant — LoRA: светлая training-диаграмма дообучения matching-модели' },
+        'lead-qualification': { category: 'Sales / CRM', status: 'Живое демо', tags: ['Telegram', 'n8n', 'AI', 'CRM'], dark: '/assets/screenshots/LQ_portfolio_dark.png', light: '/assets/screenshots/LQ_portfolio_light.png', altDark: 'Lead Qualification: тёмная админ-консоль', altLight: 'Lead Qualification: светлая админ-консоль' },
+        'hr-assistant': { category: 'HR Automation', status: 'Живое демо', tags: ['Telegram', 'n8n', 'HR', 'Matching'], dark: '/assets/screenshots/HRA_portfolio_dark.png', light: '/assets/screenshots/HRA_portfolio_light.png', altDark: 'HR Assistant: тёмная панель matching', altLight: 'HR Assistant: светлая панель matching' },
+        'hr-assistant-lora': { category: 'ML / Fine-Tuning', status: 'Исследование', tags: ['Telegram', 'LoRA', 'Qwen', 'ML'], dark: '/assets/screenshots/HRA-Lora_portfolio_dark.png', light: '/assets/screenshots/HRA-Lora_portfolio_light.png', altDark: 'HR Assistant — LoRA: тёмная Jupyter-консоль с обучением Qwen2.5 и сравнением с GPT', altLight: 'HR Assistant — LoRA: светлая training-диаграмма дообучения matching-модели' },
         'telegram-intake-bot': { category: 'Support / Leads', status: 'Живое демо', tags: ['Telegram', 'aiogram', 'OpenAI'], dark: '/assets/screenshots/TIB_portfolio_dark.png', light: '/assets/screenshots/TIB_portfolio_light.png', altDark: 'Telegram Intake Bot: тёмная карточка диалога поддержки и структурированной заявки', altLight: 'Telegram Intake Bot: светлая карточка диалога поддержки и структурированной заявки' },
         'telegram-onboarding-bot': { category: 'Onboarding', status: 'Живое демо', tags: ['Telegram', 'FSM', 'PostgreSQL'], dark: '/assets/screenshots/TOB_portfolio_dark.png', light: '/assets/screenshots/TOB_portfolio_light.png', altDark: 'Telegram Onboarding Bot: тёмная карточка обучения и тестирования сотрудника', altLight: 'Telegram Onboarding Bot: светлая карточка обучения и тестирования сотрудника' },
         'retail-group': { category: 'Voice AI / Presale', status: 'Кейс', tags: ['n8n', 'Voice AI', 'RAG'], dark: '/assets/screenshots/RG-portfolio-dark.png', light: '/assets/screenshots/RG-portfolio-light.png', altDark: 'Retail Group: тёмная Case Story голосового AI-ассистента первой линии', altLight: 'Retail Group: светлая Case Story голосового AI-ассистента первой линии' },
-        'prompt-review': { category: 'Prompt Engineering', status: 'Живое демо', tags: ['OpenAI', 'Structured Output', 'Review'], dark: '/assets/screenshots/PR-portfolio-dark.png', light: '/assets/screenshots/PR-portfolio-light.png', altDark: 'Prompt Review: тёмная карточка анализа промпта с scorecard по 8 критериям и улучшенной редакцией', altLight: 'Prompt Review: светлая карточка анализа промпта с scorecard по 8 критериям и улучшенной редакцией', actionPrimary: '/cases/prompt-review.html', actionPrimaryLabel: 'Открыть кейс', actionGhost: 'https://prompt-review-demo.alex-n8n.site', actionGhostLabel: 'Живое демо' },
+        'prompt-review': { category: 'Prompt Engineering', status: 'Живое демо', tags: ['Telegram', 'OpenAI', 'Structured Output', 'Review'], dark: '/assets/screenshots/PR-portfolio-dark.png', light: '/assets/screenshots/PR-portfolio-light.png', altDark: 'Prompt Review: тёмная карточка анализа промпта с scorecard по 8 критериям и улучшенной редакцией', altLight: 'Prompt Review: светлая карточка анализа промпта с scorecard по 8 критериям и улучшенной редакцией', actionPrimary: '/cases/prompt-review.html', actionPrimaryLabel: 'Открыть кейс', actionGhost: 'https://prompt-review-demo.alex-n8n.site', actionGhostLabel: 'Живое демо' },
       };
 
       const FILTERS = ['all', 'telegram', 'fastapi', 'rag', 'n8n', 'voice'];
@@ -1094,7 +1149,7 @@
         }).join('');
 
         return (
-          '<article class="featured-card' + (isReverse ? ' featured-card--reverse' : '') + '" data-tags="' + escapeHtml((card.tags || []).join(' ')) + '">' +
+          '<article class="featured-card' + (isReverse ? ' featured-card--reverse' : '') + '" data-tags="' + escapeHtml((card.tags || []).join(' ')) + '" data-slug="' + escapeHtml(card.slug) + '">' +
             '<div class="featured-card__media">' + media + '</div>' +
             '<div class="featured-card__body">' +
               '<p class="featured-card__category">' + escapeHtml(meta.category || card.category) + '</p>' +
@@ -1135,8 +1190,17 @@
              '<img class="project-card__thumb preview-light" src="' + escapeHtml(meta.light) + '" alt="' + escapeHtml(meta.altLight || card.title) + '" loading="lazy">')
           : '<div class="project-card__placeholder">' + escapeHtml(card.title) + '<br>скриншоты появятся позже</div>';
 
+        // data-tags — объединение тегов БД и витринных (ASSETS): оба
+        // источника описывают реальный стэк, фильтр должен видеть оба
+        // (репорт владельца 03.09: HRA не находился по n8n, TG-фильтр
+        // видел только 4 из 9 кейсов).
+        const filterTags = [];
+        (meta.tags || []).concat(card.tags || []).forEach(function(tag) {
+          if (filterTags.indexOf(tag) === -1) filterTags.push(tag);
+        });
+
         return (
-          '<article class="project-card" data-tags="' + escapeHtml((card.tags || []).join(' ')) + '">' +
+          '<article class="project-card" data-tags="' + escapeHtml(filterTags.join(' ')) + '" data-slug="' + escapeHtml(card.slug) + '">' +
             '<div class="project-card__media">' + media + '</div>' +
             '<div class="project-card__body">' +
               '<div class="project-card__meta">' +
@@ -1157,7 +1221,6 @@
       async function loadProjectCards() {
         const featuredContainer = document.getElementById('featured-list');
         const archiveContainer = document.getElementById('project-grid');
-        const heroMeta = document.getElementById('hero-meta');
         const filterResult = document.getElementById('filter-result');
 
         try {
@@ -1174,6 +1237,13 @@
           const featured = sorted.slice(0, 3);
           const archive = sorted.slice(3);
 
+          // Данные всех карточек — для рендера всех 13 в общей сетке
+          // в режиме подбора (Morphic-проба)
+          allCardsBySlug = {};
+          allCardsSorted = sorted.slice();
+          totalCardCount = sorted.length;
+          sorted.forEach(function(c) { allCardsBySlug[c.slug] = c; });
+
           featuredContainer.innerHTML = featured.length
             ? featured.map(function(c, i) { return renderFeatured(c, i); }).join('')
             : '<p class="cards-error">Флагманские проекты временно недоступны.</p>';
@@ -1182,11 +1252,11 @@
             ? archive.map(function(c) { return renderArchive(c); }).join('')
             : '<p class="cards-error">Архивные проекты временно недоступны.</p>';
 
-          heroMeta.textContent = sorted.length + ' проектов · 3 флагманских кейса · 8 направлений работ';
-          filterResult.textContent = archive.length + ' ' + pluralize(archive.length);
+          filterResult.textContent = sorted.length + ' ' + pluralize(sorted.length);
           document.getElementById('footer-counter').textContent = sorted.length + ' проектов · каждый воспроизводится с нуля по публичной инструкции (Deployment Validation)';
 
           initFilters();
+          initMorphic();
 
         } catch (error) {
           console.error('Project cards load error:', error);
@@ -1195,33 +1265,258 @@
         }
       }
 
+      /**
+       * Morphic-проба «Сетка как сцена» (03.09.2026): строка подбора над
+       * сеткой главной. Подобранные карточки поднимаются наверх со строкой
+       * «Почему подходит»; «Показать все» возвращает исходную сетку.
+       * Откат: MORPHIC_ENABLED = false (строка скрыта, сетка не тронута)
+       * или revert коммита.
+       */
+      const MORPHIC_ENABLED = true;
+      // Все 13 карточек (slug → данные) — для рендера подобранных
+      // флагманов в общей сетке; заполняется в loadProjectCards.
+      let allCardsBySlug = {};
+      let allCardsSorted = [];
+      let totalCardCount = 0;
+      const FEATURED_COUNT = 3;
+      const projectGridEl = document.getElementById('project-grid');
+      const featuredSectionEl = document.getElementById('featured');
+      // true — активен морфик-подбор (сцена: бар → сетка на 13 карточек)
+      let matchActive = false;
+
+      /**
+       * Сцена по умолчанию: флагманы в своей секции, сетка — исходные
+       * 10 архивных карточек в исходном порядке, следы подбора сняты.
+       */
+      function restoreDefaultScene() {
+        featuredSectionEl.hidden = false;
+        projectGridEl.querySelectorAll('.match-why').forEach(function(el) { el.remove(); });
+        projectGridEl.querySelectorAll('.is-matched').forEach(function(el) { el.classList.remove('is-matched'); });
+        projectGridEl.querySelectorAll('.is-temp-card').forEach(function(el) { el.remove(); });
+        // Исходный порядок архивных карточек
+        allCardsSorted.slice(FEATURED_COUNT).forEach(function(card) {
+          const node = projectGridEl.querySelector('[data-slug="' + card.slug + '"]');
+          if (node) projectGridEl.appendChild(node);
+        });
+      }
+
+      /**
+       * Сцена подбора/фильтра: секция флагманов скрыта, все флагманы
+       * лежат в общей сетке архивным стилем (temp-карточки). Идемпотентно.
+       */
+      function ensureFlagshipTemps() {
+        const existing = new Set();
+        projectGridEl.querySelectorAll('[data-slug]').forEach(function(e) {
+          existing.add(e.getAttribute('data-slug'));
+        });
+        allCardsSorted.slice(0, FEATURED_COUNT).forEach(function(card) {
+          if (existing.has(card.slug)) return;
+          const holder = document.createElement('div');
+          holder.innerHTML = renderArchive(card);
+          const node = holder.firstElementChild;
+          node.classList.add('is-temp-card');
+          projectGridEl.appendChild(node);
+        });
+      }
+
+      /* Хром подбора (тулбар с записью, поле, кнопка) не должен переживать
+       * полный сброс сцены (репорт владельца 03.09 — запись «Подобрано…»
+       * болталась после сброса сортировки). */
+      function hideMatchChrome() {
+        const toolbar = document.getElementById('match-toolbar');
+        const matchInput = document.getElementById('case-match-input');
+        const matchGo = document.getElementById('case-match-go');
+        const note = document.getElementById('match-note');
+        if (toolbar) toolbar.hidden = true;
+        if (note) note.textContent = '';
+        if (matchInput) matchInput.value = '';
+        if (matchGo) matchGo.disabled = false;
+      }
+
+      // Техно-фильтр применён поверх текущего подбора: его снятие («Все»)
+      // возвращает морфик-сортировку, а не сбрасывает её.
+      let filterWasActive = false;
+
+      function applyFilter(filter, keepScene) {
+        // Сцена фильтра — как у морфика: флагманы уходят в общую сетку
+        // (temp-карточки) и фильтруются наравне с архивными.
+        if (filter !== 'all') {
+          featuredSectionEl.hidden = true;
+          ensureFlagshipTemps();
+          filterWasActive = true;
+        } else if (!keepScene && !matchActive) {
+          // Подбора нет: «Все» возвращает сцену по умолчанию
+          restoreDefaultScene();
+          hideMatchChrome();
+        } else if (!keepScene && matchActive && !filterWasActive) {
+          // «Все» сразу после подбора — полный сброс: морфик-сортировка
+          // без снятого фильтра смысла не несёт, запись и подсветку гасим
+          matchActive = false;
+          restoreDefaultScene();
+          hideMatchChrome();
+        }
+        // Иначе сцена сохраняется: рендер подбора (keepScene) либо снятие
+        // техно-фильтра поверх подбора — морфик возвращается.
+        if (filter === 'all') filterWasActive = false;
+        // Список карточек берём заново после перестройки сцены:
+        // temp-карточки флагманов появляются в сетке позже загрузки
+        const cards = document.querySelectorAll('#project-grid .project-card');
+        let visible = 0;
+        cards.forEach(function(card) {
+          // Регистронезависимо: теги БД — 'Telegram Bot', 'FastAPI',
+          // 'RAG', 'Voice AI', а значения фильтров — в нижнем регистре.
+          const tags = (card.getAttribute('data-tags') || '').toLowerCase();
+          const match = filter === 'all' || tags.includes(filter.toLowerCase());
+          if (match) {
+            card.classList.remove('is-hidden');
+            visible++;
+          } else {
+            card.classList.add('is-hidden');
+          }
+        });
+        document.querySelectorAll('#filters .filter-btn').forEach(function(btn) {
+          if (btn.getAttribute('data-filter') === filter) btn.classList.add('active');
+          else btn.classList.remove('active');
+        });
+        // «Все» — полный счётчик (13), фильтр технологии — число подошедших
+        const resultLabel = document.getElementById('filter-result');
+        resultLabel.textContent = filter === 'all'
+          ? totalCardCount + ' ' + pluralize(totalCardCount)
+          : visible + ' ' + pluralize(visible);
+      }
+
+      function initMorphic() {
+        if (!MORPHIC_ENABLED) return;
+        const bar = document.getElementById('case-match');
+        const input = document.getElementById('case-match-input');
+        const go = document.getElementById('case-match-go');
+        const toolbar = document.getElementById('match-toolbar');
+        const note = document.getElementById('match-note');
+        const restoreBtn = document.getElementById('match-restore');
+        const grid = projectGridEl;
+        if (!bar || !grid) return;
+
+        bar.hidden = false;
+        // Кейсы при подборе не исчезают — сетка перестраивается, поэтому
+        // кнопка возвращает матрицу в исходное состояние, а не «показывает
+        // всё заново» (репорт владельца 03.09).
+        restoreBtn.textContent = 'Вернуть исходную матрицу';
+        let busy = false;
+
+        function resetMatches() {
+          document.querySelectorAll('.match-why').forEach(function(el) { el.remove(); });
+          document.querySelectorAll('.is-matched').forEach(function(el) { el.classList.remove('is-matched'); });
+          document.querySelectorAll('.is-temp-card').forEach(function(el) { el.remove(); });
+        }
+
+        function showAll() {
+          matchActive = false;
+          resetMatches();
+          toolbar.hidden = true;
+          input.value = '';
+          go.disabled = false;
+          // applyFilter('all') вернёт сцену по умолчанию и полный счётчик
+          applyFilter('all');
+        }
+
+        function renderMatches(items) {
+          resetMatches();
+          matchActive = true;
+
+          // Единая сцена: секция флагманов скрыта, все флагманы в общей
+          // сетке (temp-карточки); подобранные наверх с why-строкой.
+          featuredSectionEl.hidden = true;
+          ensureFlagshipTemps();
+
+          const bySlug = {};
+          grid.querySelectorAll('[data-slug]').forEach(function(node) {
+            bySlug[node.getAttribute('data-slug')] = node;
+          });
+          const matchedSet = {};
+          const frag = document.createDocumentFragment();
+          items.forEach(function(item) {
+            matchedSet[item.slug] = true;
+            const node = bySlug[item.slug];
+            if (!node) return; // слага вне реестра — не рендерим
+            node.classList.add('is-matched');
+            const body = node.querySelector('.project-card__body');
+            const actions = node.querySelector('.project-card__actions');
+            const why = document.createElement('p');
+            why.className = 'match-why';
+            why.innerHTML = '<span class="match-why__label">Почему подходит</span>' + escapeHtml(item.why);
+            body.insertBefore(why, actions);
+            frag.appendChild(node);
+          });
+          // Далее все 13 в исходном порядке, кроме подобранных
+          allCardsSorted.forEach(function(card) {
+            if (matchedSet[card.slug]) return;
+            const node = bySlug[card.slug];
+            if (node) frag.appendChild(node);
+          });
+
+          // Снять фильтр, чтобы подобранные карточки не прятались;
+          // keepScene — сцену подбора applyFilter не трогает
+          applyFilter('all', true);
+          grid.appendChild(frag);
+
+          note.textContent = items.length === 1
+            ? 'Подобран 1 релевантный кейс по вашей задаче'
+            : 'Подобрано ' + items.length + ' релевантных кейса по вашей задаче';
+          restoreBtn.hidden = false;
+          toolbar.hidden = false;
+          toolbar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function submit() {
+          if (busy) return;
+          const task = (input.value || '').trim();
+          if (task.length < 5) {
+            note.textContent = 'Опишите задачу подробнее — хотя бы несколькими словами.';
+            restoreBtn.hidden = true;
+            toolbar.hidden = false;
+            return;
+          }
+          busy = true;
+          go.disabled = true;
+          go.textContent = 'Подбираю…';
+          toolbar.hidden = true;
+          fetch('/case-match', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ task: task })
+          })
+            .then(function(r) {
+              if (!r.ok) throw new Error('case-match ' + r.status);
+              return r.json();
+            })
+            .then(function(data) {
+              const items = data.items || [];
+              if (!items.length) throw new Error('empty');
+              renderMatches(items);
+            })
+            .catch(function() {
+              resetMatches();
+              note.textContent = 'Не удалось подобрать кейсы. Опишите задачу иначе или спросите ассистента в чате.';
+              restoreBtn.hidden = true;
+              toolbar.hidden = false;
+            })
+            .finally(function() {
+              busy = false;
+              go.disabled = false;
+              go.textContent = 'Подобрать';
+            });
+        }
+
+        go.addEventListener('click', submit);
+        input.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') { e.preventDefault(); submit(); }
+        });
+        restoreBtn.addEventListener('click', showAll);
+      }
+
       function initFilters() {
         const filterBar = document.getElementById('archive-filters');
-        const filters = document.getElementById('filters');
-        const buttons = filters.querySelectorAll('.filter-btn');
-        const cards = document.querySelectorAll('.project-card');
-        const resultLabel = document.getElementById('filter-result');
-
-        function applyFilter(filter) {
-          let visible = 0;
-          cards.forEach(function(card) {
-            // Регистронезависимо: теги БД — 'Telegram Bot', 'FastAPI',
-            // 'RAG', 'Voice AI', а значения фильтров — в нижнем регистре.
-            const tags = (card.getAttribute('data-tags') || '').toLowerCase();
-            const match = filter === 'all' || tags.includes(filter.toLowerCase());
-            if (match) {
-              card.classList.remove('is-hidden');
-              visible++;
-            } else {
-              card.classList.add('is-hidden');
-            }
-          });
-          buttons.forEach(function(btn) {
-            if (btn.getAttribute('data-filter') === filter) btn.classList.add('active');
-            else btn.classList.remove('active');
-          });
-          resultLabel.textContent = visible + ' ' + pluralize(visible);
-        }
+        const buttons = document.querySelectorAll('#filters .filter-btn');
 
         buttons.forEach(function(btn) {
           btn.addEventListener('click', function() {
@@ -1312,16 +1607,6 @@
         document.addEventListener('DOMContentLoaded', loadProjectCards);
       } else {
         loadProjectCards();
-      }
-
-      // Наводка на ассистента в hero (п.12 аудита): клик открывает чат-виджет
-      const heroAssistantBtn = document.getElementById('hero-assistant-open');
-      if (heroAssistantBtn) {
-        heroAssistantBtn.addEventListener('click', function() {
-          if (window.AIPortfolioChat && typeof window.AIPortfolioChat.open === 'function') {
-            window.AIPortfolioChat.open();
-          }
-        });
       }
     })();
   </script>

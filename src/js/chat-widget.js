@@ -113,9 +113,14 @@
         text-decoration: none;
         transition: color .15s ease, border-color .15s ease;
       }
-      a.chat-source-chip:hover {
+      a.chat-source-chip:hover,
+      button.chat-source-chip:hover {
         color: var(--accent, inherit);
         border-color: var(--accent, currentColor);
+      }
+      button.chat-source-chip {
+        cursor: pointer;
+        font-family: inherit;
       }
       /* Кнопка «Развернуть» в шапке виджета */
       .chat-expand {
@@ -275,6 +280,222 @@
     document.head.appendChild(style);
   }
 
+  // ============================================
+  // Document panel (панель документа, 03.09.2026): клик по документу-источнику
+  // открывает слева крупный статический фрагмент md из GitHub с подсветкой
+  // цитированного чанка (решение владельца: не полный md со скроллом).
+  // ============================================
+
+  const DOC_MARK_OPEN = '\uE000';
+  const DOC_MARK_CLOSE = '\uE001';
+  let docPanelEl = null;
+  let docBackdropEl = null;
+
+  function ensureDocPanelStyles() {
+    if (document.getElementById('doc-panel-style')) return;
+    const style = document.createElement('style');
+    style.id = 'doc-panel-style';
+    style.textContent = `
+      .doc-panel__backdrop {
+        position: fixed; inset: 0; background: rgba(0,0,0,.35);
+        z-index: 1990; opacity: 0; transition: opacity .2s ease;
+      }
+      .doc-panel {
+        position: fixed; top: 0; left: 0; bottom: 0;
+        width: min(560px, 92vw);
+        background: var(--bg, #fff);
+        color: var(--text-primary, inherit);
+        border-right: 1px solid var(--border, rgba(128,128,128,.35));
+        box-shadow: var(--shadow-lg, 0 8px 24px rgba(0,0,0,.15));
+        z-index: 2000;
+        display: flex; flex-direction: column;
+        transform: translateX(-100%);
+        transition: transform .25s ease;
+      }
+      .doc-panel.is-open { transform: none; }
+      .doc-panel__head {
+        display: flex; align-items: center; gap: 10px;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border, rgba(128,128,128,.35));
+      }
+      .doc-panel__label {
+        flex: 1; min-width: 0;
+        font-family: var(--font-mono, monospace);
+        font-size: 0.8rem; color: var(--text-primary, inherit);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .doc-panel__github {
+        font-size: 0.72rem; color: var(--accent, inherit);
+        text-decoration: none; white-space: nowrap;
+      }
+      .doc-panel__github:hover { text-decoration: underline; }
+      .doc-panel__close {
+        border: none; background: none; cursor: pointer;
+        color: var(--text-secondary, inherit);
+        font-size: 18px; line-height: 1; padding: 2px 4px;
+      }
+      .doc-panel__close:hover { opacity: .7; }
+      .doc-panel__body {
+        flex: 1; overflow-y: auto;
+        padding: 18px 22px 32px;
+        font-size: 0.88rem; line-height: 1.55;
+      }
+      .doc-panel__body pre, .doc-panel__body code {
+        font-family: var(--font-mono, monospace);
+        font-size: 0.8rem;
+        background: var(--surface-elevated, rgba(128,128,128,.08));
+        border-radius: 6px;
+      }
+      .doc-panel__body pre { padding: 12px 14px; overflow-x: auto; }
+      .doc-panel__body table { border-collapse: collapse; width: 100%; }
+      .doc-panel__body th, .doc-panel__body td {
+        border: 1px solid var(--border, rgba(128,128,128,.35));
+        padding: 4px 8px; font-size: 0.8rem;
+      }
+      .doc-panel__body h1, .doc-panel__body h2, .doc-panel__body h3 { line-height: 1.3; }
+      .doc-panel__body img { max-width: 100%; }
+      mark.doc-highlight {
+        background: var(--accent, rgba(255,200,0,.4));
+        color: var(--bg, #fff);
+        border-radius: 3px; padding: 0 2px;
+      }
+      .doc-panel__hint {
+        font-family: var(--font-mono, monospace);
+        font-size: 0.72rem; color: var(--text-muted, #888);
+      }
+      @media (max-width: 600px) {
+        .doc-panel { width: 100vw; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function buildDocPanel() {
+    ensureDocPanelStyles();
+    docBackdropEl = document.createElement('div');
+    docBackdropEl.className = 'doc-panel__backdrop';
+    docBackdropEl.hidden = true;
+    docBackdropEl.addEventListener('click', closeDocumentPanel);
+    docPanelEl = document.createElement('aside');
+    docPanelEl.className = 'doc-panel';
+    docPanelEl.setAttribute('aria-label', 'Документ-источник');
+    docPanelEl.innerHTML =
+      '<div class="doc-panel__head">' +
+        '<span class="doc-panel__label"></span>' +
+        '<a class="doc-panel__github" target="_blank" rel="noopener noreferrer">GitHub →</a>' +
+        '<button class="doc-panel__close" type="button" aria-label="Закрыть">×</button>' +
+      '</div>' +
+      '<div class="doc-panel__body"></div>';
+    docPanelEl.querySelector('.doc-panel__close').addEventListener('click', closeDocumentPanel);
+    document.body.appendChild(docBackdropEl);
+    document.body.appendChild(docPanelEl);
+  }
+
+  // marked подгружается лениво при первом открытии панели — страницы
+  // сайта править не нужно (widget самодостаточен).
+  let markedPromise = null;
+  function loadMarked() {
+    if (window.marked) return Promise.resolve();
+    if (markedPromise) return markedPromise;
+    markedPromise = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js';
+      s.onload = resolve;
+      s.onerror = () => reject(new Error('marked failed to load'));
+      document.head.appendChild(s);
+    });
+    return markedPromise;
+  }
+
+  function escapeDocHtml(text) {
+    return String(text)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function renderDocFragment(fragment) {
+    // Документ — из собственных публичных репозиториев, но исполняемое
+    // из md всё равно не пропускаем.
+    const clean = fragment
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+    let html;
+    try {
+      html = window.marked.parse(clean);
+    } catch (e) {
+      html = '<pre>' + escapeDocHtml(clean) + '</pre>';
+    }
+    // PUA-маркеры → <mark>. Если маркер разрезан блочной структурой
+    // (открытие и закрытие в разных элементах в неожиданном порядке) —
+    // честная деградация: текст без подсветки.
+    const openIdx = html.indexOf(DOC_MARK_OPEN);
+    const closeIdx = html.indexOf(DOC_MARK_CLOSE);
+    if (openIdx !== -1 && closeIdx !== -1 && openIdx < closeIdx) {
+      html = html.split(DOC_MARK_OPEN).join('<mark class="doc-highlight">')
+                 .split(DOC_MARK_CLOSE).join('</mark>');
+    } else if (openIdx !== -1 || closeIdx !== -1) {
+      html = html.split(DOC_MARK_OPEN).join('').split(DOC_MARK_CLOSE).join('');
+    }
+    return html;
+  }
+
+  function openDocumentPanel(src) {
+    if (!src || !src.repo || !src.path || !src.excerpt) {
+      if (src && src.html_url) window.open(src.html_url, '_blank', 'noopener');
+      return;
+    }
+    if (!docPanelEl) buildDocPanel();
+    const labelEl = docPanelEl.querySelector('.doc-panel__label');
+    const gh = docPanelEl.querySelector('.doc-panel__github');
+    const body = docPanelEl.querySelector('.doc-panel__body');
+    labelEl.textContent = src.label || (src.repo + ' · ' + src.path);
+    labelEl.title = labelEl.textContent;
+    if (src.html_url) { gh.href = src.html_url; gh.hidden = false; }
+    else { gh.hidden = true; }
+    body.innerHTML = '<p class="doc-panel__hint">Загружаю документ…</p>';
+    docBackdropEl.hidden = false;
+    docPanelEl.hidden = false;
+    requestAnimationFrame(() => {
+      docBackdropEl.style.opacity = '1';
+      docPanelEl.classList.add('is-open');
+    });
+
+    const qs = new URLSearchParams({ repo: src.repo, path: src.path, excerpt: src.excerpt });
+    fetch('/document-fragment?' + qs.toString())
+      .then((r) => {
+        if (!r.ok) throw new Error('document-fragment ' + r.status);
+        return r.json();
+      })
+      .then((data) => loadMarked().then(() => {
+        body.innerHTML = renderDocFragment(data.fragment || '');
+        if (data.located === false) {
+          const hint = document.createElement('p');
+          hint.className = 'doc-panel__hint';
+          hint.textContent = 'Показан сам цитированный фрагмент: в текущем виде файла он не найден (документ правили после индексации).';
+          body.insertBefore(hint, body.firstChild);
+        }
+        const mark = body.querySelector('mark');
+        if (mark) mark.scrollIntoView({ block: 'center' });
+      }))
+      .catch(() => {
+        body.innerHTML = '<p class="doc-panel__hint">Не удалось загрузить документ. Открыть его можно по ссылке GitHub выше.</p>';
+      });
+  }
+
+  function closeDocumentPanel() {
+    if (!docPanelEl) return;
+    docPanelEl.classList.remove('is-open');
+    if (docBackdropEl) docBackdropEl.style.opacity = '0';
+    setTimeout(() => {
+      if (docPanelEl) docPanelEl.hidden = true;
+      if (docBackdropEl) docBackdropEl.hidden = true;
+    }, 250);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDocumentPanel();
+  });
+
   /**
    * Append message to chat
    * @param {string} text - Message text
@@ -306,24 +527,32 @@
         sourcesLabel.textContent = 'Источники:';
         sourcesDiv.appendChild(sourcesLabel);
 
-        // Кликабельные карточки источников (вариант C, 02.09.2026): читабельная
-        // подпись + GitHub blob-ссылка из sources_detail. Без detail — plain text.
+        // Кликабельные карточки источников: читабельная подпись; клик
+        // открывает панель документа (03.09.2026), GitHub-ссылка — внутри
+        // панели. Без repo/path/excerpt — blob-ссылка, без всего — plain text.
         const detail = metadata.sourcesDetail || [];
         const byLabel = new Map();
         detail.forEach((d) => {
-          if (d && d.label && d.html_url && !byLabel.has(d.label)) {
-            byLabel.set(d.label, d.html_url);
+          if (d && d.label && !byLabel.has(d.label)) {
+            byLabel.set(d.label, d);
           }
         });
 
         if (byLabel.size > 0) {
           ensureSourceChipStyles();
           metadata.sources.forEach((label) => {
-            const href = byLabel.get(label);
-            const chip = document.createElement(href ? 'a' : 'span');
+            const src = byLabel.get(label);
+            const canOpenPanel = src && src.repo && src.path && src.excerpt;
+            const chip = document.createElement(
+              canOpenPanel ? 'button' : (src && src.html_url ? 'a' : 'span')
+            );
             chip.className = 'chat-source-chip';
-            if (href) {
-              chip.href = href;
+            if (canOpenPanel) {
+              chip.type = 'button';
+              chip.title = 'Показать фрагмент документа';
+              chip.addEventListener('click', () => openDocumentPanel(src));
+            } else if (chip.tagName === 'A') {
+              chip.href = src.html_url;
               chip.target = '_blank';
               chip.rel = 'noopener noreferrer';
             }
