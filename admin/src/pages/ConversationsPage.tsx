@@ -90,6 +90,9 @@ function pairDialogRows(
   if (pendingUser != null) {
     rows.push({ user: pendingUser.content, assistant: '—', cache_hit: null, response_time_ms: null, execution_id: null });
   }
+  // Свежие реплики сверху: бэкенд отдаёт сообщения по времени (asc),
+  // пары собираются хронологически, затем разворачиваются для отображения.
+  rows.reverse();
   return rows;
 }
 
@@ -227,7 +230,7 @@ function ConversationDetailPanel({
       <div className="memory-dialog-panel">
         <h3 className="logs-detail-block__title">Диалог сессии</h3>
         <p className="muted memory-dialog-panel__lead">
-          Парные реплики по времени; при неполном turn пустая ячейка.
+          Парные реплики, свежие сверху; при неполном turn пустая ячейка.
         </p>
         <div className="memory-dialog-table-wrap">
           <table className="memory-dialog-table">
