@@ -247,3 +247,44 @@ def _fake_provider_answer(answer: str):
         return answer
     provider.generate.side_effect = _gen
     return provider
+
+def test_refusal_sources_suppressed():
+    """Честный отказ отдаётся без источников: retrieval-выдача ничего не
+    подтвердила, панель источников под отказом вводит в заблуждение
+    (решение владельца 04.09.2026)."""
+    orch, rag, cache = _make_orch(memory=[])
+    rag.search.return_value = [_rag_result()]
+    orch.db.query.return_value.outerjoin.return_value.filter.return_value.all.return_value = _rows()
+    refusal = "В текущем портфеле и базе знаний такой информации нет."
+
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider_answer(refusal)
+        d = _run(orch, "какая завтра погода в Москве?")
+    assert "такой информации нет" in d.answer
+    assert d.sources == [], "источники при отказе подавляются"
+    assert d.metadata.get("sources_detail") in (None, [])
+    assert cache.size() == 0
+
+
+def test_grounded_answer_keeps_sources():
+    """Обычный grounded-ответ сохраняет источники — подавление касается
+    только канонического отказа."""
+    orch, rag, cache = _make_orch(memory=[])
+    rag.search.return_value = [_rag_result()]
+    orch.db.query.return_value.outerjoin.return_value.filter.return_value.all.return_value = _rows()
+
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider_answer(_answer_plain())
+        d = _run(orch, "что умеет Проект A?")
+    assert d.sources, "grounded-ответ не должен терять источники"
+    assert "Проект A · README" in d.sources[0]
+
+
+def test_refusal_marker_covers_abbreviation_variant():
+    """Вариация отказа «такой аббревиатуры нет» (прод 04.09) тоже
+    распознаётся: без кеша и без источников."""
+    from app.services.chat_orchestrator import ChatOrchestrator
+    assert ChatOrchestrator._is_refusal(
+        "В текущем портфеле и базе знаний такой аббревиатуры нет."
+    )
+    assert not ChatOrchestrator._is_refusal("Проект реализует приём заявок.")
