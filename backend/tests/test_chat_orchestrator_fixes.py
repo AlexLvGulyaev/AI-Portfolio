@@ -176,12 +176,22 @@ def test_history_bypasses_cache():
     print("PASS: history bypasses cache read and write")
 
 
-def test_llm_answer_not_cached_registry_only_policy():
-    """Безопасная политика кеша (§3): LLM-ответы не кешируются вовсе —
-    эвристика отказа не покрывает парафразы, а структурного признака
-    cache_eligible пока нет. Детерминированные ответы реестра кешируются
-    отдельно (см. test_listing_route_cached_by_registry_version)."""
+def test_normalization_same_query_cache_hit():
+    """Нормализация ключа кеша: один и тот же вопрос в разном регистре —
+    один ключ. Cache-eligible политика 04.09.2026 в расширенной редакции
+    (решение владельца 04.09.2026: без требования цитаты [N]): grounded-
+    ответ (rag_used, без отказа и fallback) кешируется, повтор — из кеша.
+    Детерминированные ответы реестра кешируются отдельно
+    (см. test_listing_route_cached_by_registry_version);
+    полный набор кеш-тестов — test_chat_cache_eligible.py."""
     orch, rag, cache = _make_orch(memory=[])
+    rag.search.return_value = [SimpleNamespace(
+        content="Контекст проекта.", chunk_id="c1", score=0.9,
+        source="docs/README.md",
+        metadata={"repo": "o/Repo-A", "path": "docs/README.md"})]
+    orch.db.query.return_value.outerjoin.return_value.filter.return_value.all.return_value = [
+        ("o/Repo-A", "Проект A", "main", "Проект A")]
+    orch.prompt_assembly.fingerprint.return_value = "fp-cache-test"
     calls = {"n": 0}
     provider = MagicMock()
 
@@ -196,10 +206,10 @@ def test_llm_answer_not_cached_registry_only_policy():
         d1 = asyncio.run(orch.process_request(user_query="повтори меня"))
         assert d1.cache_hit is False and calls["n"] == 1
         d2 = asyncio.run(orch.process_request(user_query="Повтори меня"))
-        assert d2.cache_hit is False and calls["n"] == 2, (
-            "LLM answers must not be cached under registry-only policy")
-    assert cache.size() == 0
-    print("PASS: LLM answers are not cached (registry-only cache policy)")
+        assert d2.cache_hit is True and calls["n"] == 1, (
+            "нормализованный повтор должен отдаваться из кеша")
+    assert cache.size() == 1
+    print("PASS: normalized identical query served from cache")
 
 
 def test_same_text_different_context_no_shared_answer():
@@ -509,8 +519,10 @@ def test_include_hidden_fanout_keeps_hidden_repo():
 
 
 def test_refusal_answer_not_cached():
-    """Отказ LLM не попадает в кеш (при политике registry-only не кешируется
-    ни один LLM-ответ — отказ лишь частный случай)."""
+    """Отказ LLM не попадает в кеш (cache-eligible политика 04.09.2026:
+    `_is_refusal` исключает запись). Обычный grounded-ответ при этом
+    кешируется (расширенная редакция решением владельца 04.09.2026 —
+    без требования цитаты [N])."""
     orch, rag, cache = _make_orch(memory=[])
     rag.search.return_value = [SimpleNamespace(
         content="c", source="README.md", score=0.1,
@@ -523,7 +535,7 @@ def test_refusal_answer_not_cached():
                 orch, "В текущем портфеле и базе знаний такой информации нет.")
             asyncio.run(orch.process_request(user_query="вопрос про несуществующий факт"))
     set_mock.assert_not_called()
-    # Обычный LLM-ответ тоже не кешируется (registry-only политика §3)
+    # Обычный grounded-ответ кешируется (расширенная cache-eligible политика)
     orch2, rag2, cache2 = _make_orch(memory=[])
     rag2.search.return_value = rag.search.return_value
     set_mock2 = MagicMock()
@@ -531,9 +543,8 @@ def test_refusal_answer_not_cached():
         with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
             Fac.create.return_value = _fake_provider(orch2, "Обычный содержательный ответ")
             asyncio.run(orch2.process_request(user_query="другой вопрос"))
-    assert not set_mock2.called
-    assert cache2.size() == 0
-    print("PASS: refusal and normal LLM answers are not cached (registry-only)")
+    assert set_mock2.called
+    print("PASS: refusal not cached, plain grounded answer cached (cache-eligible)")
 
 
 def test_is_refusal_pattern():

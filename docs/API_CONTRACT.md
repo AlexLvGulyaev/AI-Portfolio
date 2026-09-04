@@ -49,7 +49,7 @@
 | `sources_detail` | object[] \| null | Machine-readable provenance: `[{repo, path, chunk_index, score, excerpt, label, html_url}, …]` — основа панели документа |
 | `provider` | string | Активный LLM-провайдер ответа (`openai` / `gigachat`) |
 | `model` | string | Идентификатор модели |
-| `from_cache` | bool | Ответ из кеша (детерминированные ответы реестра; LLM-ответы не кешируются) |
+| `from_cache` | bool | Ответ из кеша (детерминированные ответы реестра; grounded LLM-ответы по признаку cache-eligible — первый вопрос сессии, rag_used, без канонического отказа и fallback; дословные повторы вопроса в той же сессии — чтение кеша по нормализованному совпадению) |
 | `rag_used` | bool | Использовался ли retrieval по базе знаний |
 | `response_time_ms` | int | Полная латентность обработки |
 | `user_id`, `visitor_id` | UUID \| null | Идентификаторы учёта |

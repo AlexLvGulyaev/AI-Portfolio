@@ -213,6 +213,25 @@ class ChatOrchestrator:
         """
         return "такой информации нет" in (answer or "").lower()
 
+    @staticmethod
+    def _is_repeat_query(user_query: str, conversation_memory: list) -> bool:
+        """
+        Дословный повтор: текущий запрос уже звучал в этой сессии.
+
+        Нормализация идентична ключу ResponseCache (`response_cache.py`:
+        lower + whitespace-схлопывание), поэтому «повтори меня» и «Повтори
+        меня» — один запрос и один ключ кеша. Используется для чтения кеша
+        на повторах внутри сессии (вариант А, решение владельца 04.09.2026).
+        """
+        normalized = " ".join((user_query or "").lower().split())
+        if not normalized:
+            return False
+        return any(
+            " ".join((m.content or "").lower().split()) == normalized
+            for m in conversation_memory
+            if getattr(m, "role", None) == "user"
+        )
+
     def _citations(self, rag_results: list) -> tuple[list[str], list[dict[str, Any]]]:
         """
         Пользовательские цитаты: `<имя проекта> · <короткое имя документа>`
@@ -444,6 +463,12 @@ class ChatOrchestrator:
             # без учёта контекста этого диалога (устраняет кросс-сессионное
             # загрязнение и дрейф от истории).
             history_present = len(conversation_memory) > 0
+            # Исключение (решение владельца 04.09.2026, вариант А): дословный
+            # повтор вопроса в той же сессии — на него кеш читается. Первый
+            # задав этого вопроса прошёл как запрос без истории и записал
+            # ответ в кеш; повтор идентичного запроса детерминирован и не
+            # зависит от контекста, генерировать его заново незачем.
+            repeat_in_session = self._is_repeat_query(user_query, conversation_memory)
 
             if _tr is not None:
                 _tr.set("session_id", str(session_id))
@@ -452,7 +477,8 @@ class ChatOrchestrator:
                 ])
                 _tr.set("history_count", len(conversation_memory))
                 _tr.set("history_roles", [m.role for m in conversation_memory])
-                _tr.set("cache_bypass", history_present)
+                _tr.set("repeat_in_session", repeat_in_session)
+                _tr.set("cache_bypass", history_present and not repeat_in_session)
 
             # 3. Выбрать активного AI Provider (до cache-проверки: fingerprint
             # ключа кеша включает провайдера/модель)
@@ -520,7 +546,7 @@ class ChatOrchestrator:
             _start_step("cache_check", 4)
             cached_response = None
             cache_entry = None
-            if not history_present:
+            if not history_present or repeat_in_session:
                 if _tr is not None:
                     _tr.set("cache_key", self.cache.get_cache_key(user_query, config_fingerprint))
                     _tr.set("cache_file", str(self.cache.cache_file))
@@ -1176,18 +1202,41 @@ class ChatOrchestrator:
             answer, citations_stripped = self._strip_stale_citations(answer, len(sources))
 
             # 9. Кеш (только для ответов без истории).
-            # Безопасная политика кеша (корректирующий проход §3): LLM-ответы
-            # НЕ кешируются. Текстовая эвристика отказа не покрывает парафразы
-            # и языки (0 FP / 3 FN на тест-наборе §3), а без структурного
-            # признака cache_eligible/result_status кеш не может отличить
-            # гарантированно-валидный ответ от стохастического отказа — кеш
-            # заморозил бы неудачный исход для всех последующих сессий.
-            # Детерминированные ответы реестра (листинг/счёт) кешируются как
-            # раньше в своём блоке (fingerprint registry-версии) — они
-            # воспроизводимы по определению и сюда не попадают (ранний
-            # return). Влияние на latency: повторные идентичные вопросы
-            # генерируются заново (~2.4s p50 вместо ~60ms cache-hit);
-            # p50/p95 cache-miss-трафика не меняются.
+            # Политика кеширования возвращена (решение владельца 04.09.2026,
+            # закрытие долговой строки §8 «кеширование вернётся с признаком
+            # cache-eligible»; расширение решением владельца 04.09 — без
+            # требования цитаты [N]: после перехода на панель документа
+            # большинство прод-ответов цитат не содержит, условие дало бы
+            # малое покрытие кеша). Кешируется любой grounded-ответ, у
+            # которого одновременно: rag_used (построен на найденных
+            # документах), нет канонического отказа, генерация успешна у
+            # основного провайдера. Парафраз отказа в нестандартной
+            # формулировке может попасть в кеш (осознанный риск вместо
+            # FN-эвристики §3); stale-кеш исключён fingerprint-инвалидацией
+            # при смене промпта/модели/KB. Детерминированные ответы реестра
+            # (листинг/счёт) кешируются как раньше в своём блоке
+            # (fingerprint registry-версии, ранний return).
+            cache_eligible = (
+                not history_present
+                and rag_used
+                and not fallback_used
+                and bool(answer)
+                and not self._is_refusal(answer)
+            )
+            if cache_eligible:
+                self.cache.set(
+                    query=user_query,
+                    response=answer,
+                    metadata={
+                        "provider": provider_used,
+                        "model": model_used,
+                        "sources": sources,
+                    },
+                    ttl_seconds=self.cache_ttl_seconds,
+                    fingerprint=config_fingerprint,
+                )
+            if _tr is not None:
+                _tr.set("cache_eligible", cache_eligible)
             _start_step("memory_save", 9)
 
             # 10. Сохранить в память
