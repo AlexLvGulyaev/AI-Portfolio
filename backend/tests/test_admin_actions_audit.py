@@ -179,6 +179,33 @@ def test_cache_clear_audits_retrieval_tuning():
     print("PASS: cache-clear writes retrieval_tuning audit with details")
 
 
+def test_tuning_put_audits_retrieval_tuning():
+    """PUT /admin/retrieval/tuning пишет аудит update. Регрессия 04.09.2026:
+    в обработчике отсутствовали зависимости request/db (NameError → 500 на
+    каждый вызов, тумблер кеша из консоли был недоступен)."""
+    from app.api.admin import retrieval as mod
+
+    body = MagicMock()
+    body.model_dump.return_value = {"rag_top_k": 5}
+    db = MagicMock()
+    mgr = MagicMock()
+    with patch.object(mod, "_patch_from_body", return_value={"rag_top_k": 5}), \
+         patch.object(mod, "validate_patch", side_effect=lambda p: p), \
+         patch.object(mod, "strip_keys_matching_env", side_effect=lambda m: m), \
+         patch.object(mod, "get_retrieval_manager", return_value=mgr), \
+         patch.object(mod, "store") as store_mock, \
+         patch.object(mod, "log_admin_action") as log_mock:
+        result = mod.api_retrieval_tuning_put(body, _fake_request(), None, db)
+    store_mock.set_setting.assert_called_once()
+    mgr.refresh.assert_called_once()
+    assert "effective" in result and "field_sources" in result
+    kwargs = log_mock.call_args.kwargs
+    assert kwargs["action"] == "update"
+    assert kwargs["resource_type"] == "retrieval_tuning"
+    assert kwargs["changed_fields"] == ["rag_top_k"]
+    print("PASS: tuning-put writes retrieval_tuning audit (request/db deps present)")
+
+
 # ---------- endpoint instrumentation: system_prompt ----------
 
 def test_activate_system_prompt_audits_system_prompt():

@@ -184,7 +184,10 @@ def api_retrieval_tuning_get(_admin: None = Depends(require_admin)) -> dict[str,
 
 @router.put("/tuning")
 def api_retrieval_tuning_put(
-    body: TuningPutBody, _admin: None = Depends(require_admin)
+    body: TuningPutBody,
+    request: Request,
+    _admin: None = Depends(require_admin),
+    db: Session = Depends(get_db),
 ) -> dict[str, Any]:
     patch = _patch_from_body(body)
     if not patch:
