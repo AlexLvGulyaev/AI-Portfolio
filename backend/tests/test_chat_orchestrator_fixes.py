@@ -358,6 +358,89 @@ def test_real_anaphora_still_enriches_retrieval():
     print("PASS: real anaphora still scopes retrieval to prior project")
 
 
+def test_page_demonstrative_beats_stale_anaphora():
+    """«Этот кейс» при валидном page_slug — ссылка на страницу, не анафора к
+    проекту из истории (кейс 05.09: «Как устроен этот кейс?» на странице
+    Retail Group в сессии с прежними вопросами про Assistant Flow → анафора
+    вытесняла страницу, retrieval искал в чужом репозитории при верном
+    ответе). Страница скупо сужает retrieval, запрос не обогащается."""
+    af_card = SimpleNamespace(slug="assistant-flow", display_order=1)
+    page_card = SimpleNamespace(slug="retail-group", display_order=2)
+    memory = [SimpleNamespace(
+        role="user", content="Какие технологии использованы в кейсе Assistant Flow?")]
+    orch, rag, _ = _make_orch(memory=memory, registry={
+        "resolve_all": lambda q: [af_card] if "Assistant Flow" in q else [],
+        "repo_for_card": lambda c: (
+            "o/Assistant-Flow" if c.slug == "assistant-flow" else "o/Retail-Group"),
+        "get_by_slug": lambda slug: page_card if slug == "retail-group" else None,
+    })
+    rag.search.return_value = [SimpleNamespace(
+        content="c", source="README.md", score=0.1,
+        metadata={"repo": "o/Retail-Group", "path": "README.md"}, chunk_id="1")]
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(
+            user_query="Как устроен этот кейс?", page_slug="retail-group"))
+    args, kwargs = rag.search.call_args
+    # project_scoped по странице: repo-фильтр Retail-Group, без обогащения
+    assert kwargs.get("where") == {"repo": {"$eq": "o/Retail-Group"}}
+    assert args and args[0] == "Как устроен этот кейс?"
+    assert rag.search.call_count == 1
+    print("PASS: 'этот кейс' on a valid case page scopes retrieval to the page repo")
+
+
+def test_page_demonstrative_without_page_card_keeps_anaphora():
+    """Тот же «этот кейс», но валидной страницы нет (page_slug=None) —
+    работает прежняя анафора: сужение по проекту из истории."""
+    af_card = SimpleNamespace(slug="assistant-flow", display_order=1)
+    memory = [SimpleNamespace(
+        role="user", content="Какие технологии использованы в кейсе Assistant Flow?")]
+    orch, rag, _ = _make_orch(memory=memory, registry={
+        "resolve_all": lambda q: [af_card] if "Assistant Flow" in q else [],
+        "repo_for_card": lambda c: "o/Assistant-Flow",
+    })
+    rag.search.return_value = [SimpleNamespace(
+        content="c", source="README.md", score=0.1,
+        metadata={"repo": "o/Assistant-Flow", "path": "README.md"}, chunk_id="1")]
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(user_query="Как устроен этот кейс?"))
+    args, kwargs = rag.search.call_args
+    # project_scoped-ветка ищет по сырому запросу; сужение делает repo-фильтр
+    # по проекту из истории — это и есть признак сработавшей анафоры
+    assert kwargs.get("where") == {"repo": {"$eq": "o/Assistant-Flow"}}
+    assert args and args[0] == "Как устроен этот кейс?"
+    print("PASS: without a valid page card, anaphora still scopes to prior project")
+
+
+def test_named_project_on_case_page_beats_page_demonstrative():
+    """Явно названный проект в текущем запросе приоритетнее страницы, даже
+    если запрос содержит «этот кейс»."""
+    af_card = SimpleNamespace(slug="assistant-flow", display_order=1)
+    page_card = SimpleNamespace(slug="retail-group", display_order=2)
+    orch, rag, _ = _make_orch(memory=[], registry={
+        "resolve_all": lambda q: [af_card] if "Assistant Flow" in q else [],
+        "repo_for_card": lambda c: (
+            "o/Assistant-Flow" if c.slug == "assistant-flow" else "o/Retail-Group"),
+        "get_by_slug": lambda slug: page_card if slug == "retail-group" else None,
+    })
+    rag.search.return_value = [SimpleNamespace(
+        content="c", source="README.md", score=0.1,
+        metadata={"repo": "o/Assistant-Flow", "path": "README.md"}, chunk_id="1")]
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(
+            user_query="Assistant Flow — как устроен этот кейс?",
+            page_slug="retail-group"))
+    args, kwargs = rag.search.call_args
+    assert kwargs.get("where") == {"repo": {"$eq": "o/Assistant-Flow"}}
+    assert rag.search.call_count == 1
+    print("PASS: explicitly named project beats page demonstrative")
+
+
 def test_multi_project_query_uses_diverse_retrieval():
     card_a = SimpleNamespace(slug="review-flow", display_order=1)
     card_b = SimpleNamespace(slug="ai-curator", display_order=2)
