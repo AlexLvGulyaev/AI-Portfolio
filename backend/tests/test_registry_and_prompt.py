@@ -218,6 +218,36 @@ def test_initialism_collision_not_registered():
     print("PASS: colliding initialism is not registered")
 
 
+def test_two_letter_initialisms_resolve():
+    """2-буквенные уникальные аббревиатуры резолвятся (кейс 05.09: «в кейсе
+    AF?» не резолвился из-за порога ≥3 и уходил в page-fallback с ответом про
+    чужой проект). Порог ≥2 при той же проверке уникальности."""
+    af = Row("assistant-flow", "Assistant Flow", "A", "cases", [], 1, None)
+    rg = Row("retail-group", "Retail Group", "R", "cases", [], 2, None)
+    r = make_registry(cards=[af, rg], repos=[])
+    assert r.resolve("Какие технологии применены в кейсе AF?").slug == "assistant-flow"
+    assert r.resolve("Назови стек RG").slug == "retail-group"
+    print("PASS: unique 2-letter initialisms (AF, RG) resolve")
+
+
+def test_two_letter_initialism_collision_not_registered():
+    """Коллизия 2-буквенных аббревиатур не регистрируется — как и ≥3."""
+    a = Row("alpha-one", "Alpha Fox", "A", "cases", [], 1, None)
+    b = Row("alpha-two", "Alpha Fox", "B", "cases", [], 2, None)
+    r = make_registry(cards=[a, b], repos=[])
+    assert r.resolve("что такое AF?") is None  # коллизия — не регистрируется
+    print("PASS: colliding 2-letter initialism is not registered")
+
+
+def test_two_letter_initialism_word_boundary():
+    """2-буквенная аббревиатура внутри слова не срабатывает (границы слов)."""
+    af = Row("assistant-flow", "Assistant Flow", "A", "cases", [], 1, None)
+    r = make_registry(cards=[af], repos=[])
+    assert r.resolve("описание afrika") is None
+    assert r.resolve("кафе у дороги") is None
+    print("PASS: 2-letter initialism respects word boundaries")
+
+
 # ---------- visibility guard (owner decision 29.08.2026, variant B1) ----------
 
 def test_hidden_repos_loaded_from_sources_join():
