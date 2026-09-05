@@ -233,8 +233,12 @@ class PortfolioRegistry:
             ]
         except Exception:
             self._hidden_cards = []
-        # Уникальные аббревиатуры (initialisms) ≥3 букв: неоднозначные
-        # (совпадающие у нескольких карточек) не регистрируются.
+        # Уникальные аббревиатуры (initialisms) ≥2 букв: неоднозначные
+        # (совпадающие у нескольких карточек) не регистрируются. Порог ≥2
+        # (кейс 05.09, решение владельца): «Assistant Flow» → «af»,
+        # «Retail Group» → «rg» — 2-буквенные сокращения в живых запросах
+        # реальны («в кейсе AF?» не резолвился и уходил в page-fallback).
+        # Ложные срабатывания отсечены границами слов в resolve/resolve_all.
         # Два механических вывода: заглавные буквы заголовка («HR Assistant»
         # → «hra») и первые буквы слов KB-репозитория («Lead-Qualification-MVP»
         # → «lqm» — заголовок даёт лишь 2 буквы).
@@ -243,12 +247,12 @@ class PortfolioRegistry:
         for c in cards:
             seen: set[str] = set()
             ini = c.initialism
-            if len(ini) >= 3:
+            if len(ini) >= 2:
                 seen.add(ini)
             repo = self.repo_for_card(c)
             if repo:
                 rini = self._repo_initialism(repo.rsplit("/", 1)[-1])
-                if len(rini) >= 3:
+                if len(rini) >= 2:
                     seen.add(rini)
             for v in seen:
                 init_counts[v] = init_counts.get(v, 0) + 1
