@@ -71,6 +71,17 @@ ANAPHORA_RE = re.compile(
 # идёт по исходному запросу.
 IMPERSONAL_ITA_RE = re.compile(r"\bчто\s+это\b", re.IGNORECASE)
 
+# Демонстративная ссылка на текущую страницу («этот кейс», «в этом проекте»)
+# при валидном page_slug — ссылка на страницу, не анафора к проекту из
+# истории. Кейс 05.09: «Как устроен этот кейс?» на странице Retail Group в
+# сессии с прежними вопросами про Assistant Flow → анафора вытесняла
+# страницу, retrieval искал в чужом репозитории при верном ответе.
+# Единственное и множественное число («этот кейс» … «в этом проекте»).
+PAGE_DEMONSTRATIVE_RE = re.compile(
+    r"\bэт(?:от|ого|ому|им|ом)\s+(?:кейс\w*|проект\w*)\b",
+    re.IGNORECASE,
+)
+
 
 class ChatOrchestrator:
     """
@@ -819,6 +830,19 @@ class ChatOrchestrator:
             resolved_cards: list[RegistryCard] = (
                 self.registry.resolve_all(user_query) if intent in ("unknown", "filtered") else []
             )
+            # Страница кейса (аудит 03.09, решение владельца): валидный slug
+            # работает как явно названный проект — retrieval сужается на репо
+            # страницы (project_scoped с честным fallback в глобальный поиск).
+            # Сырой текст клиента не пробрасывается: в retrieval и промпт идёт
+            # только доверенная карточка реестра. Скрытые карточки в публичном
+            # канале в реестре отсутствуют (visibility guard 29.08.2026), поэтому
+            # page_card здесь — только публичные проекты. page_card вычисляется
+            # до анафоры: демонстративная ссылка «этот кейс/проект» при валидной
+            # странице (PAGE_DEMONSTRATIVE_RE) — ссылка на страницу, анафору к
+            # истории не запускаем (кейс 05.09, решение владельца). Явно
+            # названный проект в текущем запросе приоритетнее страницы.
+            page_card = self.registry.get_by_slug(page_slug) if page_slug else None
+
             # Анафора: запрос без явного проекта («какой у него стек») —
             # обогащаем retrieval-запрос последним сообщением с проектом.
             retrieval_query = user_query
@@ -827,6 +851,7 @@ class ChatOrchestrator:
                 and history_present
                 and ANAPHORA_RE.search(user_query)
                 and not IMPERSONAL_ITA_RE.search(user_query)
+                and not (page_card and PAGE_DEMONSTRATIVE_RE.search(user_query))
             ):
                 for m in reversed(conversation_memory):
                     if m.role != "user":
@@ -840,15 +865,6 @@ class ChatOrchestrator:
                 _tr.set("resolved_cards", [c.slug for c in resolved_cards])
                 _tr.set("retrieval_query", retrieval_query)
 
-            # Страница кейса (аудит 03.09, решение владельца): валидный slug
-            # работает как явно названный проект — retrieval сужается на репо
-            # страницы (project_scoped с честным fallback в глобальный поиск).
-            # Сырой текст клиента не пробрасывается: в retrieval и промпт идёт
-            # только доверенная карточка реестра. Скрытые карточки в публичном
-            # канале в реестре отсутствуют (visibility guard 29.08.2026), поэтому
-            # page_card здесь — только публичные проекты. Явно названный проект
-            # (в текущем запросе или из анафоры) приоритетнее страницы.
-            page_card = self.registry.get_by_slug(page_slug) if page_slug else None
             if not resolved_cards and page_card is not None:
                 resolved_cards = [page_card]
                 if _tr is not None:
