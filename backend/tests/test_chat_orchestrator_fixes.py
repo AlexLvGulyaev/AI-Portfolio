@@ -63,6 +63,8 @@ def _make_orch(memory, *, registry=None, cache=None, include_hidden=False):
                 "resolve_all", lambda q: [])
             reg.repo_for_card.side_effect = registry.get(
                 "repo_for_card", lambda c: "o/Repo-X")
+            reg.get_by_slug.side_effect = registry.get(
+                "get_by_slug", lambda slug: None)
             reg.render_list.side_effect = registry.get(
                 "render_list", lambda: "В портфолио 13 проектов:")
             reg.render_count.side_effect = registry.get(
@@ -363,9 +365,12 @@ def test_page_demonstrative_beats_stale_anaphora():
     проекту из истории (кейс 05.09: «Как устроен этот кейс?» на странице
     Retail Group в сессии с прежними вопросами про Assistant Flow → анафора
     вытесняла страницу, retrieval искал в чужом репозитории при верном
-    ответе). Страница скупо сужает retrieval, запрос не обогащается."""
+    ответе). Страница скупо сужает retrieval; с 06.09 запрос обогащается
+    темой карточки страницы (кейс 06.09: LoRA-вопрос на странице HRA-LoRA
+    без токенов темы вытаскивал prompt_evaluation другого эксперимента)."""
     af_card = SimpleNamespace(slug="assistant-flow", display_order=1)
-    page_card = SimpleNamespace(slug="retail-group", display_order=2)
+    page_card = SimpleNamespace(
+        slug="retail-group", display_order=2, title="Retail Group")
     memory = [SimpleNamespace(
         role="user", content="Какие технологии использованы в кейсе Assistant Flow?")]
     orch, rag, _ = _make_orch(memory=memory, registry={
@@ -383,9 +388,9 @@ def test_page_demonstrative_beats_stale_anaphora():
         asyncio.run(orch.process_request(
             user_query="Как устроен этот кейс?", page_slug="retail-group"))
     args, kwargs = rag.search.call_args
-    # project_scoped по странице: repo-фильтр Retail-Group, без обогащения
+    # project_scoped по странице: repo-фильтр Retail-Group, запрос с темой карточки
     assert kwargs.get("where") == {"repo": {"$eq": "o/Retail-Group"}}
-    assert args and args[0] == "Как устроен этот кейс?"
+    assert args and args[0] == "Retail Group | Как устроен этот кейс?"
     assert rag.search.call_count == 1
     print("PASS: 'этот кейс' on a valid case page scopes retrieval to the page repo")
 
@@ -419,7 +424,8 @@ def test_named_project_on_case_page_beats_page_demonstrative():
     """Явно названный проект в текущем запросе приоритетнее страницы, даже
     если запрос содержит «этот кейс»."""
     af_card = SimpleNamespace(slug="assistant-flow", display_order=1)
-    page_card = SimpleNamespace(slug="retail-group", display_order=2)
+    page_card = SimpleNamespace(
+        slug="retail-group", display_order=2, title="Retail Group")
     orch, rag, _ = _make_orch(memory=[], registry={
         "resolve_all": lambda q: [af_card] if "Assistant Flow" in q else [],
         "repo_for_card": lambda c: (

@@ -846,6 +846,12 @@ class ChatOrchestrator:
             # Анафора: запрос без явного проекта («какой у него стек») —
             # обогащаем retrieval-запрос последним сообщением с проектом.
             retrieval_query = user_query
+            # Отдельный запрос для project_scoped-ветки: обогащается ТОЛЬКО
+            # темой страницы (кейс 06.09.2026, решение владельца — вариант A).
+            # Анафорное обогащение (retrieval_query) в project_scoped не
+            # попадает — сужение там делает repo-фильтр, запрос остаётся
+            # сырым (решение 05.09.2026).
+            scoped_query = user_query
             if (
                 not resolved_cards
                 and history_present
@@ -867,8 +873,17 @@ class ChatOrchestrator:
 
             if not resolved_cards and page_card is not None:
                 resolved_cards = [page_card]
+                # Project-scoped поиск обогащаем темой карточки страницы.
+                # Короткий follow-up («Какие результаты и метрики?») без
+                # токенов темы внутри крупного репозитория поднимает общие
+                # документы вместо документов проекта (кейс 06.09.2026:
+                # вопрос по LoRA HRA вытащил prompt_evaluation другого
+                # эксперимента).
+                scoped_query = f"{page_card.title} | {user_query}"
+                retrieval_query = scoped_query
                 if _tr is not None:
                     _tr.set("resolved_via_page", page_slug)
+                    _tr.set("retrieval_query", retrieval_query)
 
             # Доступность retrieval-канала (векторная СУБД + провайдер
             # эмбеддингов): недоступность не роняет запрос с 500 — контур
@@ -936,7 +951,7 @@ class ChatOrchestrator:
                         repo = self.registry.repo_for_card(resolved_cards[0])
                         if repo:
                             results = self.rag_service.search(
-                                user_query,
+                                scoped_query,
                                 top_k=self._runtime_top_k(),
                                 where={"repo": {"$eq": repo}},
                             )
