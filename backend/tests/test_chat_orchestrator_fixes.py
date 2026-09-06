@@ -313,6 +313,69 @@ def test_project_scoped_retrieval_uses_repo_filter():
     print("PASS: single-project query uses repo-scoped retrieval")
 
 
+def test_project_scoped_fetches_wide_and_dedups_by_doc():
+    """Doc-разнообразие в project_scoped (кейс 06.09): fetch втрое шире top_k
+    (min 12), дедуп по (repo, path) — один чанк на документ. Иначе чанки
+    одного документа занимают весь top_k и вытесняют другие документы
+    (Experiment_004 не попадал в контекст → «три эксперимента» из четырёх)."""
+    card = SimpleNamespace(slug="hr-assistant", display_order=1)
+    orch, rag, _ = _make_orch(memory=[], registry={
+        "resolve_all": lambda q: [card],
+        "repo_for_card": lambda c: "o/HR-Assistant",
+    })
+    # runtime-tuning (ретривал-консоль) отдаёт боевые 6 — фиксируем top_k=3,
+    # чтобы тест проверял именно формулу max(top_k*3, 12) и обрезку до top_k.
+    orch._runtime_top_k = lambda: 3
+
+    def _chunk(cid, path):
+        return SimpleNamespace(
+            content="c", source=path, score=0.1,
+            metadata={"repo": "o/HR-Assistant", "path": path}, chunk_id=cid)
+
+    # doc A дважды, B, C, D, E — 6 чанков, 5 документов; top_k=3
+    rag.search.return_value = [
+        _chunk("1", "docs/EXPERIMENTAL_ML_PIPELINE.md"),
+        _chunk("2", "docs/EXPERIMENTAL_ML_PIPELINE.md"),
+        _chunk("3", "finetuning/Experiment_001_Report.md"),
+        _chunk("4", "finetuning/Experiment_004_Report.md"),
+        _chunk("5", "finetuning/README.md"),
+        _chunk("6", "finetuning/ARCHITECTURE.md"),
+    ]
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(user_query="расскажи про HR Assistant"))
+    args, kwargs = rag.search.call_args
+    # fetch шире top_k: max(3*3, 12) = 12
+    assert kwargs.get("top_k") == 12
+    # контекст после дедупа: 5 документов → обрезан до top_k=3,
+    # порядок первого появления сохранён
+    results = rag.build_context.call_args.args[0]
+    assert [r.chunk_id for r in results] == ["1", "3", "4"]
+    print("PASS: project_scoped dedups by doc, Experiment_004 in top-3")
+
+
+def test_table_fence_label_stripped():
+    """GigaChat оборачивает markdown-таблицы в ```python``` (кейс 06.09):
+    фронтенд рендерит таблицу кодом. Метка срезается, если первая непустая
+    строка блока — строка таблицы; код с меткой не трогается."""
+    from app.services.chat_orchestrator import ChatOrchestrator
+
+    # python-метка на таблице → срезается
+    tbl = "```python\n| Metric | Value |\n|--------|-------|\n| DA     | 0.93  |\n```"
+    out = ChatOrchestrator._normalize_table_fences(tbl)
+    assert out.startswith("```\n| Metric")
+    # настоящий python-код не трогается
+    code = "```python\ndef f(x):\n    return |x|\n```"
+    assert ChatOrchestrator._normalize_table_fences(code) == code
+    # markdown-метка не трогается
+    md = "```markdown\n| A | B |\n|---|---|\n```"
+    assert ChatOrchestrator._normalize_table_fences(md) == md
+    # без ограждений — без изменений
+    assert ChatOrchestrator._normalize_table_fences("обычный | ответ") == "обычный | ответ"
+    print("PASS: table fences relabeled, real code untouched")
+
+
 def test_impersonal_eto_not_anaphora():
     """Безличное «это» («что это за …») не анафора: retrieval не сужается
     прошлым проектом из истории (кейс 03.09: чип «Что это за платформа?» в

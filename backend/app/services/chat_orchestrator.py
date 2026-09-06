@@ -270,6 +270,23 @@ class ChatOrchestrator:
         })
         return self._build_citations(rag_results, source_info)
 
+    @staticmethod
+    def _dedup_by_doc(rag_results: list) -> list:
+        """Дедупликация retrieval по (repo, path) — лучший чанк документа.
+
+        Сохраняет порядок первого появления (сортировку по score). Дедуп
+        цитат в _build_citations работает только по выдаче, а не по составу
+        контекста — поэтому для project_scoped он не спасает.
+        """
+        seen: set[tuple[str | None, str]] = set()
+        out = []
+        for r in rag_results:
+            key = (r.metadata.get("repo"), r.metadata.get("path") or r.source)
+            if key not in seen:
+                seen.add(key)
+                out.append(r)
+        return out
+
     @classmethod
     def _build_citations(
         cls,
@@ -346,6 +363,33 @@ class ChatOrchestrator:
     # Цитата-маркер «[N]», за которой НЕ следует «(» (не ломаем markdown-ссылки
     # вида «[1](https://...)»). Двузначных номеров достаточно: top_k ≤ 10.
     _CITATION_RE = re.compile(r"\[(\d{1,2})\](?!\()")
+
+    # Ограждение ```lang ... ``` с содержимым (языковая метка опциональна).
+    _FENCE_RE = re.compile(r"```(\w*)[^\S\n]*\n(.*?)```", re.DOTALL)
+
+    @classmethod
+    def _normalize_table_fences(cls, answer: str) -> str:
+        """
+        Срезать языковую метку ограждения, если блок — markdown-таблица
+        (GigaChat оборачивает таблицы в ```python```, и фронтенд рендерит
+        их как код, кейс 06.09.2026: таблица LoRA vs GPT как «python»).
+        Первая непустая строка блока начинается с «|» → это таблица;
+        метки markdown/md не трогаем.
+        """
+        if not answer or "```" not in answer or "|" not in answer:
+            return answer
+
+        def _sub(m: "re.Match[str]") -> str:
+            lang, body = m.group(1).lower(), m.group(2)
+            if not lang or lang in ("markdown", "md"):
+                return m.group(0)
+            first = next(
+                (ln for ln in body.splitlines() if ln.strip()), "")
+            if first.lstrip().startswith("|"):
+                return "```\n" + body + "```"
+            return m.group(0)
+
+        return cls._FENCE_RE.sub(_sub, answer)
 
     @classmethod
     def _strip_stale_citations(cls, answer: str, sources_count: int) -> tuple[str, list[int]]:
@@ -950,13 +994,21 @@ class ChatOrchestrator:
                         retrieval_mode = "project_scoped"
                         repo = self.registry.repo_for_card(resolved_cards[0])
                         if repo:
+                            top_k = self._runtime_top_k()
+                            # Doc-разнообразие: fetch втрое шире + дедуп по
+                            # (repo, path) — иначе чанки одного документа
+                            # вытесняют другие (кейс 06.09: Experiment_001
+                            # занимал 2 слота из top-6, заголовок
+                            # Experiment_004 оставался за контекстом, и
+                            # ассистент считал «три эксперимента» из четырёх).
                             results = self.rag_service.search(
                                 scoped_query,
-                                top_k=self._runtime_top_k(),
+                                top_k=max(top_k * 3, 12),
                                 where={"repo": {"$eq": repo}},
                             )
+                            results = self._dedup_by_doc(results)
                             if results:
-                                return results
+                                return results[:top_k]
                         # Проект найден в реестре, но в его KB нет релевантных
                         # чанков — честный fallback в глобальный поиск.
                         retrieval_mode = "global_fallback"
@@ -1095,6 +1147,26 @@ class ChatOrchestrator:
                     f"он работает», «из чего состоит» — это вопросы об "
                     f"архитектуре: отвечайте на них содержательно по "
                     f"документам кейса, без нумерованного маршрута."
+                    f"\nОПОРА ОТВЕТА (доверенная инструкция): если в контексте "
+                    f"есть документы по теме вопроса, отвечайте по ним — в том "
+                    f"числе когда релевантна только их часть (отчёт об "
+                    f"эксперименте, раздел документации). Отсутствие отдельной "
+                    f"страницы или сводки в БЗ — не повод для отказа: "
+                    f"соберите ответ из приведённых материалов кейса. Отказ "
+                    f"«в базе знаний такой информации нет» — только если среди "
+                    f"контекста нет ни одного документа по теме вопроса. "
+                    f"Не подменяйте ответ указанием на другой документ: если "
+                    f"значения или факты есть в приведённых чанках — "
+                    f"формулируйте их сразу, а не «см. документ X». Если в "
+                    f"репозитории несколько групп документов о разных "
+                    f"подсистемах (например, оценка промптов и дообучение "
+                    f"модели) — отвечайте по группе, относящейся к теме "
+                    f"страницы кейса; документы других подсистем не являются "
+                    f"источником ответа о результатах этого кейса. При этом "
+                    f"ни в каком виде не выдумывайте конкретные значения: "
+                    f"если нужных чисел или фактов в приведённых чанках нет, "
+                    f"так и скажите и укажите документ кейса, где они "
+                    f"содержатся, — не заполняйте таблицу условными данными."
                 )
             if _tr is not None:
                 _tr.set("prompt", prompt)
@@ -1242,6 +1314,10 @@ class ChatOrchestrator:
             # в память и трейс, чтобы все последующие отображения ответа
             # (UI, логи, память) видели уже очищенный текст.
             answer, citations_stripped = self._strip_stale_citations(answer, len(sources))
+
+            # 8b'. Гигиена ограждений: markdown-таблица в ```python``` рендерится
+            # кодом (кейс 06.09.2026) — метка срезается до кеша/памяти/трейса.
+            answer = self._normalize_table_fences(answer)
 
             # 8c. Подавление источников при честном отказе (решение владельца
             # 04.09.2026): источники собираются из retrieval-выдачи до
