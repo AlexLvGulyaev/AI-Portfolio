@@ -29,6 +29,17 @@ from sqlalchemy.orm import Session
 from app.models.entities import SystemPrompt
 from app.services.prompt_assembly import SYSTEM_PROMPT, SYSTEM_PROMPT_VERSION
 
+class PromptUnavailableError(RuntimeError):
+    """Активный управляемый промпт недоступен (нет активной строки или
+    таблица ``system_prompts`` не читается).
+
+    Решение B (09.09.2026, PROMPT_ARCHITECTURE §3): БД — единственный
+    runtime-SOT боевого промпта, вшитый текст — seed релизного базлайна,
+    а не runtime-fallback. Канал чата отвечает честной деградацией
+    (HTTP 503), не тихим откатом на вшитый v8.
+    """
+
+
 REQUIRED_PLACEHOLDERS = (
     "{registry_block}",
     "{registry_list}",
@@ -180,8 +191,10 @@ def load_active_prompt(db: Session) -> tuple[str | None, str | None]:
     Активный управляемый промпт для ChatOrchestrator.
 
     Возвращает ``(body, version)`` или ``(None, None)`` — нет активной
-    строки либо таблица недоступна (fail-open к вшитому дефолту: поведение
-    канала не меняется при отсутствии записи).
+    строки либо таблица недоступна. Трактовка по решению B (09.09.2026):
+    ``(None, None)`` — сигнал честной деградации канала
+    (ChatOrchestrator поднимает PromptUnavailableError), НЕ переход на
+    вшитый промпт — вшитый имеет роль seed релизного базлайна.
     """
     try:
         row = db.scalar(select(SystemPrompt).where(SystemPrompt.is_active.is_(True)))

@@ -112,9 +112,12 @@ cd backend && .venv/bin/python -m pytest tests/ -q
 
 - GigaChat-Max 164/168, gpt-4.1-mini 163/168; инъекции GigaChat 5/6, OpenAI 6/6; latency p95 4748 / 6290 мс — детали и выводы в [`AI_EVAL_REPORT.md`](AI_EVAL_REPORT.md) §11.
 
-### 2026-09-09 — защита промпта от инъекций (v12.1 → v13-hygiene-defense)
+### 2026-09-09 — защита промпта от инъекций (v12.1 → v13-hygiene-defense → v14-format-defense)
 
 - Пробы и активация — [`AI_EVAL_REPORT.md`](AI_EVAL_REPORT.md) §12; page-фикстуры GigaChat 9/10 (единственный FAIL — артефакт чека), OpenAI-инъекции 6/6; тело активной версии сверено с протестированным байт-в-байт; боевой смоук без регрессии.
+- Досмотр клетки «формат + защита»: правило 14 при dual-reminder — L-doc-inject 5/5 (3/4 размещений), активирован `v14-format-defense`; page-фикстуры GigaChat 8/10 (`no_md_stars` 10/10, FAILs — известные артефакты чека), OpenAI 8/10, инъекции OpenAI 6/6; postcheck и боевой смоук чистые.
+- Код-нейтрализация doc-инъекций (`injection_neutralizer.py`, карантин чанков + гейт rag_context): unit 9/9, полный набор 282 passed (2 известных smoke-FAIL БД); инъекции с активным v14 GigaChat 6×5 SAFE — L-doc-inject2 впервые 5/5 (плато закрыто), OpenAI 6×5 SAFE; page-фикстуры 3/4 PASS, P-lora-metrics — существующий дефект «ответ без чисел метрик» (воспроизведён дважды, до нейтрализатора тоже наблюдался) — не регрессия. Детали — [`AI_EVAL_REPORT.md`](AI_EVAL_REPORT.md) §12.
+- Вариант B вшитого промпта (план 4a): unit 7/7 новых (`test_system_prompt_degradation.py`), полный набор 289 passed (2 известных smoke-FAIL); миграция 025 (seed вшитого базлайна) валидирована на scratch-БД полным прогоном 000→025 + повторный upgrade (идемпотентен, 1 активная строка); обе ветки деградации проверены на живом PG (seed активен → промпт загружен; без активной строки → PromptUnavailableError, маршруты маппят в 503).
 
 ---
 

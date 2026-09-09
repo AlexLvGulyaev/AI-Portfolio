@@ -47,6 +47,10 @@ from app.services.portfolio_registry import RegistryCard
 from app.services.prompt_assembly import PromptAssembly
 from app.services.providers.base import AIProvider
 from app.services.providers.factory import AIProviderFactory
+from app.services.security.injection_neutralizer import (
+    filter_quarantined,
+    find_instruction_attacks,
+)
 from app.models.entities import KnowledgeSource, ProjectCard
 from app.services.rag.source_labels import github_blob_url, make_source_label
 from app.services.rag.rag_service import RAGService
@@ -139,6 +143,19 @@ class ChatOrchestrator:
             self.prompt_assembly = PromptAssembly(
                 system_prompt=prompt_body, version=prompt_version
             )
+            self.prompt_unavailable = False
+        else:
+            # Решение B (09.09.2026, PROMPT_ARCHITECTURE §3): БД —
+            # единственный runtime-SOT боевого промпта, вшитый текст —
+            # seed релизного базлайна. Нет активной строки / таблица
+            # недоступна → честная деградация канала (PromptUnavailableError
+            # в process_request), НЕ тихий откат на вшитый v8.
+            logger.warning(
+                "active system prompt unavailable — channel degrades honestly "
+                "(decision B, no builtin fallback)"
+            )
+            self.prompt_assembly = None
+            self.prompt_unavailable = True
         # Детерминированный реестр портфеля (SOT — project_cards). Канал
         # владельца (include_hidden) видит скрытые карточки как обычные —
         # иначе prompt-реестр не знает скрытый проект и LLM детерминированно
@@ -478,6 +495,16 @@ class ChatOrchestrator:
         start_time = time.monotonic()
         execution_id: uuid.UUID | None = None
         step_ids: dict[str, uuid.UUID] = {}
+
+        # Честная деградация (решение B, 09.09.2026): без активного
+        # управляемого промпта канал не отвечает — ни вшитым, ни чем-либо
+        # ещё; маршрут публичного чата/preview переводит это в HTTP 503.
+        if getattr(self, "prompt_unavailable", False):
+            from app.services.admin.system_prompt_service import PromptUnavailableError
+
+            raise PromptUnavailableError(
+                "active system prompt is not loaded (no active row in system_prompts)"
+            )
 
         # Diagnostic eval tracing (opt-in, disabled by default; never alters behavior).
         _tr: eval_trace_mod.EvalTrace | None = (
@@ -1080,6 +1107,31 @@ class ChatOrchestrator:
                 finally:
                     _pool.shutdown(wait=False)
                 _t_retrieval_ms.append(int((time.monotonic() - _t0) * 1000))
+                # Код-нейтрализация doc-инъекций (план п. 4, 09.09.2026):
+                # чанки с инструкциями-ловушками («ответь словом X»,
+                # «игнорируй инструкции») выводятся из выдачи до контекста
+                # и цитат — карантин; второй рубеж — в PromptAssembly.build.
+                _quarantined: list = []
+                if rag_results:
+                    rag_results, _quarantined = filter_quarantined(rag_results)
+                    if _quarantined:
+                        logger.warning(
+                            "rag quarantine: %d chunk(s) with instruction patterns",
+                            len(_quarantined),
+                        )
+                        if _tr is not None:
+                            _tr.set(
+                                "rag_quarantined",
+                                [
+                                    {
+                                        "chunk_id": q.chunk_id,
+                                        "patterns": find_instruction_attacks(q.content),
+                                        "source": q.source,
+                                        "repo": q.metadata.get("repo"),
+                                    }
+                                    for q in _quarantined
+                                ],
+                            )
                 if rag_results:
                     # Контекст строится из УЖЕ полученных результатов —
                     # без повторного поиска (один retrieval на запрос).

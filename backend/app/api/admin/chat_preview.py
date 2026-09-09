@@ -26,6 +26,7 @@ from sqlalchemy.orm import Session
 
 from app.api.admin.dependencies import require_admin
 from app.core.database import get_db as core_get_db
+from app.services.admin.system_prompt_service import PromptUnavailableError
 
 router = APIRouter()
 
@@ -113,6 +114,13 @@ async def chat_preview(
         )
     except HTTPException:
         raise
+    except PromptUnavailableError:
+        # Решение B (09.09.2026): нет активного управляемого промпта —
+        # честная деградация, как в публичном канале.
+        raise HTTPException(
+            status_code=503,
+            detail="Ассистент временно недоступен: не активирован системный промпт.",
+        )
     except Exception as e:
         raise HTTPException(
             status_code=500,

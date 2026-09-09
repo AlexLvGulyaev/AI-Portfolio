@@ -20,6 +20,7 @@ import hashlib
 from typing import Any
 
 from app.services.memory.base import ConversationMemoryRecord
+from app.services.security.injection_neutralizer import neutralize_context
 
 
 # Версия системного промпта: входит в cache fingerprint — смена промпта
@@ -121,7 +122,11 @@ class PromptAssembly:
             Полный prompt
         """
         history = self._format_history(conversation_memory)
-        context = rag_context or "Релевантные документы не найдены."
+        # Второй рубеж нейтрализации doc-инъекций (план п. 4, 09.09.2026):
+        # rag_context с инструкциями-ловушками → честное «не найдено».
+        # Боевой путь оркестратора уже чистит retrieval (карантин чанков);
+        # гейт покрывает пути, миновавшие retrieval-фильтр.
+        context = neutralize_context(rag_context) or "Релевантные документы не найдены."
         registry_list = registry_list or "Реестр недоступен."
 
         prompt = self.system_prompt.format(
@@ -183,7 +188,8 @@ class PromptAssembly:
         messages: list[dict[str, str]] = []
 
         # System message: правила + реестр + недоверенные документы
-        context = rag_context or "Релевантные документы не найдены."
+        # (второй рубеж нейтрализации doc-инъекций — как в build()).
+        context = neutralize_context(rag_context) or "Релевантные документы не найдены."
         registry_list = registry_list or "Реестр недоступен."
         system_content = self.system_prompt.format(
             rag_context=context,

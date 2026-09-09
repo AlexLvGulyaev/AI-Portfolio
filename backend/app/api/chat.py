@@ -21,6 +21,7 @@ from app.schemas.response import ChatResponseDTO
 from app.services.cache.response_cache import ResponseCache
 from app.services.chat_orchestrator import ChatOrchestrator
 from app.services.execution_tracing_service import ExecutionTracingService
+from app.services.admin.system_prompt_service import PromptUnavailableError
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -133,6 +134,15 @@ async def chat(
             response_time_ms=dto.latency_ms,
             user_id=dto.user_id,
             visitor_id=dto.visitor_id,
+        )
+
+    except PromptUnavailableError:
+        # Решение B (09.09.2026): нет активного управляемого промпта —
+        # честная деградация канала, не тихий откат на вшитый текст.
+        logger.error("chat request failed: prompt unavailable (no active managed prompt)")
+        raise HTTPException(
+            status_code=503,
+            detail="Ассистент временно недоступен. Попробуйте позже.",
         )
 
     except Exception as e:

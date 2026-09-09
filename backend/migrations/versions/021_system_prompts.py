@@ -3,8 +3,9 @@
 Moves the system prompt out of the hardcoded ``prompt_assembly.py``:
 ``system_prompts`` stores prompt versions (body + version label) with a
 single active row enforced by a partial unique index. An empty table means
-"use the builtin prompt" (owner decision: hardcoded ``v4-compact-multi``
-remains the fallback/reset source).
+"honestly degrade (503, decision B 09.09.2026)" — no runtime fallback to
+the builtin (migration 025 seeds the builtin release baseline on clean
+deploys).
 
 Rollback: drop the table (builtin prompt remains effective).
 """
