@@ -810,25 +810,54 @@
     // Show typing indicator
     appendTyping();
 
+    // Стрим (10.09.2026): ответ рендерится по мере генерации; при ошибке
+    // ДО первой дельты — тихий откат на JSON-контракт POST /chat.
+    let streamText = '';
+    let streamEl = null;
+
+    const renderBotResponse = function(response) {
+      appendMessage(response.answer, 'bot', {
+        sources: response.sources,
+        sourcesDetail: response.sourcesDetail,
+        provider: response.provider,
+        model: response.model,
+        responseTimeMs: response.responseTimeMs,
+        fromCache: response.fromCache,
+      });
+    };
+
     try {
-      // Use APIClient
-      const response = await window.APIClient.chat(text);
+      const response = await window.APIClient.chatStream(text, {
+        onDelta: function(piece) {
+          streamText += piece;
+          if (!streamEl) {
+            removeTyping();
+            streamEl = createStreamingMessage();
+          }
+          streamEl.textContent = streamText;
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        },
+      });
 
       removeTyping();
 
       if (response.success) {
-        // Append bot response with metadata
-        appendMessage(response.answer, 'bot', {
-          sources: response.sources,
-          sourcesDetail: response.sourcesDetail,
-          provider: response.provider,
-          model: response.model,
-          responseTimeMs: response.responseTimeMs,
-          fromCache: response.fromCache,
-        });
+        // Готовый ответ + метаданные: стрим-див заменяется полным
+        // appendMessage (источники, модель, время появляются после генерации)
+        if (streamEl) streamEl.parentElement.remove();
+        renderBotResponse(response);
+      } else if (streamText === '') {
+        // Стрим не начался (сеть / маршрут недоступен) — JSON-контракт
+        const fallback = await window.APIClient.chat(text);
+        if (fallback.success) {
+          renderBotResponse(fallback);
+        } else {
+          appendError(fallback.message || 'Не удалось получить ответ. Попробуйте позже.');
+        }
       } else {
-        // Append error message
-        appendError(response.message || 'Не удалось получить ответ. Попробуйте позже.');
+        // Поток начался и оборвался: частичный текст остаётся, честная
+        // приписка об ошибке (тихой подмены нет — решение A)
+        appendError(response.message || 'Генерация ответа прервана. Попробуйте ещё раз.');
       }
 
     } catch (error) {
@@ -842,6 +871,24 @@
       inputEl.disabled = false;
       inputEl.focus();
     }
+  }
+
+  /**
+   * Create a bot message div for incremental stream rendering.
+   * Returns the text element to append deltas to (textContent —
+   * тот же рендер, что и в appendMessage).
+   */
+  function createStreamingMessage() {
+    const div = document.createElement('div');
+    div.className = 'chat-message bot';
+
+    const textDiv = document.createElement('div');
+    textDiv.className = 'chat-message__text';
+    div.appendChild(textDiv);
+
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return textDiv;
   }
 
   // ============================================

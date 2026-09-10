@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.health import router as health_router
 from app.api.chat import router as chat_router
+from app.api.chat_stream import router as chat_stream_router
 from app.api.project_cards import router as project_cards_router
 from app.api.tracking import router as tracking_router
 from app.api.case_match import router as case_match_router
@@ -44,6 +45,7 @@ app.add_middleware(
 # Include routers
 app.include_router(health_router)
 app.include_router(chat_router)
+app.include_router(chat_stream_router)
 app.include_router(project_cards_router)
 app.include_router(tracking_router)
 app.include_router(case_match_router)

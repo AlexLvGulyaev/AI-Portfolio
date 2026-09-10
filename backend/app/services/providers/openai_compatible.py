@@ -1,5 +1,6 @@
 import json
 import time
+from collections.abc import AsyncIterator
 from typing import Any
 
 from openai import OpenAI
@@ -17,6 +18,7 @@ class OpenAICompatibleProvider(AIProvider):
         base_url = config.base_url or "https://api.openai.com/v1"
         self._config = config
         self._client = OpenAI(api_key=config.api_key, base_url=base_url)
+        self._async_client: Any = None  # AsyncOpenAI, лениво — только для стрима
 
     @property
     def provider_key(self) -> str:
@@ -61,6 +63,43 @@ class OpenAICompatibleProvider(AIProvider):
         )
         content = response.choices[0].message.content or "{}"
         return json.loads(content)
+
+    async def generate_stream(
+        self,
+        prompt: str,
+        *,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+        **kwargs: Any,
+    ) -> AsyncIterator[str]:
+        """Потоковая генерация: stream=True (SOT: OpenAI SDK 1.59.5,
+        chat.completions.create(stream=True), чанки delta.content)."""
+        client = self._client
+        if self._async_client is None:
+            from openai import AsyncOpenAI
+
+            self._async_client = AsyncOpenAI(
+                api_key=self._config.api_key, base_url=self._client.base_url
+            )
+        client = self._async_client
+        stream = await client.chat.completions.create(
+            model=self._config.model_name,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature if temperature is not None else self._config.temperature,
+            max_tokens=max_tokens if max_tokens is not None else self._config.max_tokens,
+            stream=True,
+        )
+        try:
+            async for chunk in stream:
+                choices = chunk.choices or []
+                if not choices:
+                    continue
+                delta = choices[0].delta
+                content = getattr(delta, "content", None)
+                if content:
+                    yield content
+        finally:
+            await stream.close()
 
     def is_ready(self) -> bool:
         """Check if provider is ready to use."""

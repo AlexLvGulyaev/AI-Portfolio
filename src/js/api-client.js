@@ -208,6 +208,158 @@
     },
 
     /**
+     * Стрим-чат (SSE, POST /chat/stream, 10.09.2026): дельты по мере
+     * генерации, метаданные в финальном событии. options.onDelta(text)
+     * вызывается на каждую гигиеничную дельту; возврат — финальный
+     * объект в формате chat(). Ошибки: {success:false, error, message};
+     * при ошибке соединения до первого события вызывающий код
+     * откатывается на JSON-контракт (this.chat).
+     */
+    async chatStream(message, options = {}) {
+      const sessionId = this.getSessionId();
+
+      const requestBody = { message: message };
+
+      const slugMatch = (window.location.pathname || '').match(/\/cases\/([a-z0-9-]+)\.html$/);
+      if (slugMatch) {
+        requestBody.page_slug = slugMatch[1];
+      }
+
+      if (sessionId) {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (uuidRegex.test(sessionId)) {
+          requestBody.session_id = sessionId;
+        }
+      }
+
+      const visitorId = this.getVisitorId();
+      if (visitorId) {
+        requestBody.visitor_id = visitorId;
+      }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
+
+      try {
+        const response = await fetch(`${CONFIG.API_BASE}/chat/stream`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          const err = new Error(errorData.detail || `Server error: ${response.status}`);
+          err.status = response.status;
+          clearTimeout(timeoutId);
+          if (err.status === 429) {
+            return {
+              success: false,
+              error: 'rate_limited',
+              message: 'Слишком много запросов. Подождите минуту и попробуйте снова.',
+            };
+          }
+          return {
+            success: false,
+            error: 'server',
+            message: errorData.detail || 'Произошла ошибка. Попробуйте позже.',
+          };
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let finalEvent = null;
+        let errorMessage = null;
+        let sawDelta = false;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          let idx;
+          while ((idx = buffer.indexOf('\n\n')) !== -1) {
+            const rawEvent = buffer.slice(0, idx);
+            buffer = buffer.slice(idx + 2);
+            const line = rawEvent
+              .split('\n')
+              .filter((l) => l.startsWith('data:'))
+              .map((l) => l.slice(5).trim())
+              .join('');
+            if (!line || line === '[DONE]') continue;
+            let event;
+            try {
+              event = JSON.parse(line);
+            } catch (e) {
+              console.warn('SSE: malformed event skipped');
+              continue;
+            }
+            if (event.type === 'delta' && event.text) {
+              sawDelta = true;
+              if (options.onDelta) options.onDelta(event.text);
+            } else if (event.type === 'final') {
+              finalEvent = event;
+            } else if (event.type === 'error') {
+              errorMessage = event.message || 'Произошла ошибка. Попробуйте позже.';
+            }
+          }
+        }
+
+        clearTimeout(timeoutId);
+
+        if (errorMessage) {
+          return { success: false, error: 'server', message: errorMessage };
+        }
+        if (!finalEvent) {
+          return { success: false, error: 'server', message: 'Произошла ошибка. Попробуйте позже.' };
+        }
+
+        if (finalEvent.session_id) {
+          this.setSessionId(finalEvent.session_id);
+        }
+
+        return {
+          success: true,
+          streamed: sawDelta,
+          answer: finalEvent.answer || '',
+          sessionId: finalEvent.session_id,
+          sources: finalEvent.sources || [],
+          sourcesDetail: finalEvent.sources_detail || [],
+          provider: finalEvent.provider || 'unknown',
+          model: finalEvent.model || 'unknown',
+          fromCache: finalEvent.from_cache || false,
+          ragUsed: finalEvent.rag_used || false,
+          responseTimeMs: finalEvent.response_time_ms || 0,
+          ttftMs: finalEvent.ttft_ms || null,
+          userId: finalEvent.user_id,
+        };
+      } catch (error) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+          return {
+            success: false,
+            error: 'timeout',
+            message: 'Превышено время ожидания. Попробуйте позже.',
+          };
+        }
+        if (error.message === 'Failed to fetch' || error.message.includes('NetworkError')) {
+          return {
+            success: false,
+            error: 'network',
+            message: 'Не удалось подключиться к серверу. Проверьте подключение.',
+          };
+        }
+        this.clearSession();
+        return {
+          success: false,
+          error: 'server',
+          message: error.message || 'Произошла ошибка. Попробуйте позже.',
+        };
+      }
+    },
+
+    /**
      * Get or create anonymous visitor ID for visit tracking
      * @returns {string|null} Visitor ID
      */

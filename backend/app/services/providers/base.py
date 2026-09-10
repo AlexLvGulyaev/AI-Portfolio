@@ -6,6 +6,7 @@ Used directly without modifications.
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from typing import Any
 
@@ -61,6 +62,27 @@ class AIProvider(ABC):
     ) -> dict[str, Any]:
         """Generate JSON completion."""
         ...
+
+    async def generate_stream(
+        self,
+        prompt: str,
+        *,
+        temperature: float = 0.7,
+        max_tokens: int = 500,
+        **kwargs: Any,
+    ) -> AsyncIterator[str]:
+        """Потоковая генерация (SSE): дельты текста по мере генерации.
+
+        Реализуется провайдерами, поддерживающими streaming API
+        (GigaChat stream:true, OpenAI stream=True). Провайдер без
+        поддержки наследует fallback-вариант: одна дельта с полным
+        текстом штатного generate() — стрим-контур работает, но без
+        TTFT-выигрыша.
+        """
+        text = await self.generate(
+            prompt, temperature=temperature, max_tokens=max_tokens, **kwargs
+        )
+        yield text
 
     @abstractmethod
     def is_ready(self) -> bool:

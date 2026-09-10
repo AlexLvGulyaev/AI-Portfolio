@@ -1,6 +1,7 @@
 import json
 import re
 import time
+from collections.abc import AsyncIterator
 from typing import Any
 
 import httpx
@@ -65,6 +66,52 @@ class GigaChatProvider(AIProvider):
             max_tokens=max_tokens,
         )
         return self._parse_json_content(content)
+
+    async def generate_stream(
+        self,
+        prompt: str,
+        *,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+        **kwargs: Any,
+    ) -> AsyncIterator[str]:
+        """Потоковая генерация: stream=true, SSE-чанки delta.content (SOT:
+        guides/response-token-streaming + openapi api.yml; завершение
+        data: [DONE], финальный чанк finish_reason=stop + usage)."""
+        token = fetch_access_token(timeout=REQUEST_TIMEOUT)
+        chat_url = self._config.base_url or DEFAULT_CHAT_URL
+        payload: dict[str, Any] = {
+            "model": self._scope_model,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": temperature if temperature is not None else self._config.temperature,
+            "max_tokens": max_tokens if max_tokens is not None else self._max_tokens,
+            "stream": True,
+        }
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Accept": "text/event-stream",
+        }
+        async with httpx.AsyncClient(verify=False, timeout=REQUEST_TIMEOUT) as client:
+            async with client.stream("POST", chat_url, headers=headers, json=payload) as response:
+                if response.status_code >= 400:
+                    raise ValueError(f"GigaChat stream failed with status {response.status_code}")
+                async for line in response.aiter_lines():
+                    if not line or not line.startswith("data:"):
+                        continue
+                    data = line[len("data:"):].strip()
+                    if not data or data == "[DONE]":
+                        if data == "[DONE]":
+                            break
+                        continue
+                    chunk = json.loads(data)
+                    choices = chunk.get("choices") or []
+                    if not choices:
+                        continue
+                    delta = choices[0].get("delta") or {}
+                    content = delta.get("content")
+                    if content:
+                        yield str(content)
 
     def is_ready(self) -> bool:
         """Check if provider is ready to use."""

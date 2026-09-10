@@ -31,6 +31,7 @@ import logging
 import re
 import time
 import uuid
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -56,6 +57,171 @@ from app.services.rag.source_labels import github_blob_url, make_source_label
 from app.services.rag.rag_service import RAGService
 
 logger = logging.getLogger(__name__)
+
+
+class StreamingGenerationError(Exception):
+    """Генерация оборвалась после того, как поток уже пошёл зрителю.
+
+    Тихий fallback невозможен (часть ответа уже отдана); маршрут
+    публичного стрима переводит это в error-событие SSE, не подменяя
+    уже выданный текст.
+    """
+
+
+class _StreamHygieneFilter:
+    """Потоковая гигиена дельт (стрим-контур, 10.09.2026).
+
+    Аналог пост-гигиены process_request для потока: цитаты [N] с
+    N > числа полученных источников вырезаются до отдачи зрителю,
+    языковая метка ограждения (```` ```python ```` у таблиц, кейс
+    06.09.2026) срезается до классификации тела, markdown-разметка
+    (парные звёздочки, «#»-заголовки, маркеры «* ») срезается как в
+    _strip_markdown_emphasis (замечание приёмки 04.09.2026). Хвостовой
+    буфер гасит маркеры, разрезанные между дельтами. Финальный текст
+    после генерации проходит штатную гигиену (_strip_stale_citations,
+    _normalize_table_fences, _strip_markdown_emphasis) — операции
+    идемпотентны.
+    """
+
+    _CIT = re.compile(r"\[(\d{1,2})\]")
+    _FENCE_LABEL = re.compile(r"^```([A-Za-z0-9_+-]*)[^\S\n]*\n")
+    _STREAM_HEADING = re.compile(r"^#{1,6}[^\S\n]+(.*)$")
+    # сколько символов ждать закрытия звёздочной пары, прежде чем отдать
+    # маркер литералом (финальный текст всё равно пройдёт пост-гигиену)
+    _STAR_HOLD = 200
+
+    def __init__(self, sources_count: int) -> None:
+        self._max_citation = sources_count
+        self._buf = ""
+
+    def feed(self, delta: str) -> str:
+        """Принять дельту, вернуть гигиеничную часть для отдачи."""
+        self._buf += delta
+        out: list[str] = []
+        while self._buf:
+            if self._buf.startswith("```"):
+                m = self._FENCE_LABEL.match(self._buf)
+                if m:
+                    lang = m.group(1).lower()
+                    # Метки markdown/md не трогаем (как в
+                    # _normalize_table_fences); прочие метки срезаем —
+                    # тело таблиц/блоков уходит под plain-ограждением.
+                    out.append(m.group(0) if lang in ("", "markdown", "md") else "```\n")
+                    self._buf = self._buf[m.end():]
+                    continue
+                if len(self._buf) <= 10:
+                    break  # метка ещё не доплыла до конца строки
+                out.append("```")
+                self._buf = self._buf[3:]
+                continue
+            marker, pos = self._next_marker()
+            if pos is None:
+                out.append(self._buf)
+                self._buf = ""
+                break
+            if pos > 0:
+                out.append(self._buf[:pos])
+                self._buf = self._buf[pos:]
+            if marker == "[":
+                m = self._CIT.match(self._buf)
+                if m:
+                    if m.end() >= len(self._buf):
+                        break  # ждём следующий символ для lookahead «(?!\()»
+                    if int(m.group(1)) > self._max_citation:
+                        self._buf = self._buf[m.end():]
+                    else:
+                        out.append(self._buf[: m.end()])
+                        self._buf = self._buf[m.end():]
+                    continue
+                if len(self._buf) > 5:
+                    # «[» не начал цитату — отдать литерал
+                    out.append("[")
+                    self._buf = self._buf[1:]
+                else:
+                    break  # возможная недоплавшая цитата — подождать
+            elif marker == "*":
+                if not self._feed_star(out):
+                    break
+            else:  # "#"
+                if not self._feed_heading(out):
+                    break
+        return "".join(out)
+
+    def _next_marker(self) -> "tuple[str, int] | tuple[None, None]":
+        """Ближайший гигиеничный маркер в буфере: «[», «*» или «#»."""
+        found = [(self._buf.find(ch), ch) for ch in "[*#"]
+        found = [(i, ch) for i, ch in found if i != -1]
+        return (min(found)[1], min(found)[0]) if found else (None, None)
+
+    def _feed_star(self, out: list[str]) -> bool:
+        """Звёздочки в потоке. False — пара не доплыла, ждать дельту."""
+        buf = self._buf
+        if buf.startswith("**"):
+            rest = buf[2:]
+            nl, close = rest.find("\n"), rest.find("**")
+            if close != -1 and (nl == -1 or close < nl):
+                out.append(rest[:close])  # парный жирный → текст
+                self._buf = rest[close + 2:]
+                return True
+            if nl != -1 or len(buf) > self._STAR_HOLD:
+                out.append("**")  # непарный (или слишком долгое ожидание) — литерал
+                self._buf = rest
+                return True
+            return False  # ждём закрывающие
+        at_line_start = not out or out[-1][-1] == "\n"
+        if at_line_start and len(buf) > 1 and buf[1] in " \t":
+            out.append("- ")  # маркер списка «* » → «- » (правило 14)
+            self._buf = buf[1:].lstrip(" \t")
+            return True
+        close, nl = buf.find("*", 1), buf.find("\n", 1)
+        if close != -1 and (nl == -1 or close < nl):
+            content = buf[1:close]
+            prev = out[-1][-1] if out else ""
+            if self._valid_emphasis(content, prev):
+                out.append(content)  # одиночная пара → текст
+                self._buf = buf[close + 1:]
+            else:
+                out.append("*")  # «2*3», пробел у границы — литерал
+                self._buf = buf[1:]
+            return True
+        if nl != -1 or len(buf) > self._STAR_HOLD:
+            out.append("*")  # пара не закрылась до конца строки — литерал
+            self._buf = buf[1:]
+            return True
+        return False  # ждём пару или конец строки
+
+    def _feed_heading(self, out: list[str]) -> bool:
+        """«#»-заголовок в начале строки → текст. False — ждать дельту."""
+        at_line_start = not out or out[-1][-1] == "\n"
+        if not at_line_start:
+            out.append("#")  # «C#», хештег в строке — литерал
+            self._buf = self._buf[1:]
+            return True
+        nl = self._buf.find("\n")
+        if nl == -1:
+            if len(self._buf) > self._STAR_HOLD:
+                out.append("#")
+                self._buf = self._buf[1:]
+                return True
+            return False  # ждём конец строки, чтобы увидеть строку целиком
+        line, self._buf = self._buf[:nl], self._buf[nl + 1:]
+        m = self._STREAM_HEADING.match(line)
+        out.append(m.group(1) + "\n" if m else line + "\n")
+        return True
+
+    @staticmethod
+    def _valid_emphasis(content: str, prev: str) -> bool:
+        """Одиночная пара «*текст*» — эмфаза, не математика/мусор."""
+        if not content or content[0] in " \t" or content[-1] in " \t":
+            return False
+        if prev.isdigit() and content[0].isdigit():
+            return False  # умножение «2*3»
+        return any(ch.isalpha() for ch in content)
+
+    def flush(self) -> str:
+        """Сбросить хвостовой буфер (конец потока)."""
+        buf, self._buf = self._buf, ""
+        return buf
 
 
 # Анафорические ссылки («у него», «этот проект»): текущий запрос не содержит
@@ -441,6 +607,55 @@ class ChatOrchestrator:
 
         return cls._FENCE_RE.sub(_sub, answer)
 
+    _HEADING_RE = re.compile(r"^(\s*)#{1,6}[^\S\n]+(.*)$")
+    _STAR_BULLET_RE = re.compile(r"^(\s*)\*[^\S\n]+")
+    _BOLD_PAIR_RE = re.compile(r"\*\*([^*\n]+)\*\*")
+    _STAR_PAIR_RE = re.compile(r"\*([^*\n]{1,80}?)\*")
+
+    @classmethod
+    def _strip_markdown_emphasis(cls, answer: str) -> str:
+        """
+        Срезать markdown-разметку, которую виджет рендерит сырым текстом
+        (замечание приёмки 04.09.2026: сырые звёздочки «**Backend:**» и
+        заголовки «# Маршрут…» в ответах; правило 14 уже требует отвечать
+        без разметки — здесь детерминированная страховка в коде).
+
+        - «#»-заголовки в начале строки → текст (содержимое сохраняется);
+        - маркер списка «* » в начале строки → «- » (стиль правила 14);
+        - парный жирный «**текст**» и одиночная парная эмфаза «*текст*»
+          → текст; одиночная пара признаётся эмфазой только когда внутри
+          есть буква и нет пробелов у границ — «2*3», «3*4*5», «2 * 3»
+          (умножение) не трогаются;
+        - непарные «**» срезаются (незакрытый жирный всё равно виден
+          зрителю как мусор).
+        """
+        if not answer or ("*" not in answer and "#" not in answer):
+            return answer
+
+        lines = []
+        for ln in answer.split("\n"):
+            ln = cls._HEADING_RE.sub(r"\1\2", ln)
+            ln = cls._STAR_BULLET_RE.sub(r"\1- ", ln)
+            lines.append(ln)
+        text = "\n".join(lines)
+
+        text = cls._BOLD_PAIR_RE.sub(r"\1", text)
+
+        def _single(m: "re.Match[str]") -> str:
+            content = m.group(1)
+            start = m.start()
+            prev = text[start - 1] if start else "\n"
+            if content[0] in " \t" or content[-1] in " \t":
+                return m.group(0)
+            if prev.isdigit() and content[0].isdigit():
+                return m.group(0)  # умножение «2*3»
+            if not any(ch.isalpha() for ch in content):
+                return m.group(0)  # «2*3», «***» — не эмфаза
+            return content
+
+        text = cls._STAR_PAIR_RE.sub(_single, text)
+        return text.replace("**", "")
+
     @classmethod
     def _strip_stale_citations(cls, answer: str, sources_count: int) -> tuple[str, list[int]]:
         """
@@ -476,6 +691,7 @@ class ChatOrchestrator:
         page_slug: str | None = None,
         client_ip: str | None = None,
         user_agent: str | None = None,
+        on_token: "Callable[[str], Awaitable[None]] | None" = None,
     ) -> ChatResponseDTO:
         """
         Обрабатывает запрос пользователя.
@@ -488,6 +704,11 @@ class ChatOrchestrator:
                 «этот кейс»); принимается только при совпадении с реестром
             client_ip: IP-адрес клиента
             user_agent: User-Agent клиента
+            on_token: Стрим-коллбэк (10.09.2026): если задан, генерация
+                идёт через generate_stream и каждая гигиеничная дельта
+                уходит в коллбэк; финальный ответ собирается из дельт.
+                Cache-hit и детерминированные маршруты коллбэк не вызывают
+                (маршрут стрима отдаёт полный ответ одним дельта-событием).
 
         Returns:
             ChatResponseDTO с ответом и метаданными
@@ -1302,6 +1523,8 @@ class ChatOrchestrator:
             model_used = model_name
             fallback_used = False
             error_message = None
+            ttft_ms: int | None = None
+            stream_emitted = False
 
             _start_step("llm_call", 8, {
                 "provider": provider_key,
@@ -1312,17 +1535,40 @@ class ChatOrchestrator:
             try:
                 provider = AIProviderFactory.create(provider_key, config=active_config)
                 llm_start = time.monotonic()
-                answer = await provider.generate(
-                    prompt,
-                    temperature=active_config.temperature,
-                    max_tokens=self._runtime_answer_max_tokens(active_config.max_tokens),
-                )
+                if on_token is not None:
+                    parts: list[str] = []
+                    stream_filter = _StreamHygieneFilter(len(sources))
+                    async for delta in provider.generate_stream(
+                        prompt,
+                        temperature=active_config.temperature,
+                        max_tokens=self._runtime_answer_max_tokens(active_config.max_tokens),
+                    ):
+                        ready = stream_filter.feed(delta)
+                        if ttft_ms is None:
+                            ttft_ms = int((time.monotonic() - start_time) * 1000)
+                        stream_emitted = True
+                        if ready:
+                            parts.append(ready)
+                            await on_token(ready)
+                    tail = stream_filter.flush()
+                    if tail:
+                        parts.append(tail)
+                        await on_token(tail)
+                    answer = "".join(parts)
+                else:
+                    answer = await provider.generate(
+                        prompt,
+                        temperature=active_config.temperature,
+                        max_tokens=self._runtime_answer_max_tokens(active_config.max_tokens),
+                    )
                 llm_latency_ms = int((time.monotonic() - llm_start) * 1000)
                 _t_llm_ms.append(llm_latency_ms)
                 _finish_step("llm_call", "ok", {
                     "provider": provider_key,
                     "model": model_name,
                     "latency_ms": llm_latency_ms,
+                    "ttft_ms": ttft_ms,
+                    "streamed": on_token is not None,
                     "query": user_query,
                     "rag_used": rag_used,
                 })
@@ -1336,6 +1582,18 @@ class ChatOrchestrator:
                     "query": user_query,
                 })
                 error_message = str(e)
+                if stream_emitted:
+                    # Обрыв после начала потока: тихий fallback невозможен —
+                    # часть ответа уже отдана зрителю (политика переключения
+                    # «только до первого токена»).
+                    if self.tracing_service and execution_id:
+                        try:
+                            self.tracing_service.finish_session(
+                                execution_id, "error", {"error": error_message}
+                            )
+                        except Exception:
+                            pass
+                    raise StreamingGenerationError(error_message) from e
 
                 fallback_row = self.provider_settings.get_fallback()
                 if fallback_row:
@@ -1351,13 +1609,36 @@ class ChatOrchestrator:
                             fallback_config.provider_key, config=fallback_config
                         )
                         llm_start = time.monotonic()
-                        answer = await provider.generate(
-                            prompt,
-                            temperature=fallback_config.temperature,
-                            max_tokens=self._runtime_answer_max_tokens(
-                                fallback_config.max_tokens
-                            ),
-                        )
+                        if on_token is not None:
+                            parts: list[str] = []
+                            stream_filter = _StreamHygieneFilter(len(sources))
+                            async for delta in provider.generate_stream(
+                                prompt,
+                                temperature=fallback_config.temperature,
+                                max_tokens=self._runtime_answer_max_tokens(
+                                    fallback_config.max_tokens
+                                ),
+                            ):
+                                ready = stream_filter.feed(delta)
+                                if ttft_ms is None:
+                                    ttft_ms = int((time.monotonic() - start_time) * 1000)
+                                stream_emitted = True
+                                if ready:
+                                    parts.append(ready)
+                                    await on_token(ready)
+                            tail = stream_filter.flush()
+                            if tail:
+                                parts.append(tail)
+                                await on_token(tail)
+                            answer = "".join(parts)
+                        else:
+                            answer = await provider.generate(
+                                prompt,
+                                temperature=fallback_config.temperature,
+                                max_tokens=self._runtime_answer_max_tokens(
+                                    fallback_config.max_tokens
+                                ),
+                            )
                         llm_latency_ms = int((time.monotonic() - llm_start) * 1000)
 
                         # Логируем переключение провайдера
@@ -1385,6 +1666,8 @@ class ChatOrchestrator:
                             "provider": provider_used,
                             "model": model_used,
                             "latency_ms": llm_latency_ms,
+                            "ttft_ms": ttft_ms,
+                            "streamed": on_token is not None,
                             "retry": True,
                             "query": user_query,
                             "rag_used": rag_used,
@@ -1398,6 +1681,17 @@ class ChatOrchestrator:
                             "retry": True,
                             "query": user_query,
                         })
+                        if stream_emitted:
+                            # Обрыв фолбэка после начала потока: тихой
+                            # подмены нет — честный обрыв канала.
+                            if self.tracing_service and execution_id:
+                                try:
+                                    self.tracing_service.finish_session(
+                                        execution_id, "error", {"error": str(fallback_error)}
+                                    )
+                                except Exception:
+                                    pass
+                            raise StreamingGenerationError(str(fallback_error)) from fallback_error
                         # Fallback тоже не сработал
                         error_message = f"Both primary and fallback providers failed. Primary: {error_message}. Fallback: {fallback_error}"
                         answer = self._get_error_response(error_message)
@@ -1419,6 +1713,10 @@ class ChatOrchestrator:
             # 8b'. Гигиена ограждений: markdown-таблица в ```python``` рендерится
             # кодом (кейс 06.09.2026) — метка срезается до кеша/памяти/трейса.
             answer = self._normalize_table_fences(answer)
+
+            # 8b''. Гигиена markdown-разметки: парные звёздочки и «#»-заголовки
+            # срезаются до кеша/памяти/трейса (замечание приёмки 04.09.2026).
+            answer = self._strip_markdown_emphasis(answer)
 
             # 8c. Подавление источников при честном отказе (решение владельца
             # 04.09.2026): источники собираются из retrieval-выдачи до
@@ -1512,6 +1810,7 @@ class ChatOrchestrator:
                 "provider": provider_used,
                 "model": model_used,
                 "response_time_ms": response_time_ms,
+                "ttft_ms": ttft_ms,
                 "rag_used": rag_used,
                 "sources": sources,
                 "fallback_used": fallback_used,
@@ -1540,6 +1839,7 @@ class ChatOrchestrator:
                         "error": error_message,
                         "sources": sources,
                         "response_time_ms": response_time_ms,
+                        "ttft_ms": ttft_ms,
                     },
                 )
             _finish_step("response_return", final_status, {
@@ -1582,6 +1882,8 @@ class ChatOrchestrator:
                     "error": error_message,
                     "retrieval_mode": retrieval_mode,
                     "sources_detail": sources_detail,
+                    "ttft_ms": ttft_ms,
+                    "streamed": on_token is not None,
                 },
             )
 
