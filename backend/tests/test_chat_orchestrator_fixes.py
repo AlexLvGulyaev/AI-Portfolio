@@ -710,6 +710,25 @@ def test_is_refusal_pattern():
     print("PASS: refusal detection matches canonical grounded refusal")
 
 
+def test_is_refusal_pronoun_variants():
+    """Местоимённые вариации (прод-кейс 10.09.2026): «этой информации нет»
+    ускользал от литерального гейта — источники оставались под отказом."""
+    from app.services.chat_orchestrator import ChatOrchestrator
+    assert ChatOrchestrator._is_refusal(
+        "В текущем портфеле и базе знаний этой информации нет.")
+    assert ChatOrchestrator._is_refusal(
+        "В текущем портфеле и базе знаний подобной информации нет.")
+    assert ChatOrchestrator._is_refusal("В базе знаний такой аббревиатуры нет.")
+    assert ChatOrchestrator._is_refusal("В базе знаний этой аббревиатуры нет.")
+    # «информации нет» в постороннем контексте не матчится (якорь на
+    # каноническую фразу правила 2)
+    assert not ChatOrchestrator._is_refusal(
+        "В документах кейса не упоминается — информации нет в этом чанке.")
+    assert not ChatOrchestrator._is_refusal(
+        "Подробной информации в источниках не приводится, но кейс закрывает звонки о статусе заказа.")
+    print("PASS: refusal gate matches pronoun variants, not stray phrases")
+
+
 # ---------- §9: один retrieval ----------
 
 def test_single_retrieval_per_cache_miss():
