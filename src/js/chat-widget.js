@@ -118,6 +118,17 @@
         color: var(--accent, inherit);
         border-color: var(--accent, currentColor);
       }
+      /* Процитированный в ответе источник (12.09.2026): значок + тултип,
+         список остаётся полным retrieval-контекстом */
+      .chat-source-chip--cited {
+        border-color: var(--accent, currentColor);
+      }
+      .chat-source-chip__used {
+        margin-left: 5px;
+        font-size: 0.7rem;
+        line-height: 1;
+        color: var(--accent, currentColor);
+      }
       button.chat-source-chip {
         cursor: pointer;
         font-family: inherit;
@@ -546,7 +557,17 @@
 
         if (byLabel.size > 0) {
           ensureSourceChipStyles();
-          metadata.sources.forEach((label) => {
+          // Цитаты [n] в тексте ответа — номера использованных источников
+          // (нумерация совпадает с порядком metadata.sources). Чипы с
+          // совпавшим номером получают значок «использован в ответе»;
+          // остальные остаются — это весь retrieval-контекст, а не только
+          // процитированное. (?!\() отсекает markdown-ссылки [1](url).
+          const cited = new Set(
+            (text.match(/\[\d{1,2}\](?!\()/g) || []).map(
+              (m) => parseInt(m.slice(1, -1), 10)
+            )
+          );
+          metadata.sources.forEach((label, idx) => {
             const src = byLabel.get(label);
             const canOpenPanel = src && src.repo && src.path && src.excerpt;
             const chip = document.createElement(
@@ -562,7 +583,18 @@
               chip.target = '_blank';
               chip.rel = 'noopener noreferrer';
             }
-            chip.textContent = label;
+            const labelSpan = document.createElement('span');
+            labelSpan.textContent = label;
+            chip.appendChild(labelSpan);
+            if (cited.has(idx + 1)) {
+              chip.classList.add('chat-source-chip--cited');
+              const used = document.createElement('span');
+              used.className = 'chat-source-chip__used';
+              used.textContent = '✓';
+              used.title = 'Использован в ответе';
+              used.setAttribute('aria-label', 'Использован в ответе');
+              chip.appendChild(used);
+            }
             sourcesDiv.appendChild(chip);
           });
         } else {
