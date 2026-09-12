@@ -1186,3 +1186,41 @@ def test_scoped_bare_empty_falls_back_to_enriched():
         "Assistant Flow | Где описан сценарий Квотирование?",
     ], seen_queries
     print("PASS: empty bare search falls back to topic-enriched query")
+
+
+def test_strip_sources_footer():
+    """Хвостовая строка «(Источники: [1], [2], [3])» — привычка модели
+    (не промпт), дублирует панель источников с бейджем. Срезается только
+    в конце ответа и только когда внутри перечисление цитат."""
+    from app.services.chat_orchestrator import ChatOrchestrator as C
+
+    cut_cases = [
+        ("Ответ по документам.\n(Источники: [1], [2], [3])", "Ответ по документам."),
+        ("Ответ.\n(Источники: [1], [2], [3], [4], [5])", "Ответ."),
+        ("Ответ.\n(Источники: [1]–[3])", "Ответ."),          # диапазон
+        ("Ответ.\nИсточники: [1], [2]", "Ответ."),            # без скобок
+        ("Ответ.\n(Sources: [1], [2])", "Ответ."),            # английский вариант
+        ("Ответ.\n\n(Источники: [1], [2], [3])\n", "Ответ."),  # хвостовые \n
+        ("Ответ.\n(Источники: [1], [2], [3]) ", "Ответ."),     # хвостовой пробел
+    ]
+    for s, expected in cut_cases:
+        out = C._strip_sources_footer(s)
+        assert out == expected, f"{s!r} -> {out!r}"
+    print("PASS: sources footer variants stripped")
+
+    keep_cases = [
+        # инлайн-цитаты в тексте — рабочие (мапятся в панель)
+        "Ответ с цитатой [1] в тексте.",
+        "1. Пункт один [1].\n2. Пункт два [2].",
+        # не цитаты в хвосте — содержательный текст не режется
+        "Подробности см. в файлах ARCHITECTURE и OPERATIONS.",
+        "Источники: полная таблица в README, раздел «Контур базы знаний».",
+        "(Источники: [1], [2]) — а это не конец ответа.",
+        # markdown-ссылка в конце
+        "См. [1](https://example.com).",
+        # ответ, состоящий из одного футера, не превращается в пустоту
+        "(Источники: [1], [2])",
+    ]
+    for s in keep_cases:
+        assert C._strip_sources_footer(s) == s, s
+    print("PASS: inline citations, content lines, links preserved")

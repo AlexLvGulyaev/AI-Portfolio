@@ -79,8 +79,8 @@ class _StreamHygieneFilter:
     _strip_markdown_emphasis (замечание приёмки 04.09.2026). Хвостовой
     буфер гасит маркеры, разрезанные между дельтами. Финальный текст
     после генерации проходит штатную гигиену (_strip_stale_citations,
-    _normalize_table_fences, _strip_markdown_emphasis) — операции
-    идемпотентны.
+    _normalize_table_fences, _strip_markdown_emphasis,
+    _strip_sources_footer) — операции идемпотентны.
     """
 
     _CIT = re.compile(r"\[(\d{1,2})\]")
@@ -742,6 +742,26 @@ class ChatOrchestrator:
 
         text = cls._STAR_PAIR_RE.sub(_single, text)
         return text.replace("**", "")
+
+    # Хвостовая строка «(Источники: [1], [2], [3])» — привычка модели
+    # (в промпте v15 такой инструкции нет), дублирует панель источников
+    # с бейджем «использован в ответе» (12.09.2026). Резать только когда
+    # это конец ответа И внутри — исключительно перечисление цитат:
+    # содержательные «Источники: …» с текстом не трогаются.
+    _SOURCES_FOOTER_RE = re.compile(
+        r"\s*\(?\s*(?:[Ии]сточники|[Ss]ources):\s*"
+        r"(?:\[\d{1,2}\][\s,;–—-]*)+\)?\s*$"
+    )
+
+    @classmethod
+    def _strip_sources_footer(cls, answer: str) -> str:
+        """Срезать хвостовую строку «(Источники: [1], [2], [3])» и варианты
+        (без скобок, «Sources:», диапазоны «[1]–[3]»), если она стоит в
+        самом конце ответа и содержит только цитаты. Инлайн-цитаты [n] в
+        тексте и markdown-ссылки не затрагиваются."""
+        if not answer:
+            return answer
+        return cls._SOURCES_FOOTER_RE.sub("", answer).rstrip() or answer
 
     @classmethod
     def _strip_stale_citations(cls, answer: str, sources_count: int) -> tuple[str, list[int]]:
@@ -1846,6 +1866,11 @@ class ChatOrchestrator:
             # 8b''. Гигиена markdown-разметки: парные звёздочки и «#»-заголовки
             # срезаются до кеша/памяти/трейса (замечание приёмки 04.09.2026).
             answer = self._strip_markdown_emphasis(answer)
+
+            # 8b'''. Гигиена хвоста: строка «(Источники: [1], [2], [3])» —
+            # привычка модели, дублирует панель источников с бейджем
+            # «использован в ответе» (12.09.2026).
+            answer = self._strip_sources_footer(answer)
 
             # 8c. Подавление источников при честном отказе (решение владельца
             # 04.09.2026): источники собираются из retrieval-выдачи до
