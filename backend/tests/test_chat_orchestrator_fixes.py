@@ -355,6 +355,116 @@ def test_project_scoped_fetches_wide_and_dedups_by_doc():
     print("PASS: project_scoped dedups by doc, Experiment_004 in top-3")
 
 
+# --- Демоция шапок в дедупе + мета-ход для вопросов о цифрах (кейс 10.09) ---
+
+
+def _chunk_meta(cid, path, content, *, chunk_index=None, score=0.1,
+                repo="o/HR-Assistant"):
+    md = {"repo": repo, "path": path}
+    if chunk_index is not None:
+        md["chunk_index"] = chunk_index
+    return SimpleNamespace(
+        content=content, source=path, score=score,
+        metadata=md, chunk_id=cid)
+
+
+_HEAD_CONTENT = (
+    "# 💰 Демо — бизнес-ценность\n\nПроект: demo\n"
+    "Дата: 2026-09-01\nСтатус: Актуален"
+)
+_NUMBERS_CONTENT = (
+    "### 3.1. Экономия времени преподавателя\n\n"
+    "Экономия: 5 часов в неделю на группу."
+)
+
+
+def test_is_title_only_chunk_variants():
+    from app.services.chat_orchestrator import ChatOrchestrator
+    head = _chunk_meta("1", "docs/BV.md", _HEAD_CONTENT, chunk_index=0)
+    assert ChatOrchestrator._is_title_only_chunk(head)
+    # содержательный chunk 0 — не титульный
+    rich = _chunk_meta("2", "docs/BV.md", "# Заголовок\n\nРеальный контент ответа.", chunk_index=0)
+    assert not ChatOrchestrator._is_title_only_chunk(rich)
+    # метабойлерплейт, но не chunk 0 — не титульный
+    deep = _chunk_meta("3", "docs/BV.md", _HEAD_CONTENT, chunk_index=2)
+    assert not ChatOrchestrator._is_title_only_chunk(deep)
+    # без chunk_index в метадате — не титульный (fail-safe)
+    nometa = _chunk_meta("4", "docs/BV.md", _HEAD_CONTENT)
+    assert not ChatOrchestrator._is_title_only_chunk(nometa)
+    print("PASS: title-only detection — boilerplate chunk 0 only")
+
+
+def test_dedup_by_doc_replaces_title_only_head():
+    from app.services.chat_orchestrator import ChatOrchestrator
+    head = _chunk_meta("1", "docs/BV.md", _HEAD_CONTENT, chunk_index=0)
+    numbers = _chunk_meta("2", "docs/BV.md", _NUMBERS_CONTENT, chunk_index=1)
+    faq = _chunk_meta("3", "docs/FAQ.md", "# FAQ\n\nВопросы и ответы.", chunk_index=0)
+    out = ChatOrchestrator._dedup_by_doc([head, numbers, faq])
+    # слот документа уходит содержательному чанку, позиция сохранена
+    assert [r.chunk_id for r in out] == ["2", "3"]
+    print("PASS: title-only head replaced by content chunk of same doc")
+
+
+def test_dedup_by_doc_keeps_head_without_content_alternative():
+    from app.services.chat_orchestrator import ChatOrchestrator
+    head = _chunk_meta("1", "docs/BV.md", _HEAD_CONTENT, chunk_index=0)
+    faq = _chunk_meta("2", "docs/FAQ.md", "# FAQ\n\nВопросы и ответы.", chunk_index=0)
+    out = ChatOrchestrator._dedup_by_doc([head, faq])
+    assert [r.chunk_id for r in out] == ["1", "2"]
+    print("PASS: head kept when no content chunk of same doc in results")
+
+
+def test_dedup_by_doc_keeps_content_first_chunk():
+    from app.services.chat_orchestrator import ChatOrchestrator
+    first = _chunk_meta("1", "docs/BV.md", _NUMBERS_CONTENT, chunk_index=0)
+    second = _chunk_meta("2", "docs/BV.md", "# Заголовок\n\nСодержательный текст раздела.", chunk_index=1)
+    out = ChatOrchestrator._dedup_by_doc([first, second])
+    # первый чанк — содержательный: замены нет
+    assert [r.chunk_id for r in out] == ["1"]
+    print("PASS: content chunk wins its doc slot, no replacement")
+
+
+def test_metric_query_hint_enriches_scoped_search():
+    """Мета-ход (кейс 10.09): вопрос о результатах/метриках в project_scoped
+    обогащает запрос лексикой разделов с числами; обычный вопрос — нет."""
+    card = SimpleNamespace(slug="ai-curator", title="AI Curator", display_order=1)
+    orch, rag, _ = _make_orch(memory=[], registry={
+        "resolve_all": lambda q: [],
+        "get_by_slug": lambda slug: card if slug == "ai-curator" else None,
+        "repo_for_card": lambda c: "AlexLvGulyaev/AI-Curator",
+    })
+    rag.search.return_value = [_chunk_meta(
+        "1", "README.md", "# AI Curator\n\nОписание проекта.", chunk_index=0)]
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(
+            user_query="Какие результаты и метрики?", page_slug="ai-curator"))
+    args, kwargs = rag.search.call_args
+    assert args[0] == (
+        "AI Curator | Какие результаты и метрики?"
+        " количественная ценность: экономия времени, стоимость, показатели"
+    )
+    assert kwargs.get("where") == {"repo": {"$eq": "AlexLvGulyaev/AI-Curator"}}
+    print("PASS: metric meta-question enriches scoped query")
+
+    # отрицательный кейс: обычный вопрос без мета-лексики — запрос чистый
+    orch2, rag2, _ = _make_orch(memory=[], registry={
+        "resolve_all": lambda q: [],
+        "get_by_slug": lambda slug: card if slug == "ai-curator" else None,
+        "repo_for_card": lambda c: "AlexLvGulyaev/AI-Curator",
+    })
+    rag2.search.return_value = [_chunk_meta(
+        "1", "README.md", "# AI Curator\n\nОписание проекта.", chunk_index=0)]
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch2)
+        asyncio.run(orch2.process_request(
+            user_query="расскажи про AI Curator", page_slug="ai-curator"))
+    args2, _ = rag2.search.call_args
+    assert args2[0] == "AI Curator | расскажи про AI Curator"
+    print("PASS: plain question leaves scoped query unenriched")
+
+
 def test_table_fence_label_stripped():
     """GigaChat оборачивает markdown-таблицы в ```python``` (кейс 06.09):
     фронтенд рендерит таблицу кодом. Метка срезается, если первая непустая

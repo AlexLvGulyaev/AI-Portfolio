@@ -252,6 +252,20 @@ PAGE_DEMONSTRATIVE_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Мета-вопрос о числах («Какие результаты и метрики?»): эмбеддинг
+# притягивает шапки документов и FAQ, а разделы с цифрами написаны без
+# слов «результаты/метрики» («Экономия времени», «Стоимость обработки»).
+# Кейс 10.09: по запросу «AI Curator | Какие результаты и метрики?» эти
+# разделы не поднялись даже в top-40. Мета-вопрос обогащается лексикой
+# таких разделов (только retrieval, не промпт).
+METRIC_QUERY_RE = re.compile(
+    r"\b(?:результат\w*|метрик\w*|показател\w*|цифр\w*|эконом\w*|эффективност\w*)\b",
+    re.IGNORECASE,
+)
+METRIC_QUERY_HINT = (
+    " количественная ценность: экономия времени, стоимость, показатели"
+)
+
 
 class ChatOrchestrator:
     """
@@ -392,7 +406,8 @@ class ChatOrchestrator:
         return (
             f"col:{collection}"
             f"|{self.prompt_assembly.fingerprint()}"
-            f"|retrieval:top_k={self.rag_top_k}"
+            f"|retrieval:v{self._RETRIEVAL_LOGIC_VERSION}"
+            f"|top_k={self.rag_top_k}"
             f"|{provider_key}/{model_name}"
         )
 
@@ -452,6 +467,12 @@ class ChatOrchestrator:
         })
         return self._build_citations(rag_results, source_info)
 
+    # Версия retrieval-логики в fingerprint cache-ключа: правка кода
+    # retrieval (кейс 10.09 — демоция шапок + мета-ход) должна отстроить
+    # старые ответы, собранные на прежнем составе контекста. При каждом
+    # изменении логики retrieval увеличивать.
+    _RETRIEVAL_LOGIC_VERSION = 2
+
     @staticmethod
     def _dedup_by_doc(rag_results: list) -> list:
         """Дедупликация retrieval по (repo, path) — лучший чанк документа.
@@ -459,15 +480,45 @@ class ChatOrchestrator:
         Сохраняет порядок первого появления (сортировку по score). Дедуп
         цитат в _build_citations работает только по выдаче, а не по составу
         контекста — поэтому для project_scoped он не спасает.
+
+        Демоция шапок (кейс 10.09): если первый чанк документа —
+        только-титульный (H1 + метабойлерплейт, ответить по нему нельзя),
+        слот документа уходит первому содержательному чанку того же
+        документа в выдаче.
         """
-        seen: set[tuple[str | None, str]] = set()
+        slot_by_key: dict[tuple[str | None, str], int] = {}
         out = []
         for r in rag_results:
             key = (r.metadata.get("repo"), r.metadata.get("path") or r.source)
-            if key not in seen:
-                seen.add(key)
+            slot = slot_by_key.get(key)
+            if slot is None:
+                slot_by_key[key] = len(out)
                 out.append(r)
+            elif (
+                ChatOrchestrator._is_title_only_chunk(out[slot])
+                and not ChatOrchestrator._is_title_only_chunk(r)
+            ):
+                out[slot] = r
         return out
+
+    # Метабойлерплейт шапки документа: «Проект: …», «Дата: …», «Статус: …»
+    _HEAD_META_LINE_RE = re.compile(
+        r"^\s*(?:проект|дата|статус|версия|repo|репозиторий|автор|обновлено)\s*:",
+        re.IGNORECASE,
+    )
+
+    @classmethod
+    def _is_title_only_chunk(cls, r) -> bool:
+        """Только-титульный чанк: chunk_index 0, после заголовка — только
+        метабойлерплейт «Ключ: значение». Контента в таком чанке нет,
+        ответить по нему нельзя."""
+        md = getattr(r, "metadata", None) or {}
+        if md.get("chunk_index", 1) != 0:
+            return False
+        lines = [ln.strip() for ln in (r.content or "").splitlines() if ln.strip()]
+        if len(lines) < 2:
+            return False
+        return all(cls._HEAD_META_LINE_RE.match(ln) for ln in lines[1:])
 
     @classmethod
     def _build_citations(
@@ -1283,6 +1334,16 @@ class ChatOrchestrator:
                         repo = self.registry.repo_for_card(resolved_cards[0])
                         if repo:
                             top_k = self._runtime_top_k()
+                            # Мета-ход (кейс 10.09): вопрос о цифрах без слов
+                            # из самих разделов («результаты и метрики» vs
+                            # «Экономия времени») не поднимал разделы с
+                            # числами даже в top-40 — запрос обогащается
+                            # лексикой таких разделов.
+                            search_query = scoped_query
+                            if METRIC_QUERY_RE.search(user_query):
+                                search_query = f"{scoped_query}{METRIC_QUERY_HINT}"
+                                if _tr is not None:
+                                    _tr.set("metric_query_hint", True)
                             # Doc-разнообразие: fetch втрое шире + дедуп по
                             # (repo, path) — иначе чанки одного документа
                             # вытесняют другие (кейс 06.09: Experiment_001
@@ -1290,7 +1351,7 @@ class ChatOrchestrator:
                             # Experiment_004 оставался за контекстом, и
                             # ассистент считал «три эксперимента» из четырёх).
                             results = self.rag_service.search(
-                                scoped_query,
+                                search_query,
                                 top_k=max(top_k * 3, 12),
                                 where={"repo": {"$eq": repo}},
                             )
