@@ -461,8 +461,11 @@ def test_metric_query_hint_enriches_scoped_search():
         asyncio.run(orch2.process_request(
             user_query="расскажи про AI Curator", page_slug="ai-curator"))
     args2, _ = rag2.search.call_args
-    assert args2[0] == "AI Curator | расскажи про AI Curator"
-    print("PASS: plain question leaves scoped query unenriched")
+    # v3: самодостаточный вопрос ищется bare — обогащение темой карточки
+    # («AI Curator |») вытесняло содержательные чанки шапками документов
+    # (деградация 12.09: ответы про KB/стек AF размывались позиционированием).
+    assert args2[0] == "расскажи про AI Curator"
+    print("PASS: plain question leaves scoped query bare (unenriched)")
 
 
 def test_table_fence_label_stripped():
@@ -1102,3 +1105,84 @@ def test_personal_status_detector():
 def test_page_prompt_includes_demo_block_with_intent():
     prompt = _capture_page_prompt("Я иду смотреть демо — что проверить?")
     assert "ФОРМА ОТВЕТА" in prompt
+
+
+def test_scoped_query_mode_classifier():
+    """_scoped_query_mode (v3): самодостаточный вопрос → bare,
+    фоллоу-классы → topic_enriched. Единственная точка решения."""
+    from app.services.chat_orchestrator import ChatOrchestrator as C
+
+    bare = [
+        "Как устроена база знаний?",           # кейс 12.09 (AF)
+        "Какие технологии использованы?",       # кейс 12.09 (AF)
+        "расскажи про AI Curator",
+        "Что это за платформа?",                # безличное «это» — кейс 03.09
+        "Что это за кейс и в чём задача?",
+    ]
+    enriched = [
+        "какой у него стек?",                   # анафора — кейс 06.09 (LoRA)
+        "А что у него с мультимодальностью?",
+        "Как устроен этот кейс?",               # демонстратив — кейс 05.09
+        "Какие результаты и метрики?",          # мета-вопрос — кейс 10.09
+    ]
+    for q in bare:
+        assert C._scoped_query_mode(q) == "bare", q
+    for q in enriched:
+        assert C._scoped_query_mode(q) == "topic_enriched", q
+    print("PASS: scoped query mode classifier")
+
+
+def test_bare_first_scoped_self_sufficient_question():
+    """v3: самодостаточный вопрос на странице кейса ищется bare — первый
+    вызов search без токена темы карточки (кейс 12.09, «Какие технологии
+    использованы?» на странице Assistant Flow)."""
+    card = SimpleNamespace(slug="assistant-flow", title="Assistant Flow",
+                           display_order=1)
+    orch, rag, _ = _make_orch(memory=[], registry={
+        "resolve_all": lambda q: [],
+        "get_by_slug": lambda slug: card if slug == "assistant-flow" else None,
+        "repo_for_card": lambda c: "AlexLvGulyaev/Assistant-Flow",
+    })
+    rag.search.return_value = [_chunk_meta(
+        "1", "README.md", "## Технологический стек\n\nFastAPI, React.", chunk_index=0)]
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(
+            user_query="Какие технологии использованы?",
+            page_slug="assistant-flow"))
+    args, kwargs = rag.search.call_args
+    assert args[0] == "Какие технологии использованы?", args[0]
+    assert kwargs.get("where") == {"repo": {"$eq": "AlexLvGulyaev/Assistant-Flow"}}
+    print("PASS: self-sufficient page question searches bare")
+
+
+def test_scoped_bare_empty_falls_back_to_enriched():
+    """v3 empty-fallback: bare-выдача пуста → повторный поиск обогащённым
+    запросом (тема карточки | вопрос)."""
+    card = SimpleNamespace(slug="assistant-flow", title="Assistant Flow",
+                           display_order=1)
+    orch, rag, _ = _make_orch(memory=[], registry={
+        "resolve_all": lambda q: [],
+        "get_by_slug": lambda slug: card if slug == "assistant-flow" else None,
+        "repo_for_card": lambda c: "AlexLvGulyaev/Assistant-Flow",
+    })
+    seen_queries = []
+
+    def _search_side_effect(query, top_k=None, where=None):
+        seen_queries.append(query)
+        if "Assistant Flow" in query:
+            return [_chunk_meta(
+                "1", "USER_GUIDE.md", "## Назначение\n\nПлатформа для…", chunk_index=0)]
+        return []
+
+    rag.search.side_effect = _search_side_effect
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = _fake_provider(orch)
+        asyncio.run(orch.process_request(
+            user_query="Где описан сценарий Квотирование?",
+            page_slug="assistant-flow"))
+    assert seen_queries == [
+        "Где описан сценарий Квотирование?",
+        "Assistant Flow | Где описан сценарий Квотирование?",
+    ], seen_queries
+    print("PASS: empty bare search falls back to topic-enriched query")

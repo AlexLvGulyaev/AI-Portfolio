@@ -471,7 +471,36 @@ class ChatOrchestrator:
     # retrieval (кейс 10.09 — демоция шапок + мета-ход) должна отстроить
     # старые ответы, собранные на прежнем составе контекста. При каждом
     # изменении логики retrieval увеличивать.
-    _RETRIEVAL_LOGIC_VERSION = 2
+    _RETRIEVAL_LOGIC_VERSION = 3
+
+    @classmethod
+    def _scoped_query_mode(cls, user_query: str) -> str:
+        """Режим project_scoped-запроса: bare или topic_enriched.
+
+        Самодостаточный вопрос ищется bare — тема карточки страницы
+        («Assistant Flow | …») совпадает с шапками и позиционированием
+        всех документов репозитория и вытесняет содержательные разделы
+        (кейс 12.09.2026: «Как устроена база знаний?» и «Какие технологии
+        использованы?» на странице Assistant Flow поднимали шапки
+        USER_GUIDE/RUNBOOK/identity — ответ сваливал базу знаний
+        с мультимодальностью, стек с архитектурой). Фоллоу-классы
+        сохраняют обогащение темой (кейс 06.09.2026, LoRA-фоллоу без
+        токенов темы): анафора без безличного «что это» (кейс 03.09),
+        демонстратив страницы «этот кейс» (кейс 05.09), мета-вопрос
+        о цифрах (кейс 10.09).
+
+        Единственная точка решения: используется оркестратором,
+        юнит-тестами и поведенческой батареей (scripts/retrieval_battery.py).
+        """
+        follow_up = bool(
+            (
+                ANAPHORA_RE.search(user_query)
+                and not IMPERSONAL_ITA_RE.search(user_query)
+            )
+            or PAGE_DEMONSTRATIVE_RE.search(user_query)
+            or METRIC_QUERY_RE.search(user_query)
+        )
+        return "topic_enriched" if follow_up else "bare"
 
     @staticmethod
     def _dedup_by_doc(rag_results: list) -> list:
@@ -1235,6 +1264,11 @@ class ChatOrchestrator:
             # попадает — сужение там делает repo-фильтр, запрос остаётся
             # сырым (решение 05.09.2026).
             scoped_query = user_query
+            # Альтернатива лестницы empty-fallback (project_scoped-ветка):
+            # в обогащённом режиме — сырой вопрос, в bare — обогащённый.
+            # Маршруты без темы страницы (анафора к истории) альтернативы
+            # не имеют — дубликат отсекается проверкой `== search_query`.
+            scoped_alt_query = user_query
             if (
                 not resolved_cards
                 and history_present
@@ -1256,16 +1290,24 @@ class ChatOrchestrator:
 
             if not resolved_cards and page_card is not None:
                 resolved_cards = [page_card]
-                # Project-scoped поиск обогащаем темой карточки страницы.
-                # Короткий follow-up («Какие результаты и метрики?») без
-                # токенов темы внутри крупного репозитория поднимает общие
-                # документы вместо документов проекта (кейс 06.09.2026:
-                # вопрос по LoRA HRA вытащил prompt_evaluation другого
-                # эксперимента).
-                scoped_query = f"{page_card.title} | {user_query}"
+                # Project-scoped запрос: самодостаточный вопрос ищется bare,
+                # фоллоу-классы — обогащённый темой страницы. Решение
+                # и кейсы — в _scoped_query_mode (единственная точка).
+                scoped_mode = self._scoped_query_mode(user_query)
+                scoped_query = (
+                    f"{page_card.title} | {user_query}"
+                    if scoped_mode == "topic_enriched"
+                    else user_query
+                )
+                scoped_alt_query = (
+                    user_query
+                    if scoped_mode == "topic_enriched"
+                    else f"{page_card.title} | {user_query}"
+                )
                 retrieval_query = scoped_query
                 if _tr is not None:
                     _tr.set("resolved_via_page", page_slug)
+                    _tr.set("scoped_query_mode", scoped_mode)
                     _tr.set("retrieval_query", retrieval_query)
 
             # Доступность retrieval-канала (векторная СУБД + провайдер
@@ -1356,6 +1398,25 @@ class ChatOrchestrator:
                                 where={"repo": {"$eq": repo}},
                             )
                             results = self._dedup_by_doc(results)
+                            # Лестница запросов: обогащённый/метрик-хинт не
+                            # нашёл ничего — попробовать альтернативу того же
+                            # репозитория (тему страницы или сырой вопрос),
+                            # прежде чем уходить в глобальный поиск. Нормальный
+                            # путь (не пусто) — один поиск, без доп. затраты.
+                            for _alt in (scoped_query, scoped_alt_query,
+                                         user_query):
+                                if results or _alt == search_query:
+                                    continue
+                                results = self._dedup_by_doc(
+                                    self.rag_service.search(
+                                        _alt,
+                                        top_k=max(top_k * 3, 12),
+                                        where={"repo": {"$eq": repo}},
+                                    )
+                                )
+                                if results and _tr is not None:
+                                    _tr.set("scoped_query_fallback", _alt)
+                                search_query = _alt
                             if results:
                                 return results[:top_k]
                         # Проект найден в реестре, но в его KB нет релевантных
