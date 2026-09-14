@@ -164,7 +164,10 @@
     .theme-toggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
     .hero {
-      padding: var(--space-2xl) 0 var(--space-lg);
+      /* Отступы ужаты 14.09 (репорт владельца: новый более длинный H1
+         уводил первый флагман за нижний край) — только spacing, стили
+         текстов без изменений */
+      padding: var(--space-xl) 0 var(--space-sm);
     }
 
     .hero__eyebrow {
@@ -173,7 +176,7 @@
       text-transform: uppercase;
       letter-spacing: 0.12em;
       color: var(--accent);
-      margin-bottom: var(--space-md);
+      margin-bottom: var(--space-sm);
     }
 
     .hero__title {
@@ -181,7 +184,7 @@
       font-size: clamp(2.4rem, 5.2vw, 4.2rem);
       line-height: 1.08;
       font-weight: 600;
-      margin: 0 0 var(--space-md);
+      margin: 0 0 var(--space-sm);
       max-width: 860px;
       text-wrap: balance;
     }
@@ -190,7 +193,7 @@
       font-size: clamp(1.05rem, 1.5vw, 1.2rem);
       color: var(--text-secondary);
       max-width: 620px;
-      margin: 0 0 var(--space-lg);
+      margin: 0 0 var(--space-md);
     }
 
     /* Тултип расшифровки статуса: наведение/фокус/тап на чип карточки */
