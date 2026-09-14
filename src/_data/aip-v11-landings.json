@@ -59,7 +59,7 @@
         },
         {
           "label": "Проверка",
-          "value": "pytest-набор; E2E Phase 1: 26 PASS / 1 NOT RUN"
+          "value": "26 автопроверок демо-контура пройдены"
         },
         {
           "label": "Live demo",
@@ -325,7 +325,7 @@
         },
         {
           "label": "Статус",
-          "value": "MVP готов · Deployment Validation 18/18 PASS"
+          "value": "MVP готов · 18/18 автопроверок развёртывания"
         },
         {
           "label": "Стек",
@@ -2272,7 +2272,7 @@
       "og_title": "HR Assistant — LoRA · история дообучения модели",
       "eyebrow": "История дообучения LLM для HR-задач",
       "hero_title": "Малая модель + LoRA против GPT-4o-mini в HR-задаче",
-      "hero_lead": "Эксперимент с Qwen2.5-1.5B-Instruct + LoRA на 162 HR-парах: external validation 93.1% vs GPT-4o-mini 94.1% (канонический runtime); в vLLM-прогоне latency p95 ~2.1 с при 93.1% vs 92.2% у GPT-4o-mini. Рабочий on-premise / edge кандидат; production остаётся за GPT-4o-mini.",
+      "hero_lead": "Qwen2.5-1.5B + LoRA (162 HR-пары) даёт 93.1% decision accuracy против 92.2% у GPT-4o-mini, отвечая с p95 ~2.1 с. Рабочий кандидат для on-premise / edge; production остаётся за GPT-4o-mini.",
       "hero_cta_primary": {
         "text": "Storytelling",
         "href": "https://hra-lora.alex-n8n.site",
@@ -2332,7 +2332,7 @@
         }
       ],
       "results_title": "LoRA достигает ~93% точности и сопоставимой с GPT-4o-mini latency",
-      "results_lead": "На внешней выборке 102 пары fine-tuned Qwen показывает 93.1% decision accuracy против 94.1% у GPT-4o-mini (канонический runtime, p95 ~17 с); в отдельном vLLM-прогоне p95 latency падает до ~2.1 с, при этом LoRA 93.1% выше GPT 92.2%.",
+      "results_lead": "На внешней выборке (102 пары) LoRA даёт 93.1% против 92.2% у GPT-4o-mini — на vLLM-стеке, с p95 ~2.1 с.",
       "before": [
         "Production зависит от внешнего GPT-4o-mini: стоимость, latency и политика API",
         "Нет размеченного датасета и метрик, специфичных для рекрутинговых решений",
@@ -2342,7 +2342,7 @@
       "after": [
         "Собран teacher dataset из 162 записей (54 кандидата × 3 вакансии) с GPT-4.1 Judge",
         "Обучен LoRA-адаптер Qwen2.5-1.5B: offline accuracy 93.3%, valid JSON 100%",
-        "Внешняя валидация n=102: LoRA 93.1% vs GPT-4o-mini 94.1%",
+        "Внешняя валидация: 102 пары — LoRA 93.1%, GPT-4o-mini 92.2% (vLLM)",
         "Runtime smoke 7/7 passed; vLLM runtime доводит p95 latency до ~2.1 сек"
       ],
       "metrics": [
@@ -2362,7 +2362,7 @@
           "icon": "📊",
           "label": "External val",
           "value": "LoRA vs GPT-4o-mini",
-          "suffix": "93.1% vs 94.1%"
+          "suffix": "93.1% vs 92.2% (vLLM)"
         },
         {
           "icon": "⚡",
@@ -2403,7 +2403,7 @@
         }
       ],
       "solution_title": "LoRA-адаптер + dataset engineering + многоуровневая валидация",
-      "solution_lead": "Обучаем Qwen2.5-1.5B на размеченном teacher dataset, сравниваем с GPT-4o-mini на offline, external и Telegram smoke, и честно фиксируем failure modes.",
+      "solution_lead": "Обучаем Qwen2.5-1.5B на размеченном teacher dataset, сравниваем с GPT-4o-mini на offline-тесте, внешней выборке и живом Telegram-смоук, честно фиксируем слабые места.",
       "solution_cards": [
         {
           "icon": "📊",
@@ -2423,12 +2423,12 @@
         {
           "icon": "🆚",
           "title": "Сравнение с GPT-4o-mini",
-          "text": "External validation n=102: LoRA 93.1% vs GPT-4o-mini 94.1% (канонический runtime); vLLM-прогон: p95 ~2.1 с, LoRA 93.1% vs GPT 92.2%."
+          "text": "Внешняя валидация (102 пары): LoRA 93.1% против GPT-4o-mini 92.2% на vLLM-стеке (p95 ~2.1 с)."
         },
         {
           "icon": "🔍",
           "title": "Честные failure modes",
-          "text": "Telegram smoke 35% LoRA vs 43% GPT-4o-mini; teacher-label mismatch и hard-negative gaps задокументированы."
+          "text": "Живой Telegram-смоук: 35% у LoRA против 43% у GPT-4o-mini; расхождения разметки и пропуски hard-negative задокументированы."
         },
         {
           "icon": "📖",
@@ -2437,7 +2437,7 @@
         }
       ],
       "pipeline_title": "От baseline до production-ready candidate",
-      "pipeline_lead": "Zero-shot baseline → teacher dataset → LoRA training → offline/runtime/external validation → сравнение с GPT-4o-mini.",
+      "pipeline_lead": "Zero-shot → разметка данных → обучение LoRA → offline и внешняя валидация → сравнение с GPT-4o-mini.",
       "pipeline_svg_nodes": [
         {
           "title": "Baseline",
@@ -2491,7 +2491,7 @@
         {
           "number": "03",
           "title": "Валидация и сравнение",
-          "text": "Offline test, runtime smoke 7/7, external validation n=102 и сравнение latency с GPT-4o-mini."
+          "text": "Offline-тест, смоук-тест 7 из 7, внешняя валидация (102 пары) и сравнение latency с GPT-4o-mini."
         }
       ],
       "ux_title": "Визуальная история",
@@ -3068,7 +3068,7 @@
       "og_title": "Retail Group · От квалификации до пилотного плана",
       "eyebrow": "Presale-кейс · голосовой AI-ассистент первой линии",
       "hero_title": "От идеи до измеримого пилота: пример B2B-пресейла AI-решения",
-      "hero_lead": "Симуляционный presale-кейс: на примере учебного B2B-сценария Retail Group демонстрируется полный цикл работы с заказчиком — квалификация, подготовка интервью с ЛПР, архитектура, экономика и план пилота с чёткими критериями запуска.",
+      "hero_lead": "Пресейл-кейс на учебном B2B-сценарии Retail Group: полный цикл работы с заказчиком — квалификация, подготовка интервью с ЛПР, архитектура, экономика и план пилота с чёткими критериями запуска.",
       "hero_cta_primary": {
         "text": "Обсудить presale",
         "href": "/contacts.html",
@@ -3135,7 +3135,7 @@
         }
       ],
       "results_title": "Снижаем нагрузку на первую линию",
-      "results_lead": "до ~60% типовых звонков — кандидаты на автоматизацию голосовым ассистентом (гипотеза по учебному сценарию, проверяемая в пилоте), сложные обращения быстрее доходят до операторов.",
+      "results_lead": "до ~60% типовых звонков — кандидаты на автоматизацию голосовым ассистентом (оценка по учебному сценарию, проверяется в пилоте), сложные обращения быстрее доходят до операторов.",
       "before": [
         "До 3 000 звонков в день нагружают первую линию, расходы растут вместе с трафиком",
         "~60% звонков типовые: операторы занимаются рутиной вместо сложных обращений",

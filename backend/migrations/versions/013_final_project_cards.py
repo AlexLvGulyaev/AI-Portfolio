@@ -132,7 +132,7 @@ FINAL_CARDS = [
     {
         "slug": "retail-group",
         "title": "Retail Group",
-        "short_description": "Симуляционный presale-кейс: полный цикл пресейла голосового AI-ассистента на учебном B2B-сценарии — от квалификации до экономики и плана пилота.",
+        "short_description": "Пресейл-кейс голосового AI-ассистента на учебном B2B-сценарии — полный цикл от квалификации до экономики и плана пилота.",
         "category": "cases",
         "tags": ["Voice AI", "Presale", "Case Story", "Pilot"],
         "display_order": 12,
