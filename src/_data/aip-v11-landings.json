@@ -2500,7 +2500,7 @@
       "scenario_1": {
         "label": "График 1",
         "title": "Эволюция точности решений",
-        "text": "Как менялась decision accuracy от zero-shot baseline (33.3%) до fine-tuned LoRA (93.3%) на HR-датасете.",
+        "text": "Как менялась decision accuracy от zero-shot baseline (33.3%) до fine-tuned LoRA по четырём итерациям экспериментов на HR-датасете (канонический офлайн-прогон).",
         "type": "svg",
         "src": "../../hr-assistant/finetuning/landing/assets/visuals/G-004-decision-accuracy-evolution.svg",
         "alt": "График эволюции точности HR-решений"
