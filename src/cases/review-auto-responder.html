@@ -1315,7 +1315,7 @@
     <section class="hero">
       <div class="container hero__inner">
         <div class="hero__body">
-          <p class="eyebrow hero__eyebrow">Автоматические ответы на отзывы из Telegram</p>
+          <p class="eyebrow hero__eyebrow">Автоматические ответы на отзывы</p>
           <h1 class="hero__title">Уберите рутину из работы с отзывами: автономный конвейер 24/7</h1>
           <p class="hero__lead">Review Auto Responder собирает новые отзывы с сайта, определяет тональность словарём маркеров, генерирует ответ через active/fallback LLM-цепочку и уведомляет оператора в Telegram. Оператор вмешивается только там, где нужен личный контакт.</p>
           <div class="hero__actions">
@@ -1355,7 +1355,7 @@
           
           <div class="summary__item">
             <div class="summary__label">Стек</div>
-            <div class="summary__value">FastAPI · PostgreSQL · LangChain · OpenAI · Telegram</div>
+            <div class="summary__value">FastAPI · PostgreSQL · OpenAI · Telegram</div>
           </div>
           
           <div class="summary__item">
@@ -1593,30 +1593,30 @@
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
     <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Классификатор</text>
     <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Тональность</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">и приоритет</text>
+    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">по маркерам</text>
   </g>
   <path d="M 782 75.0 L 838 75.0" class="arrow" marker-end="url(#arrow-tr-81ef19)" />
   <g transform="translate(838, 28)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">LLM-цепочка</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Active /</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">fallback</text>
+    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Telegram</text>
+    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Уведомление</text>
+    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">оператору</text>
   </g>
   <path d="M 943.0 122 L 943.0 157.0" class="arrow" />
   <path d="M 943.0 157.0 L 278.0 157.0" class="arrow" />
   <path d="M 278.0 157.0 L 278.0 192" class="arrow" marker-end="url(#arrow-tr-81ef19)" />
   <g transform="translate(173, 192)">
-    <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Ответ в тред</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Публикация</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">на сайте</text>
+    <rect x="0" y="0" width="210" height="94" rx="5" class="node-accent" />
+    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">LLM-цепочка</text>
+    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Active /</text>
+    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">fallback</text>
   </g>
   <path d="M 383 239.0 L 439 239.0" class="arrow" marker-end="url(#arrow-tr-81ef19)" />
   <g transform="translate(439, 192)">
     <rect x="0" y="0" width="210" height="94" rx="5" class="node-rect" />
-    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Telegram</text>
-    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Уведомление</text>
-    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">оператору</text>
+    <text x="105.0" y="28" text-anchor="middle" class="title-text title-text--large">Ответ в тред</text>
+    <text x="105.0" y="52" text-anchor="middle" class="body-text body-text--large">Публикация</text>
+    <text x="105.0" y="70" text-anchor="middle" class="body-text body-text--large">на сайте</text>
   </g>
   <path d="M 649 239.0 L 705 239.0" class="arrow" marker-end="url(#arrow-tr-81ef19)" />
   <g transform="translate(705, 192)">
@@ -1632,7 +1632,7 @@
           <div class="pipeline-card">
             <div class="pipeline-card__number">01</div>
             <h3 class="pipeline-card__title">Обнаружение и классификация</h3>
-            <p class="pipeline-card__text">Poller находит отзыв, классификатор определяет тональность и приоритет.</p>
+            <p class="pipeline-card__text">Poller находит отзыв, классификатор определяет тональность по маркерам.</p>
           </div>
           
           <div class="pipeline-card">
@@ -1644,7 +1644,7 @@
           <div class="pipeline-card">
             <div class="pipeline-card__number">03</div>
             <h3 class="pipeline-card__title">Уведомление и аудит</h3>
-            <p class="pipeline-card__text">Оператор получает Telegram-уведомление; /admin сохраняет полный журнал.</p>
+            <p class="pipeline-card__text">Оператор получает Telegram-уведомление о каждом новом отзыве; /admin сохраняет полный журнал.</p>
           </div>
           
         </div>

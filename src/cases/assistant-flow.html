@@ -1404,7 +1404,7 @@
               
               <li>React Admin UI показывает health, retrieval diagnostics, RAGAS-метрики, cache state и execution traces</li>
               
-              <li>Multi-backend retrieval (Chroma / FAISS / Weaviate) и multi-provider LLM переключаются для экспериментов</li>
+              <li>Multi-backend retrieval (Chroma / FAISS / Weaviate) для экспериментов; 3 LLM-провайдера под разные контуры (RAG/OCR — OpenAI, текст — GigaChat, изображения — Proxy)</li>
               
             </ul>
           </div>
@@ -1433,7 +1433,7 @@
             <div class="metric-card__icon">🧠</div>
             <div class="metric-card__content">
               <div class="metric-card__label">LLM</div>
-              <div class="metric-card__value">3<span class="metric-card__suffix"> провайдера: OpenAI · GigaChat · Proxy API</span></div>
+              <div class="metric-card__value">3<span class="metric-card__suffix"> провайдера по контурам: OpenAI · GigaChat · Proxy API</span></div>
             </div>
           </div>
           
@@ -1504,7 +1504,7 @@
             <div class="solution-card__icon">🤖</div>
             <div>
               <h3 class="solution-card__title">Telegram как точка входа</h3>
-              <p class="solution-card__text">Пользователь задаёт вопрос, присылает фото, аудио или документ — оркестратор выбирает обработчик.</p>
+              <p class="solution-card__text">Пользователь задаёт вопрос, присылает фото, голос или документ-изображение — оркестратор выбирает обработчик; произвольные документы загружаются через Admin UI.</p>
             </div>
           </div>
           
@@ -1707,7 +1707,7 @@
   <text x="40" y="296" class="ui-sidebar-text">Логи</text>
   <text x="40" y="324" class="ui-sidebar-text">Анализ RAG</text>
   <text x="210" y="104" class="ui-main-title" style="font-size:20px;">Обзор</text>
-  <text x="300" y="106" class="ui-subtitle" style="font-size:12px;">/api/overview + live /api/health</text>
+  <text x="300" y="106" class="ui-subtitle" style="font-size:12px;">/api/overview + live /api/health (иллюстрация)</text>
   <rect x="210" y="124" width="241" height="112" rx="6" class="ui-source-card" style="fill:var(--surface-elevated);" />
   <text x="226" y="148" class="ui-source-label" style="font-size:11px;">СОСТОЯНИЕ СИСТЕМЫ</text>
   <text x="226" y="168" style="font-size:12px; fill:var(--text-secondary);">API</text>

@@ -1324,7 +1324,7 @@
             <a href="/contacts.html" class="btn btn-ghost" target="_blank" rel="noopener">Обсудить проект</a>
             
           </div>
-<p class="demo-hint"><strong>Как проверить демо за 2 минуты:</strong> <a href="https://t.me/PEcb06_bot" target="_blank" rel="noopener">откройте бота</a> → /start → выберите направление → пройдите диалог по вопросам (отвечайте свободным текстом — бот извлечёт поля) → пропустите обязательное поле и посмотрите уточняющий вопрос → в конце увидите, как формируется карточка заявки.</p>
+<p class="demo-hint"><strong>Как проверить демо за 2 минуты:</strong> <a href="https://t.me/PEcb06_bot" target="_blank" rel="noopener">откройте бота</a> → /start → выберите направление → пройдите диалог по вопросам (отвечайте свободным текстом — бот извлечёт поля) → пропустите обязательное поле и посмотрите уточняющий вопрос → в конце оператор получит карточку заявки в Telegram.</p>
         </div>
         <div class="hero__media">
           <img class="hero__screenshot preview-dark" src="/assets/screenshots/TIB_portfolio_dark.png" alt="Telegram-интерфейс Intake Bot: диалог с пользователем" loading="eager">
@@ -1403,7 +1403,7 @@
               
               <li>LLM извлекает структурированные поля по JSON Schema, guard replies проверяют корректность</li>
               
-              <li>Готовая заявка или квалифицированный лид уходит в нужный Telegram-чат 24/7</li>
+              <li>Готовая заявка или квалифицированный лид передаётся оператору в Telegram 24/7</li>
               
             </ul>
           </div>
@@ -1494,7 +1494,7 @@
         <div class="section__header">
           <p class="eyebrow">Решение</p>
           <h2 class="section__title">Intake-бот с естественным диалогом и LLM-извлечением</h2>
-          <p class="section__lead">Клиент отвечает свободным текстом, бот уточняет недостающее, guard replies проверяют поля, и заявка уходит в нужный чат.</p>
+          <p class="section__lead">Клиент отвечает свободным текстом, бот уточняет недостающее, guard replies проверяют поля, и заявка уходит оператору.</p>
         </div>
 
         <div class="solution-grid">
@@ -1534,8 +1534,8 @@
           <div class="solution-card">
             <div class="solution-card__icon">🗄️</div>
             <div>
-              <h3 class="solution-card__title">Сессии и заявки в памяти</h3>
-              <p class="solution-card__text">In-memory сессии для MVP; готовая заявка отправляется в Telegram-чат операторов.</p>
+              <h3 class="solution-card__title">Персистентные сессии</h3>
+              <p class="solution-card__text">Сессии хранятся в PostgreSQL (персистентно, не в памяти); готовая заявка отправляется оператору в Telegram.</p>
             </div>
           </div>
           
@@ -1599,19 +1599,19 @@
           <div class="pipeline-card">
             <div class="pipeline-card__number">01</div>
             <h3 class="pipeline-card__title">Маршрутизация</h3>
-            <p class="pipeline-card__text">Бот предлагает выбрать сценарий: техподдержка или заявка для отдела продаж.</p>
+            <p class="pipeline-card__text">Бот предлагает выбрать сценарий: техподдержка или заявка для отдела продаж. Сменить сценарий можно в любой момент командой /reset.</p>
           </div>
           
           <div class="pipeline-card">
             <div class="pipeline-card__number">02</div>
             <h3 class="pipeline-card__title">Извлечение и валидация</h3>
-            <p class="pipeline-card__text">LLM извлекает поля по JSON Schema; guard replies проверяют обязательные поля и форматы.</p>
+            <p class="pipeline-card__text">LLM извлекает поля по JSON Schema; guard replies проверяют обязательные поля.</p>
           </div>
           
           <div class="pipeline-card">
             <div class="pipeline-card__number">03</div>
             <h3 class="pipeline-card__title">Передача заявки</h3>
-            <p class="pipeline-card__text">Готовая заявка или квалифицированный лид уходит в соответствующий Telegram-чат.</p>
+            <p class="pipeline-card__text">Готовая заявка или квалифицированный лид передаётся оператору в Telegram.</p>
           </div>
           
         </div>

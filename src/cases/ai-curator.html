@@ -1355,7 +1355,7 @@
             <a href="https://github.com/AlexLvGulyaev/ai-curator" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a>
             <a href="/contacts.html" class="btn btn-ghost">Обсудить проект</a>
           </div>
-<p class="demo-hint"><strong>Как проверить демо за 2 минуты:</strong> <a href="https://curator.alex-n8n.site" target="_blank" rel="noopener">откройте Live demo</a> → задайте вопрос об учебном материале или дедлайне → проверьте, что под ответом стоит ссылка на источник (LMS или База знаний).</p>
+<p class="demo-hint"><strong>Как проверить демо за 2 минуты:</strong> <a href="https://curator.alex-n8n.site" target="_blank" rel="noopener">откройте Live demo</a> → задайте вопрос об учебном материале или дедлайне → проверьте, что под ответом указан источник (LMS или База знаний).</p>
         </div>
         <div class="hero__media">
           <img class="hero__screenshot preview-dark" src="/assets/screenshots/AIC_portfolio_dark.png" alt="AI Curator: тёмная операционная консоль диалога с ответом системы и источниками" loading="eager">
@@ -1386,7 +1386,7 @@
           </div>
           <div class="summary__item">
             <div class="summary__label">Проверка</div>
-            <div class="summary__value">109 pytest, 26 E2E-проверок Phase 1</div>
+            <div class="summary__value">pytest-набор; E2E Phase 1: 26 PASS / 1 NOT RUN</div>
           </div>
           <div class="summary__item">
             <div class="summary__label">Live demo</div>
@@ -1429,7 +1429,7 @@
             <ul class="ba-card__list">
               <li>Ответ на типовой вопрос — за секунды, 24/7.</li>
               <li>Один источник истины: LMS + управляемая База знаний.</li>
-              <li>Каждый ответ сопровождается источником: LMS-ссылка или KB-бейдж.</li>
+              <li>Каждый ответ сопровождается источником: карточка LMS или KB-бейдж.</li>
               <li>Аналитика запросов показывает пробелы в материалах.</li>
             </ul>
           </div>
@@ -1440,14 +1440,14 @@
             <div class="metric-card__icon">✅</div>
             <div class="metric-card__content">
               <div class="metric-card__label">Тесты</div>
-              <div class="metric-card__value">109<span class="metric-card__suffix"> pytest PASS</span></div>
+              <div class="metric-card__value">pytest<span class="metric-card__suffix"> автотесты (unit-набор)</span></div>
             </div>
           </div>
           <div class="metric-card">
             <div class="metric-card__icon">🧪</div>
             <div class="metric-card__content">
               <div class="metric-card__label">E2E</div>
-              <div class="metric-card__value">26/26<span class="metric-card__suffix"> Phase 1 проверок</span></div>
+              <div class="metric-card__value">26 PASS / 1 NOT RUN<span class="metric-card__suffix"> E2E-проверок Phase 1</span></div>
             </div>
           </div>
           <div class="metric-card">
@@ -1517,7 +1517,7 @@
             <div class="solution-card__icon">📅</div>
             <div>
               <h3 class="solution-card__title">Организационные ответы из LMS</h3>
-              <p class="solution-card__text">Дедлайны, задания, расписание и прогресс берутся из Moodle в реальном времени через read-only API.</p>
+              <p class="solution-card__text">Дедлайны, задания и прогресс берутся из Moodle в реальном времени через read-only API.</p>
             </div>
           </div>
           <div class="solution-card">
@@ -1531,7 +1531,7 @@
             <div class="solution-card__icon">🔗</div>
             <div>
               <h3 class="solution-card__title">Источники под каждым ответом</h3>
-              <p class="solution-card__text">Кликабельные LMS-ссылки и карточки KB. Студент видит, откуда взялась информация.</p>
+              <p class="solution-card__text">Карточка источника: задание раскрывается прямо в чате, карточки KB. Студент видит, откуда взялась информация.</p>
             </div>
           </div>
           <div class="solution-card">
@@ -1673,7 +1673,7 @@
           <div class="demo-block__header">
             <div class="demo-block__label">Web UI студента</div>
             <h3 class="demo-block__title">Вопрос о дедлайне — ответ с источником из LMS</h3>
-            <p class="demo-block__text">Студент спрашивает про задание PE07 и получает точный дедлайн из Moodle с кликабельной ссылкой.</p>
+            <p class="demo-block__text">Студент спрашивает про задание PE07 и получает точный дедлайн из Moodle — задание раскрывается прямо в чате.</p>
           </div>
 
           <svg class="ui-illustration" viewBox="0 0 980 540" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Интерфейс AI Curator: студент спрашивает дедлайн PE07, получает ответ из Moodle с источником">

@@ -22,7 +22,7 @@ FINAL_CARDS = [
     {
         "slug": "review-auto-responder",
         "title": "Review Auto Responder",
-        "short_description": "Автоматически обрабатывает отзывы 24/7 и подключает оператора только там, где нужен личный контакт.",
+        "short_description": "Уведомляет оператора в Telegram о каждом отзыве; LLM готовит варианты ответа, финальное решение — за оператором.",
         "category": "cases",
         "tags": ["FastAPI", "OpenAI", "GigaChat", "LLM", "Review Automation"],
         "display_order": 1,
@@ -72,7 +72,7 @@ FINAL_CARDS = [
     {
         "slug": "lead-qualification",
         "title": "Lead Qualification",
-        "short_description": "Квалифицирует заявки с сайта и Telegram, записывает их в Kommo CRM и назначает приоритет для работы менеджера.",
+        "short_description": "Квалифицирует заявки с сайта и Telegram, записывает их в Kommo CRM; для hot/warm/cold создаёт задачу менеджеру.",
         "category": "cases",
         "tags": ["n8n", "AI Classification", "CRM", "Sales"],
         "display_order": 6,
@@ -114,7 +114,7 @@ FINAL_CARDS = [
         "title": "Telegram Intake Bot",
         "short_description": "Превращает свободный текст клиента в структурированную заявку для менеджера.",
         "category": "cases",
-        "tags": ["Telegram Bot", "Support", "FAQ", "Lead Capture"],
+        "tags": ["Telegram Bot", "Support", "Lead Capture"],
         "display_order": 10,
         "show_on_homepage": 0,
         "external_url": "/cases/telegram-intake-bot.html",
@@ -132,7 +132,7 @@ FINAL_CARDS = [
     {
         "slug": "retail-group",
         "title": "Retail Group",
-        "short_description": "Показывает полный путь B2B-пресейла голосового AI-ассистента: от интервью с ЛПР до экономики и плана пилота.",
+        "short_description": "Симуляционный presale-кейс: полный цикл пресейла голосового AI-ассистента на учебном B2B-сценарии — от квалификации до экономики и плана пилота.",
         "category": "cases",
         "tags": ["Voice AI", "Presale", "Case Story", "Pilot"],
         "display_order": 12,
