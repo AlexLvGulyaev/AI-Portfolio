@@ -68,7 +68,7 @@ PROJECT_CARDS = [
     {
         "slug": "prompt-review",
         "title": "Prompt Review",
-        "short_description": "Автоматическая проверка промптов. Анализ качества и рекомендации.",
+        "short_description": "Оценивает промпт по 8 критериям, находит слабые места и возвращает улучшенную версию до запуска в production.",
         "category": "cases",
         "tags": ["AI", "Prompts", "Quality"],
         "display_order": 5,

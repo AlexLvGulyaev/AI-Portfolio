@@ -22,7 +22,7 @@ FINAL_CARDS = [
     {
         "slug": "review-auto-responder",
         "title": "Review Auto Responder",
-        "short_description": "Автоматический ответчик на отзывы: мультипровайдерная генерация, операторская панель, demo-RBAC, Deployment Validation 17/17.",
+        "short_description": "Автоматически обрабатывает отзывы 24/7 и подключает оператора только там, где нужен личный контакт.",
         "category": "cases",
         "tags": ["FastAPI", "OpenAI", "GigaChat", "LLM", "Review Automation"],
         "display_order": 1,
@@ -32,7 +32,7 @@ FINAL_CARDS = [
     {
         "slug": "ai-curator",
         "title": "AI Curator",
-        "short_description": "AI-ассистент для студентов и преподавателей с KB+RAG, Admin Console и мультипровайдерной LLM-цепочкой.",
+        "short_description": "Отвечает студентам по LMS и Базе знаний со ссылками на источники, снижая нагрузку на преподавателей.",
         "category": "cases",
         "tags": ["FastAPI", "RAG", "KB", "OpenAI", "Education"],
         "display_order": 2,
@@ -42,7 +42,7 @@ FINAL_CARDS = [
     {
         "slug": "ai-data-assistant",
         "title": "AI Data Assistant",
-        "short_description": "Data-ассистент с мультипровайдерным runtime-конфигом оператора, графиками, DOCX-отчётами и Docker E2E.",
+        "short_description": "Анализирует CSV, Excel, JSON и изображения, строит графики и формирует DOCX-отчёты без SQL и Python.",
         "category": "cases",
         "tags": ["FastAPI", "Data Analysis", "OpenAI", "GigaChat", "Docker E2E"],
         "display_order": 3,
@@ -52,7 +52,7 @@ FINAL_CARDS = [
     {
         "slug": "assistant-flow",
         "title": "Assistant Flow",
-        "short_description": "Мультимодальная RAG-платформа для обработки входящих заявок клиентов.",
+        "short_description": "Исследовательская платформа для экспериментов с мультимодальными AI-контурами в едином backend.",
         "category": "cases",
         "tags": ["RAG", "React", "FastAPI", "PostgreSQL", "ChromaDB"],
         "display_order": 4,
@@ -62,7 +62,7 @@ FINAL_CARDS = [
     {
         "slug": "meeting-audit-bot",
         "title": "Meeting Audit Bot",
-        "short_description": "Telegram-бот аудита встреч: транскрибация, мультипровайдерный анализ, веб-админка и execution-трейсы.",
+        "short_description": "Транскрибирует записи встреч и звонков с разделением спикеров и проводит аудит по чек-листу.",
         "category": "cases",
         "tags": ["Telegram Bot", "STT", "FastAPI", "OpenAI", "GigaChat"],
         "display_order": 5,
@@ -72,7 +72,7 @@ FINAL_CARDS = [
     {
         "slug": "lead-qualification",
         "title": "Lead Qualification",
-        "short_description": "AI-система квалификации лидов для отдела продаж: классификация, scoring, интеграция с CRM.",
+        "short_description": "Квалифицирует заявки с сайта и Telegram, записывает их в Kommo CRM и назначает приоритет для работы менеджера.",
         "category": "cases",
         "tags": ["n8n", "AI Classification", "CRM", "Sales"],
         "display_order": 6,
@@ -82,7 +82,7 @@ FINAL_CARDS = [
     {
         "slug": "review-flow",
         "title": "Review Flow",
-        "short_description": "Автоматизация работы с отзывами и обращениями: Controlled Hybrid, LLM + RAG, staff-контур.",
+        "short_description": "Готовит черновик ответа по Базе знаний, а оператор проверяет и публикует финальную версию.",
         "category": "cases",
         "tags": ["FastAPI", "RAG", "React", "OpenAI", "Review Management"],
         "display_order": 7,
@@ -92,7 +92,7 @@ FINAL_CARDS = [
     {
         "slug": "hr-assistant",
         "title": "HR Assistant",
-        "short_description": "Telegram-бот HR-автоматизации: обработка резюме, matching, multimedia-ответы.",
+        "short_description": "Проводит первичный отбор резюме из текста, голоса, PDF и фото и выдаёт match score с обоснованием.",
         "category": "cases",
         "tags": ["Telegram Bot", "HR", "Matching", "TTS", "Visual Generation"],
         "display_order": 8,
@@ -102,7 +102,7 @@ FINAL_CARDS = [
     {
         "slug": "hr-assistant-lora",
         "title": "HR Assistant — LoRA Fine-Tuning",
-        "short_description": "Эксперименты LoRA-дообучения Qwen2.5 для matching-модели HR-ассистента.",
+        "short_description": "Сравнивает Qwen2.5 + LoRA с GPT-4o-mini в HR-matching по точности и скорости.",
         "category": "cases",
         "tags": ["LoRA", "Qwen", "Fine-Tuning", "ML", "Matching"],
         "display_order": 9,
@@ -112,7 +112,7 @@ FINAL_CARDS = [
     {
         "slug": "telegram-intake-bot",
         "title": "Telegram Intake Bot",
-        "short_description": "Telegram-бот первичной поддержки с двумя сценариями: FAQ и сбор лидов.",
+        "short_description": "Превращает свободный текст клиента в структурированную заявку для менеджера.",
         "category": "cases",
         "tags": ["Telegram Bot", "Support", "FAQ", "Lead Capture"],
         "display_order": 10,
@@ -122,7 +122,7 @@ FINAL_CARDS = [
     {
         "slug": "telegram-onboarding-bot",
         "title": "Telegram Onboarding Bot",
-        "short_description": "Telegram-бот адаптации сотрудников: внешние темы, inline-редактор, RBAC на смену глобальной темы.",
+        "short_description": "Обучает сотрудника в Telegram, проводит тест и сохраняет результат без участия наставника.",
         "category": "cases",
         "tags": ["Telegram Bot", "Onboarding", "HR", "FSM"],
         "display_order": 11,
@@ -132,7 +132,7 @@ FINAL_CARDS = [
     {
         "slug": "retail-group",
         "title": "Retail Group",
-        "short_description": "Пресейл-кейс голосового AI-ассистента первой линии поддержки: Case Story, пилотный план, экономика.",
+        "short_description": "Показывает полный путь B2B-пресейла голосового AI-ассистента: от интервью с ЛПР до экономики и плана пилота.",
         "category": "cases",
         "tags": ["Voice AI", "Presale", "Case Story", "Pilot"],
         "display_order": 12,
