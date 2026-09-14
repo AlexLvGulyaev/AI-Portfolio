@@ -988,6 +988,194 @@ def test_strip_stale_citations_noop_cases():
     print("PASS: no-op cases leave text unchanged")
 
 
+# ---------------------------------------------------------------------------
+# Цитаты «для машины, не для зрителя» (кейс 12.09.2026): модель помечает
+# использованные источники маркерами [n] — единственный сигнал. Номера
+# извлекаются в cited_sources, зрительский текст чистится; бейдж панели
+# рисуется по флагу, не по тексту.
+# ---------------------------------------------------------------------------
+
+
+def test_extract_and_strip_citations():
+    from app.services.chat_orchestrator import ChatOrchestrator as C
+
+    # Инлайн-цитаты: номера извлечены, маркеры срезаны, артефакты зачищены
+    text, cited = C._extract_and_strip_citations("Ответ [1] и [3] подтверждён.", 6)
+    assert text == "Ответ и подтверждён.", repr(text)
+    assert cited == [1, 3], cited
+
+    # Хвостовой футер: номера тоже считаются, футер срезан
+    text, cited = C._extract_and_strip_citations(
+        "Ответ по документам.\n(Источники: [1], [2], [3])", 6)
+    assert text == "Ответ по документам.", repr(text)
+    assert cited == [1, 2, 3], cited
+
+    # Ответ из одного футера не превращается в пустоту
+    text, cited = C._extract_and_strip_citations("(Источники: [1], [2])", 6)
+    assert text == "(Источники: [1], [2])", repr(text)
+    assert cited == [1, 2], cited
+
+    # Markdown-ссылка — не цитата: маркер остаётся, номер не считается
+    text, cited = C._extract_and_strip_citations("См. [1](https://example.com) и [2].", 6)
+    assert text == "См. [1](https://example.com) и.", repr(text)
+    assert cited == [2], cited
+
+    # Вне диапазона — срезан и не посчитан (пост-страховка после 8b);
+    # валидные маркеры срезаются тоже — номер уходит в cited_sources
+    text, cited = C._extract_and_strip_citations("A [1] и [7].", 3)
+    assert text == "A и.", repr(text)
+    assert cited == [1], cited
+
+    # Пустой ответ
+    text, cited = C._extract_and_strip_citations("", 6)
+    assert text == "" and cited == []
+    print("PASS: citations extracted and stripped from viewer text")
+
+
+def test_extract_and_strip_citations_singular_footer():
+    from app.services.chat_orchestrator import ChatOrchestrator as C
+
+    # Прод-кейс 12.09: футер в единственном числе — «(Источник: [1],[2],[3],[5])».
+    # Было: regex ждал только «Источники», маркеры срезались по одному,
+    # зритель видел «(Источник:,,)». Теперь футер срезается целиком.
+    text, cited = C._extract_and_strip_citations(
+        "Ответ по документам.\n(Источник: [1],[2],[3],[5])", 6)
+    assert text == "Ответ по документам.", repr(text)
+    assert cited == [1, 2, 3, 5], cited
+
+    # Остаток после среза маркеров (минуя футер-regex): «(Источник:,,)»
+    text, cited = C._extract_and_strip_citations(
+        "Ответ про технологии.\n(Источник:,,)", 6)
+    assert text == "Ответ про технологии.", repr(text)
+    assert cited == [], cited
+
+    # Пустой футер «(Источники:)» и хвост «источник:» после маркера
+    text, cited = C._extract_and_strip_citations("Ответ.\n(Источники:)", 6)
+    assert text == "Ответ.", repr(text)
+    text, cited = C._extract_and_strip_citations("Подробнее — источник: [2]", 6)
+    assert text == "Подробнее —", repr(text)
+    assert cited == [2], cited
+
+    # Ответ из одного singular-футера не опустошается (footer-only-гвард)
+    text, cited = C._extract_and_strip_citations("(Источник: [1])", 6)
+    assert text == "(Источник: [1])", repr(text)
+    assert cited == [1], cited
+
+    # (?<!\w) резиду-regex: часть слова («первоисточник:») не срезается
+    # (футер-regex тут не срабатывает: маркеры разделены «и», не в конце)
+    text, cited = C._extract_and_strip_citations("См. первоисточник: [1] и [2].", 6)
+    assert text == "См. первоисточник: и.", repr(text)
+    assert cited == [1, 2], cited
+    print("PASS: singular footer / residue stripped, footer-only guarded")
+
+
+def test_extract_and_strip_citations_pre_cited():
+    from app.services.chat_orchestrator import ChatOrchestrator as C
+
+    # Стрим-путь: маркеры уже срезаны фильтром дельт, номера приходят в
+    # pre_cited — без подмешивания стрим-ответы теряли бы cited_sources
+    text, cited = C._extract_and_strip_citations(
+        "Ответ и подтверждён.", 6, pre_cited={1, 3})
+    assert text == "Ответ и подтверждён.", repr(text)
+    assert cited == [1, 3], cited
+
+    # pre_cited фильтруется по диапазону источников
+    text, cited = C._extract_and_strip_citations(
+        "Ответ.", 3, pre_cited={1, 7})
+    assert text == "Ответ." and cited == [1], cited
+
+    # Смешанный: pre_cited + ещё срезанные из текста
+    text, cited = C._extract_and_strip_citations(
+        "Ответ [2].\n(Источники: [4])", 6, pre_cited={1})
+    assert text == "Ответ.", repr(text)
+    assert cited == [1, 2, 4], cited
+    print("PASS: pre_cited (stream filter) merged into cited_sources")
+
+
+def test_stream_filter_collects_citations():
+    from app.services.chat_orchestrator import _StreamHygieneFilter as F
+
+    f = F(6)
+    out = f.feed("Ответ [1] и [3] подтверждён.")
+    assert "[1]" not in out and "[3]" not in out, repr(out)
+    assert f.cited == {1, 3}, f.cited
+
+    # Markdown-ссылка в потоке — не цитата: маркер остаётся, номер не копится
+    f2 = F(6)
+    out2 = f2.feed("См. [2](https://example.com).")
+    assert "[2](https://example.com)" in out2, repr(out2)
+    assert f2.cited == set(), f2.cited
+
+    # Вне диапазона — срезан, номер не копится
+    f3 = F(2)
+    f3.feed("A [5].")
+    assert f3.cited == set(), f3.cited
+
+    # Цитата, разрезанная между дельтами, всё равно ловится
+    f4 = F(6)
+    out4 = f4.feed("Ответ [1")
+    out4 += f4.feed("] готов.")
+    assert "[1]" not in out4, repr(out4)
+    assert f4.cited == {1}, f4.cited
+    print("PASS: stream filter strips markers and collects cited numbers")
+
+
+def test_cited_sources_in_response_and_cache():
+    """Живой путь: cited_sources в DTO-метаданных и в кеше; cache-hit
+    отдаёт их же (плюс sources_detail для чипов)."""
+    card = SimpleNamespace(slug="hr-assistant", display_order=1)
+    orch, rag, cache = _make_orch(memory=[], registry={
+        "resolve_all": lambda q: [card],
+        "repo_for_card": lambda c: "o/HR-Assistant",
+    })
+    rag.search.return_value = [
+        _chunk_meta("1", "docs/README.md", "Контент документа", chunk_index=0),
+        _chunk_meta("2", "docs/GUIDE.md", "Второй документ", chunk_index=0),
+    ]
+    provider = _fake_provider(
+        orch, "Ответ по документам.\n(Источники: [1], [2])")
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = provider
+        dto = asyncio.run(orch.process_request(user_query="расскажи про HR Assistant"))
+    assert dto.metadata.get("cited_sources") == [1, 2], dto.metadata
+    assert "Источники" not in dto.answer, repr(dto.answer)
+    assert cache.size() == 1
+
+    # Второй запрос — cache-hit: cited_sources и detail читаются из кеша
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = provider
+        dto2 = asyncio.run(orch.process_request(user_query="расскажи про HR Assistant"))
+    assert dto2.cache_hit is True
+    assert dto2.metadata.get("cited_sources") == [1, 2], dto2.metadata
+    assert dto2.metadata.get("sources_detail"), dto2.metadata
+    print("PASS: cited_sources flow through response and cache (hit included)")
+
+
+def test_refusal_clears_cited_sources():
+    """Отказ без источников (решение 04.09): cited_sources обнуляются
+    вместе с sources/sources_detail."""
+    card = SimpleNamespace(slug="hr-assistant", display_order=1)
+    orch, rag, _ = _make_orch(memory=[], registry={
+        "resolve_all": lambda q: [card],
+        "repo_for_card": lambda c: "o/HR-Assistant",
+    })
+    rag.search.return_value = [
+        _chunk_meta("1", "docs/README.md", "Контент документа", chunk_index=0),
+        _chunk_meta("2", "docs/GUIDE.md", "Второй документ", chunk_index=0),
+    ]
+    # Ответ-отказ: каноническая формулировка, узнаётся _is_refusal
+    provider = _fake_provider(orch, "В доступных материалах такой информации нет.")
+    import asyncio
+    with patch("app.services.chat_orchestrator.AIProviderFactory") as Fac:
+        Fac.create.return_value = provider
+        dto = asyncio.run(orch.process_request(user_query="расскажи про HR Assistant"))
+    assert orch._is_refusal(dto.answer) is True, repr(dto.answer)
+    assert dto.sources == []
+    assert dto.metadata.get("cited_sources") == [], dto.metadata
+    print("PASS: refusal clears sources and cited_sources")
+
+
 if __name__ == "__main__":
     import inspect
     for name, fn in sorted(globals().items()):

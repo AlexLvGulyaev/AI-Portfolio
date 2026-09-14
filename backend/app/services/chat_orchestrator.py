@@ -81,6 +81,11 @@ class _StreamHygieneFilter:
     после генерации проходит штатную гигиену (_strip_stale_citations,
     _normalize_table_fences, _strip_markdown_emphasis,
     _strip_sources_footer) — операции идемпотентны.
+
+    Цитаты «для машины» (12.09.2026): валидные [n] срезаются уже из
+    дельт (зритель не видит маркеров в потоке), а их номера копятся
+    в self.cited — пост-гигиена не смогла бы извлечь их из отфильтрованного
+    текста, они подмешиваются в cited_sources при извлечении.
     """
 
     _CIT = re.compile(r"\[(\d{1,2})\]")
@@ -93,6 +98,8 @@ class _StreamHygieneFilter:
     def __init__(self, sources_count: int) -> None:
         self._max_citation = sources_count
         self._buf = ""
+        # Номера валидных цитат, срезанных из дельт (для cited_sources).
+        self.cited: set[int] = set()
 
     def feed(self, delta: str) -> str:
         """Принять дельту, вернуть гигиеничную часть для отдачи."""
@@ -130,7 +137,15 @@ class _StreamHygieneFilter:
                     if int(m.group(1)) > self._max_citation:
                         self._buf = self._buf[m.end():]
                     else:
-                        out.append(self._buf[: m.end()])
+                        if self._buf[m.end(): m.end() + 1] == "(":
+                            # markdown-ссылка [n](url) — не цитата:
+                            # маркер остаётся, номер не копится
+                            out.append(self._buf[: m.end()])
+                        else:
+                            # «Для машины»: маркер зрителю не отдаётся,
+                            # номер копится (пост-гигиена подмешает из
+                            # self.cited в cited_sources).
+                            self.cited.add(int(m.group(1)))
                         self._buf = self._buf[m.end():]
                     continue
                 if len(self._buf) > 5:
@@ -470,8 +485,9 @@ class ChatOrchestrator:
     # Версия retrieval-логики в fingerprint cache-ключа: правка кода
     # retrieval (кейс 10.09 — демоция шапок + мета-ход) должна отстроить
     # старые ответы, собранные на прежнем составе контекста. При каждом
-    # изменении логики retrieval увеличивать.
-    _RETRIEVAL_LOGIC_VERSION = 3
+    # изменении логики retrieval увеличивать. 5 (12.09): срез остатка
+    # футера в единственном числе — отстроить кеш с артефактом «(Источник:,,)».
+    _RETRIEVAL_LOGIC_VERSION = 5
 
     @classmethod
     def _scoped_query_mode(cls, user_query: str) -> str:
@@ -749,8 +765,23 @@ class ChatOrchestrator:
     # это конец ответа И внутри — исключительно перечисление цитат:
     # содержательные «Источники: …» с текстом не трогаются.
     _SOURCES_FOOTER_RE = re.compile(
-        r"\s*\(?\s*(?:[Ии]сточники|[Ss]ources):\s*"
+        r"\s*\(?\s*(?:[Ии]сточники?|[Ss]ources):\s*"
         r"(?:\[\d{1,2}\][\s,;–—-]*)+\)?\s*$"
+    )
+    # Ответ-из-одного-футера: срез инлайн-маркеров оставил бы пустоту/мусор
+    # (прецедент _strip_sources_footer — не опустошать)
+    _FOOTER_ONLY_RE = re.compile(
+        r"^\s*\(?\s*(?:[Ии]сточники?|[Ss]ources):\s*"
+        r"(?:\[\d{1,2}\][\s,;–—-]*)+\)?\s*$"
+    )
+    # Остаток футера после среза маркеров: «(Источник:,,)», «(Источники:)»,
+    # «Источник:» в самом конце (прод-кейс 12.09.2026: модель написала
+    # футер в единственном числе, маркеры срезались по одному). Срезается
+    # только целиком в конце ответа и только если после среза остаётся
+    # содержательный текст; (?<!\w) не трогает «первоисточник:».
+    _CITATION_RESIDUE_RE = re.compile(
+        r"\s*(?:\(\s*[Ии]сточники?:\s*[,;\s]*\)"
+        r"|(?<!\w)[Ии]сточники?:\s*[,;\s]*)\s*$"
     )
 
     @classmethod
@@ -762,6 +793,54 @@ class ChatOrchestrator:
         if not answer:
             return answer
         return cls._SOURCES_FOOTER_RE.sub("", answer).rstrip() or answer
+
+    # Цитаты «для машины, не для зрителя» (решение владельца 12.09.2026):
+    # модель помечает использованные источники маркерами [n] в тексте —
+    # единственный сигнал, какие документы реально использованы. Номера
+    # извлекаются из сырого ответа (включая хвостовой футер
+    # «(Источники: …)» ДО его среза), маркеры срезаются из зрительского
+    # текста; бейдж панели источников рисуется по cited_sources из ответа,
+    # не по тексту (прецедент — markdown: правило 14 + _strip_markdown_emphasis).
+    @classmethod
+    def _extract_and_strip_citations(
+        cls,
+        answer: str,
+        sources_count: int,
+        pre_cited: "set[int] | None" = None,
+    ) -> tuple[str, list[int]]:
+        """Извлечь номера цитат [n] (1 <= n <= sources_count) из ответа и
+        срезать их из зрительского текста. Хвостовой футер «(Источники: …)»
+        срезается штатно, его номера тоже считаются процитированными.
+        Markdown-ссылки [n](url) цитатами не считаются и не срезаются.
+        pre_cited — номера, срезанные из дельт стрим-фильтром
+        (_StreamHygieneFilter.cited): отфильтрованный текст их уже не
+        содержит, без подмешивания стрим-ответы теряли бы cited_sources.
+        Возвращает (чистый текст, отсортированные номера)."""
+        if not answer and not pre_cited:
+            return answer, []
+
+        cited: set[int] = {
+            n for n in (pre_cited or set()) if 1 <= n <= sources_count
+        }
+        for m in cls._CITATION_RE.finditer(answer):
+            n = int(m.group(1))
+            if 1 <= n <= sources_count:
+                cited.add(n)
+
+        text = cls._strip_sources_footer(answer)
+        if cls._FOOTER_ONLY_RE.match(text):
+            return text, sorted(cited)
+        text = cls._CITATION_RE.sub("", text)
+        # Зачистка артефактов среза: «слово .» → «слово.», «, ,», «()».
+        text = re.sub(r"\s+([.,;:!?)])", r"\1", text)
+        text = re.sub(r"\(\s*\)", "", text)
+        # Остаток футера в единственном числе / с пустым перечислением:
+        # «(Источник:,,)», «(Источники:)», «Источник:» (см. _CITATION_RESIDUE_RE).
+        stripped_residue = cls._CITATION_RESIDUE_RE.sub("", text)
+        if stripped_residue.strip():
+            text = stripped_residue
+        text = re.sub(r"\s{2,}", " ", text).strip()
+        return (text or answer), sorted(cited)
 
     @classmethod
     def _strip_stale_citations(cls, answer: str, sources_count: int) -> tuple[str, list[int]]:
@@ -1112,7 +1191,19 @@ class ChatOrchestrator:
                     rag_used=False,
                     sources=sources,
                     latency_ms=response_time_ms,
-                    metadata={"from_cache": True},
+                    metadata={
+                        "from_cache": True,
+                        "cited_sources": (
+                            cache_entry.metadata.get("cited_sources", [])
+                            if cache_entry
+                            else []
+                        ),
+                        "sources_detail": (
+                            cache_entry.metadata.get("sources_detail", [])
+                            if cache_entry
+                            else []
+                        ),
+                    },
                 )
 
             _finish_step("cache_check", "ok", {"cache_hit": False, "query": user_query})
@@ -1674,6 +1765,10 @@ class ChatOrchestrator:
             error_message = None
             ttft_ms: int | None = None
             stream_emitted = False
+            # Номера цитат, срезанные стрим-фильтром из дельт (обе ветки:
+            # primary и fallback); пост-гигиена подмешивает их в
+            # cited_sources — отфильтрованный текст маркеров уже не содержит.
+            cited_from_stream: set[int] = set()
 
             _start_step("llm_call", 8, {
                 "provider": provider_key,
@@ -1704,6 +1799,7 @@ class ChatOrchestrator:
                         parts.append(tail)
                         await on_token(tail)
                     answer = "".join(parts)
+                    cited_from_stream.update(stream_filter.cited)
                 else:
                     answer = await provider.generate(
                         prompt,
@@ -1780,6 +1876,7 @@ class ChatOrchestrator:
                                 parts.append(tail)
                                 await on_token(tail)
                             answer = "".join(parts)
+                            cited_from_stream.update(stream_filter.cited)
                         else:
                             answer = await provider.generate(
                                 prompt,
@@ -1867,10 +1964,15 @@ class ChatOrchestrator:
             # срезаются до кеша/памяти/трейса (замечание приёмки 04.09.2026).
             answer = self._strip_markdown_emphasis(answer)
 
-            # 8b'''. Гигиена хвоста: строка «(Источники: [1], [2], [3])» —
-            # привычка модели, дублирует панель источников с бейджем
-            # «использован в ответе» (12.09.2026).
-            answer = self._strip_sources_footer(answer)
+            # 8b'''. Гигиена цитат «для машины»: номера [n] извлекаются из
+            # ответа (включая хвостовой футер «(Источники: …)»; в стрим-пути
+            # маркеры уже срезаны фильтром дельт — номера приходят в
+            # pre_cited), срезаются из зрительского текста; cited_sources
+            # идут в ответ и кеш — бейдж панели источников рисуется по
+            # флагу (12.09.2026).
+            answer, cited_sources = self._extract_and_strip_citations(
+                answer, len(sources), pre_cited=cited_from_stream
+            )
 
             # 8c. Подавление источников при честном отказе (решение владельца
             # 04.09.2026): источники собираются из retrieval-выдачи до
@@ -1883,6 +1985,7 @@ class ChatOrchestrator:
             if refusal_sources_suppressed:
                 sources = []
                 sources_detail = []
+                cited_sources = []
                 if _tr is not None:
                     _tr.set("refusal_sources_suppressed", True)
 
@@ -1916,6 +2019,13 @@ class ChatOrchestrator:
                         "provider": provider_used,
                         "model": model_used,
                         "sources": sources,
+                        # cited_sources + sources_detail в кеше: cache-hit
+                        # должен отдавать тот же ответ, что и живой путь
+                        # (бейдж по флагу, чипы из detail; кейс 12.09.2026,
+                        # до этого detail не хранился и cache-hit рендерил
+                        # plain-список).
+                        "cited_sources": cited_sources,
+                        "sources_detail": sources_detail,
                     },
                     ttl_seconds=self.cache_ttl_seconds,
                     fingerprint=config_fingerprint,
@@ -2011,6 +2121,7 @@ class ChatOrchestrator:
             if _tr is not None:
                 _tr.set("answer", answer)
                 _tr.set("citations_stripped", citations_stripped)
+                _tr.set("cited_sources", cited_sources)
                 _tr.set("sources_returned", sources)
                 _tr.set("provider", provider_used)
                 _tr.set("model", model_used)
@@ -2036,6 +2147,7 @@ class ChatOrchestrator:
                     "error": error_message,
                     "retrieval_mode": retrieval_mode,
                     "sources_detail": sources_detail,
+                    "cited_sources": cited_sources,
                     "ttft_ms": ttft_ms,
                     "streamed": on_token is not None,
                 },

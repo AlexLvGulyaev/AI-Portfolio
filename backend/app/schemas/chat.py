@@ -63,6 +63,10 @@ class ChatResponse(BaseModel):
     sources: list[str] = []
     # Machine-readable provenance: [{repo, path, chunk_index, score}, ...]
     sources_detail: list[dict] | None = None
+    # Номера источников (1-based по sources), реально использованных
+    # моделью; маркеры [n] из зрительского текста срезаны бэкендом
+    # (цитаты «для машины, не для зрителя», 12.09.2026).
+    cited_sources: list[int] = []
     provider: str
     model: str = ""
     from_cache: bool = False

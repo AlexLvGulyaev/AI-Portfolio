@@ -127,6 +127,7 @@ async def chat(
             session_id=dto.session_id,
             sources=dto.sources,
             sources_detail=dto.metadata.get("sources_detail"),
+            cited_sources=dto.metadata.get("cited_sources") or [],
             provider=dto.provider,
             model=dto.model,
             from_cache=dto.cache_hit,

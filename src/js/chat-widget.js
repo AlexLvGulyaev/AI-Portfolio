@@ -557,16 +557,25 @@
 
         if (byLabel.size > 0) {
           ensureSourceChipStyles();
-          // Цитаты [n] в тексте ответа — номера использованных источников
-          // (нумерация совпадает с порядком metadata.sources). Чипы с
-          // совпавшим номером получают значок «использован в ответе»;
-          // остальные остаются — это весь retrieval-контекст, а не только
-          // процитированное. (?!\() отсекает markdown-ссылки [1](url).
-          const cited = new Set(
-            (text.match(/\[\d{1,2}\](?!\()/g) || []).map(
-              (m) => parseInt(m.slice(1, -1), 10)
-            )
-          );
+          // «Цитаты для машины, не для зрителя» (12.09.2026): номера
+          // использованных источников приходят флагом citedSources
+          // (бэкенд извлекает [n] из сырого ответа и срезает маркеры из
+          // текста). Фоллбэк — парсинг текста, когда флага нет: старый
+          // бэкенд/кеш (api-client маппит отсутствующий cited_sources в
+          // пустой массив, поэтому пустой = «флага нет»; для нового
+          // бэкенда cited=[] и парсинг дают одинаково пустое множество).
+          // Нумерация совпадает с порядком metadata.sources; (?!\()
+          // отсекает markdown-ссылки [1](url).
+          let cited;
+          if (Array.isArray(metadata.citedSources) && metadata.citedSources.length > 0) {
+            cited = new Set(metadata.citedSources);
+          } else {
+            cited = new Set(
+              (text.match(/\[\d{1,2}\](?!\()/g) || []).map(
+                (m) => parseInt(m.slice(1, -1), 10)
+              )
+            );
+          }
           metadata.sources.forEach((label, idx) => {
             const src = byLabel.get(label);
             const canOpenPanel = src && src.repo && src.path && src.excerpt;
@@ -851,6 +860,7 @@
       appendMessage(response.answer, 'bot', {
         sources: response.sources,
         sourcesDetail: response.sourcesDetail,
+        citedSources: response.citedSources,
         provider: response.provider,
         model: response.model,
         responseTimeMs: response.responseTimeMs,
