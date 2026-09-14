@@ -1186,7 +1186,7 @@
         },
         {
           "label": "Статус",
-          "value": "Research Platform · active development"
+          "value": "Исследовательская платформа · активная разработка"
         },
         {
           "label": "Стек",
@@ -1450,7 +1450,7 @@
         },
         {
           "label": "Статус",
-          "value": "Production-ready, AssemblyAI + LLM-аудит"
+          "value": "Готов к эксплуатации · AssemblyAI + LLM-аудит"
         },
         {
           "label": "Стек",
@@ -1733,7 +1733,7 @@
         },
         {
           "label": "Статус",
-          "value": "Production-ready, n8n + LLM квалификация"
+          "value": "Готов к эксплуатации · n8n + LLM квалификация"
         },
         {
           "label": "Стек",
@@ -2021,7 +2021,7 @@
         },
         {
           "label": "Статус",
-          "value": "Production-ready, PostgreSQL SOT, LLM matching"
+          "value": "Готов к эксплуатации · PostgreSQL SOT, LLM matching"
         },
         {
           "label": "Стек",
@@ -3367,7 +3367,7 @@
         },
         {
           "label": "Статус",
-          "value": "Production-ready, Web / Telegram / API"
+          "value": "Готов к эксплуатации · Web / Telegram / API"
         },
         {
           "label": "Стек",
