@@ -3375,7 +3375,7 @@
         },
         {
           "label": "Live demo",
-          "value_html": "<a href='https://prompt-review-demo.alex-n8n.site/' target='_blank' rel='noopener'>prompt-review-demo.alex-n8n.site</a>"
+          "value_html": "<a href='https://prompt-review-demo.alex-n8n.site/' target='_blank' rel='opener'>prompt-review-demo.alex-n8n.site</a>"
         },
         {
           "label": "Telegram",
